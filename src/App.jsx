@@ -288,7 +288,7 @@ export default function App() {
       </AnimatePresence>
 
       <div id="toast-container" />
-    </div>
+    </DashboardLayout>
   );
 }
 
