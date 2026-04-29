@@ -93,7 +93,16 @@ export default function AuthModal({ onClose, isMandatory = false }) {
       </motion.div>
 
       <style jsx>{`
-        .auth-backdrop { background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 3000; }
+        .auth-backdrop { 
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.6); 
+          backdrop-filter: blur(5px); 
+          z-index: 3000; 
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
         .auth-modal {
           width: 100%;
           max-width: 400px;
