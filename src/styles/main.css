@@ -184,3 +184,150 @@
   background: #ff3c3c;
   box-shadow: 0 0 30px rgba(158, 27, 27, 0.35);
 }
+
+/* ═══════════════ ELITE NAVIGATION ═══════════════ */
+
+.elite-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1.5rem;
+  z-index: 1000;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  gap: 6rem;
+  pointer-events: auto;
+  position: relative;
+}
+
+.elite-tab {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  width: 140px;
+  transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.5rem;
+}
+
+.tab-icon-box {
+  color: var(--color-text-dark);
+  transition: 0.3s;
+}
+
+.tab-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--color-text-dark);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.elite-tab.active .tab-icon-box { 
+  color: var(--color-gold-bright); 
+  filter: drop-shadow(0 0 12px var(--color-gold-glow)); 
+}
+
+.elite-tab.active .tab-label { 
+  color: var(--color-gold-core); 
+  text-shadow: 0 0 15px var(--color-gold-glow);
+}
+
+.tab-glow-bar {
+  position: absolute;
+  top: -15px;
+  width: 0;
+  height: 2px;
+  background: var(--color-gold-core);
+  transition: 0.4s;
+  box-shadow: 0 0 20px var(--color-gold-core);
+}
+
+.elite-tab.active .tab-glow-bar {
+  width: 60%;
+}
+
+.compass-center {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 5px;
+}
+
+.compass-outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-ring-1 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--color-gold-core);
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+.compass-ring-2 {
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  border: 1px dashed var(--color-gold-core);
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: spin-slow 20s linear infinite;
+}
+
+.compass-core {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+  border: 2px solid var(--color-gold-core);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold-bright);
+  box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 15px var(--color-gold-glow);
+  z-index: 10;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.compass-flare {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.elite-tab:hover .tab-icon-box { color: #fff; }
+

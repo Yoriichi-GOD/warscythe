@@ -1,48 +1,59 @@
 import { motion } from "framer-motion";
-import { Timer, Zap } from "lucide-react";
+import { Timer, Zap, Flame } from "lucide-react";
 
 export default function MissionCard({ task, onComplete }) {
+  const progress = task.progress || 0;
+
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.01 }}
-      className="bg-black/60 backdrop-blur-xl border border-gold-core/20 
-                 p-6 rounded-lg shadow-2xl relative overflow-hidden group"
+      whileHover={{ scale: 1.01, y: -2 }}
+      className="elite-panel p-5 relative group cursor-pointer overflow-hidden"
+      onClick={() => onComplete(task.id)}
     >
-      <div className="absolute top-0 left-0 w-1 h-full bg-gold-core/40" />
-      
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-white font-display text-lg tracking-wide group-hover:text-gold-bright transition-colors">
-          {task.title}
-        </h3>
-        <Zap size={16} className="text-gold-core opacity-50" />
-      </div>
-
-      <div className="flex items-center gap-4 text-xs font-mono text-gray-400 mb-6">
-        <div className="flex items-center gap-1">
-          <Timer size={12} />
-          <span>{task.time || 15} MIN STRIKE</span>
+      <div className="flex items-center gap-6">
+        {/* ICON CIRCLE */}
+        <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+          <div className="absolute inset-0 border border-gold-core/20 rounded-full group-hover:border-gold-core/40 transition-colors" />
+          <div className="absolute inset-2 border border-gold-core/10 rounded-full border-dashed animate-spin-slow" />
+          <div className="z-10 text-gold-core">
+            <Zap size={20} />
+          </div>
         </div>
-        <div className="h-1 w-1 rounded-full bg-gold-core/30" />
-        <span>75% COMPLETE</span>
+
+        {/* CONTENT */}
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="flex justify-between items-baseline">
+            <h3 className="text-white font-display text-xs tracking-[0.2em] uppercase group-hover:text-gold-bright transition-colors">
+              {task.title}
+            </h3>
+            <div className="flex items-center gap-2 text-[9px] font-mono text-gray-500 uppercase tracking-widest">
+              <Timer size={10} />
+              <span>{task.time || 15} MINUTE STRIKE</span>
+            </div>
+          </div>
+
+          {/* PROGRESS BAR */}
+          <div className="w-full h-[3px] bg-white/5 rounded-full mt-2 relative overflow-hidden">
+             <motion.div 
+               initial={{ width: 0 }}
+               animate={{ width: `${progress}%` }}
+               className="absolute inset-y-0 left-0 bg-gradient-to-r from-gold-core/40 to-gold-bright shadow-[0_0_10px_rgba(197,160,89,0.5)]"
+             />
+          </div>
+          <div className="flex justify-between items-center text-[8px] font-mono uppercase tracking-[0.2em]">
+             <span className="text-gray-600">{progress}% COMPLETE</span>
+             <span className="text-gold-core/60">EST. {task.effort || 'MEDIUM'}</span>
+          </div>
+        </div>
+
+        {/* FLAME ICON */}
+        <div className="shrink-0 text-gold-core/40 group-hover:text-gold-core transition-colors">
+           <Flame size={20} fill="currentColor" className="opacity-20 group-hover:opacity-100 transition-opacity" />
+        </div>
       </div>
 
-      <div className="flex gap-3">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onComplete(task.id)}
-          className="flex-1 px-4 py-2 bg-gold-core/10 border border-gold-core/40 
-                     rounded text-gold-bright text-[10px] font-mono tracking-widest
-                     hover:bg-gold-core/20 transition-all uppercase"
-        >
-          Execute
-        </motion.button>
-        <button className="px-3 py-2 bg-white/5 rounded border border-white/10 text-white/40 hover:text-white transition-colors">
-           ...
-        </button>
-      </div>
-      
-      {/* Ambient background glow */}
-      <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gold-core/5 blur-3xl rounded-full" />
+      {/* AMBIENT GLITCH LINE */}
+      <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gold-core/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
     </motion.div>
   );
 }
