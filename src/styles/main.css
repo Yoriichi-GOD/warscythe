@@ -186,6 +186,55 @@
   box-shadow: 0 0 30px rgba(158, 27, 27, 0.35);
 }
 
+/* ═══════════════ ELITE GRID SYSTEM ═══════════════ */
+
+.elite-grid-container {
+  display: grid;
+  grid-template-columns: 0.4fr 0.3fr 0.3fr; /* 40% / 30% / 30% SPLIT */
+  gap: 1.5rem;
+  height: calc(100vh - 120px);
+  margin-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+.elite-panel {
+  background: rgba(5, 5, 5, 0.5); /* REDUCED OPACITY FOR VISIBILITY */
+  backdrop-filter: blur(10px); /* REDUCED BLUR FOR DEPTH */
+  border: 1px solid rgba(197, 160, 89, 0.15);
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ORNATE CORNER ACCENTS */
+.elite-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 20px;
+  height: 20px;
+  border-top: 2px solid var(--color-gold-core);
+  border-left: 2px solid var(--color-gold-core);
+  opacity: 0.4;
+}
+
+.elite-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 20px;
+  height: 20px;
+  border-bottom: 2px solid var(--color-gold-core);
+  border-right: 2px solid var(--color-gold-core);
+  opacity: 0.4;
+}
+
 /* ═══════════════ ELITE NAVIGATION ═══════════════ */
 
 .elite-nav {
