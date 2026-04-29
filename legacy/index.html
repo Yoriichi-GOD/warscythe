@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Warlord — the execution engine for high-performance task completion. Eliminate incomplete tasks, dominate your output.">
+  <title>Warlord — Execution Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ═══════════════ CLOSER MODE OVERLAY ═══════════════ -->
+  <div id="closer-overlay" class="closer-overlay hidden">
+    <div class="closer-pulse"></div>
+    <div class="closer-message">
+      <span class="closer-icon">⚔️</span>
+      <h2>CLOSER MODE ACTIVE</h2>
+      <p>Finish what you started.</p>
+      <button id="closer-dismiss" class="btn-closer-dismiss">ACKNOWLEDGED</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header id="app-header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <span class="logo-icon">⚔️</span>
+        <div class="logo-text">
+          <h1>WARLORD</h1>
+          <span class="tagline">EXECUTION ENGINE</span>
+        </div>
+      </div>
+      <div class="player-title-block">
+        <span class="player-level" id="player-level">LVL 1</span>
+        <span class="player-title" id="player-title">Recruit</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="daily-status" id="daily-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-label">—</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="execution-score-block">
+        <span class="score-label">EXECUTION SCORE</span>
+        <span class="score-value" id="execution-score">0</span>
+      </div>
+      <div class="quest-progress-mini" id="quest-progress-mini" title="Quest Progress">
+        <span class="qp-label">QUEST</span>
+        <div class="qp-bar">
+          <div class="qp-fill" id="qp-fill"></div>
+        </div>
+        <span class="qp-text" id="qp-text">0/10</span>
+      </div>
+      <button id="btn-map" class="btn-icon" title="Quest Map">
+        <span>🗺️</span>
+      </button>
+      <button id="btn-low-energy" class="btn-icon" title="Low Energy Mode">
+        <span>🧠</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════ MAIN LAYOUT ═══════════════ -->
+  <main id="app-main">
+    <!-- LEFT: ACTIVE TASKS -->
+    <section class="panel panel-tasks" id="panel-tasks">
+      <div class="panel-header">
+        <h2>ACTIVE OPERATIONS</h2>
+        <div class="task-counter">
+          <span id="task-count">0</span><span class="task-max">/3</span>
+        </div>
+      </div>
+
+      <!-- Task Input -->
+      <div class="task-input-wrapper" id="task-input-wrapper">
+        <button id="btn-add-task" class="btn-add-task">
+          <span class="plus-icon">+</span>
+          <span>NEW TASK</span>
+        </button>
+        <form id="task-form" class="task-form hidden">
+          <div class="form-row">
+            <input type="text" id="input-title" placeholder="Task objective..." required autocomplete="off" maxlength="80">
+          </div>
+          <div class="form-row form-row-split">
+            <select id="input-category" required>
+              <option value="" disabled selected>Category</option>
+              <option value="Work">⚙️ Work</option>
+              <option value="Study">📖 Study</option>
+              <option value="Fitness">💪 Fitness</option>
+              <option value="Creative">🎨 Creative</option>
+            </select>
+            <select id="input-effort" required>
+              <option value="" disabled selected>Effort</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input type="date" id="input-deadline" required>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">DEPLOY</button>
+            <button type="button" id="btn-cancel-task" class="btn-cancel">CANCEL</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Task Cards -->
+      <div id="task-list" class="task-list"></div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state">
+        <span class="empty-icon">⚔️</span>
+        <p>No active operations.</p>
+        <p class="empty-sub">Deploy a task to begin.</p>
+      </div>
+    </section>
+
+    <!-- RIGHT: DASHBOARD + NOTES -->
+    <aside class="panel panel-dashboard" id="panel-dashboard">
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">TODAY</span>
+          <span class="stat-value" id="stat-today">0%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">COMPLETED</span>
+          <span class="stat-value" id="stat-completed">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">ABANDONED</span>
+          <span class="stat-value stat-abandoned" id="stat-abandoned">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">RATIO</span>
+          <span class="stat-value" id="stat-ratio">—</span>
+        </div>
+      </div>
+
+      <!-- Scythe Section -->
+      <div class="scythe-section">
+        <h3>REAPER'S SCYTHE</h3>
+        <div class="scythe-display-box" id="scythe-display-box">
+          <svg viewBox="0 0 100 100" class="scythe-svg" id="scythe-svg">
+            <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" class="scythe-handle" />
+            <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" class="scythe-blade" id="scythe-blade" />
+          </svg>
+          <div class="scythe-info">
+            <div class="scythe-name" id="scythe-name">Dormant Scythe</div>
+            <div class="scythe-stats" id="scythe-stats">0 Days of Execution</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Graph -->
+      <div class="weekly-section">
+        <h3>WEEKLY EXECUTION</h3>
+        <div class="weekly-graph" id="weekly-graph"></div>
+      </div>
+
+      <!-- Completion History -->
+      <div class="history-section">
+        <h3>COMPLETION LOG</h3>
+        <div id="completion-log" class="completion-log"></div>
+      </div>
+
+      <!-- Notes Panel -->
+      <div class="notes-section">
+        <h3>FIELD NOTES</h3>
+        <textarea id="notes-area" class="notes-area" placeholder="Thoughts, plans, observations..."></textarea>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ═══════════════ SCRATCH CARD MODAL ═══════════════ -->
+  <div id="scratch-modal" class="modal-overlay hidden">
+    <div class="scratch-modal-content">
+      <div class="scratch-header">
+        <span class="scratch-header-icon">🏆</span>
+        <h2>TASK COMPLETED</h2>
+        <p class="scratch-subtitle">Scratch to reveal your reward</p>
+      </div>
+      <div class="scratch-card-wrapper">
+        <div class="scratch-reward-under" id="scratch-reward-under">
+          <div class="reward-icon" id="reward-icon">⚔️</div>
+          <div class="reward-type" id="reward-type">TITLE</div>
+          <div class="reward-name" id="reward-name">The Tactician</div>
+          <div class="reward-points" id="reward-points">+100 XP</div>
+        </div>
+        <canvas id="scratch-canvas" width="320" height="200"></canvas>
+      </div>
+      <div class="scratch-lore" id="scratch-lore">
+        <div class="lore-label">📜 LORE FRAGMENT</div>
+        <p class="lore-text" id="lore-text"></p>
+      </div>
+      <div class="scratch-quest-progress" id="scratch-quest-info">
+        <div class="sqp-bar"><div class="sqp-fill" id="sqp-fill"></div></div>
+        <span class="sqp-text" id="sqp-text">1/10 toward next region</span>
+      </div>
+      <button id="scratch-close" class="btn-scratch-close">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LEVEL UP MODAL ═══════════════ -->
+  <div id="levelup-modal" class="modal-overlay hidden">
+    <div class="levelup-content">
+      <div class="levelup-glow"></div>
+      <div class="levelup-inner">
+        <span class="levelup-icon">🏰</span>
+        <h2 class="levelup-title">REGION CONQUERED</h2>
+        <div class="levelup-region-name" id="levelup-region-name">The Threshold</div>
+        <p class="levelup-desc" id="levelup-desc">You stand at the edge of a new world.</p>
+        <div class="levelup-new-level">
+          <span class="levelup-label">NEW LEVEL</span>
+          <span class="levelup-number" id="levelup-number">2</span>
+        </div>
+        <div class="levelup-new-title" id="levelup-new-title-block">
+          <span class="levelup-title-label">TITLE EARNED</span>
+          <span class="levelup-title-name" id="levelup-title-name">—</span>
+        </div>
+        <button id="levelup-close" class="btn-levelup-close">ADVANCE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ QUEST MAP MODAL ═══════════════ -->
+  <div id="map-modal" class="modal-overlay hidden">
+    <div class="map-modal-content">
+      <div class="modal-header">
+        <h2>🗺️ THE DOMINION OF IRON WILL</h2>
+        <button id="map-close" class="btn-modal-close">✕</button>
+      </div>
+      <div class="map-player-info">
+        <span class="map-level" id="map-level">Level 1</span>
+        <span class="map-title" id="map-title">Recruit</span>
+        <span class="map-completions" id="map-completions">0 total conquests</span>
+      </div>
+      <div class="map-grid" id="map-grid"></div>
+      <div class="map-lore-panel hidden" id="map-lore-panel">
+        <div class="lore-panel-header">
+          <h3 id="lore-panel-title">Region Name</h3>
+          <button id="lore-panel-close" class="btn-modal-close btn-sm">✕</button>
+        </div>
+        <p class="lore-panel-desc" id="lore-panel-desc"></p>
+        <div class="lore-fragments-list" id="lore-fragments-list"></div>
+      </div>
+      <div class="map-artifacts-section">
+        <h3>COLLECTED ARTIFACTS</h3>
+        <div class="artifacts-grid" id="artifacts-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LOW ENERGY MODAL ═══════════════ -->
+  <div id="low-energy-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🧠 LOW ENERGY MODE</h2>
+        <button id="low-energy-close" class="btn-modal-close">✕</button>
+      </div>
+      <p class="modal-desc">Select a task to break into micro-steps (5–10 min each):</p>
+      <div id="low-energy-tasks" class="low-energy-tasks"></div>
+      <div id="micro-steps-output" class="micro-steps-output hidden"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TASK DETAIL MODAL ═══════════════ -->
+  <div id="task-detail-modal" class="modal-overlay hidden">
+    <div class="modal-content modal-detail">
+      <div class="modal-header">
+        <h2 id="detail-title"></h2>
+        <button id="detail-close" class="btn-modal-close">✕</button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-meta" id="detail-meta"></div>
+        <div class="detail-progress-section">
+          <label>PROGRESS: <span id="detail-progress-val">0</span>%</label>
+          <input type="range" id="detail-progress-slider" min="0" max="100" step="5" value="0">
+          <div class="progress-bar-detail">
+            <div class="progress-fill-detail" id="detail-progress-fill"></div>
+          </div>
+        </div>
+        <div class="detail-stage" id="detail-stage"></div>
+        <div class="detail-notes-section">
+          <label>TASK NOTES</label>
+          <textarea id="detail-notes" class="detail-notes-area" placeholder="Notes for this task..."></textarea>
+        </div>
+        <div class="detail-micro-steps" id="detail-micro-steps"></div>
+        <div class="detail-actions">
+          <button id="btn-complete-task" class="btn-complete">MARK COMPLETE (100%)</button>
+          <button id="btn-abandon-task" class="btn-abandon">ABANDON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TOAST SYSTEM ═══════════════ -->
+  <div id="toast-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 999999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;"></div>
+
+  <!-- ═══════════════ REALITY LOCK MODAL ═══════════════ -->
+  <div id="reality-lock-modal" class="modal-overlay hidden" style="z-index: 10500;">
+    <div class="modal-content" style="max-width: 380px; text-align: center; border: 2px solid var(--red-core); box-shadow: 0 0 40px var(--red-glow-strong);">
+      <h2 style="font-family: var(--font-display); color: var(--red-hot); font-size: 1.4rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">Reality Lock</h2>
+      <p style="color: var(--text-primary); font-size: 0.85rem; margin-bottom: 1.5rem;">Is this actually finished, or are you escaping?</p>
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="btn-reality-finish" style="flex:1; padding: 0.75rem; background: var(--red-deep); color: var(--text-primary); border: 1px solid var(--red-core); font-weight: 800; border-radius: var(--radius); cursor: pointer; transition: 0.2s;">FINISH IT</button>
+        <button id="btn-reality-return" style="flex:1; padding: 0.75rem; background: transparent; color: var(--text-dim); border: 1px solid var(--border); font-weight: 600; border-radius: var(--radius); cursor: pointer; transition: 0.2s;">RETURN TO BATTLE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SUSPENSE DELAY ═══════════════ -->
+  <div id="suspense-overlay" class="modal-overlay hidden" style="z-index: 10400; background: rgba(0,0,0,0.95); flex-direction: column;">
+    <div style="font-family: var(--font-display); color: var(--gold-core); font-size: 1.2rem; letter-spacing: 0.3em; animation: suspensePulse 1.5s infinite;">V A L I D A T I N G</div>
+  </div>
+
+  <style>
+    @keyframes suspensePulse { 0%, 100% { opacity: 0.4; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); text-shadow: 0 0 20px var(--gold-core); } }
+    @keyframes screenShake {
+      0% { transform: translate(0,0); }
+      10%, 30%, 50%, 70%, 90% { transform: translate(-10px, 10px); }
+      20%, 40%, 60%, 80% { transform: translate(10px, -10px); }
+      100% { transform: translate(0,0); }
+    }
+    .screen-shake { animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+  </style>
+
+  <!-- ═══════════════ SCYTHE SLASH OVERLAY ═══════════════ -->
+  <div id="slash-overlay" class="slash-overlay hidden">
+    <svg viewBox="0 0 100 100" class="slash-scythe-svg" id="slash-scythe-svg">
+      <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" class="scythe-handle" />
+      <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" class="scythe-blade" id="slash-scythe-blade" />
+    </svg>
+    <div class="slash-line"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
