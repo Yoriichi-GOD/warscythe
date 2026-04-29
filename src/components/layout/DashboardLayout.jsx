@@ -4,11 +4,14 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="relative min-h-screen bg-black text-gold-200 overflow-hidden">
       
-      {/* Background */}
-      <div className="absolute inset-0 bg-[url('/castle-bg.png')] bg-cover bg-center opacity-30" />
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
+      {/* Background Layering (Dead Accurate Pro Tip) */}
+      <div 
+        className="absolute inset-0 bg-cover no-repeat opacity-60" 
+        style={{ 
+          backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.95), rgba(0,0,0,0.3)), url('/castle-bg.png')`,
+          backgroundPosition: 'center 15%'
+        }} 
+      />
 
       {/* Content */}
       <motion.div
