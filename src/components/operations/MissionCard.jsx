@@ -16,7 +16,7 @@ export default function MissionCard({ task, onComplete }) {
   return (
     <motion.div
       whileHover={{ scale: 1.01, x: 4 }}
-      className="elite-panel p-5 relative group cursor-pointer overflow-hidden border-l-2 border-l-transparent hover:border-l-gold-core transition-all bg-black/40"
+      className="p-5 relative group cursor-pointer overflow-hidden border border-white/5 rounded transition-all bg-white/[0.03] backdrop-blur-md"
       onClick={() => onComplete(task.id)}
     >
       <div className="flex items-center gap-6">

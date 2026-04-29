@@ -198,16 +198,16 @@
 }
 
 .elite-panel {
-  background: rgba(5, 5, 5, 0.5); /* REDUCED OPACITY FOR VISIBILITY */
-  backdrop-filter: blur(10px); /* REDUCED BLUR FOR DEPTH */
-  border: 1px solid rgba(197, 160, 89, 0.15);
+  background: rgba(5, 5, 5, 0.15); /* 15% OPACITY FOR GHOST-TECH LOOK */
+  backdrop-filter: blur(20px); /* DEEPER BLUR FOR ELITE GLASS FEEL */
+  border: 1px solid rgba(197, 160, 89, 0.1);
   border-radius: 4px;
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
 
 /* ORNATE CORNER ACCENTS */
