@@ -16,6 +16,7 @@ import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
 
+// Triggering fresh Vercel deployment 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -296,3 +297,5 @@ export default function App() {
 }
 
 
+/ /   T r i g g e r i n g   f r e s h   d e p l o y m e n t  
+ 
