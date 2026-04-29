@@ -12,11 +12,11 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const scytheLevel = useWarscytheStore(state => state.scytheLevel);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-full pb-20">
+    <div className="elite-grid-container">
       
       {/* 🛡️ LEFT COLUMN: ACTIVE OPERATIONS */}
-      <section className="w-full lg:w-[450px] flex flex-col gap-4 h-full shrink-0">
-        <div className="bg-black/60 border border-white/5 rounded-lg p-6 flex-1 flex flex-col backdrop-blur-md">
+      <section className="elite-left-col flex flex-col gap-4 h-full">
+        <div className="elite-panel flex-1">
           <div className="flex items-center gap-3 mb-8">
             <Zap size={16} className="text-gold-core" />
             <h2 className="text-gold-core font-mono text-xs tracking-[0.3em] font-black uppercase">Active Operations</h2>
@@ -59,7 +59,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       </section>
 
       {/* 🗡️ CENTER COLUMN: THE REAPER'S SCYTHE */}
-      <section className="flex-1 min-w-[500px] bg-black/60 border border-white/10 rounded-lg p-8 flex flex-col backdrop-blur-xl relative overflow-hidden">
+      <section className="elite-center-col elite-panel relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-gold-core/5 to-transparent pointer-events-none" />
         
         <div className="relative z-10 flex flex-col h-full">
@@ -75,8 +75,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       </section>
 
       {/* 📊 RIGHT COLUMN: COMMAND CENTER */}
-      <aside className="w-full lg:w-[380px] h-full shrink-0">
-        <CommandCenter />
+      <aside className="elite-right-col h-full">
+        <div className="elite-panel h-full">
+           <CommandCenter />
+        </div>
       </aside>
 
     </div>
