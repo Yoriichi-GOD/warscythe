@@ -1,111 +1,106 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { REGIONS } from '../store/constants';
-import { Lock, Scroll, Shield, Crosshair, Map as MapIcon, Hexagon } from 'lucide-react';
+import { 
+  Lock, 
+  Map as MapIcon, 
+  Crosshair, 
+  Info, 
+  Sword, 
+  Skull, 
+  Eye, 
+  Flag,
+  RotateCcw,
+  Users,
+  ArrowLeft
+} from 'lucide-react';
 
 export default function MapSection() {
-  const { level, currentLevelProgress, bossKills, unlockedLore, collectedArtifacts } = useWarscytheStore();
-  const currentRegionIdx = level - 1;
-
-  // Generate tactical coordinates for nodes procedurally
-  const nodes = useMemo(() => {
-    const types = [
-      { name: 'Castle', icon: '🏰', color: 'var(--gold-core)' },
-      { name: 'Iron Jail', icon: '⛓️', color: 'var(--red-hot)' },
-      { name: 'Village', icon: '🏡', color: 'var(--stage-ship)' },
-      { name: 'Dragon Nest', icon: '🐲', color: 'var(--red-core)' },
-      { name: 'Citadel', icon: '🏢', color: 'var(--stage-finish)' },
-      { name: 'Shadow Spire', icon: '🗼', color: 'var(--stage-build)' }
-    ];
-
-    return Array.from({ length: level + 5 }, (_, idx) => {
-      // Use a seed-like approach based on index for stability
-      const x = 10 + (idx * 25) % 80 + (Math.sin(idx) * 8);
-      const y = 20 + Math.floor(idx / 2) * 20 + (Math.cos(idx) * 10);
-      const type = types[idx % types.length];
-      
-      return { 
-        name: `${type.name} 0${idx + 1}`,
-        icon: idx % 5 === 0 && idx > 0 ? '🐲' : type.icon, // Boss every 5 levels
-        idx, x, y,
-        isBoss: idx % 5 === 0 && idx > 0,
-        color: type.color
-      };
-    });
-  }, [level]);
+  const { level, bossKills, dailyLog } = useWarscytheStore();
+  
+  // Fake data for the Elite UI feel
+  const expansionLogs = [
+    { id: 1, type: 'scout', text: 'SCOUTED NEW TERRITORY: Stonehollow', time: '2h ago' },
+    { id: 2, type: 'secure', text: 'SECURED VILLAGE: Village of Ashendale', time: '1d ago' },
+    { id: 3, type: 'intel', text: 'INTELLIGENCE UPDATE: New threat detected in the north', time: '2d ago' },
+  ];
 
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="tactical-map-view"
+      className="campaign-theater"
     >
-      <div className="map-grain" />
-      <div className="map-grid-overlay" />
-      
-      <div className="map-header-bar">
-        <div className="map-title">
-          <MapIcon size={18} className="text-gold" />
-          <h2>CAMPAIGN THEATER // LEVEL {level}</h2>
-        </div>
-        <div className="campaign-stats">
-          <div className="camp-stat">
-            <Crosshair size={12} />
-            <span>DRAGONS SLAIN: {bossKills}</span>
+      {/* 1. Header Bar */}
+      <header className="campaign-header">
+        <div className="header-left">
+          <MapIcon size={20} className="gold-text" />
+          <div className="header-titles">
+            <h2>CAMPAIGN THEATER // LEVEL {level}</h2>
+            <p>The world is vast. Conquer tasks. Expand your reach.</p>
           </div>
         </div>
-      </div>
+        <button className="scout-report-btn">
+          <Info size={14} />
+          <span>SCOUT REPORT</span>
+        </button>
+      </header>
 
-      <div className="map-viewport">
-        <div className="map-scroll-container">
-          <svg className="map-connections">
-            {nodes.map((node, i) => {
-              if (i === 0) return null;
-              const prev = nodes[i - 1];
-              const isDiscovered = i <= currentRegionIdx;
-              return (
-                <motion.line
-                  key={`line-${i}`}
-                  x1={`${prev.x}%`} y1={`${prev.y}%`}
-                  x2={`${node.x}%`} y2={`${node.y}%`}
-                  stroke={isDiscovered ? node.color : "var(--border)"}
-                  strokeWidth={isDiscovered ? "2" : "1"}
-                  strokeDasharray={isDiscovered ? "0" : "5 5"}
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  style={{ opacity: isDiscovered ? 0.6 : 0.1 }}
-                />
-              );
-            })}
-          </svg>
-
-          <div className="nodes-layer">
-            {nodes.map((node, idx) => {
-              const isLocked = idx > currentRegionIdx;
-              const isCurrent = idx === currentRegionIdx;
-              const isCompleted = idx < currentRegionIdx;
-
-              return (
-                <motion.div
-                  key={node.name}
-                  className={`tactical-node ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
-                  style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                  initial={{ x: "-50%", y: "-50%" }}
-                  whileHover={!isLocked ? { scale: 1.15, x: "-50%", y: "-50%" } : { x: "-50%", y: "-50%" }}
-                  animate={isCurrent ? { scale: 1.2, x: "-50%", y: "-50%" } : { scale: 1, x: "-50%", y: "-50%" }}
-                >
-                  <div className="node-icon-wrapper" style={{ borderColor: node.color }}>
-                    <div className="node-icon-inner">
-                      {isLocked ? <Lock size={14} /> : node.icon}
-                    </div>
-                    {node.isBoss && !isLocked && <div className="boss-glow" />}
+      {/* 2. Main 3-Column Content */}
+      <div className="campaign-content">
+        
+        {/* LEFT COLUMN: Logs and Legend */}
+        <aside className="campaign-aside left">
+          <div className="expansion-log-panel glass-panel">
+            <div className="panel-header">
+              <span className="panel-tag">EXPANSION LOG</span>
+            </div>
+            <div className="log-list">
+              {expansionLogs.map(log => (
+                <div key={log.id} className="log-item">
+                  <div className={`log-icon ${log.type}`}>
+                    {log.type === 'scout' && <Crosshair size={12} />}
+                    {log.type === 'secure' && <Flag size={12} />}
+                    {log.type === 'intel' && <Eye size={12} />}
                   </div>
-                  
-                  <div className="node-label">
-                    <span className="node-id" style={{ color: node.color }}>REGION_{idx + 1}</span>
-                    <span className="node-name">{isLocked ? 'UNKNOWN TERRITORY' : node.name}</span>
+                  <div className="log-details">
+                    <p>{log.text}</p>
+                    <span className="log-time">{log.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="legend-panel glass-panel">
+             <div className="panel-header">
+              <span className="panel-tag">LEGEND</span>
+            </div>
+            <div className="legend-grid">
+              <div className="legend-item"><div className="dot pos" /> YOUR POSITION</div>
+              <div className="legend-item"><div className="dot avail" /> AVAILABLE NODE</div>
+              <div className="legend-item"><div className="dot secured" /> SECURED NODE</div>
+              <div className="legend-item"><div className="dot locked" /> LOCKED NODE</div>
+              <div className="legend-item"><div className="dot boss" /> BOSS ENCOUNTER</div>
+            </div>
+          </div>
+        </aside>
+
+        {/* CENTER COLUMN: The Map Viewport */}
+        <main className="map-viewport-container">
+          <div className="isometric-map-wrapper">
+            {/* The actual background image user will provide */}
+            <div className="map-image-layer" style={{ backgroundImage: "url('/campaign-map.png')" }}>
+              {/* Overlay nodes will go here in the next step */}
+              <div className="map-nodes-overlay">
+                {/* Example Node: Dragon's Nest */}
+                <motion.div 
+                  className="map-node boss-node" 
+                  style={{ top: '20%', left: '50%' }}
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
                   </div>
 
                   {isCurrent && (
