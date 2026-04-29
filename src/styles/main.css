@@ -135,9 +135,11 @@ body {
 
 .app-container {
   width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 400px 1fr 350px;
   gap: 0;
   padding: 0;
   margin-bottom: 60px; /* Space for bottom tabs */
@@ -151,6 +153,12 @@ body {
 .operation-section {
   padding: 2rem;
   border-right: 1px solid var(--border);
+}
+
+.dashboard-section {
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 1px solid var(--border);
 }
 
 .dashboard-section {

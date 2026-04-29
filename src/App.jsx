@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from './store/useWarscytheStore';
 import Header from './components/Header';
 import OperationList from './components/OperationList';
+import ScytheCenter from './components/ScytheCenter';
 import Dashboard from './components/Dashboard';
 import TaskModal from './components/TaskModal';
 import TaskDetail from './components/TaskDetail';
@@ -92,6 +93,7 @@ export default function App() {
               onAddTask={() => setShowTaskModal(true)} 
               onOpenTask={setSelectedTaskId}
             />
+            <ScytheCenter />
             <Dashboard onOpenTask={setSelectedTaskId} />
           </>
         ) : (
