@@ -240,17 +240,18 @@ function ScytheDisplay({ weight }) {
 
   let material = 'dormant';
   let materialName = 'Dormant';
+  let auraColor = 'rgba(255, 255, 255, 0.05)';
   
   // Base materials
-  if (weight >= 1 && weight < 3) { material = 'wood'; materialName = 'Wooden'; }
-  else if (weight >= 3 && weight < 7) { material = 'steel'; materialName = 'Steel'; }
-  else if (weight >= 7 && weight < 10) { material = 'silver'; materialName = 'Silver'; }
-  else if (weight >= 10) { material = 'gold'; materialName = 'Golden'; }
+  if (weight >= 1 && weight < 3) { material = 'wood'; materialName = 'Wooden'; auraColor = 'rgba(139, 69, 19, 0.2)'; }
+  else if (weight >= 3 && weight < 7) { material = 'steel'; materialName = 'Steel'; auraColor = 'rgba(200, 200, 200, 0.3)'; }
+  else if (weight >= 7 && weight < 10) { material = 'silver'; materialName = 'Silver'; auraColor = 'rgba(220, 220, 255, 0.4)'; }
+  else if (weight >= 10) { material = 'gold'; materialName = 'Golden'; auraColor = 'rgba(197, 160, 89, 0.5)'; }
 
   // Streak materials
-  if (streakCount >= 25 && unlockedScythes.includes('platinum')) { material = 'platinum'; materialName = 'Platinum'; }
-  if (streakCount >= 50 && unlockedScythes.includes('void')) { material = 'void'; materialName = 'Void'; }
-  if (streakCount >= 100 && unlockedScythes.includes('eternal')) { material = 'eternal'; materialName = 'Eternal'; }
+  if (streakCount >= 25 && unlockedScythes.includes('platinum')) { material = 'platinum'; materialName = 'Platinum'; auraColor = 'rgba(229, 228, 226, 0.6)'; }
+  if (streakCount >= 50 && unlockedScythes.includes('void')) { material = 'void'; materialName = 'Void'; auraColor = 'rgba(138, 43, 226, 0.6)'; }
+  if (streakCount >= 100 && unlockedScythes.includes('eternal')) { material = 'eternal'; materialName = 'Eternal'; auraColor = 'rgba(255, 60, 60, 0.6)'; }
 
   const fullName = weight === 0 ? 'Dormant Scythe' : `${materialName} Reaper`;
 
@@ -262,7 +263,12 @@ function ScytheDisplay({ weight }) {
 
   return (
     <div className="scythe-box" onClick={triggerSlash}>
-      <div className="scythe-visual-container">
+      <motion.div 
+        className="scythe-visual-container"
+        animate={{ y: [0, -12, 0] }}
+        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+        style={{ filter: `drop-shadow(0 20px 30px ${auraColor})` }}
+      >
         <AnimatePresence>
           {isSlashing && (
             <motion.div 
@@ -286,7 +292,7 @@ function ScytheDisplay({ weight }) {
               <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" className={`scythe-blade ${material}`} />
             </motion.svg>
         </div>
-      </div>
+      </motion.div>
 
       <div className="scythe-info">
         <div className="scythe-header">

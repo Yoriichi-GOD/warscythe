@@ -1,21 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Hexagon, Crosshair, Circle } from 'lucide-react';
 
 export default function SigilRitual({ onActivate }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
+  const canvasRef = useRef(null);
+
+  // Galaxy Particle Engine
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    
+    // Setup Canvas Resolution
+    const size = 200;
+    canvas.width = size;
+    canvas.height = size;
+    
+    const center = size / 2;
+    const particles = [];
+    const particleCount = 150;
+
+    // Initialize Particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        angle: Math.random() * Math.PI * 2,
+        radius: Math.random() * (size / 2 - 10) + 10,
+        speed: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.5 + 0.1
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, size, size);
+      
+      // The Core Void
+      const coreGradient = ctx.createRadialGradient(center, center, 0, center, center, 40);
+      coreGradient.addColorStop(0, isHovered ? 'rgba(197, 160, 89, 0.4)' : 'rgba(0, 0, 0, 0.8)');
+      coreGradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = coreGradient;
+      ctx.beginPath();
+      ctx.arc(center, center, 40, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw Orbiting Particles
+      particles.forEach(p => {
+        // Shift speed heavily on hover or click
+        const currentSpeed = isActivating ? p.speed * 10 : isHovered ? p.speed * 3 : p.speed;
+        p.angle += currentSpeed;
+        
+        // Slight pull inward on hover
+        const currentRadius = isHovered && !isActivating ? p.radius * 0.9 : p.radius;
+
+        const x = center + Math.cos(p.angle) * currentRadius;
+        const y = center + Math.sin(p.angle) * currentRadius;
+
+        ctx.beginPath();
+        ctx.arc(x, y, p.size, 0, Math.PI * 2);
+        
+        // Brighter particles closer to core
+        const intensity = Math.max(0, 1 - (currentRadius / (size / 2)));
+        const baseAlpha = p.opacity + (intensity * 0.5);
+        const finalAlpha = isHovered ? Math.min(1, baseAlpha * 2) : baseAlpha;
+        
+        ctx.fillStyle = `rgba(197, 160, 89, ${finalAlpha})`;
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isHovered, isActivating]);
 
   const handleClick = () => {
     if (isActivating) return;
     setIsActivating(true);
     
-    // The "Weight" Delay - 800ms before opening the modal
-    // This creates psychological tension rather than instant pop-up
     setTimeout(() => {
       onActivate();
       setIsActivating(false);
-    }, 800);
+      setIsHovered(false);
+    }, 1000);
   };
 
   return (
@@ -27,61 +97,25 @@ export default function SigilRitual({ onActivate }) {
         onClick={handleClick}
         animate={isActivating ? "activating" : isHovered ? "hover" : "idle"}
       >
-        {/* Outer Ring */}
-        <motion.div 
-          className="sigil-ring outer"
-          variants={{
-            idle: { rotate: 0, opacity: 0.3, scale: 1 },
-            hover: { rotate: 90, opacity: 0.8, scale: 1.1, transition: { duration: 2, ease: "easeOut" } },
-            activating: { rotate: 360, opacity: 1, scale: 1.5, filter: "blur(4px)", transition: { duration: 0.8 } }
+        <canvas 
+          ref={canvasRef} 
+          className="galaxy-canvas"
+          style={{ 
+            filter: isActivating ? 'blur(2px) brightness(2)' : isHovered ? 'brightness(1.5)' : 'none',
+            transform: isActivating ? 'scale(1.2)' : isHovered ? 'scale(1.05)' : 'scale(1)',
+            transition: 'all 0.5s ease-out'
           }}
-        >
-          <Circle size={120} strokeWidth={0.5} />
-        </motion.div>
-
-        {/* Middle Hexagon Rune */}
-        <motion.div 
-          className="sigil-ring middle"
-          variants={{
-            idle: { rotate: 0, opacity: 0.4 },
-            hover: { rotate: -45, opacity: 1, scale: 1.05, transition: { duration: 1.5, ease: "easeOut" } },
-            activating: { rotate: -180, opacity: 0, scale: 0.5, transition: { duration: 0.8 } }
-          }}
-        >
-          <Hexagon size={80} strokeWidth={1} />
-        </motion.div>
-
-        {/* Core Trigger */}
-        <motion.div 
-          className="sigil-core"
-          variants={{
-            idle: { scale: 1, opacity: 0.5 },
-            hover: { scale: 1.1, opacity: 1, textShadow: "0 0 20px #c5a059" },
-            activating: { scale: 0, opacity: 0 }
-          }}
-        >
-          <Crosshair size={40} className="core-icon" />
-        </motion.div>
-
-        {/* Glow Effects */}
-        <AnimatePresence>
-          {isHovered && !isActivating && (
-            <motion.div 
-              className="sigil-glow"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1.2 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-            />
-          )}
-        </AnimatePresence>
+        />
+        
+        {/* Central Black Hole Overlay */}
+        <div className="galaxy-core-shadow" />
       </motion.div>
 
-      {/* Psychological Idle Text */}
       <motion.div 
         className="idle-text"
         animate={{ opacity: isActivating ? 0 : isHovered ? 1 : 0.3 }}
       >
-        {isActivating ? "ESTABLISHING LINK..." : isHovered ? "INITIATE STRIKE" : "The weapon awaits purpose..."}
+        {isActivating ? "ESTABLISHING LINK..." : isHovered ? "INITIATE STRIKE" : "The void awaits purpose..."}
       </motion.div>
 
       <style jsx>{`
@@ -90,51 +124,35 @@ export default function SigilRitual({ onActivate }) {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 4rem 2rem;
+          padding: 2rem;
           position: relative;
         }
 
         .sigil-interactive {
           position: relative;
-          width: 140px;
-          height: 140px;
+          width: 200px;
+          height: 200px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
         }
 
-        .sigil-ring {
+        .galaxy-canvas {
           position: absolute;
-          color: var(--gold-core);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          pointer-events: none;
-        }
-
-        .sigil-core {
-          position: absolute;
-          color: var(--gold-bright);
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .core-icon {
-          filter: drop-shadow(0 0 10px var(--gold-glow));
-        }
-
-        .sigil-glow {
-          position: absolute;
-          width: 100px;
-          height: 100px;
-          background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
-          z-index: 0;
-          pointer-events: none;
+        }
+
+        .galaxy-core-shadow {
+          position: absolute;
+          width: 30px;
+          height: 30px;
+          background: radial-gradient(circle, #000 30%, transparent 100%);
+          border-radius: 50%;
+          box-shadow: inset 0 0 10px #000;
         }
 
         .idle-text {
