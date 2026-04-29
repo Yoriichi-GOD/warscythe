@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { Activity, Shield, Target, History } from 'lucide-react';
 
 export default function Dashboard({ onOpenTask }) {
@@ -24,16 +24,21 @@ export default function Dashboard({ onOpenTask }) {
 
       <div className="stats-container">
         <div className="stat-row">
-          <StatCard 
-            label="DAILY COMPLETIONS" 
-            value={todayStats.completed} 
-            icon={<Target size={14} />} 
-          />
-          <StatCard 
-            label="EXECUTION RATIO" 
-            value={`${ratio}%`} 
-            icon={<Shield size={14} />} 
-          />
+          <div className="premium-stat-card glass-panel">
+            <div className="stat-icon-row">
+              <Target size={14} />
+              <span className="stat-label">DAILY COMPLETIONS</span>
+            </div>
+            <AnimatedCounter value={todayStats.completed} />
+          </div>
+          
+          <div className="premium-stat-card glass-panel execution-panel">
+            <div className="stat-icon-row">
+              <Shield size={14} />
+              <span className="stat-label">EXECUTION RATIO</span>
+            </div>
+            <ExecutionRadial percentage={ratio} />
+          </div>
         </div>
       </div>
 
@@ -61,19 +66,7 @@ export default function Dashboard({ onOpenTask }) {
             </div>
           ) : (
             completedTasks.slice(0, 5).map((task, i) => (
-              <motion.div 
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                key={task.id} 
-                className="intel-item"
-                onClick={() => onOpenTask(task.id)}
-              >
-                <div className="intel-marker" />
-                <div className="intel-content">
-                  <span className="intel-title">{task.title}</span>
-                  <span className="intel-meta">CONQUERED {new Date(task.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-              </motion.div>
+              <TypewriterLog key={task.id} task={task} delay={i * 0.2} onClick={() => onOpenTask(task.id)} />
             ))
           )}
         </div>
@@ -107,6 +100,21 @@ export default function Dashboard({ onOpenTask }) {
         .text-gold { color: var(--gold-core); }
 
         .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .premium-stat-card { 
+          padding: 1.25rem; 
+          display: flex; 
+          flex-direction: column; 
+          gap: 1rem; 
+          border-radius: var(--radius-sm); 
+          position: relative;
+          overflow: hidden;
+        }
+        .execution-panel {
+          align-items: center;
+        }
+        .stat-icon-row { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); align-self: flex-start; z-index: 2; }
+        .stat-label { font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; }
 
         .reaper-panel { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
         .panel-header { display: flex; flex-direction: column; gap: 4px; }
@@ -139,19 +147,88 @@ export default function Dashboard({ onOpenTask }) {
   );
 }
 
-function StatCard({ label, value, icon }) {
+function AnimatedCounter({ value }) {
+  const spring = useSpring(0, { bounce: 0, duration: 1500 });
+  const displayValue = useTransform(spring, (current) => Math.floor(current));
+
+  useEffect(() => {
+    spring.set(value);
+  }, [value, spring]);
+
   return (
-    <div className="premium-stat-card glass-panel">
-      <div className="stat-icon-row">
-        {icon}
-        <span className="stat-label">{label}</span>
-      </div>
-      <span className="stat-value">{value}</span>
+    <div className="counter-wrapper">
+      <motion.span className="counter-value">{displayValue}</motion.span>
+      <div className="counter-glow" />
       <style jsx>{`
-        .premium-stat-card { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-radius: var(--radius-sm); }
-        .stat-icon-row { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); }
-        .stat-label { font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; }
-        .stat-value { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 800; color: var(--gold-core); }
+        .counter-wrapper { position: relative; display: flex; justify-content: center; margin-top: 0.5rem; }
+        .counter-value { font-family: var(--font-display); font-size: 3rem; font-weight: 900; color: var(--gold-bright); text-shadow: 0 0 20px var(--gold-glow); z-index: 2; }
+        .counter-glow { position: absolute; bottom: 0; width: 40px; height: 10px; background: var(--gold-core); filter: blur(15px); opacity: 0.5; }
+      `}</style>
+    </div>
+  );
+}
+
+function ExecutionRadial({ percentage }) {
+  const spring = useSpring(0, { bounce: 0, duration: 2000 });
+  const displayValue = useTransform(spring, (current) => `${Math.floor(current)}%`);
+  
+  useEffect(() => {
+    spring.set(percentage);
+  }, [percentage, spring]);
+
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = useTransform(spring, (current) => circumference - (current / 100) * circumference);
+
+  return (
+    <div className="radial-container">
+      <svg width="100" height="100" className="radial-svg">
+        <circle cx="50" cy="50" r={radius} className="radial-bg" />
+        <motion.circle 
+          cx="50" cy="50" r={radius} 
+          className="radial-fill"
+          style={{ strokeDasharray: circumference, strokeDashoffset }}
+        />
+      </svg>
+      <motion.div className="radial-text">{displayValue}</motion.div>
+      <style jsx>{`
+        .radial-container { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .radial-svg { transform: rotate(-90deg); position: absolute; top: 0; left: 0; }
+        .radial-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+        .radial-fill { fill: none; stroke: var(--gold-core); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+        .radial-text { font-family: var(--font-mono); font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+      `}</style>
+    </div>
+  );
+}
+
+function TypewriterLog({ task, delay, onClick }) {
+  const [text, setText] = useState('');
+  const fullText = `Operation '${task.title}' — SUCCESS`;
+  
+  useEffect(() => {
+    let i = 0;
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setText(fullText.substring(0, i));
+        i++;
+        if (i > fullText.length) clearInterval(interval);
+      }, 30);
+      return () => clearInterval(interval);
+    }, delay * 1000);
+    return () => clearTimeout(timer);
+  }, [fullText, delay]);
+
+  return (
+    <div className="intel-item" onClick={onClick}>
+      <div className="intel-marker" />
+      <div className="intel-content">
+        <span className="intel-title">{text}<span className="cursor">_</span></span>
+        <span className="intel-meta">DECRYPTED {new Date(task.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <style jsx>{`
+        .cursor { animation: blink 1s step-end infinite; opacity: 0.5; }
+        @keyframes blink { 50% { opacity: 0; } }
       `}</style>
     </div>
   );
