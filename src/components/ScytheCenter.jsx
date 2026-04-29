@@ -136,6 +136,7 @@ export default function ScytheCenter() {
               <span className="power-val">{Math.round(weight * 10) / 10} PWR</span>
             </div>
           </div>
+          </div>
         </div>
 
         {/* Empty Asset Slots for Future Art Integrations */}

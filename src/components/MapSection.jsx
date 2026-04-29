@@ -101,23 +101,24 @@ export default function MapSection() {
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >
-                  </div>
-
-                  {isCurrent && (
-                    <div className="current-indicator">
-                      <motion.div 
-                        className="ping-circle"
-                        animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                      />
-                    </div>
-                  )}
+                  <Skull size={24} color="#ff3c3c" />
+                  <span className="node-label">DRAGON'S NEST</span>
                 </motion.div>
-              );
-            })}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div className="quick-actions-panel glass-panel">
+            <div className="panel-header">
+              <span className="panel-tag">QUICK ACTIONS</span>
+            </div>
+            <div className="action-grid">
+              <button className="action-btn"><RotateCcw size={16} /> RECALCULATE PROTOCOL</button>
+              <button className="action-btn"><Sword size={16} /> DEPLOY STRIKE TEAM</button>
+              <button className="action-btn"><ArrowLeft size={16} /> RETURN TO OPERATIONS</button>
+            </div>
+          </div>
+        </main>
 
       <div className="map-footer-panels">
         <div className="artifact-vault glass-panel">
