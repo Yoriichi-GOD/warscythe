@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
 import { X, Lock, Map as MapIcon, Scroll, Shield } from 'lucide-react';
 
 export default function MapModal({ onClose }) {
-  const { level, currentLevelProgress, unlockedLore, collectedArtifacts } = useWarlordStore();
+  const { level, currentLevelProgress, unlockedLore, collectedArtifacts } = useWarscytheStore();
   
   const currentRegionIdx = level - 1;
 

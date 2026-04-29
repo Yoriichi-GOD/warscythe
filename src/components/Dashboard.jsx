@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Shield, Target, History } from 'lucide-react';
 
 export default function Dashboard({ onOpenTask }) {
-  const { dailyLog, completedTasks, abandonedTasks } = useWarlordStore();
+  const { dailyLog, completedTasks, abandonedTasks } = useWarscytheStore();
   
   const today = new Date().toISOString().slice(0, 10);
   const todayStats = dailyLog[today] || { completed: 0, weight: 0 };
@@ -158,7 +158,7 @@ function StatCard({ label, value, icon }) {
 }
 
 function ScytheDisplay({ weight }) {
-  const { streakCount, unlockedScythes } = useWarlordStore();
+  const { streakCount, unlockedScythes } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
 
   let material = 'dormant';

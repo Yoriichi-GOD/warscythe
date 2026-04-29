@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Shield, Scroll, Award, Star } from 'lucide-react';
 
 export default function VaultModal({ onClose }) {
-  const { collectedArtifacts, unlockedLore, currentTitle } = useWarlordStore();
+  const { collectedArtifacts, unlockedLore, currentTitle } = useWarscytheStore();
   const [selectedArtifact, setSelectedArtifact] = useState(null);
 
   const rarities = {
@@ -42,7 +42,7 @@ export default function VaultModal({ onClose }) {
                   <span>DRAGON HEAD TROPHIES</span>
                </div>
                <div className="dragon-grid">
-                  {Array.from({ length: useWarlordStore.getState().bossKills }).map((_, i) => (
+                  {Array.from({ length: useWarscytheStore.getState().bossKills }).map((_, i) => (
                     <motion.div 
                       key={i} 
                       className="dragon-head"
@@ -53,7 +53,7 @@ export default function VaultModal({ onClose }) {
                       🐲
                     </motion.div>
                   ))}
-                  {useWarlordStore.getState().bossKills === 0 && <span className="empty-msg">NO DRAGONS SLAIN</span>}
+                  {useWarscytheStore.getState().bossKills === 0 && <span className="empty-msg">NO DRAGONS SLAIN</span>}
                </div>
             </div>
 
@@ -109,7 +109,7 @@ export default function VaultModal({ onClose }) {
                       </div>
                       <p>
                         This ancient relic was salvaged during a critical mission. It resonates with the 
-                        will of a true Warlord. Holding it increases tactical focus and reduces distraction 
+                        will of a true Warscythe. Holding it increases tactical focus and reduces distraction 
                         by 15% (theoretical).
                       </p>
                     </div>

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
-import { ph } from '../lib/posthog';
-import { 
-  REGIONS, TITLES, LORE_TEMPLATES, ARTIFACT_POOL, 
-  EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE 
+import { ph } from '../lib/ph';
+import {
+  REGIONS, TITLES, LORE_TEMPLATES, ARTIFACT_POOL,
+  EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
 } from './constants';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -17,10 +17,10 @@ const getProceduralRegion = (idx) => {
   const icons = ['🌑', '⚔️', '🔱', '💀', '🌋', '🏴', '🗡️', '🛡️', '⚡', '👁️'];
   const p = prefixes[idx % prefixes.length];
   const s = suffixes[Math.floor(idx / prefixes.length) % suffixes.length];
-  return { 
-    name: `${p} ${s}`, 
-    icon: icons[idx % icons.length], 
-    desc: `An uncharted territory beyond the known maps. Level ${idx + 1} awaits.` 
+  return {
+    name: `${p} ${s}`,
+    icon: icons[idx % icons.length],
+    desc: `An uncharted territory beyond the known maps. Level ${idx + 1} awaits.`
   };
 };
 
@@ -51,7 +51,7 @@ const rollReward = (forceEpic = false) => {
   return { rarity, artifact, bonusPts };
 };
 
-export const useWarlordStore = create(
+export const useWarscytheStore = create(
   persist(
     (set, get) => ({
       tasks: [],
@@ -84,13 +84,13 @@ export const useWarlordStore = create(
         if (error) throw error;
         set({ user: data.user });
         ph.identify(data.user.id, { email });
-        ph.capture('warlord_sign_in');
+        ph.capture('warscythe_sign_in');
       },
 
       signOut: async () => {
         await supabase.auth.signOut();
         set({ user: null });
-        ph.capture('warlord_sign_out');
+        ph.capture('warscythe_sign_out');
       },
 
       // Actions
@@ -126,16 +126,16 @@ export const useWarlordStore = create(
               const oldProgress = t.progress;
               const newProgress = Math.min(100, Math.max(0, prog));
               let stalledAt = t.stalledAt;
-              
+
               if (newProgress >= 80 && newProgress < 95) {
                 if (oldProgress < 80 || !stalledAt) stalledAt = new Date().toISOString();
               } else {
                 stalledAt = null;
               }
 
-              return { 
-                ...t, 
-                progress: newProgress, 
+              return {
+                ...t,
+                progress: newProgress,
                 stalledAt,
                 lastProgressUpdate: new Date().toISOString()
               };
@@ -200,10 +200,10 @@ export const useWarlordStore = create(
           level++;
           // Get title from TITLES array
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
-          pendingLevelUp = { 
-            regionIdx, 
-            newLevel: level, 
-            newTitle: currentTitle 
+          pendingLevelUp = {
+            regionIdx,
+            newLevel: level,
+            newTitle: currentTitle
           };
         }
 
@@ -225,10 +225,10 @@ export const useWarlordStore = create(
           bossKills: state.bossKills + (isBoss ? 1 : 0)
         });
 
-        ph.capture('operation_conquered', { 
-          category: task.category, 
-          pts: totalPts, 
-          level_up: !!pendingLevelUp 
+        ph.capture('operation_conquered', {
+          category: task.category,
+          pts: totalPts,
+          level_up: !!pendingLevelUp
         });
 
         get().updateStreak();
@@ -237,7 +237,7 @@ export const useWarlordStore = create(
       updateStreak: () => {
         const today = todayKey();
         const { lastActiveDate, streakCount } = get();
-        
+
         if (lastActiveDate === today) return;
 
         const yesterday = new Date();
@@ -249,9 +249,9 @@ export const useWarlordStore = create(
           newStreak = streakCount + 1;
         }
 
-        set({ 
-          streakCount: newStreak, 
-          lastActiveDate: today 
+        set({
+          streakCount: newStreak,
+          lastActiveDate: today
         });
 
         // Check for milestones
@@ -279,7 +279,7 @@ export const useWarlordStore = create(
       dismissCloser: () => set({ closerDismissed: true }),
       clearPendingReward: () => set({ pendingReward: null }),
       clearPendingLevelUp: () => set({ pendingLevelUp: null }),
-      
+
       updateTaskNotes: (id, notes) => {
         set(state => ({
           tasks: state.tasks.map(t => t.id === id ? { ...t, notes } : t)
@@ -315,7 +315,7 @@ export const useWarlordStore = create(
           Creative: ['Brainstorm', 'Sketch', 'Iterate', 'Refine', 'Polish', 'Review', 'Finalize', 'Present']
         };
         const v = verbs[task.category] || verbs.Work;
-        
+
         const microSteps = Array.from({ length: count }, (_, i) => ({
           id: genId(),
           label: `${v[i % v.length]}: ${task.progress + sz * i}% → ${Math.min(100, task.progress + sz * (i + 1))}% (5-10 min)`,
@@ -335,7 +335,7 @@ export const useWarlordStore = create(
       }
     }),
     {
-      name: 'warlord-storage',
+      name: 'Warscythe-storage',
       storage: createJSONStorage(() => localStorage),
     }
   )

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
 import { Sparkles, ArrowRight } from 'lucide-react';
 

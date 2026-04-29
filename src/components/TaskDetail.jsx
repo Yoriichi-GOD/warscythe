@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, CheckCircle, Trash2, Zap } from 'lucide-react';
 
 export default function TaskDetail({ taskId, onClose, onComplete }) {
-  const task = useWarlordStore(state => 
+  const task = useWarscytheStore(state => 
     state.tasks.find(t => t.id === taskId) || 
     state.completedTasks.find(t => t.id === taskId)
   );
-  const updateProgress = useWarlordStore(state => state.updateProgress);
-  const abandonTask = useWarlordStore(state => state.abandonTask);
-  const updateNotes = useWarlordStore(state => state.updateTaskNotes);
-  const generateMicroSteps = useWarlordStore(state => state.generateMicroSteps);
-  const toggleMicroStep = useWarlordStore(state => state.toggleMicroStep);
+  const updateProgress = useWarscytheStore(state => state.updateProgress);
+  const abandonTask = useWarscytheStore(state => state.abandonTask);
+  const updateNotes = useWarscytheStore(state => state.updateTaskNotes);
+  const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
+  const toggleMicroStep = useWarscytheStore(state => state.toggleMicroStep);
 
   if (!task) return null;
 

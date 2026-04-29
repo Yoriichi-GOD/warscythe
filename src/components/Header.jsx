@@ -1,12 +1,13 @@
 import React from 'react';
-import { useWarlordStore } from '../store/useWarlordStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award } from 'lucide-react';
+import { useWarscytheStore } from '../store/useWarscytheStore';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Header({ onOpenMap, onOpenVault }) {
-  const { level, currentTitle, executionScore, currentLevelProgress, totalCompletions, isFocusMode, toggleFocus } = useWarlordStore();
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
+  const { xp, level, currentTitle, user, signOut, isFocusMode } = useWarscytheStore();
   
-  const progressPercent = (currentLevelProgress / 10) * 100;
+  const xpForNext = level * 1000;
+  const progress = (xp / xpForNext) * 100;
 
   return (
     <header className="main-header glass-panel">
@@ -16,7 +17,7 @@ export default function Header({ onOpenMap, onOpenVault }) {
             <Crosshair size={24} className="logo-svg" />
           </div>
           <div className="logo-text">
-            <h1>WARLORD</h1>
+            <h1>WARSCYTHE</h1>
             <span>VERSION 1.0 // GENESIS</span>
           </div>
         </div>
@@ -24,7 +25,7 @@ export default function Header({ onOpenMap, onOpenVault }) {
         <div className="divider" />
 
         <div className="rank-badge">
-          <div className="rank-icon"><Shield size={14} /></div>
+          <div className="rank-icon"><ShieldCheck size={14} /></div>
           <div className="rank-info">
             <span className="rank-label">OPERATIVE STATUS</span>
             <span className="rank-title">{currentTitle}</span>
@@ -36,16 +37,16 @@ export default function Header({ onOpenMap, onOpenVault }) {
         <div className="progress-hub">
           <div className="progress-header">
             <span className="progress-label">REGION PROGRESS</span>
-            <span className="progress-value">{currentLevelProgress}/10</span>
+            <span className="progress-value">{Math.round(progress / 10)}/10</span>
           </div>
           <div className="progress-bar-container">
             <motion.div 
               className="progress-bar-fill"
               initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
+              animate={{ width: `${progress}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
             />
-            <div className="progress-bar-glow" style={{ width: `${progressPercent}%` }} />
+            <div className="progress-bar-glow" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </div>
@@ -53,20 +54,27 @@ export default function Header({ onOpenMap, onOpenVault }) {
       <div className="header-right">
         <div className="xp-counter">
           <span className="xp-label">TOTAL XP</span>
-          <span className="xp-value">{executionScore.toLocaleString()}</span>
+          <span className="xp-value">{xp.toLocaleString()}</span>
         </div>
         
         <div className="action-buttons">
+          <button 
+            className={`nav-btn ${user ? 'active' : ''}`} 
+            onClick={user ? () => signOut() : () => onOpenAuth()}
+            title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
+          >
+            {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
+          </button>
           <button className="nav-btn" onClick={() => onOpenVault()} title="Artifact Vault">
             <Award size={18} />
           </button>
           <button className="nav-btn" onClick={onOpenMap} title="Tactical Map">
-            <Map size={18} />
+            <MapIcon size={18} />
           </button>
           <button 
             className={`nav-btn ${isFocusMode ? 'active' : ''}`} 
-            onClick={() => toggleFocus()} 
-            title="Focus Mode (ADHD Special)"
+            onClick={() => useWarscytheStore.getState().toggleFocus()} 
+            title="Neural Focus"
           >
             <Brain size={18} className={isFocusMode ? 'text-gold pulse' : ''} />
           </button>

@@ -21,7 +21,7 @@ export const REGIONS = [
   { name: 'Stormbreak Ridge', icon: '⚡', desc: 'Where storms bend to will. Lightning obeys those who do not flinch.' },
   { name: 'The Silent Empire', icon: '👁️', desc: 'Conquered without a word. Power need not announce itself.' },
   { name: "Dragon's Calculus", icon: '🐉', desc: 'Every move, calculated. The dragon does not strike — it decides.' },
-  { name: 'Throne of the Warlord', icon: '👑', desc: 'The seat of absolute execution. You have arrived. Now hold it.' },
+  { name: 'Throne of the Warscythe', icon: '👑', desc: 'The seat of absolute execution. You have arrived. Now hold it.' },
   { name: "Voidwalker's Expanse", icon: '🌌', desc: 'Beyond the known maps. Here, you write the territory.' },
   { name: 'The Eternal Siege', icon: '🛡️', desc: 'Wars never end, they evolve. Adapt or be forgotten.' },
   { name: 'Astral Dominion', icon: '✨', desc: 'Dominion over the stars themselves. Reality reshapes at your command.' },
@@ -32,8 +32,8 @@ export const REGIONS = [
 export const TITLES = [
   'Recruit','Tactician','Iron Executor','Shadow Marshal','The Relentless',
   'Siege Commander','Voidbreaker','Storm Sovereign','Dragon Lord','The Architect',
-  'Warlord Supreme','Eternal Conqueror','Reality Shaper','Omega Commander','Ascendant',
-  'Mythic Executor','Titan of Will','The Unstoppable','Cosmic Warlord','Legend Incarnate'
+  'Warscythe Supreme','Eternal Conqueror','Reality Shaper','Omega Commander','Ascendant',
+  'Mythic Executor','Titan of Will','The Unstoppable','Cosmic Warscythe','Legend Incarnate'
 ];
 
 export const LORE_TEMPLATES = [
@@ -59,7 +59,7 @@ export const ARTIFACT_POOL = {
     {name:'Ring of Execution',icon:'💍'},{name:'Helm of Clarity',icon:'⛑️'},{name:'Staff of Deadlines',icon:'🏑'},
   ],
   rare: [
-    {name:'Warlord\'s Gauntlet',icon:'🧤'},{name:'Crown of Completion',icon:'👑'},{name:'Eye of the Strategist',icon:'👁️'},
+    {name:'Warscythe\'s Gauntlet',icon:'🧤'},{name:'Crown of Completion',icon:'👑'},{name:'Eye of the Strategist',icon:'👁️'},
     {name:'Dragon Scale Armor',icon:'🐉'},{name:'Void Walker\'s Boots',icon:'👢'},
   ],
   epic: [

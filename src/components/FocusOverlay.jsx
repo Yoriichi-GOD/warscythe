@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Zap, Target, CheckCircle, Brain, AlertCircle } from 'lucide-react';
 
 export default function FocusOverlay() {
-  const { isFocusMode, focusedTaskId, tasks, toggleFocus, generateMicroSteps, toggleMicroStep, updateProgress } = useWarlordStore();
+  const { isFocusMode, focusedTaskId, tasks, toggleFocus, generateMicroSteps, toggleMicroStep, updateProgress } = useWarscytheStore();
   const task = tasks.find(t => t.id === focusedTaskId);
   
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes

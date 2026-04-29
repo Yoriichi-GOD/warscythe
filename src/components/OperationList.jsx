@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Plus, Target, Clock, AlertTriangle, ChevronRight, Zap } from 'lucide-react';
 
 export default function OperationList({ onAddTask, onOpenTask }) {
-  const tasks = useWarlordStore(state => state.tasks);
+  const tasks = useWarscytheStore(state => state.tasks);
   
   const activeCount = tasks.length;
   const maxTasks = 3;

@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
 import { Lock, Scroll, Shield, Crosshair, Map as MapIcon, Hexagon } from 'lucide-react';
 
 export default function MapSection() {
-  const { level, currentLevelProgress, bossKills, unlockedLore, collectedArtifacts } = useWarlordStore();
+  const { level, currentLevelProgress, bossKills, unlockedLore, collectedArtifacts } = useWarscytheStore();
   const currentRegionIdx = level - 1;
 
   // Generate tactical coordinates for nodes procedurally

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useWarlordStore } from '../store/useWarlordStore';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity } from 'lucide-react';
 
 export default function TaskModal({ onClose }) {
@@ -9,7 +9,7 @@ export default function TaskModal({ onClose }) {
   const [effort, setEffort] = useState('Medium');
   const [deadline, setDeadline] = useState('');
   
-  const addTask = useWarlordStore(state => state.addTask);
+  const addTask = useWarscytheStore(state => state.addTask);
 
   const handleSubmit = (e) => {
     e.preventDefault();

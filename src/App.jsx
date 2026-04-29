@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarlordStore } from './store/useWarlordStore';
+import { useWarscytheStore } from './store/useWarscytheStore';
 import Header from './components/Header';
 import OperationList from './components/OperationList';
 import Dashboard from './components/Dashboard';
@@ -12,23 +12,25 @@ import MapModal from './components/MapModal';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import VaultModal from './components/VaultModal';
+import AuthModal from './components/AuthModal';
 import { ShieldAlert } from 'lucide-react';
 import './styles/main.css';
 
-function App() {
+export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showVault, setShowVault] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   
-  const pendingReward = useWarlordStore(state => state.pendingReward);
-  const clearPendingReward = useWarlordStore(state => state.clearPendingReward);
-  const pendingLevelUp = useWarlordStore(state => state.pendingLevelUp);
-  const clearPendingLevelUp = useWarlordStore(state => state.clearPendingLevelUp);
-  const completeTask = useWarlordStore(state => state.completeTask);
-  const updateProgress = useWarlordStore(state => state.updateProgress);
+  const pendingReward = useWarscytheStore(state => state.pendingReward);
+  const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
+  const pendingLevelUp = useWarscytheStore(state => state.pendingLevelUp);
+  const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
+  const completeTask = useWarscytheStore(state => state.completeTask);
+  const updateProgress = useWarscytheStore(state => state.updateProgress);
 
   const handleFinalize = () => {
     setShowRealityLock(false);
@@ -64,7 +66,11 @@ function App() {
     <div className="app-main-view">
       <div className="grain-overlay" />
       <div className="vignette" />
-      <Header onOpenMap={() => setActiveTab('map')} onOpenVault={() => setShowVault(true)} />
+      <Header 
+        onOpenMap={() => setActiveTab('map')} 
+        onOpenVault={() => setShowVault(true)} 
+        onOpenAuth={() => setShowAuth(true)}
+      />
       
       <main className="app-container">
         {activeTab === 'ops' ? (
@@ -110,6 +116,10 @@ function App() {
 
         {showVault && (
           <VaultModal onClose={() => setShowVault(false)} />
+        )}
+
+        {showAuth && (
+          <AuthModal onClose={() => setShowAuth(false)} />
         )}
 
         {showRealityLock && (
@@ -267,4 +277,4 @@ function App() {
   );
 }
 
-export default App;
+
