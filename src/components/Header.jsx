@@ -4,7 +4,7 @@ import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint,
 import { motion } from 'framer-motion';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
-  const { xp, level, currentTitle, user, signOut, isFocusMode } = useWarscytheStore();
+  const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode } = useWarscytheStore();
   
   const xpForNext = level * 1000;
   const progress = (xp / xpForNext) * 100;
