@@ -12,6 +12,9 @@ import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
 import QuestMap from './pages/QuestMap';
+import LevelUpModal from './components/LevelUpModal';
+import FocusOverlay from './components/FocusOverlay';
+import ScratchCard from './components/ScratchCard';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
