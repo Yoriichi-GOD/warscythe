@@ -2,21 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from './store/useWarscytheStore';
 import Header from './components/Header';
-import OperationList from './components/OperationList';
-import ScytheCenter from './components/ScytheCenter';
-import Dashboard from './components/Dashboard';
 import TaskModal from './components/TaskModal';
 import TaskDetail from './components/TaskDetail';
-import ScratchCard from './components/ScratchCard';
-import MapSection from './components/MapSection';
-import MapModal from './components/MapModal';
-import LevelUpModal from './components/LevelUpModal';
-import FocusOverlay from './components/FocusOverlay';
-import VaultModal from './components/VaultModal';
 import AuthModal from './components/AuthModal';
+import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
 import { ShieldAlert } from 'lucide-react';
 import './styles/main.css';
+import DashboardLayout from './components/layout/DashboardLayout';
+import Operations from './pages/Operations';
+import QuestMap from './pages/QuestMap';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
@@ -68,38 +63,52 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="app-main-view" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <div className="grain-overlay" />
-        <div className="vignette" />
+      <DashboardLayout>
         <AuthModal onClose={() => {}} isMandatory={true} />
         <div id="toast-container" />
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="app-main-view">
-      <div className="grain-overlay" />
-      <div className="vignette" />
+    <DashboardLayout>
       <Header 
         onOpenMap={() => setActiveTab('map')} 
         onOpenVault={() => setShowVault(true)} 
         onOpenAuth={() => setShowAuth(true)}
       />
       
-      <main className="app-container">
-        {activeTab === 'ops' ? (
-          <>
-            <OperationList 
-              onAddTask={() => setShowTaskModal(true)} 
-              onOpenTask={setSelectedTaskId}
-            />
-            <ScytheCenter />
-            <Dashboard onOpenTask={setSelectedTaskId} />
-          </>
-        ) : (
-          <MapSection />
-        )}
+      <main className="flex-1 w-full h-[calc(100vh-180px)] overflow-hidden mt-6">
+        <AnimatePresence mode="wait">
+          {activeTab === 'ops' ? (
+            <motion.div
+              key="ops"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full w-full"
+            >
+              <Operations 
+                onAddTask={() => setShowTaskModal(true)} 
+                onOpenTask={setSelectedTaskId}
+                onCompleteTask={(id) => {
+                  setSelectedTaskId(id);
+                  setShowRealityLock(true);
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="map"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <QuestMap />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       <EliteNavigation 

@@ -73,9 +73,11 @@ export const useWarscytheStore = create(
       isFocusMode: false,
       focusedTaskId: null,
       streakCount: 0,
+      xp: 0,
+      scytheLevel: "DORMANT",
       lastActiveDate: null,
       bossKills: 0,
-      unlockedScythes: ['basic'],
+      unlockedScythes: ['platinum', 'void', 'eternal'],
       user: null,
 
       // Auth & Sync
@@ -186,6 +188,16 @@ export const useWarscytheStore = create(
         }
 
         const totalPts = basePts + reward.bonusPts;
+        const newXP = state.xp + totalPts;
+        
+        // Elite Leveling Logic
+        let newScytheLevel = "DORMANT";
+        if (newXP >= 1000) newScytheLevel = "PLATINUM";
+        else if (newXP >= 600) newScytheLevel = "ASCENDED";
+        else if (newXP >= 300) newScytheLevel = "REFINED";
+        else if (newXP >= 150) newScytheLevel = "HARDENED";
+        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+
         const today = todayKey();
         const dailyLog = { ...state.dailyLog };
         if (!dailyLog[today]) dailyLog[today] = { completed: 0, weight: 0 };
@@ -224,6 +236,8 @@ export const useWarscytheStore = create(
           completedTasks: [task, ...state.completedTasks],
           executionScore: state.executionScore + totalPts,
           dailyLog,
+          xp: newXP,
+          scytheLevel: newScytheLevel,
           totalCompletions: state.totalCompletions + 1,
           currentLevelProgress: finalLevelProgress,
           level,
@@ -234,6 +248,7 @@ export const useWarscytheStore = create(
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title },
           pendingLevelUp,
           closerDismissed: false,
+          lastActiveDate: today,
           bossKills: state.bossKills + (isBoss ? 1 : 0)
         });
 
@@ -248,22 +263,38 @@ export const useWarscytheStore = create(
 
       updateStreak: () => {
         const today = todayKey();
-        const { lastActiveDate, streakCount } = get();
+        const state = get();
+        if (state.lastActiveDate === today) return;
 
-        if (lastActiveDate === today) return;
+        const last = state.lastActiveDate ? new Date(state.lastActiveDate) : null;
+        const now = new Date(today);
+        const diffDays = last ? Math.floor((now - last) / (1000 * 60 * 60 * 24)) : 0;
 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayKey = yesterday.toISOString().slice(0, 10);
+        let newStreak = state.streakCount;
+        let newXP = state.xp;
 
-        let newStreak = 1;
-        if (lastActiveDate === yesterdayKey) {
-          newStreak = streakCount + 1;
+        if (diffDays === 1) {
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          newStreak = 0;
+          // ELITE DECAY SYSTEM: 20 XP loss per day missed
+          const decayAmount = diffDays * 20;
+          newXP = Math.max(0, state.xp - decayAmount);
         }
 
-        set({
-          streakCount: newStreak,
-          lastActiveDate: today
+        // Re-calculate Scythe Level after potential decay
+        let newScytheLevel = "DORMANT";
+        if (newXP >= 1000) newScytheLevel = "PLATINUM";
+        else if (newXP >= 600) newScytheLevel = "ASCENDED";
+        else if (newXP >= 300) newScytheLevel = "REFINED";
+        else if (newXP >= 150) newScytheLevel = "HARDENED";
+        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+
+        set({ 
+          streakCount: newStreak, 
+          xp: newXP,
+          scytheLevel: newScytheLevel,
+          lastActiveDate: today 
         });
 
         // Check for milestones
