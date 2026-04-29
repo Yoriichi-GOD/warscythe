@@ -16,7 +16,6 @@ import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
 
-// Triggering fresh Vercel deployment 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -39,7 +38,6 @@ export default function App() {
     setShowRealityLock(false);
     setIsValidating(true);
     
-    // The "Dopamine Delay"
     setTimeout(() => {
       completeTask(selectedTaskId);
       setIsValidating(false);
@@ -52,7 +50,6 @@ export default function App() {
     updateProgress(selectedTaskId, 95);
   };
 
-  // Handle ESC globally
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
@@ -171,95 +168,6 @@ export default function App() {
           </div>
         )}
 
-        <style jsx>{`
-          .reality-lock-panel {
-            max-width: 440px;
-            padding: 3rem;
-            text-align: center;
-            background: #0a0a0c;
-            border: 2px solid var(--red-core);
-            box-shadow: 0 0 60px var(--red-glow);
-            position: relative;
-            overflow: hidden;
-          }
-          
-          .lock-icon-shield {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--red-hot);
-            background: rgba(255, 60, 60, 0.1);
-            border-radius: 50%;
-            border: 1px solid var(--red-core);
-          }
-
-          .reality-title {
-            font-family: var(--font-display);
-            color: var(--red-hot);
-            font-size: 1.6rem;
-            letter-spacing: 0.2em;
-            margin-bottom: 1rem;
-          }
-
-          .reality-desc {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-          }
-
-          .reality-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-          }
-
-          .confirm-btn {
-            position: relative;
-            height: 56px;
-            background: var(--red-core);
-            color: #fff;
-            border-radius: 4px;
-            font-weight: 900;
-            letter-spacing: 0.1em;
-            overflow: hidden;
-          }
-          
-          .confirm-btn:hover {
-            background: var(--red-hot);
-            box-shadow: 0 0 30px var(--red-glow);
-          }
-
-          .return-btn {
-            height: 50px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
-            font-weight: 700;
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
-          }
-          
-          .return-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--text-dim);
-          }
-
-          .lock-footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-family: var(--font-mono);
-            font-size: 0.5rem;
-            color: var(--text-dark);
-            letter-spacing: 0.1em;
-          }
-        `}</style>
-
-
         {isValidating && (
           <div className="modal-backdrop validating-overlay">
             <motion.div 
@@ -295,7 +203,3 @@ export default function App() {
     </DashboardLayout>
   );
 }
-
-
-/ /   T r i g g e r i n g   f r e s h   d e p l o y m e n t  
- 
