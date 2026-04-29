@@ -1,63 +1,79 @@
 import { motion } from "framer-motion";
 
-export default function ScytheDisplay({ level = "DORMANT", auraColor = "rgba(197, 160, 89, 0.25)" }) {
+export default function ScytheDisplay({ level = "DORMANT" }) {
+  // Ensure the image path is correct and fallback is reliable
+  const imagePath = `/scythe/${level}.png`;
+
   return (
-    <div className="relative flex flex-col justify-center items-center w-full h-full min-h-[400px]">
+    <div className="relative flex flex-col justify-center items-center w-full h-full min-h-[500px] overflow-visible">
       
-      {/* Cinematic Aura */}
+      {/* 🔮 CINEMATIC AMBIANCE - Reacts to the Scythe */}
       <motion.div
-        className="absolute w-72 h-72 rounded-full bg-gold-core/10 blur-[100px]"
+        className="absolute w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
         animate={{ 
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.6, 0.3]
+          scale: [1, 1.2, 1],
+          opacity: [0.2, 0.4, 0.2]
         }}
-        transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-        style={{ backgroundColor: auraColor }}
+        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+        style={{ 
+          background: level === 'PLATINUM' 
+            ? 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)' 
+            : 'radial-gradient(circle, rgba(197,160,89,0.15) 0%, transparent 70%)'
+        }}
       />
 
-      {/* Scythe Asset Layer */}
+      {/* 🗡️ THE SCYTHE ASSET */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-[300px] aspect-[1/2] flex items-center justify-center"
+        key={level}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="relative z-10 w-full h-full max-h-[600px] flex items-center justify-center p-12"
       >
-        {/* If user has /scythe/DORMANT.png etc, this will load it */}
-        {/* Falling back to our high-fidelity SVG for now if image missing */}
-        <div className="w-full h-full flex items-center justify-center filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
-          <motion.img
-            src={`/scythe/${level}.png`}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <img 
+            src={imagePath}
             alt={`${level} Scythe`}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain filter drop-shadow-[0_10px_60px_rgba(0,0,0,0.9)]"
             onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'block';
+               // If the PNG fails, we show the fallback styling
+               e.target.parentElement.classList.add('scythe-fallback-active');
+               e.target.style.display = 'none';
             }}
           />
-          
-          <div style={{ display: 'none' }} className="w-full h-full">
-             <svg viewBox="0 0 100 100" className="w-full h-full opacity-80">
-                <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" fill="#1a1a1a" />
-                <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" fill={level === 'DORMANT' ? '#0d0d0d' : '#c5a059'} stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" />
+
+          {/* FALLBACK SKELETON (Only visible if image fails) */}
+          <div className="hidden scythe-fallback-box w-full h-full flex flex-col items-center justify-center opacity-20">
+             <svg viewBox="0 0 100 100" className="w-64 h-64">
+                <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" fill="#fff" />
+                <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" fill="#fff" />
              </svg>
+             <span className="text-[10px] font-mono text-gray-500 mt-4 tracking-[0.5em] uppercase italic">
+               Asset Syncing...
+             </span>
           </div>
         </div>
       </motion.div>
 
-      {/* Floating Physics */}
-      <motion.div
-        animate={{ y: [0, -15, 0] }}
-        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-        className="absolute inset-0 pointer-events-none"
-      />
-
-      {/* Stage Info */}
-      <div className="absolute bottom-4 text-center">
-        <h4 className="text-gold-core font-display text-xl tracking-[0.2em]">{level} SCYTHE</h4>
-        <p className="text-[10px] font-mono text-gray-500 mt-2 tracking-widest uppercase">
-          Complete operations to awaken true potential
+      {/* 📜 STAGE FOOTER */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="absolute bottom-8 flex flex-col items-center gap-2"
+      >
+        <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-gold-core/40 to-transparent mb-2" />
+        <h4 className="text-white font-display text-lg tracking-[0.3em] uppercase">{level} SCYTHE</h4>
+        <p className="text-[9px] font-mono text-gray-500 tracking-[0.2em] uppercase">
+          Current Execution Potential: {level === 'DORMANT' ? 'DORMANT' : 'AWAKENED'}
         </p>
-      </div>
+      </motion.div>
 
+      <style jsx>{`
+        .scythe-fallback-active .scythe-fallback-box {
+          display: flex !important;
+        }
+      `}</style>
     </div>
   );
 }
