@@ -25,6 +25,8 @@ export default function App() {
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   
+  const user = useWarscytheStore(state => state.user);
+  
   const pendingReward = useWarscytheStore(state => state.pendingReward);
   const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
   const pendingLevelUp = useWarscytheStore(state => state.pendingLevelUp);
@@ -61,6 +63,17 @@ export default function App() {
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
+
+  if (!user) {
+    return (
+      <div className="app-main-view" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div className="grain-overlay" />
+        <div className="vignette" />
+        <AuthModal onClose={() => {}} isMandatory={true} />
+        <div id="toast-container" />
+      </div>
+    );
+  }
 
   return (
     <div className="app-main-view">

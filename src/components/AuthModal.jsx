@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap } from 'lucide-react';
 
-export default function AuthModal({ onClose }) {
+export default function AuthModal({ onClose, isMandatory = false }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -77,7 +77,9 @@ export default function AuthModal({ onClose }) {
           </button>
         </div>
 
-        <button className="auth-close" onClick={onClose}><X size={20} /></button>
+        {!isMandatory && (
+          <button className="auth-close" onClick={onClose}><X size={20} /></button>
+        )}
         
         <div className="auth-security-tag">
           <ShieldCheck size={12} />
