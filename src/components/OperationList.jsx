@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Plus, Target, Clock, AlertTriangle, ChevronRight, Zap } from 'lucide-react';
+import { Target, Clock, AlertTriangle, ChevronRight, Zap } from 'lucide-react';
+import SigilRitual from './SigilRitual';
 
 export default function OperationList({ onAddTask, onOpenTask }) {
   const tasks = useWarscytheStore(state => state.tasks);
@@ -25,17 +26,17 @@ export default function OperationList({ onAddTask, onOpenTask }) {
       </div>
 
       <div className="operations-container">
-        <button 
-          className={`initiate-btn ${activeCount >= maxTasks ? 'disabled' : ''}`}
-          onClick={onAddTask}
-          disabled={activeCount >= maxTasks}
-        >
-          <div className="btn-inner">
-            <Plus size={20} />
-            <span>INITIATE NEW OBJECTIVE</span>
+        <div className="ritual-zone">
+          <div className="ritual-prompt">
+            <h3>WHAT WILL YOU EXECUTE TODAY?</h3>
+            <p>Every task is a strike. Every strike shapes your legend.</p>
           </div>
-          <div className="btn-glow" />
-        </button>
+          {activeCount < maxTasks ? (
+            <SigilRitual onActivate={onAddTask} />
+          ) : (
+            <div className="ritual-locked">DEPLOYMENT SLOTS FULL</div>
+          )}
+        </div>
 
         <div className="tasks-scroll-area">
           <AnimatePresence mode="popLayout">
@@ -94,6 +95,47 @@ export default function OperationList({ onAddTask, onOpenTask }) {
         .slot-indicator { font-family: var(--font-mono); font-weight: 800; font-size: 1.2rem; line-height: 1; }
         .slot-indicator span { color: var(--text-dark); }
         
+        .ritual-zone {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 3rem;
+          padding-top: 2rem;
+          border-bottom: 1px solid rgba(197, 160, 89, 0.1);
+        }
+
+        .ritual-prompt {
+          text-align: center;
+          margin-bottom: 1rem;
+        }
+
+        .ritual-prompt h3 {
+          font-family: var(--font-display);
+          font-size: 1.1rem;
+          color: #fff;
+          letter-spacing: 0.2em;
+          margin-bottom: 0.5rem;
+          text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .ritual-prompt p {
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
+          color: var(--text-dim);
+          letter-spacing: 0.1em;
+        }
+
+        .ritual-locked {
+          font-family: var(--font-display);
+          color: var(--red-core);
+          font-weight: 900;
+          letter-spacing: 0.2em;
+          padding: 2rem;
+          border: 1px solid var(--red-glow);
+          background: rgba(158, 27, 27, 0.1);
+          margin-top: 1rem;
+        }
+        
         .operations-container { 
           display: flex; 
           flex-direction: column; 
@@ -101,54 +143,6 @@ export default function OperationList({ onAddTask, onOpenTask }) {
           flex: 1; 
           overflow: hidden;
         }
-        
-        .initiate-btn {
-          position: relative;
-          height: 56px;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          background: rgba(255, 255, 255, 0.02);
-          color: var(--text-dim);
-          overflow: hidden;
-          transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .btn-inner {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-          font-weight: 800;
-          font-size: 0.7rem;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-        }
-        
-        .btn-glow {
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.1), transparent);
-          transition: 0.5s;
-        }
-        
-        .initiate-btn:not(.disabled):hover {
-          border-color: var(--gold-core);
-          color: var(--text-primary);
-          background: rgba(197, 160, 89, 0.05);
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .initiate-btn:not(.disabled):hover .btn-glow {
-          left: 100%;
-        }
-        
-        .initiate-btn.disabled { opacity: 0.2; cursor: not-allowed; }
         
         .tasks-scroll-area {
           display: flex;
@@ -196,7 +190,7 @@ function TaskCard({ task, onClick }) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ x: 4 }}
-      className={`task-premium-card ${isStalled ? 'stalled-state' : ''}`}
+      className={`task-card ${isStalled ? 'stalled-state' : ''}`}
       onClick={onClick}
     >
       <div className="card-accent" style={{ background: activeColor }} />
@@ -244,21 +238,33 @@ function TaskCard({ task, onClick }) {
       </div>
 
       <style jsx>{`
-        .task-premium-card {
-          position: relative;
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 1.25rem;
+        .task-card {
+          display: flex;
+          align-items: stretch;
+          background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98));
+          border: 1px solid #1a1a1a;
+          border-radius: 4px;
+          padding: 1.5rem;
           cursor: pointer;
+          position: relative;
           overflow: hidden;
-          transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          margin-bottom: 1rem;
+          /* Etched Metal Texture */
+          box-shadow: 
+            inset 0 1px 1px rgba(255,255,255,0.05),
+            inset 0 -1px 1px rgba(0,0,0,0.8),
+            0 5px 15px rgba(0,0,0,0.5);
         }
-        
-        .task-premium-card:hover {
-          border-color: var(--border-bright);
-          box-shadow: var(--shadow-premium);
-          background: rgba(30, 30, 35, 0.95);
+
+        .task-card:hover {
+          transform: translateY(-2px);
+          border-color: #2a2a2a;
+          box-shadow: 
+            inset 0 1px 1px rgba(255,255,255,0.08),
+            inset 0 -1px 1px rgba(0,0,0,0.8),
+            0 10px 30px rgba(0,0,0,0.7),
+            0 0 20px rgba(197, 160, 89, 0.1); /* Ember Glow leak */
         }
         
         .card-accent {
