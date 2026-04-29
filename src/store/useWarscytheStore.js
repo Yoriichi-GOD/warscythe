@@ -87,6 +87,18 @@ export const useWarscytheStore = create(
         ph.capture('warscythe_sign_in');
       },
 
+      signUp: async (email, password) => {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        // If email confirmation is enabled, data.user might be null or not fully logged in.
+        // Assuming auto-login or that the user is returned.
+        if (data.user) {
+           set({ user: data.user });
+           ph.identify(data.user.id, { email });
+        }
+        ph.capture('warscythe_sign_up');
+      },
+
       signOut: async () => {
         await supabase.auth.signOut();
         set({ user: null });

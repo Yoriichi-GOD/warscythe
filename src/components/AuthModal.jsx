@@ -11,14 +11,19 @@ export default function AuthModal({ onClose, isMandatory = false }) {
   const [error, setError] = useState(null);
   
   const signIn = useWarscytheStore(state => state.signIn);
+  const signUp = useWarscytheStore(state => state.signUp);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      await signIn(email, password);
-      onClose();
+      if (isLogin) {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password);
+      }
+      if (onClose) onClose();
     } catch (err) {
       setError(err.message || 'Authentication Failed');
     } finally {
