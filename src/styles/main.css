@@ -44,20 +44,18 @@
 }
 
 body {
-  background: var(--bg-deep);
+  background-color: #000;
+  background-image: 
+    linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%),
+    url('/castle-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-main);
   line-height: 1.5;
   overflow-x: hidden;
   min-height: 100vh;
-  /* Elite Deep Void Animation */
-  background-image: 
-    radial-gradient(circle at 10% 10%, rgba(197, 160, 89, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 90% 90%, rgba(158, 27, 27, 0.05) 0%, transparent 50%),
-    linear-gradient(to bottom, #020202, rgba(5, 5, 5, 0.9));
-  background-size: 200% 200%;
-  animation: voidDrift 20s ease infinite;
-  background-attachment: fixed;
 }
 
 @keyframes voidDrift {

@@ -14,6 +14,7 @@ import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import VaultModal from './components/VaultModal';
 import AuthModal from './components/AuthModal';
+import EliteNavigation from './components/EliteNavigation';
 import { ShieldAlert } from 'lucide-react';
 import './styles/main.css';
 
@@ -101,20 +102,10 @@ export default function App() {
         )}
       </main>
 
-      <nav className="bottom-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'ops' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('ops')}
-        >
-          <span>⚔️</span> <label>OPERATIONS</label>
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('map')}
-        >
-          <span>🗺️</span> <label>QUEST MAP</label>
-        </button>
-      </nav>
+      <EliteNavigation 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+      />
 
       <AnimatePresence>
         {showTaskModal && (
