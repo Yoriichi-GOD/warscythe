@@ -96,22 +96,24 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         .auth-backdrop { 
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.6); 
-          backdrop-filter: blur(5px); 
+          background: rgba(0,0,0,0.3); 
+          backdrop-filter: blur(10px); 
           z-index: 3000; 
           display: flex;
           align-items: center;
           justify-content: center;
+          padding: 2rem;
         }
         .auth-modal {
           width: 100%;
-          max-width: 400px;
-          padding: 3rem;
+          max-width: 420px;
+          padding: 3.5rem;
           text-align: center;
           position: relative;
-          background: linear-gradient(180deg, #0a0a0f 0%, #050507 100%);
-          border: 1px solid var(--border-bright);
-          box-shadow: 0 0 100px rgba(0,0,0,0.8);
+          background: rgba(10, 10, 15, 0.9);
+          border: 1px solid rgba(197, 160, 89, 0.3);
+          box-shadow: 0 0 100px rgba(0,0,0,0.9);
+          border-radius: 8px;
         }
 
         .auth-icon { color: var(--gold-core); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px var(--gold-glow)); }
