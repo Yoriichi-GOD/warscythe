@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { 
@@ -12,7 +12,8 @@ import {
   Flag,
   RotateCcw,
   Users,
-  ArrowLeft
+  ArrowLeft,
+  Shield
 } from 'lucide-react';
 
 export default function MapSection() {
@@ -90,20 +91,47 @@ export default function MapSection() {
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
           <div className="isometric-map-wrapper">
-            {/* The actual background image user will provide */}
             <div className="map-image-layer" style={{ backgroundImage: "url('/campaign-map.png')" }}>
-              {/* Overlay nodes will go here in the next step */}
               <div className="map-nodes-overlay">
-                {/* Example Node: Dragon's Nest */}
-                <motion.div 
-                  className="map-node boss-node" 
-                  style={{ top: '20%', left: '50%' }}
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  <Skull size={24} color="#ff3c3c" />
-                  <span className="node-label">DRAGON'S NEST</span>
+                
+                {/* 1. CASTLE BLACKVALE (Bottom) */}
+                <motion.div className="map-node" style={{ top: '75%', left: '48%' }}>
+                  <div className="node-glow secured" />
+                  <span className="node-label">CASTLE BLACKVALE</span>
+                  <div className="node-status">SECURED</div>
                 </motion.div>
+
+                {/* 2. VILLAGE OF ASHENDALE (Left) */}
+                <motion.div className="map-node" style={{ top: '45%', left: '22%' }}>
+                  <div className="node-glow secured" />
+                  <span className="node-label">ASHENDALE</span>
+                  <div className="node-status">SECURED</div>
+                </motion.div>
+
+                {/* 3. IRON JAIL (Center) */}
+                <motion.div className="map-node active" style={{ top: '44%', left: '50%' }}>
+                  <div className="node-glow active" />
+                  <div className="current-ping" />
+                  <span className="node-label">IRON JAIL</span>
+                  <div className="node-status">IN PROGRESS</div>
+                </motion.div>
+
+                {/* 4. STONEHOLLOW (Right) */}
+                <motion.div className="map-node locked" style={{ top: '50%', left: '82%' }}>
+                  <div className="node-glow locked" />
+                  <Lock size={12} className="lock-icon" />
+                  <span className="node-label">STONEHOLLOW</span>
+                  <div className="node-status">LOCKED</div>
+                </motion.div>
+
+                {/* 5. DRAGON'S NEST (Top Volcano) */}
+                <motion.div className="map-node boss-node" style={{ top: '12%', left: '50%' }}>
+                  <div className="node-glow boss" />
+                  <Skull size={20} className="boss-icon" />
+                  <span className="node-label">DRAGON'S NEST</span>
+                  <div className="node-status">FINAL OBJECTIVE</div>
+                </motion.div>
+
               </div>
             </div>
           </div>
@@ -120,220 +148,286 @@ export default function MapSection() {
           </div>
         </main>
 
-      <div className="map-footer-panels">
-        <div className="artifact-vault glass-panel">
-          <div className="panel-label"><Shield size={12} /> ARTIFACT VAULT</div>
-          <div className="artifact-grid">
-            {collectedArtifacts.map((art, i) => (
-              <div key={i} className={`vault-chip rarity-${art.rarity}`} title={art.name}>
-                {art.icon}
-              </div>
-            ))}
-            {Array.from({ length: bossKills }).map((_, i) => (
-              <div key={`boss-${i}`} className="vault-chip rarity-boss" title="Dragon Head">
-                🐲
-              </div>
-            ))}
-            {collectedArtifacts.length === 0 && bossKills === 0 && <span className="empty-msg">NO ARTIFACTS RECOVERED</span>}
-          </div>
-        </div>
+        {/* RIGHT COLUMN: Region Intel */}
+        <aside className="campaign-aside right">
+          <div className="region-intel-panel glass-panel">
+            <div className="panel-header">
+              <span className="panel-tag">REGION INTEL</span>
+            </div>
+            
+            <div className="region-branding">
+              <h4>VALORIA</h4>
+              <div className="region-banner-placeholder" style={{ backgroundImage: "url('/region-banner.png')" }} />
+            </div>
 
-        <div className="lore-terminal glass-panel">
-          <div className="panel-label"><Scroll size={12} /> INTELLIGENCE LOG</div>
-          <div className="lore-stream">
-            {Object.keys(unlockedLore).length === 0 ? (
-              <p className="empty-msg">NO DATA FRAGMENTS DECRYPTED</p>
-            ) : (
-              Object.values(unlockedLore).flat().reverse().map((lore, i) => (
-                <div key={i} className="lore-entry">
-                  <div className="lore-timestamp">ENTRY_0{i}</div>
-                  <p className="lore-text">"{lore}"</p>
+            <div className="region-completion">
+               <span className="stat-label">REGION COMPLETION</span>
+               <div className="completion-dial">
+                  <span className="pct">20%</span>
+               </div>
+            </div>
+
+            <div className="active-modifiers">
+              <span className="stat-label">ACTIVE MODIFIERS</span>
+              <div className="modifier-item">
+                <div className="mod-icon"><Users size={14} /></div>
+                <div className="mod-info">
+                  <p>FOG OF WAR</p>
+                  <span>Unscouted territories remain hidden.</span>
                 </div>
-              ))
-            )}
+              </div>
+            </div>
+
+            <div className="upcoming-threat glass-panel">
+               <span className="stat-label">UPCOMING THREAT</span>
+               <div className="threat-card">
+                  <div className="threat-image" style={{ backgroundImage: "url('/monster-wyrm.png')" }} />
+                  <div className="threat-info">
+                    <h5>DREAD WYRM</h5>
+                    <p>A deadly presence stirs in the north. Prepare accordingly.</p>
+                  </div>
+               </div>
+               <button className="view-target-btn">VIEW TARGET</button>
+            </div>
           </div>
-        </div>
+        </aside>
+
       </div>
 
       <style jsx>{`
-        .tactical-map-view { 
-          position: relative;
-          height: 100%;
+        .campaign-theater {
+          width: 100%;
+          height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #050507;
+          padding: 2rem;
+          color: #fff;
           overflow: hidden;
         }
 
-        .map-grain {
-          position: absolute;
-          inset: 0;
-          background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
-          opacity: 0.05;
-          pointer-events: none;
-        }
-
-        .map-grid-overlay {
-          position: absolute;
-          inset: 0;
-          background-image: 
-            linear-gradient(rgba(197, 160, 89, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(197, 160, 89, 0.02) 1px, transparent 1px);
-          background-size: 60px 60px;
-          pointer-events: none;
-        }
-
-        .map-header-bar {
+        .campaign-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1.5rem 3rem;
-          background: rgba(0,0,0,0.6);
-          border-bottom: 1px solid var(--border);
-          z-index: 10;
-          backdrop-filter: blur(10px);
+          margin-bottom: 2rem;
         }
-        .map-title { display: flex; align-items: center; gap: 1.5rem; }
-        .map-title h2 { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.25em; color: var(--text-primary); }
-        .text-gold { color: var(--gold-core); }
 
-        .campaign-stats { display: flex; gap: 2rem; }
-        .camp-stat { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.6rem; font-weight: 800; color: var(--gold-core); letter-spacing: 0.1em; }
+        .header-left { display: flex; gap: 1rem; align-items: center; }
+        .header-titles h2 { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.1em; }
+        .header-titles p { font-size: 0.7rem; color: var(--text-dim); }
 
-        .map-viewport {
+        .scout-report-btn {
+          background: rgba(197, 160, 89, 0.1);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-bright);
+          padding: 0.5rem 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.1em;
+          border-radius: 4px;
+        }
+
+        .campaign-content {
+          display: grid;
+          grid-template-columns: 320px 1fr 320px;
+          gap: 1.5rem;
           flex: 1;
-          position: relative;
-          overflow: auto;
-          padding: 5rem;
+          min-height: 0;
         }
 
-        .map-scroll-container {
-          position: relative;
-          width: 200%;
-          height: 300%;
-          min-width: 100%;
-          min-height: 100%;
+        .campaign-aside {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          overflow-y: auto;
         }
 
-        .map-connections {
-          position: absolute;
-          inset: 0;
+        .panel-tag {
+          font-family: var(--font-mono);
+          font-size: 0.5rem;
+          font-weight: 900;
+          color: var(--gold-core);
+          letter-spacing: 0.2em;
+        }
+
+        .glass-panel {
+          background: rgba(10, 10, 12, 0.8);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 8px;
+          padding: 1.5rem;
+        }
+
+        /* Log Panel */
+        .log-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+        .log-item { display: flex; gap: 1rem; align-items: flex-start; }
+        .log-icon { 
+          width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .log-icon.scout { color: var(--gold-core); }
+        .log-icon.secure { color: #10b981; }
+        .log-icon.intel { color: #3b82f6; }
+        .log-details p { font-size: 0.65rem; font-weight: 500; }
+        .log-time { font-size: 0.5rem; color: var(--text-dim); }
+
+        /* Legend Panel */
+        .legend-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin-top: 1rem; }
+        .legend-item { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--text-dim); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.pos { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+        .dot.avail { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .dot.secured { background: var(--gold-core); }
+        .dot.locked { background: #444; }
+        .dot.boss { background: #ff3c3c; box-shadow: 0 0 10px #ff3c3c; }
+
+        /* Map Viewport */
+        .map-viewport-container {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        .isometric-map-wrapper {
+          flex: 1;
+          background: #000;
+          border: 1px solid rgba(197, 160, 89, 0.1);
+          border-radius: 8px;
+          position: relative;
+          overflow: hidden;
+        }
+        .map-image-layer {
           width: 100%;
           height: 100%;
-          pointer-events: none;
+          background-size: cover;
+          background-position: center;
+          opacity: 0.8;
         }
-
-        .nodes-layer { position: relative; width: 100%; height: 100%; }
-
-        .tactical-node {
+        .map-nodes-overlay {
+          position: absolute;
+          inset: 0;
+        }
+        
+        .map-node {
           position: absolute;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1rem;
+          gap: 0.25rem;
+          transform: translate(-50%, -50%);
           cursor: pointer;
-          z-index: 5;
+          z-index: 10;
         }
 
-        .node-icon-wrapper {
-          position: relative;
-          width: 56px;
-          height: 56px;
-          border: 1px solid;
-          border-radius: 12px;
-          background: rgba(0,0,0,0.8);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-        }
-
-        .node-icon-inner { font-size: 1.8rem; transition: 0.3s; }
-
-        .boss-glow {
-          position: absolute;
-          inset: -10px;
+        .node-glow {
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(158, 27, 27, 0.3) 0%, transparent 70%);
-          animation: boss-pulse 2s infinite;
+          background: #fff;
+          box-shadow: 0 0 15px #fff;
+          transition: 0.3s;
         }
 
-        @keyframes boss-pulse {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.5); opacity: 0.6; }
-        }
+        .node-glow.secured { background: var(--gold-core); box-shadow: 0 0 15px var(--gold-core); }
+        .node-glow.active { background: #3b82f6; box-shadow: 0 0 20px #3b82f6; }
+        .node-glow.locked { background: #444; box-shadow: none; opacity: 0.5; }
+        .node-glow.boss { background: #ff3c3c; box-shadow: 0 0 25px #ff3c3c; }
 
-        .node-label { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; }
-        .node-id { font-family: var(--font-mono); font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; opacity: 0.8; }
-        .node-name { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.1em; max-width: 120px; }
-
-        /* Node States */
-        .tactical-node.current .node-icon-wrapper { 
-          border-color: var(--gold-core) !important;
-          box-shadow: 0 0 30px var(--gold-glow);
-        }
-        .tactical-node.current .node-name { color: var(--text-primary); }
-
-        .tactical-node.completed .node-icon-wrapper { opacity: 0.7; }
-        
-        .tactical-node.locked { opacity: 0.2; filter: grayscale(1); }
-
-        .current-indicator {
+        .current-ping {
           position: absolute;
-          inset: -20px;
-          pointer-events: none;
-        }
-        .ping-circle { position: absolute; inset: 0; border: 2px solid var(--gold-core); border-radius: 50%; }
-
-        .map-footer-panels {
-          display: grid;
-          grid-template-columns: 400px 1fr;
-          gap: 1rem;
-          padding: 1rem;
-          height: 180px;
-          background: rgba(0,0,0,0.5);
-          border-top: 1px solid var(--border);
-          position: sticky;
-          bottom: 0;
-          z-index: 20;
-          backdrop-filter: blur(10px);
+          top: 0;
+          width: 12px;
+          height: 12px;
+          border: 2px solid #3b82f6;
+          border-radius: 50%;
+          animation: ping 2s infinite;
         }
 
-        .panel-label { 
-          font-size: 0.55rem; 
-          font-weight: 900; 
-          color: var(--text-dark); 
-          letter-spacing: 0.2em; 
-          margin-bottom: 1rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
+        @keyframes ping {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(4); opacity: 0; }
         }
 
-        .artifact-vault { padding: 1rem; display: flex; flex-direction: column; }
-        .artifact-grid { display: flex; flex-wrap: wrap; gap: 8px; overflow-y: auto; }
-        .vault-chip {
-          width: 36px;
-          height: 36px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid var(--border);
-          border-radius: 6px;
+        .node-label { 
+          font-family: var(--font-display); 
+          font-size: 0.6rem; 
+          letter-spacing: 0.1em; 
+          color: #fff; 
+          text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+          white-space: nowrap;
+        }
+
+        .node-status {
+          font-family: var(--font-mono);
+          font-size: 0.4rem;
+          letter-spacing: 0.1em;
+          color: var(--text-dim);
+          text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .map-node.active .node-label { color: var(--gold-bright); }
+        .map-node.boss-node .node-label { color: #ff3c3c; }
+
+        .boss-icon, .lock-icon {
+          position: absolute;
+          top: -25px;
+          filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+        }
+
+        .lock-icon { color: rgba(255,255,255,0.3); }
+        .boss-icon { color: #ff3c3c; animation: breathe 3s infinite ease-in-out; }
+
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .quick-actions-panel { height: fit-content; }
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        .action-btn {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: var(--text-dim);
+          padding: 0.75rem;
+          font-family: var(--font-mono);
+          font-size: 0.5rem;
+          border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.2rem;
-          transition: 0.2s;
+          gap: 0.5rem;
+          transition: 0.3s;
         }
-        .vault-chip:hover { transform: translateY(-2px); border-color: var(--border-bright); }
+        .action-btn:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: #fff; }
 
-        .lore-terminal { padding: 1rem; display: flex; flex-direction: column; overflow: hidden; }
-        .lore-stream { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
-        .lore-entry { border-left: 1px solid var(--gold-core); padding-left: 1rem; }
-        .lore-timestamp { font-family: var(--font-mono); font-size: 0.45rem; color: var(--gold-core); opacity: 0.6; }
-        .lore-text { font-size: 0.75rem; color: var(--text-dim); font-style: italic; line-height: 1.4; }
+        /* Right Column Intel */
+        .region-branding { margin-top: 1.5rem; text-align: center; }
+        .region-branding h4 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.2em; margin-bottom: 1rem; }
+        .region-banner-placeholder { width: 100%; height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.6; }
 
-        .empty-msg { font-size: 0.6rem; font-family: var(--font-mono); color: var(--text-dark); letter-spacing: 0.1em; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 2rem; margin-bottom: 1rem; }
+        
+        .completion-dial {
+          width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--gold-core);
+          display: flex; align-items: center; justify-content: center; margin: 0 auto;
+          box-shadow: 0 0 20px var(--gold-glow);
+        }
+        .completion-dial .pct { font-family: var(--font-display); font-size: 1rem; color: var(--gold-bright); }
+
+        .active-modifiers { margin-top: 2rem; }
+        .modifier-item { display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 4px; }
+        .mod-icon { color: var(--gold-core); }
+        .mod-info p { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.05em; }
+        .mod-info span { font-size: 0.5rem; color: var(--text-dim); }
+
+        .upcoming-threat { margin-top: 2rem; background: rgba(255, 60, 60, 0.05); border: 1px solid rgba(255, 60, 60, 0.2); }
+        .threat-card { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+        .threat-image { width: 50px; height: 50px; background-size: cover; border-radius: 4px; border: 1px solid rgba(255, 60, 60, 0.3); }
+        .threat-info h5 { font-family: var(--font-display); font-size: 0.7rem; color: #ff3c3c; margin-bottom: 0.25rem; }
+        .threat-info p { font-size: 0.5rem; color: var(--text-dim); line-height: 1.4; }
+        .view-target-btn { width: 100%; margin-top: 1.5rem; background: none; border: 1px solid rgba(255, 60, 60, 0.5); color: #ff3c3c; font-family: var(--font-mono); font-size: 0.5rem; padding: 0.5rem; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .view-target-btn:hover { background: rgba(255, 60, 60, 0.1); }
       `}</style>
     </motion.div>
   );
