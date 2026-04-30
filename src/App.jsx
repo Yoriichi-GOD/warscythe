@@ -79,7 +79,7 @@ export default function App() {
         onOpenAuth={() => setShowAuth(true)}
       />
       
-      <main className="flex-1 w-full h-[calc(100vh-180px)] overflow-hidden mt-6">
+      <main className="flex-1 w-full overflow-y-auto">
         <AnimatePresence mode="wait">
           {activeTab === 'ops' ? (
             <motion.div

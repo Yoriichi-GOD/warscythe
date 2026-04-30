@@ -11,43 +11,38 @@
   --color-gold-glow: rgba(197, 160, 89, 0.25);
   --color-gold-bright: #e8d0a0;
   
-  --color-bg-deep: #050505;
   --color-text-primary: #ffffff;
   --color-text-dim: #949494;
 }
-
-/* ═══════════════ GLOBAL DEFAULTS ═══════════════ */
 
 @layer base {
   body {
     background-color: #000;
     color: var(--color-text-primary);
     font-family: var(--font-main);
-    overflow-y: auto; /* ENABLE GLOBAL SCROLL */
     overflow-x: hidden;
-    min-height: 100vh;
+    height: 100vh;
   }
 }
 
-/* ⚔️ TACTICAL GLOBAL SCROLLBAR */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { 
-  background: var(--color-gold-core);
-  border-radius: 0;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-}
+/* ═══════════════ GLOBAL SCROLLBAR (Thin Gold) ═══════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.3); border-radius: 4px; }
 
-/* ═══════════════ ELITE GRID (SCROLLABLE) ═══════════════ */
+/* ═══════════════ ELITE GRID — Fits the screen ═══════════════ */
 
 .elite-grid-container {
   display: grid;
   grid-template-columns: 1fr 1.3fr 0.9fr;
-  gap: 1.5rem;
-  padding: 2rem;
-  padding-bottom: 120px; /* Space for nav */
-  margin-top: 1rem;
+  gap: 1rem;
+  /* Tight fit: 100vh minus header (72px) minus nav (60px) minus padding */
+  height: calc(100vh - 148px);
+  padding: 0 1.5rem 1rem 1.5rem;
+  margin-top: 0; /* NO DEAD SPACE */
 }
+
+/* ═══════════════ ELITE PANEL ═══════════════ */
 
 .elite-panel {
   background: rgba(10, 10, 14, 0.1);
@@ -57,12 +52,12 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
-  min-height: min-content;
+  padding: 1.2rem;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+  overflow: hidden;
 }
 
-/* ═══════════════ ELITE NAVIGATION (Compass Locked) ═══════════════ */
+/* ═══════════════ ELITE NAVIGATION ═══════════════ */
 
 .elite-nav {
   position: fixed;
@@ -90,4 +85,50 @@
   width: 120px;
   height: 120px;
   transform: translateY(-35px);
+  z-index: 2001;
 }
+
+.compass-core {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--color-text-dim);
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.elite-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.elite-tab.active .tab-label { 
+  color: var(--color-gold-bright);
+}
+
+.tab-icon-box {
+  color: var(--color-text-dim);
+  transition: 0.3s;
+}
+
+.elite-tab.active .tab-icon-box { 
+  color: var(--color-gold-bright); 
+}
+
+.elite-tab:hover .tab-icon-box { color: #fff; }
