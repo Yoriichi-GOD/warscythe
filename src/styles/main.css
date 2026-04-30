@@ -34,14 +34,14 @@
   display: grid;
   grid-template-columns: 1fr 1.3fr 0.9fr;
   gap: 1rem;
-  height: calc(100vh - 120px); /* Gained space back from smaller nav */
+  height: calc(100vh - 140px); /* Adjust for larger compass */
   padding: 0 1.5rem;
   margin-top: 0.5rem;
   overflow: hidden;
 }
 
 .elite-panel {
-  background: rgba(10, 10, 14, 0.12);
+  background: rgba(10, 10, 14, 0.1);
   backdrop-filter: blur(2px);
   border: 1px solid rgba(197, 160, 89, 0.15);
   border-radius: 2px;
@@ -53,19 +53,19 @@
   overflow: hidden;
 }
 
-/* ═══════════════ ELITE NAVIGATION (Small & Tactical) ═══════════════ */
+/* ═══════════════ ELITE NAVIGATION (Command Presence) ═══════════════ */
 
 .elite-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 60px; /* SHRUNK FROM 100px */
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,1) 70%, transparent 100%);
   pointer-events: none;
 }
 
@@ -73,30 +73,32 @@
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
-  gap: 4rem; /* Compact Spacing */
+  gap: 10rem; /* Ultra-wide masterpiece spacing */
   pointer-events: auto;
+  position: relative;
 }
 
 .compass-center {
   position: relative;
-  width: 60px; /* SHRUNK FROM 110px */
-  height: 60px;
+  width: 120px; /* RESTORED TO COMMAND SIZE */
+  height: 120px;
+  transform: translateY(-35px); /* BREAKS FRAME SIGNIFICANTLY */
+  z-index: 1001;
 }
 
 .compass-core {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
 }
 
 .tab-label {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
   color: var(--color-text-dim);
   font-weight: 800;
   text-transform: uppercase;
@@ -104,5 +106,5 @@
 
 .elite-tab.active .tab-label { 
   color: var(--color-gold-bright);
-  text-shadow: 0 0 10px var(--color-gold-glow);
+  text-shadow: 0 0 15px var(--color-gold-glow);
 }
