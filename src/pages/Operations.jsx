@@ -79,7 +79,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </button>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row" style={{ height: 'calc(100vh - 160px)' }}>
+      <section className="elite-panel !p-0" style={{ height: 'calc(100vh - 160px)', flexDirection: 'row' }}>
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="w-44 shrink-0 border-r border-white/5 flex flex-col py-10 px-8">
