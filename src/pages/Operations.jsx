@@ -76,7 +76,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       </section>
 
       {/* 🗡️ CENTER COLUMN: THE REAPER'S SCYTHE */}
-      <section className="elite-center-col elite-panel relative overflow-hidden flex flex-row !p-0">
+      <section className="elite-center-col elite-panel relative flex flex-row overflow-visible">
         <div className="absolute inset-0 bg-gradient-to-t from-gold-core/[0.03] to-transparent pointer-events-none" />
         
         {/* WEAPON EVOLUTION SIDEBAR */}

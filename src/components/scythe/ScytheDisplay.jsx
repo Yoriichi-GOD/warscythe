@@ -5,7 +5,7 @@ export default function ScytheDisplay({ level = "DORMANT" }) {
   const imagePath = `/scythe/${safeLevel}.png`;
 
   return (
-    <div className="w-full h-[600px] flex flex-col items-center justify-center relative overflow-visible">
+    <div className="w-full h-full flex flex-col items-center justify-center relative min-h-[500px]">
       
       {/* 🗡️ THE SCYTHE ASSET (FORCE RENDER - NO FILTERS) */}
       <motion.div
