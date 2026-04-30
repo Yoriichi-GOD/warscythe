@@ -70,7 +70,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </button>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row h-full">
+      <section className="elite-panel !p-0 flex flex-row" style={{ height: 'calc(100vh - 160px)' }}>
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="w-44 shrink-0 border-r border-white/5 flex flex-col py-10 px-8">
@@ -100,8 +100,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
           </div>
         </div>
 
-        {/* SCYTHE DISPLAY AREA (Absolute Center) */}
-        <div className="flex-1 relative flex items-center justify-center">
+        {/* SCYTHE DISPLAY AREA */}
+        <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)', minHeight: 0 }}>
            <ScytheDisplay level={scytheLevel} />
         </div>
       </section>
