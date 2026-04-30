@@ -96,8 +96,8 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         .auth-backdrop { 
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.3); 
-          backdrop-filter: blur(10px); 
+          background: rgba(0,0,0,0.6); 
+          backdrop-filter: blur(12px); 
           z-index: 3000; 
           display: flex;
           align-items: center;
@@ -110,59 +110,93 @@ export default function AuthModal({ onClose, isMandatory = false }) {
           padding: 3.5rem;
           text-align: center;
           position: relative;
-          background: rgba(10, 10, 15, 0.9);
-          border: 1px solid rgba(197, 160, 89, 0.3);
-          box-shadow: 0 0 100px rgba(0,0,0,0.9);
-          border-radius: 8px;
+          background: rgba(10, 10, 15, 0.95);
+          border: 1px solid rgba(197, 160, 89, 0.35);
+          box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 40px rgba(197,160,89,0.05);
+          border-radius: 4px;
         }
 
-        .auth-icon { color: var(--gold-core); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px var(--gold-glow)); }
-        .auth-header h2 { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
-        .auth-header p { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dark); letter-spacing: 0.1em; }
+        .auth-icon { color: #c5a059; margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(197,160,89,0.4)); }
+        .auth-header h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fff; letter-spacing: 0.25em; margin-bottom: 0.5rem; }
+        .auth-header p { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #6b7280; letter-spacing: 0.15em; }
 
-        .auth-form { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
-        .auth-error { background: rgba(255, 60, 60, 0.1); border: 1px solid var(--red-hot); color: var(--red-hot); padding: 0.75rem; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; }
+        .auth-form { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .auth-error { background: rgba(255, 60, 60, 0.1); border: 1px solid #ff3c3c; color: #ff3c3c; padding: 0.75rem; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; }
         
         .auth-input-group { position: relative; display: flex; align-items: center; }
-        .auth-input-group :global(svg) { position: absolute; left: 1rem; color: var(--text-dark); pointer-events: none; }
+        .auth-input-group :global(svg) { position: absolute; left: 1rem; color: #4a4a4a; pointer-events: none; }
         .auth-input-group input {
           width: 100%;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid var(--border);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
           padding: 1rem 1rem 1rem 3rem;
           color: #fff;
-          font-family: var(--font-mono);
+          font-family: 'JetBrains Mono', monospace;
           font-size: 0.8rem;
           border-radius: 4px;
           transition: 0.3s;
+          letter-spacing: 0.05em;
         }
-        .auth-input-group input:focus { border-color: var(--gold-core); background: rgba(197, 160, 89, 0.05); outline: none; }
+        .auth-input-group input::placeholder { color: #4a4a4a; }
+        .auth-input-group input:focus { 
+          border-color: #c5a059; 
+          background: rgba(197, 160, 89, 0.05); 
+          outline: none;
+          box-shadow: 0 0 15px rgba(197,160,89,0.1);
+        }
 
         .auth-submit-btn {
-          background: var(--gold-core);
+          background: #c5a059;
           color: #000;
           border: none;
           padding: 1.25rem;
-          font-family: var(--font-display);
-          font-size: 0.9rem;
+          font-family: 'Cinzel', serif;
+          font-size: 0.85rem;
           font-weight: 900;
-          letter-spacing: 0.1em;
+          letter-spacing: 0.2em;
           border-radius: 4px;
           cursor: pointer;
-          box-shadow: 0 0 20px var(--gold-glow);
+          box-shadow: 0 0 25px rgba(197,160,89,0.3);
           transition: 0.3s;
+          text-transform: uppercase;
         }
-        .auth-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--gold-glow); }
-        .auth-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-submit-btn:hover { 
+          transform: translateY(-2px); 
+          background: #e8d0a0;
+          box-shadow: 0 0 40px rgba(197,160,89,0.5); 
+        }
+        .auth-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .auth-footer { margin-top: 2rem; }
-        .auth-footer button { background: none; border: none; color: var(--text-dark); font-size: 0.6rem; font-family: var(--font-mono); cursor: pointer; transition: 0.2s; }
-        .auth-footer button:hover { color: #fff; }
+        .auth-footer button { 
+          background: none; 
+          border: none; 
+          color: #6b7280; 
+          font-size: 0.65rem; 
+          font-family: 'JetBrains Mono', monospace; 
+          cursor: pointer; 
+          transition: 0.2s;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+        .auth-footer button:hover { color: #c5a059; }
 
-        .auth-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; color: var(--text-dark); transition: 0.2s; }
+        .auth-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; color: #4a4a4a; transition: 0.2s; border: none; cursor: pointer; }
         .auth-close:hover { color: #fff; transform: rotate(90deg); }
 
-        .auth-security-tag { margin-top: 3rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #1a1a1a; font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; }
+        .auth-security-tag { 
+          margin-top: 2.5rem; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 0.5rem; 
+          color: rgba(255,255,255,0.15); 
+          font-size: 0.5rem; 
+          font-weight: 900; 
+          letter-spacing: 0.15em;
+          font-family: 'JetBrains Mono', monospace;
+          text-transform: uppercase;
+        }
       `}</style>
     </div>
   );
