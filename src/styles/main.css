@@ -23,13 +23,13 @@
     background-color: #000;
     color: var(--color-text-primary);
     font-family: var(--font-main);
-    overflow-x: hidden;
-    min-height: 100vh;
+    overflow: hidden; /* Lock scroll */
+    height: 100vh;
   }
   
   h1, h2, h3, h4 {
     font-family: var(--font-decorative);
-    letter-spacing: 0.4em; /* MASTERPIECE TRACKING */
+    letter-spacing: 0.4em;
     text-transform: uppercase;
   }
 }
@@ -42,18 +42,19 @@
   border-radius: 10px; 
 }
 
-/* ═══════════════ ELITE PANEL (Premium Glass Edges) ═══════════════ */
+/* ═══════════════ ELITE PANEL ═══════════════ */
 
 .elite-panel {
-  background: rgba(10, 10, 14, 0.15);
+  background: rgba(10, 10, 14, 0.1);
   backdrop-filter: blur(2px);
-  border: 1px solid rgba(197, 160, 89, 0.1); /* Subtle base border */
+  border: 1px solid rgba(197, 160, 89, 0.15);
   border-radius: 2px;
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.6);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+  overflow: hidden; /* Force containment */
 }
 
 /* 💎 CRYSTAL CORNER HIGHLIGHTS */
@@ -62,22 +63,10 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 40px;
-  height: 40px;
-  border-top: 1px solid rgba(232, 208, 160, 0.5); /* BRIGHT TOP EDGE */
-  border-left: 1px solid rgba(232, 208, 160, 0.5); /* BRIGHT LEFT EDGE */
-  pointer-events: none;
-}
-
-.elite-panel::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  border-bottom: 1px solid rgba(197, 160, 89, 0.2);
-  border-right: 1px solid rgba(197, 160, 89, 0.2);
+  width: 30px;
+  height: 30px;
+  border-top: 1px solid rgba(232, 208, 160, 0.4);
+  border-left: 1px solid rgba(232, 208, 160, 0.4);
   pointer-events: none;
 }
 
@@ -85,48 +74,53 @@
 
 .elite-grid-container {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 0.8fr;
-  gap: 1.5rem;
-  height: calc(100vh - 120px);
-  padding: 0 2rem;
+  grid-template-columns: 1fr 1.3fr 0.9fr;
+  gap: 1rem;
+  height: calc(100vh - 160px);
+  padding: 0 1.5rem;
   margin-top: 1rem;
+  overflow: hidden;
 }
 
-/* ═══════════════ ELITE NAVIGATION ═══════════════ */
+/* ═══════════════ ELITE NAVIGATION (Horizontal Force) ═══════════════ */
 
 .elite-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80px;
+  height: 100px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 0.5rem;
   z-index: 1000;
   background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
   pointer-events: none;
 }
 
 .nav-container {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important; /* Force Horizontal */
   align-items: center;
-  gap: 8rem; /* Masterpiece wide spacing */
+  gap: 6rem;
   pointer-events: auto;
+}
+
+.elite-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
 }
 
 .tab-label {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.5em; /* Extreme Tracking */
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
   color: var(--color-text-dim);
   font-weight: 800;
   text-transform: uppercase;
-  transition: 0.3s;
 }
 
-.elite-tab.active .tab-label { 
-  color: var(--color-gold-bright); 
-  text-shadow: 0 0 15px var(--color-gold-glow);
-}
+.elite-tab.active .tab-label { color: var(--color-gold-bright); }
