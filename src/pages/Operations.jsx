@@ -20,7 +20,16 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   ];
 
   return (
-    <div className="elite-grid-container">
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 1.3fr 0.9fr',
+      gridTemplateRows: '1fr',
+      gap: '1rem',
+      height: 'calc(100vh - 148px)',
+      padding: '0 1.5rem 1rem 1.5rem',
+      marginTop: '0.25rem',
+      overflow: 'hidden'
+    }}>
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
       <section className="elite-panel">
