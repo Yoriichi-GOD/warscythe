@@ -13,8 +13,8 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
     <header className="main-header glass-panel">
       <div className="header-left">
         <div className="logo-section">
-          <div className="logo-icon-box">
-            <Crosshair size={24} className="logo-svg" />
+          <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden' }}>
+            <img src="/command-core.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
             <h1>WARSCYTHE</h1>

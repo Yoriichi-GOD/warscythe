@@ -34,14 +34,12 @@ export default function ObjectiveRitual({ onClick }) {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={onClick}
-          className="mt-[-40px] z-20 cursor-pointer group"
+          className="mt-[-30px] z-20 cursor-pointer group"
         >
-          <div className="bg-black/60 backdrop-blur-md border border-gold-core/20 px-6 py-2 rounded-sm group-hover:bg-gold-core group-hover:text-black transition-all shadow-[0_5px_20px_rgba(0,0,0,0.5)] flex items-center gap-3">
-             <div className="w-1 h-1 rounded-full bg-gold-core group-hover:bg-black animate-pulse" />
-             <span className="text-[9px] font-mono tracking-[0.4em] uppercase font-bold">
-               Initiate Objective
+          <div className="bg-black/70 backdrop-blur-md border border-gold-core/25 px-8 py-3 rounded-full group-hover:bg-gold-core group-hover:text-black transition-all shadow-[0_5px_20px_rgba(0,0,0,0.5)] flex items-center gap-2">
+             <span className="text-[9px] font-mono tracking-[0.3em] uppercase font-bold text-white group-hover:text-black">
+               + Initiate New Objective
              </span>
-             <div className="w-1 h-1 rounded-full bg-gold-core group-hover:bg-black animate-pulse" />
           </div>
         </motion.div>
       </div>
