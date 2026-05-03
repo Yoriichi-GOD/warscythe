@@ -115,27 +115,47 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
           display: flex; align-items: center; justify-content: center; z-index: 1000;
           padding: 1rem;
         }
-        .detail-content { max-width: 550px; width: 100%; padding: 2rem; }
+        .detail-content { max-width: 550px; width: 100%; padding: 1.5rem; }
+        @media (min-width: 640px) {
+          .detail-content { padding: 2rem; }
+        }
+
         .cat-tag { font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold-core); letter-spacing: 0.1em; }
-        .modal-header h2 { margin-top: 0.2rem; font-size: 1.4rem; color: var(--text-primary); }
         
-        .progress-section { margin-top: 1.5rem; }
+        .modal-header h2 { margin-top: 0.2rem; font-size: 1.1rem; color: var(--text-primary); }
+        @media (min-width: 640px) {
+          .modal-header h2 { font-size: 1.4rem; }
+        }
+        
+        .progress-section { margin-top: 1rem; }
+        @media (min-width: 640px) {
+          .progress-section { margin-top: 1.5rem; }
+        }
         .progress-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem; }
         .stage-name { font-weight: 900; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.2em; }
         
         .progress-track.large { height: 12px; }
         input[type="range"] { margin-bottom: 1rem; width: 100%; }
 
-        .micro-steps-section { margin-top: 2rem; }
+        .micro-steps-section { margin-top: 1.5rem; }
+        @media (min-width: 640px) {
+          .micro-steps-section { margin-top: 2rem; }
+        }
         .section-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
         .btn-tiny { background: rgba(255,255,255,0.05); color: var(--gold-core); font-size: 0.6rem; padding: 4px 8px; border-radius: 4px; font-weight: 800; }
         
-        .steps-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding-right: 4px; }
+        .steps-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        @media (min-width: 640px) {
+          .steps-list { max-height: 250px; }
+        }
         .step-item { 
           display: flex; align-items: center; gap: 0.8rem; 
           background: rgba(255,255,255,0.03); padding: 0.6rem 1rem; 
           border-radius: 8px; cursor: pointer; transition: 0.2s;
-          font-size: 0.8rem; border: 1px solid transparent;
+          font-size: 0.75rem; border: 1px solid transparent;
+        }
+        @media (min-width: 640px) {
+          .step-item { font-size: 0.8rem; }
         }
         .step-item:hover { background: rgba(255,255,255,0.06); border-color: var(--border); }
         .step-item.checked { opacity: 0.4; }
@@ -143,14 +163,23 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
         
         .notes-section { margin-top: 1.5rem; }
         textarea {
-          width: 100%; min-height: 100px; background: rgba(0,0,0,0.2); 
+          width: 100%; min-height: 80px; background: rgba(0,0,0,0.2); 
           border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);
-          padding: 1rem; font-family: inherit; font-size: 0.85rem; margin-top: 0.5rem;
+          padding: 1rem; font-family: inherit; font-size: 0.8rem; margin-top: 0.5rem;
+        }
+        @media (min-width: 640px) {
+          textarea { min-height: 100px; font-size: 0.85rem; }
         }
 
-        .detail-actions { margin-top: 2rem; display: flex; gap: 0.8rem; }
+        .detail-actions { margin-top: 1.5rem; display: flex; gap: 0.8rem; }
+        @media (min-width: 640px) {
+          .detail-actions { margin-top: 2rem; }
+        }
         .flex-1 { flex: 1; }
-        .btn-danger { width: 50px; height: 50px; border-radius: var(--radius); background: rgba(139, 0, 0, 0.2); color: var(--red-hot); border: 1px solid rgba(139, 0, 0, 0.4); }
+        .btn-danger { width: 48px; height: 48px; border-radius: var(--radius); background: rgba(139, 0, 0, 0.2); color: var(--red-hot); border: 1px solid rgba(139, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        @media (min-width: 640px) {
+          .btn-danger { width: 50px; height: 50px; }
+        }
         .btn-danger:hover { background: var(--red-core); color: #fff; }
       `}</style>
     </div>

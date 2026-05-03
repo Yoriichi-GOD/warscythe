@@ -20,16 +20,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   ];
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 1.3fr 0.9fr',
-      gridTemplateRows: '1fr',
-      gap: '1rem',
-      height: 'calc(100vh - 148px)',
-      padding: '0 1.5rem 1rem 1.5rem',
-      marginTop: '0.25rem',
-      overflow: 'hidden'
-    }}>
+    <div className="elite-grid-container">
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
       <section className="elite-panel">
@@ -79,23 +70,23 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </button>
       </section>
 
-      <section className="elite-panel !p-0" style={{ height: 'calc(100vh - 160px)', flexDirection: 'row' }}>
+      <section className="elite-panel !p-0 flex flex-col lg:flex-row lg:h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
         
         {/* WEAPON EVOLUTION SIDEBAR */}
-        <div className="w-44 shrink-0 border-r border-white/5 flex flex-col py-10 px-8">
-          <div className="mb-10">
+        <div className="w-full lg:w-44 shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col py-6 lg:py-10 px-6 lg:px-8">
+          <div className="mb-6 lg:mb-10">
             <span className="text-[8px] font-mono text-gray-500 tracking-widest uppercase block mb-1">Weapon Evolution</span>
             <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
           </div>
           
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 lg:flex lg:flex-col gap-3 lg:gap-4">
             {evolutionStages.map((stage) => {
               const isActive = scytheLevel === stage.id;
               const colorClass = isActive ? 'text-gold-core font-black' : 'text-white/30';
               const borderClass = isActive ? 'border-gold-core/40' : 'border-white/5';
 
               return (
-                <div key={stage.id} className={`flex items-center gap-4 py-2 transition-all ${isActive ? 'translate-x-2' : ''}`}>
+                <div key={stage.id} className={`flex items-center gap-4 py-2 transition-all ${isActive ? 'lg:translate-x-2' : ''}`}>
                   <div className={`w-8 h-8 rounded border flex items-center justify-center shrink-0 ${borderClass} ${colorClass}`}>
                      {isActive ? <Shield size={14} /> : <Lock size={12} />}
                   </div>
@@ -110,7 +101,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </div>
 
         {/* SCYTHE DISPLAY AREA */}
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)', minHeight: 0 }}>
+        <div className="flex-1 relative h-[350px] lg:h-[calc(100vh-160px)] min-h-0">
            <ScytheDisplay level={scytheLevel} />
         </div>
       </section>

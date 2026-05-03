@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative z-10 w-full h-screen p-6 flex flex-col"
+        className="relative z-10 w-full min-h-[100dvh] lg:h-screen p-0 flex flex-col"
       >
         {children}
       </motion.div>

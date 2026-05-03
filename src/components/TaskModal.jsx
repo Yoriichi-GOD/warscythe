@@ -103,28 +103,39 @@ export default function TaskModal({ onClose }) {
         .tactical-modal { 
           width: 100%; 
           max-width: 500px; 
-          padding: 2.5rem; 
+          padding: 1.5rem; 
           border: 1px solid var(--border-bright);
           box-shadow: 0 0 50px rgba(0,0,0,0.8);
           background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
+        }
+
+        @media (min-width: 640px) {
+          .tactical-modal { padding: 2.5rem; }
         }
 
         .modal-header { 
           display: flex; 
           justify-content: space-between; 
           align-items: center; 
-          margin-bottom: 2.5rem; 
+          margin-bottom: 2rem; 
           border-bottom: 1px solid var(--border);
           padding-bottom: 1rem;
+        }
+
+        @media (min-width: 640px) {
+          .modal-header { margin-bottom: 2.5rem; }
         }
         
         .modal-title-box { display: flex; align-items: center; gap: 1rem; }
         .modal-title-box h2 { 
           font-family: var(--font-display); 
-          font-size: 1rem; 
+          font-size: 0.9rem; 
           letter-spacing: 0.2em; 
           color: var(--text-primary);
           margin: 0;
+        }
+        @media (min-width: 640px) {
+          .modal-title-box h2 { font-size: 1rem; }
         }
         .text-gold { color: var(--gold-core); filter: drop-shadow(0 0 5px var(--gold-glow)); }
 
@@ -137,7 +148,10 @@ export default function TaskModal({ onClose }) {
         .btn-close-circle:hover { background: var(--red-core); color: #fff; border-color: var(--red-hot); }
 
         .tactical-form { display: flex; flex-direction: column; gap: 1.5rem; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 640px) {
+          .form-grid { grid-template-columns: 1fr 1fr; }
+        }
         .form-group { display: flex; flex-direction: column; gap: 0.75rem; }
         
         label { 

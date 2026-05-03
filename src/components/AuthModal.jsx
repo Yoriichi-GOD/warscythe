@@ -107,13 +107,17 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         .auth-modal {
           width: 100%;
           max-width: 420px;
-          padding: 3.5rem;
+          padding: 2rem;
           text-align: center;
           position: relative;
           background: rgba(10, 10, 15, 0.95);
           border: 1px solid rgba(197, 160, 89, 0.35);
           box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 40px rgba(197,160,89,0.05);
           border-radius: 4px;
+        }
+
+        @media (min-width: 640px) {
+          .auth-modal { padding: 3.5rem; }
         }
 
         .auth-icon { color: #c5a059; margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(197,160,89,0.4)); }

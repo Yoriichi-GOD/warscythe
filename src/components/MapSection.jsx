@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { 
@@ -197,24 +197,43 @@ export default function MapSection() {
       <style jsx>{`
         .campaign-theater {
           width: 100%;
-          height: 100vh;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
-          padding: 2rem;
+          padding: 1rem;
           color: #fff;
-          overflow: hidden;
+          overflow-y: auto;
+        }
+
+        @media (min-width: 1024px) {
+          .campaign-theater {
+            height: 100vh;
+            padding: 2rem;
+            overflow: hidden;
+          }
         }
 
         .campaign-header {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
           margin-bottom: 2rem;
         }
 
+        @media (min-width: 640px) {
+          .campaign-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+          }
+        }
+
         .header-left { display: flex; gap: 1rem; align-items: center; }
-        .header-titles h2 { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.1em; }
-        .header-titles p { font-size: 0.7rem; color: var(--text-dim); }
+        .header-titles h2 { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.1em; }
+        @media (min-width: 1024px) {
+          .header-titles h2 { font-size: 1.2rem; }
+        }
+        .header-titles p { font-size: 0.6rem; color: var(--text-dim); }
 
         .scout-report-btn {
           background: rgba(197, 160, 89, 0.1);
@@ -228,21 +247,36 @@ export default function MapSection() {
           font-size: 0.6rem;
           letter-spacing: 0.1em;
           border-radius: 4px;
+          width: fit-content;
         }
 
         .campaign-content {
-          display: grid;
-          grid-template-columns: 320px 1fr 320px;
+          display: flex;
+          flex-direction: column;
           gap: 1.5rem;
           flex: 1;
-          min-height: 0;
+          margin-bottom: 100px;
+        }
+
+        @media (min-width: 1024px) {
+          .campaign-content {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            margin-bottom: 0;
+            min-height: 0;
+          }
         }
 
         .campaign-aside {
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
-          overflow-y: auto;
+        }
+
+        @media (min-width: 1024px) {
+          .campaign-aside {
+            overflow-y: auto;
+          }
         }
 
         .panel-tag {
@@ -257,7 +291,10 @@ export default function MapSection() {
           background: rgba(10, 10, 12, 0.8);
           border: 1px solid rgba(255,255,255,0.05);
           border-radius: 8px;
-          padding: 1.5rem;
+          padding: 1rem;
+        }
+        @media (min-width: 1024px) {
+          .glass-panel { padding: 1.5rem; }
         }
 
         /* Log Panel */
@@ -274,8 +311,11 @@ export default function MapSection() {
         .log-time { font-size: 0.5rem; color: var(--text-dim); }
 
         /* Legend Panel */
-        .legend-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin-top: 1rem; }
-        .legend-item { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--text-dim); }
+        .legend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 1rem; }
+        @media (min-width: 1024px) {
+          .legend-grid { grid-template-columns: 1fr; }
+        }
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--text-dim); }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
         .dot.pos { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
         .dot.avail { background: #10b981; box-shadow: 0 0 10px #10b981; }
@@ -296,6 +336,7 @@ export default function MapSection() {
           border-radius: 8px;
           position: relative;
           overflow: hidden;
+          min-height: 400px;
         }
         .map-image-layer {
           width: 100%;
@@ -321,12 +362,20 @@ export default function MapSection() {
         }
 
         .node-glow {
-          width: 12px;
-          height: 12px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
           background: #fff;
-          box-shadow: 0 0 15px #fff;
+          box-shadow: 0 0 10px #fff;
           transition: 0.3s;
+        }
+
+        @media (min-width: 1024px) {
+          .node-glow {
+            width: 12px;
+            height: 12px;
+            box-shadow: 0 0 15px #fff;
+          }
         }
 
         .node-glow.secured { background: var(--gold-core); box-shadow: 0 0 15px var(--gold-core); }
@@ -337,11 +386,15 @@ export default function MapSection() {
         .current-ping {
           position: absolute;
           top: 0;
-          width: 12px;
-          height: 12px;
-          border: 2px solid #3b82f6;
+          width: 8px;
+          height: 8px;
+          border: 1px solid #3b82f6;
           border-radius: 50%;
           animation: ping 2s infinite;
+        }
+
+        @media (min-width: 1024px) {
+          .current-ping { width: 12px; height: 12px; border-width: 2px; }
         }
 
         @keyframes ping {
@@ -351,16 +404,19 @@ export default function MapSection() {
 
         .node-label { 
           font-family: var(--font-display); 
-          font-size: 0.6rem; 
+          font-size: 0.45rem; 
           letter-spacing: 0.1em; 
           color: #fff; 
           text-shadow: 0 2px 4px rgba(0,0,0,0.8);
           white-space: nowrap;
         }
+        @media (min-width: 1024px) {
+          .node-label { font-size: 0.6rem; }
+        }
 
         .node-status {
           font-family: var(--font-mono);
-          font-size: 0.4rem;
+          font-size: 0.35rem;
           letter-spacing: 0.1em;
           color: var(--text-dim);
           text-shadow: 0 1px 2px rgba(0,0,0,0.8);
@@ -371,8 +427,11 @@ export default function MapSection() {
 
         .boss-icon, .lock-icon {
           position: absolute;
-          top: -25px;
+          top: -20px;
           filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+        }
+        @media (min-width: 1024px) {
+          .boss-icon, .lock-icon { top: -25px; }
         }
 
         .lock-icon { color: rgba(255,255,255,0.3); }
@@ -384,7 +443,10 @@ export default function MapSection() {
         }
 
         .quick-actions-panel { height: fit-content; }
-        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        .action-grid { display: grid; grid-template-columns: 1fr; gap: 0.5rem; margin-top: 1rem; }
+        @media (min-width: 640px) {
+          .action-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        }
         .action-btn {
           background: rgba(255,255,255,0.02);
           border: 1px solid rgba(255,255,255,0.1);
@@ -402,31 +464,31 @@ export default function MapSection() {
         .action-btn:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: #fff; }
 
         /* Right Column Intel */
-        .region-branding { margin-top: 1.5rem; text-align: center; }
-        .region-branding h4 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.2em; margin-bottom: 1rem; }
-        .region-banner-placeholder { width: 100%; height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.6; }
+        .region-branding { margin-top: 1rem; text-align: center; }
+        .region-branding h4 { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
+        .region-banner-placeholder { width: 100%; height: 80px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.6; }
 
-        .stat-label { font-family: var(--font-mono); font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 2rem; margin-bottom: 1rem; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 1.5rem; margin-bottom: 0.75rem; }
         
         .completion-dial {
-          width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--gold-core);
+          width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold-core);
           display: flex; align-items: center; justify-content: center; margin: 0 auto;
-          box-shadow: 0 0 20px var(--gold-glow);
+          box-shadow: 0 0 15px var(--gold-glow);
         }
-        .completion-dial .pct { font-family: var(--font-display); font-size: 1rem; color: var(--gold-bright); }
+        .completion-dial .pct { font-family: var(--font-display); font-size: 0.8rem; color: var(--gold-bright); }
 
-        .active-modifiers { margin-top: 2rem; }
+        .active-modifiers { margin-top: 1.5rem; }
         .modifier-item { display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 4px; }
         .mod-icon { color: var(--gold-core); }
         .mod-info p { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.05em; }
         .mod-info span { font-size: 0.5rem; color: var(--text-dim); }
 
-        .upcoming-threat { margin-top: 2rem; background: rgba(255, 60, 60, 0.05); border: 1px solid rgba(255, 60, 60, 0.2); }
+        .upcoming-threat { margin-top: 1.5rem; background: rgba(255, 60, 60, 0.05); border: 1px solid rgba(255, 60, 60, 0.2); }
         .threat-card { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
-        .threat-image { width: 50px; height: 50px; background-size: cover; border-radius: 4px; border: 1px solid rgba(255, 60, 60, 0.3); }
-        .threat-info h5 { font-family: var(--font-display); font-size: 0.7rem; color: #ff3c3c; margin-bottom: 0.25rem; }
-        .threat-info p { font-size: 0.5rem; color: var(--text-dim); line-height: 1.4; }
-        .view-target-btn { width: 100%; margin-top: 1.5rem; background: none; border: 1px solid rgba(255, 60, 60, 0.5); color: #ff3c3c; font-family: var(--font-mono); font-size: 0.5rem; padding: 0.5rem; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .threat-image { width: 40px; height: 40px; background-size: cover; border-radius: 4px; border: 1px solid rgba(255, 60, 60, 0.3); }
+        .threat-info h5 { font-family: var(--font-display); font-size: 0.6rem; color: #ff3c3c; margin-bottom: 0.25rem; }
+        .threat-info p { font-size: 0.45rem; color: var(--text-dim); line-height: 1.4; }
+        .view-target-btn { width: 100%; margin-top: 1rem; background: none; border: 1px solid rgba(255, 60, 60, 0.5); color: #ff3c3c; font-family: var(--font-mono); font-size: 0.5rem; padding: 0.5rem; border-radius: 4px; cursor: pointer; transition: 0.3s; }
         .view-target-btn:hover { background: rgba(255, 60, 60, 0.1); }
       `}</style>
     </motion.div>

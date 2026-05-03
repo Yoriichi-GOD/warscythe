@@ -86,20 +86,28 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 2rem;
+          padding: 0.75rem 1rem;
           border-radius: 0;
           border-left: none;
           border-right: none;
           border-top: none;
-          height: 72px;
+          height: 64px;
         }
 
-        .header-left { display: flex; align-items: center; gap: 2rem; }
+        @media (min-width: 1024px) {
+          .main-header {
+            padding: 0.75rem 2rem;
+            height: 72px;
+          }
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        @media (min-width: 1024px) { .header-left { gap: 2rem; } }
         
-        .logo-section { display: flex; align-items: center; gap: 1rem; }
+        .logo-section { display: flex; align-items: center; gap: 0.75rem; }
         .logo-icon-box {
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           background: var(--gold-core);
           display: flex;
           align-items: center;
@@ -108,29 +116,58 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
           color: #000;
           box-shadow: 0 0 15px var(--gold-glow);
         }
+
+        @media (min-width: 1024px) {
+          .logo-icon-box {
+            width: 40px;
+            height: 40px;
+          }
+        }
+
         .logo-text h1 {
           font-family: var(--font-display);
-          font-size: 1.2rem;
+          font-size: 0.9rem;
           letter-spacing: 0.2em;
           color: var(--text-primary);
           line-height: 1;
         }
+
+        @media (min-width: 1024px) {
+          .logo-text h1 {
+            font-size: 1.2rem;
+          }
+        }
+
         .logo-text span {
           font-family: var(--font-mono);
-          font-size: 0.55rem;
+          font-size: 0.45rem;
           color: var(--gold-core);
           letter-spacing: 0.1em;
           margin-top: 4px;
           display: block;
         }
 
-        .divider { width: 1px; height: 30px; background: var(--border); }
+        @media (min-width: 1024px) {
+          .logo-text span {
+            font-size: 0.55rem;
+          }
+        }
 
-        .rank-badge { display: flex; align-items: center; gap: 0.75rem; }
+        .divider { display: none; width: 1px; height: 30px; background: var(--border); }
+        @media (min-width: 1024px) { .divider { display: block; } }
+
+        .rank-badge { display: none; align-items: center; gap: 0.75rem; }
+        @media (min-width: 640px) { .rank-badge { display: flex; } }
+
         .rank-icon { color: var(--gold-core); opacity: 0.8; }
         .rank-info { display: flex; flex-direction: column; }
         .rank-label { font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; }
         .rank-title { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .header-center { display: none; }
+        @media (min-width: 1024px) {
+          .header-center { display: block; }
+        }
 
         .progress-hub { width: 220px; }
         .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
@@ -141,21 +178,38 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
         .progress-bar-fill { height: 100%; background: var(--gold-core); border-radius: 100px; position: relative; z-index: 2; }
         .progress-bar-glow { position: absolute; top: 0; left: 0; height: 100%; background: var(--gold-core); filter: blur(4px); opacity: 0.5; }
 
-        .header-right { display: flex; align-items: center; gap: 2rem; }
-        .xp-counter { text-align: right; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        @media (min-width: 1024px) { .header-right { gap: 2rem; } }
+
+        .xp-counter { display: none; text-align: right; }
+        @media (min-width: 768px) { .xp-counter { display: block; } }
+
         .xp-label { display: block; font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; }
         .xp-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--gold-core); }
 
-        .action-buttons { display: flex; gap: 0.75rem; }
+        .action-buttons { display: flex; gap: 0.5rem; }
+        @media (min-width: 1024px) { .action-buttons { gap: 0.75rem; } }
+
         .nav-btn {
-          width: 36px;
-          height: 36px;
+          width: 32px;
+          height: 32px;
           background: rgba(255,255,255,0.03);
           border: 1px solid var(--border);
           border-radius: 8px;
           color: var(--text-dim);
+          display: flex;
+          align-items: center;
+          justify-content: center;
           transition: 0.2s;
         }
+
+        @media (min-width: 1024px) {
+          .nav-btn {
+            width: 36px;
+            height: 36px;
+          }
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
       `}</style>
     </header>
