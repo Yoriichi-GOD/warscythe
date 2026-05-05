@@ -70,7 +70,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </button>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-col lg:flex-row lg:h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
+      <section className="elite-panel !p-0 flex !flex-col lg:!flex-row lg:!h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="w-full lg:w-44 shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col py-6 lg:py-10 px-6 lg:px-8">
@@ -101,7 +101,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </div>
 
         {/* SCYTHE DISPLAY AREA */}
-        <div className="flex-1 relative h-[350px] lg:h-[calc(100vh-160px)] min-h-0">
+        <div className="flex-1 relative h-[400px] lg:!h-[calc(100vh-160px)] min-h-0">
            <ScytheDisplay level={scytheLevel} />
         </div>
       </section>

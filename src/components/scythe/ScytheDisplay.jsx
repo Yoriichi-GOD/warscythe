@@ -14,32 +14,33 @@ export default function ScytheDisplay({ level = "DORMANT" }) {
         style={{ position: 'absolute', width: '24rem', height: '24rem', borderRadius: '50%', background: 'rgba(197,160,89,0.08)', filter: 'blur(80px)', pointerEvents: 'none' }}
       />
 
-      {/* 🗡️ HEARTBEAT LEVITATION */}
-      <motion.img
-        key={safeLevel}
-        src={imagePath}
-        alt={`${safeLevel} Scythe`}
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          y: [0, -20, 0],
-          scale: [1, 1.025, 1],
-        }}
-        transition={{
-          opacity: { duration: 1.5 },
-          y: { repeat: Infinity, duration: 4, ease: "easeInOut" },
-          scale: { repeat: Infinity, duration: 4, ease: "easeInOut" },
-        }}
-        style={{
-          maxWidth: '85%',
-          maxHeight: '65%',
-          objectFit: 'contain',
-          filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.95))',
-          zIndex: 10,
-        }}
-        onLoad={() => console.log("✅ SCYTHE VISIBLE")}
-        onError={(e) => { e.target.src = '/scythe/DORMANT.png'; }}
-      />
+      {/* 🗡️ HEARTBEAT LEVITATION (HERO SCALING) */}
+      <div className="w-full h-full flex items-center justify-center p-6 z-10">
+        <motion.img
+          key={safeLevel}
+          src={imagePath}
+          alt={`${safeLevel} Scythe`}
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+            y: [0, -20, 0],
+            scale: [1, 1.025, 1],
+          }}
+          transition={{
+            opacity: { duration: 1.5 },
+            y: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+            scale: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+          }}
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 20px 80px rgba(0,0,0,1))',
+          }}
+          onLoad={() => console.log("✅ SCYTHE VISIBLE")}
+          onError={(e) => { e.target.src = '/scythe/DORMANT.png'; }}
+        />
+      </div>
 
       {/* INFO FOOTER */}
       <div style={{ position: 'absolute', bottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', zIndex: 20 }}>
