@@ -106,7 +106,7 @@ export default function MapSection() {
                 backgroundImage: "url('/campaign-map.png')",
                 filter: `hue-rotate(${currentRegion.hue}deg) sepia(${currentRegion.sepia}) saturate(${currentRegion.saturate})`
               }} 
-            />
+            >
             <div className="map-nodes-overlay">
                 
                 {/* 1. CASTLE BLACKVALE (Bottom) */}
