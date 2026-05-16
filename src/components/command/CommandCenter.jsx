@@ -101,25 +101,44 @@ export default function CommandCenter({ onPreviewUltimate }) {
         </div>
 
         {/* STREAK PROGRESS BAR (Outside the card to prevent overlap) */}
-        <div className="elite-panel p-4 flex flex-col gap-2">
+        <div className="elite-panel p-4 flex flex-col gap-3">
            <div className="flex justify-between items-center">
               <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Streak Descent</span>
               <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
            </div>
+           
            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
               <div 
                 className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_10px_rgba(197,160,89,0.5)] transition-all duration-1000"
                 style={{ width: `${streakProgress}%` }}
               />
            </div>
-           <p className="text-[7px] font-mono text-gray-600 uppercase text-center mt-1">
-              Maintain the ritual to unlock the {nextTier.name}
+
+           {/* Ultimate Tier Preview Dots */}
+           <div className="flex justify-between items-center mt-1 px-1">
+              {streakTiers.map((tier, idx) => {
+                const isUnlocked = streakCount >= tier.days;
+                return (
+                  <button
+                    key={tier.name}
+                    onClick={() => onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString())}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      isUnlocked ? 'bg-gold-core hover:scale-150' : 'bg-white/10 hover:bg-white/20'
+                    }`}
+                    title={tier.name}
+                  />
+                );
+              })}
+           </div>
+
+           <p className="text-[7px] font-mono text-gray-600 uppercase text-center">
+              Inspect tiers to witness the evolution
            </p>
         </div>
       </div>
 
       {/* 📜 RECENT INTEL */}
-      <div className="elite-panel p-5 flex-1 flex flex-col min-h-0">
+      <div className="elite-panel p-5 flex flex-col h-[300px]">
          <div className="flex justify-between items-center mb-4">
             <div className="flex flex-col gap-1">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Recent Intel</span>
@@ -129,7 +148,7 @@ export default function CommandCenter({ onPreviewUltimate }) {
          </div>
          <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4" />
          
-         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+         <div className="flex-1 overflow-y-scroll pr-2 custom-scrollbar">
             {allLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-6 opacity-30 mt-8">
                 <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] text-center uppercase leading-relaxed">
@@ -144,9 +163,9 @@ export default function CommandCenter({ onPreviewUltimate }) {
                       <span className={`text-[8px] font-mono tracking-widest font-bold ${log.status === 'CONQUERED' ? 'text-gold-core' : 'text-red-500'}`}>
                         {log.status}
                       </span>
-                      <span className="text-[7px] font-mono text-gray-500">{new Date(log.completedAt || log.abandonedAt).toLocaleDateString()}</span>
+                      <span className="text-[7px] font-mono text-gray-500">{new Date(log.completedAt || log.abandonedAt || 0).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-[10px] font-display text-white tracking-widest uppercase truncate">{log.title}</p>
+                    <p className="text-[10px] font-display text-white tracking-widest uppercase truncate">{log.title || 'Unknown Strike'}</p>
                   </div>
                 ))}
               </div>
