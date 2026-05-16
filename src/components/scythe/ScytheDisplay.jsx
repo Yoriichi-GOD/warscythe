@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 
-export default function ScytheDisplay({ level = "DORMANT" }) {
+export default function ScytheDisplay({ level = "DORMANT", type = "standard", pwr = "10" }) {
   const safeLevel = level ? level.toUpperCase() : "DORMANT";
-  const imagePath = `/scythe/${safeLevel}.png`;
+  const imagePath = type === "ultimate" 
+    ? `/ultimate/${level.toLowerCase()}.png`
+    : `/scythe/${safeLevel}.png`;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -17,7 +19,7 @@ export default function ScytheDisplay({ level = "DORMANT" }) {
       {/* 🗡️ HEARTBEAT LEVITATION (HERO SCALING) */}
       <div className="w-full h-full flex items-center justify-center p-6 z-10">
         <motion.img
-          key={safeLevel}
+          key={`${type}-${safeLevel}`}
           src={imagePath}
           alt={`${safeLevel} Scythe`}
           initial={{ opacity: 0 }}
@@ -37,18 +39,17 @@ export default function ScytheDisplay({ level = "DORMANT" }) {
             objectFit: 'contain',
             filter: 'drop-shadow(0 20px 80px rgba(0,0,0,1))',
           }}
-          onLoad={() => console.log("✅ SCYTHE VISIBLE")}
           onError={(e) => { e.target.src = '/scythe/DORMANT.png'; }}
         />
       </div>
 
       {/* INFO FOOTER */}
       <div style={{ position: 'absolute', bottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', zIndex: 20 }}>
-        <span style={{ color: '#fff', fontFamily: 'Cinzel, serif', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase' }}>{safeLevel} Scythe</span>
+        <span style={{ color: '#fff', fontFamily: 'Cinzel, serif', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase' }}>{safeLevel} {type === 'ultimate' ? 'ULTIMATE' : 'SCYTHE'}</span>
         <span style={{ color: '#6b7280', fontFamily: 'JetBrains Mono, monospace', fontSize: '8px', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.6 }}>
-          Complete operations to awaken its true potential.
+          {type === 'ultimate' ? 'The ultimate weapon of a true sovereign.' : 'Complete operations to awaken its true potential.'}
         </span>
-        <span style={{ color: 'rgba(197,160,89,0.5)', fontFamily: 'JetBrains Mono, monospace', fontSize: '8px', letterSpacing: '0.4em', textTransform: 'uppercase', fontWeight: 'bold', marginTop: '0.25rem' }}>0 PWR</span>
+        <span style={{ color: 'rgba(197,160,89,0.5)', fontFamily: 'JetBrains Mono, monospace', fontSize: '8px', letterSpacing: '0.4em', textTransform: 'uppercase', fontWeight: 'bold', marginTop: '0.25rem' }}>{pwr} PWR</span>
       </div>
     </div>
   );

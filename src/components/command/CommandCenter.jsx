@@ -2,7 +2,7 @@ import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame } from 'lucide-react';
 
-export default function CommandCenter() {
+export default function CommandCenter({ onPreviewUltimate }) {
   const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0 } = useWarscytheStore();
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
@@ -70,40 +70,51 @@ export default function CommandCenter() {
       </div>
 
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
-      <div className="elite-panel p-6 flex flex-col items-center justify-center text-center relative group min-h-[250px] overflow-hidden">
-        <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10">
-          <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Ultimate Artifact</span>
-          <h4 className="text-white font-display text-[10px] tracking-[0.2em] uppercase">Cosmic Reaper</h4>
+      <div className="flex flex-col gap-3">
+        <div 
+          className="elite-panel p-6 flex flex-col items-center justify-center text-center relative group min-h-[220px] overflow-hidden cursor-pointer hover:border-gold-core/40 transition-all"
+          onClick={() => onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500')}
+        >
+          <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10">
+            <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Ultimate Artifact</span>
+            <h4 className="text-white font-display text-[10px] tracking-[0.2em] uppercase">Cosmic Reaper</h4>
+          </div>
+          
+          <div className="relative w-36 h-36 mt-2 flex items-center justify-center">
+             <img 
+               src={`/ultimate/${currentTier.name.toLowerCase()}.png`} 
+               alt={currentTier.name} 
+               className="w-full h-full object-contain opacity-40 group-hover:opacity-80 transition-all scale-[1.3] drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]"
+               onError={(e) => { e.target.src = '/scythe/PLATINUM.png'; }}
+             />
+             <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/60 to-transparent pointer-events-none" />
+          </div>
+          
+          <div className="absolute bottom-6 right-6 text-right z-10">
+             <p className="text-white font-display text-[9px] tracking-widest uppercase">{currentTier.name}</p>
+             <p className="text-[7px] font-mono text-gold-core/60 mt-1 uppercase">TIER {streakTiers.indexOf(currentTier) + 2}</p>
+          </div>
+
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none">
+             <span className="text-[8px] font-mono text-gold-core tracking-[0.5em] uppercase font-bold">Inspect Weapon</span>
+          </div>
         </div>
-        
-        <div className="relative w-40 h-40 mt-4 flex items-center justify-center">
-           <img 
-             src={`/ultimate/${currentTier.name.toLowerCase()}.png`} 
-             alt={currentTier.name} 
-             className="w-full h-full object-contain opacity-40 group-hover:opacity-80 transition-all scale-[1.3] drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]"
-             onError={(e) => { e.target.src = '/scythe/PLATINUM.png'; }}
-           />
-           {/* Cosmic Aura Overlay */}
-           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/60 to-transparent pointer-events-none" />
-           <div className="absolute inset-0 animate-pulse bg-gold-core/5 blur-3xl rounded-full" />
-        </div>
-        
-        <div className="w-full px-4 mt-2 mb-4">
-           <div className="flex justify-between items-center mb-1.5">
-              <span className="text-[7px] font-mono text-gray-500 uppercase tracking-tighter">Streak Progress</span>
-              <span className="text-[7px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
+
+        {/* STREAK PROGRESS BAR (Outside the card to prevent overlap) */}
+        <div className="elite-panel p-4 flex flex-col gap-2">
+           <div className="flex justify-between items-center">
+              <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Streak Descent</span>
+              <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
            </div>
-           <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
+           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
               <div 
                 className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_10px_rgba(197,160,89,0.5)] transition-all duration-1000"
                 style={{ width: `${streakProgress}%` }}
               />
            </div>
-        </div>
-        
-        <div className="absolute bottom-6 right-6 text-right z-10">
-           <p className="text-white font-display text-[9px] tracking-widest uppercase">{currentTier.name}</p>
-           <p className="text-[7px] font-mono text-gold-core/60 mt-1 uppercase">LEVEL {streakTiers.indexOf(currentTier) + 2}</p>
+           <p className="text-[7px] font-mono text-gray-600 uppercase text-center mt-1">
+              Maintain the ritual to unlock the {nextTier.name}
+           </p>
         </div>
       </div>
 

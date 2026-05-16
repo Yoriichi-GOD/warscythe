@@ -10,11 +10,14 @@ import { Zap, Lock } from 'lucide-react';
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
-  const [viewedStageId, setViewedStageId] = useState(null);
+  const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
 
   const stageOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
   const currentStageIndex = stageOrder.indexOf(scytheLevel.toUpperCase());
-  const activeDisplayLevel = viewedStageId || scytheLevel;
+  
+  const activeDisplayLevel = preview.level || scytheLevel;
+  const activeDisplayType = preview.type || 'standard';
+  const activeDisplayPwr = preview.pwr || "10";
 
   const evolutionStages = [
     { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },
@@ -97,7 +100,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
                   className={`flex flex-col gap-2 p-3 rounded border transition-all cursor-pointer ${
                     isActive ? 'border-gold-core/40 bg-gold-core/5' : 'border-white/5 hover:bg-white/5'
                   } ${!isUnlocked ? 'opacity-30' : ''}`}
-                  onClick={() => isUnlocked && setViewedStageId(stage.id)}
+                  onClick={() => isUnlocked && setPreview({ level: stage.id, type: 'standard', pwr: stage.pwr })}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-6 h-6 rounded border flex items-center justify-center shrink-0 ${
@@ -137,10 +140,14 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
 
         {/* SCYTHE DISPLAY AREA */}
         <div className="flex-1 relative h-[400px] lg:!h-[calc(100vh-160px)] min-h-0 bg-gradient-to-b from-transparent to-black/40">
-           <ScytheDisplay level={activeDisplayLevel} />
-           {viewedStageId && viewedStageId !== scytheLevel.toUpperCase() && (
+           <ScytheDisplay 
+             level={activeDisplayLevel} 
+             type={activeDisplayType}
+             pwr={activeDisplayPwr}
+           />
+           {preview.level && (
              <button 
-               onClick={() => setViewedStageId(null)}
+               onClick={() => setPreview({ level: null, type: 'standard', pwr: '10' })}
                className="absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30"
              >
                Return to Active
@@ -151,7 +158,9 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
 
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
       <aside className="flex flex-col gap-6">
-        <CommandCenter />
+        <CommandCenter 
+          onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
+        />
       </aside>
 
     </div>
