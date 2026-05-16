@@ -17,12 +17,12 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const activeDisplayLevel = viewedStageId || scytheLevel;
 
   const evolutionStages = [
-    { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '0 PWR' },
-    { id: 'AWAKENED', label: 'AWAKENED', desc: 'A wooden frame bound with determination. The journey begins.', pwr: '10 PWR' },
-    { id: 'HARDENED', label: 'HARDENED', desc: 'Cold iron forged through repeated action. A reliable tool of war.', pwr: '25 PWR' },
-    { id: 'REFINED', label: 'REFINED', desc: 'Silver-edged and balanced. Precision becomes your greatest weapon.', pwr: '50 PWR' },
-    { id: 'ASCENDED', label: 'ASCENDED', desc: 'Golden resonance. Your actions now ripple through the fabric of reality.', pwr: '100 PWR' },
-    { id: 'PLATINUM', label: 'PLATINUM', desc: 'A blade of pure focus. Distraction cannot touch this edge.', pwr: '250 PWR' },
+    { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },
+    { id: 'AWAKENED', label: 'AWAKENED', desc: 'A wooden frame bound with determination. The journey begins.', pwr: '35 PWR' },
+    { id: 'HARDENED', label: 'HARDENED', desc: 'Cold iron forged through repeated action. A reliable tool of war.', pwr: '60 PWR' },
+    { id: 'REFINED', label: 'REFINED', desc: 'Silver-edged and balanced. Precision becomes your greatest weapon.', pwr: '75 PWR' },
+    { id: 'ASCENDED', label: 'ASCENDED', desc: 'Golden resonance. Your actions now ripple through the fabric of reality.', pwr: '90 PWR' },
+    { id: 'PLATINUM', label: 'PLATINUM', desc: 'A blade of pure focus. Distraction cannot touch this edge.', pwr: '100 PWR' },
   ];
 
   return (
