@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import { motion, AnimatePresence } from 'framer-motion';
 import ObjectiveRitual from '../components/operations/ObjectiveRitual';
 import MissionCard from '../components/operations/MissionCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
-import { Zap, Shield, Lock } from 'lucide-react';
+import { Zap, Lock } from 'lucide-react';
 
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
-  const tasks = useWarscytheStore(state => state.tasks);
-  const scytheLevel = useWarscytheStore(state => state.scytheLevel);
-  const [viewedStageId, setViewedStageId] = React.useState(null);
+  const tasks = useWarscytheStore(state => state.tasks) || [];
+  const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
+  const [viewedStageId, setViewedStageId] = useState(null);
 
   const stageOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
-  const currentStageIndex = stageOrder.indexOf(scytheLevel ? scytheLevel.toUpperCase() : 'DORMANT');
+  const currentStageIndex = stageOrder.indexOf(scytheLevel.toUpperCase());
   const activeDisplayLevel = viewedStageId || scytheLevel;
 
   const evolutionStages = [
@@ -110,21 +111,24 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
                        </span>
                     </div>
                   </div>
-                  {isActive && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="overflow-hidden"
-                    >
-                      <p className="text-[7px] font-mono text-gray-500 uppercase leading-relaxed mt-1">
-                        {stage.desc}
-                      </p>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-[7px] font-mono text-gold-core/60 font-bold uppercase">{stage.pwr}</span>
-                        {isActualLevel && <span className="text-[6px] font-mono bg-gold-core text-black px-1.5 py-0.5 rounded-sm font-black">ACTIVE</span>}
-                      </div>
-                    </motion.div>
-                  )}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <p className="text-[7px] font-mono text-gray-500 uppercase leading-relaxed mt-1">
+                          {stage.desc}
+                        </p>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-[7px] font-mono text-gold-core/60 font-bold uppercase">{stage.pwr}</span>
+                          {isActualLevel && <span className="text-[6px] font-mono bg-gold-core text-black px-1.5 py-0.5 rounded-sm font-black">ACTIVE</span>}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}

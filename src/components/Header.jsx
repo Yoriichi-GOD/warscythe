@@ -7,7 +7,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
   const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress } = useWarscytheStore();
   
   const xpForNext = level * 1000;
-  const progress = (currentLevelProgress / 10) * 100;
+  const progress = ((currentLevelProgress || 0) / 10) * 100;
 
   return (
     <header className="main-header glass-panel">
@@ -37,7 +37,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
         <div className="progress-hub">
           <div className="progress-header">
             <span className="progress-label">REGION PROGRESS</span>
-            <span className="progress-value">{currentLevelProgress}/10</span>
+            <span className="progress-value">{(currentLevelProgress || 0)}/10</span>
           </div>
           <div className="progress-bar-container">
             <motion.div 

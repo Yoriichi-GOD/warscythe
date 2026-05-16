@@ -5,12 +5,22 @@ import { Swords, History, Flame } from 'lucide-react';
 export default function CommandCenter() {
   const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [] } = useWarscytheStore();
 
-  const totalAttempted = completedTasks.length + abandonedTasks.length;
-  const executionRatio = totalAttempted === 0 ? 0 : Math.round((completedTasks.length / totalAttempted) * 100);
+  const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
+  const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
+
+  const totalAttempted = cTasks.length + aTasks.length;
+  const executionRatio = totalAttempted === 0 ? 0 : Math.round((cTasks.length / totalAttempted) * 100);
   const dashOffset = 125 - (125 * executionRatio) / 100;
 
-  const allLogs = [...completedTasks.map(t => ({...t, status: 'CONQUERED'})), ...abandonedTasks.map(t => ({...t, status: 'ABANDONED'}))]
-    .sort((a, b) => new Date(b.completedAt || b.abandonedAt) - new Date(a.completedAt || a.abandonedAt))
+  const allLogs = [
+    ...cTasks.map(t => ({...t, status: 'CONQUERED'})), 
+    ...aTasks.map(t => ({...t, status: 'ABANDONED'}))
+  ]
+    .sort((a, b) => {
+      const dateA = new Date(a.completedAt || a.abandonedAt || 0);
+      const dateB = new Date(b.completedAt || b.abandonedAt || 0);
+      return dateB - dateA;
+    })
     .slice(0, 10);
 
   return (
