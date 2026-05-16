@@ -95,30 +95,28 @@ export default function VaultModal({ onClose }) {
                     <div className={`large-glow rarity-${selectedArtifact.rarity}`} />
                   </div>
                   
-                  <div className="inspector-details">
-                    <span className={`rarity-label rarity-${selectedArtifact.rarity}`}>
-                      {rarities[selectedArtifact.rarity].label} ARTIFACT
-                    </span>
-                    <h3>{selectedArtifact.name}</h3>
-                    <p className="art-date">RECOVERED: {new Date(selectedArtifact.date).toLocaleDateString()}</p>
-                    
-                    <div className="lore-box">
-                      <div className="lore-header">
-                        <Scroll size={12} />
-                        <span>TACTICAL INTEL</span>
-                      </div>
-                      <p>
-                        This ancient relic was salvaged during a critical mission. It resonates with the 
-                        will of a true Warscythe. Holding it increases tactical focus and reduces distraction 
-                        by 15% (theoretical).
-                      </p>
+                    <div className="inspector-details">
+                      <span className={`rarity-label rarity-${selectedArtifact.rarity}`}>
+                        {rarities[selectedArtifact.rarity].label} ARTIFACT
+                      </span>
+                      <h3>{selectedArtifact.name}</h3>
+                      <p className="art-date">RECOVERED: {new Date(selectedArtifact.date).toLocaleDateString()}</p>
+                      
+                      {selectedArtifact.lore && (
+                        <div className="lore-box">
+                          <div className="lore-header">
+                            <Scroll size={12} />
+                            <span>TACTICAL INTEL</span>
+                          </div>
+                          <p>{selectedArtifact.lore}</p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
               ) : (
                 <div className="inspector-placeholder">
                   <Star size={32} className="placeholder-icon" />
-                  <p>SELECT AN ARTIFACT TO INSPECT ITS LORE</p>
+                  <p>SELECT AN ARTIFACT TO INSPECT ITS INTEL</p>
                 </div>
               )}
             </AnimatePresence>
@@ -299,7 +297,7 @@ export default function VaultModal({ onClose }) {
         .inspector-details h3 { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: 0.05em; }
         @media (min-width: 1024px) { .inspector-details h3 { font-size: 2rem; } }
         .art-date { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dark); }
-
+        
         .lore-box {
           margin-top: 1.5rem;
           background: rgba(255,255,255,0.02);

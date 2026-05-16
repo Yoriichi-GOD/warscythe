@@ -15,6 +15,7 @@ import QuestMap from './pages/QuestMap';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
+import CompletionLog from './pages/CompletionLog';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
@@ -24,6 +25,7 @@ export default function App() {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  const [showSlash, setShowSlash] = useState(false);
   
   const user = useWarscytheStore(state => state.user);
   
@@ -37,12 +39,17 @@ export default function App() {
   const handleFinalize = () => {
     setShowRealityLock(false);
     setIsValidating(true);
+    setShowSlash(false);
     
     setTimeout(() => {
-      completeTask(selectedTaskId);
-      setIsValidating(false);
-      setSelectedTaskId(null);
-    }, 2000);
+      setShowSlash(true);
+      setTimeout(() => {
+        completeTask(selectedTaskId);
+        setIsValidating(false);
+        setShowSlash(false);
+        setSelectedTaskId(null);
+      }, 500);
+    }, 1500);
   };
 
   const handleReturn = () => {
@@ -98,7 +105,7 @@ export default function App() {
                 }}
               />
             </motion.div>
-          ) : (
+          ) : activeTab === 'map' ? (
             <motion.div
               key="map"
               initial={{ opacity: 0, x: 20 }}
@@ -107,6 +114,16 @@ export default function App() {
               className="h-full w-full"
             >
               <QuestMap />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="log"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <CompletionLog />
             </motion.div>
           )}
         </AnimatePresence>
@@ -177,6 +194,23 @@ export default function App() {
             >
               V A L I D A T I N G
             </motion.div>
+            <AnimatePresence>
+              {showSlash && (
+                <motion.div 
+                  className="fullscreen-slash"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <motion.div 
+                    initial={{ scaleX: 0, rotate: -45, opacity: 1 }}
+                    animate={{ scaleX: 1, rotate: -45, opacity: [1, 0] }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className={`slash-line slash-material-${useWarscytheStore.getState().scytheLevel.toLowerCase()}`}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 

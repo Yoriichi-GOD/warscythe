@@ -124,7 +124,7 @@ export default function ScratchCard({ data, onClose }) {
                   <Scroll size={12} />
                   <span>DECRYPTED INTEL</span>
                 </div>
-                <p className="lore-body-text">"{fragment}"</p>
+                <p className="lore-body-text">{fragment}</p>
               </div>
               <button className="btn-primary full-width claim-btn" onClick={onClose}>
                 CLAIM REWARD & CONTINUE

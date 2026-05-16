@@ -21,10 +21,19 @@ export default function MapSection() {
   
   // Fake data for the Elite UI feel
   const expansionLogs = [
-    { id: 1, type: 'scout', text: 'SCOUTED NEW TERRITORY: Stonehollow', time: '2h ago' },
-    { id: 2, type: 'secure', text: 'SECURED VILLAGE: Village of Ashendale', time: '1d ago' },
+    { id: 1, type: 'scout', text: 'SCOUTED NEW TERRITORY: Unknown Sector', time: '2h ago' },
+    { id: 2, type: 'secure', text: 'SECURED VILLAGE: Outpost Alpha', time: '1d ago' },
     { id: 3, type: 'intel', text: 'INTELLIGENCE UPDATE: New threat detected in the north', time: '2d ago' },
   ];
+
+  const regionThemes = [
+    { name: 'VALORIA', hue: 0, sepia: 0.2, saturate: 1 },
+    { name: 'THE ASHEN WASTES', hue: 20, sepia: 0.8, saturate: 1.5 },
+    { name: 'FROSTFALL PEAKS', hue: 200, sepia: 0.3, saturate: 0.8 },
+    { name: 'THE VERDANT REACH', hue: 100, sepia: 0.5, saturate: 1.2 },
+    { name: 'VOID REALM', hue: 280, sepia: 0.6, saturate: 2 },
+  ];
+  const currentRegion = regionThemes[(level - 1) % regionThemes.length];
 
   return (
     <motion.div 
@@ -91,8 +100,14 @@ export default function MapSection() {
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
           <div className="isometric-map-wrapper">
-            <div className="map-image-layer" style={{ backgroundImage: "url('/campaign-map.png')" }}>
-              <div className="map-nodes-overlay">
+            <div 
+              className="map-image-layer" 
+              style={{ 
+                backgroundImage: "url('/campaign-map.png')",
+                filter: `hue-rotate(${currentRegion.hue}deg) sepia(${currentRegion.sepia}) saturate(${currentRegion.saturate})`
+              }} 
+            />
+            <div className="map-nodes-overlay">
                 
                 {/* 1. CASTLE BLACKVALE (Bottom) */}
                 <motion.div className="map-node" style={{ top: '75%', left: '48%' }}>
@@ -156,8 +171,11 @@ export default function MapSection() {
             </div>
             
             <div className="region-branding">
-              <h4>VALORIA</h4>
-              <div className="region-banner-placeholder" style={{ backgroundImage: "url('/region-banner.png')" }} />
+              <h4>{currentRegion.name}</h4>
+              <div className="region-banner-placeholder" style={{ 
+                backgroundImage: "url('/region-banner.png')",
+                filter: `hue-rotate(${currentRegion.hue}deg)`
+              }} />
             </div>
 
             <div className="region-completion">

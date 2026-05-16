@@ -6,27 +6,11 @@ import { Lock, Unlock } from 'lucide-react';
 export default function ScytheCenter() {
   const { dailyLog, streakCount, unlockedScythes } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
+  const [viewedStageIndex, setViewedStageIndex] = useState(null);
 
   const today = new Date().toISOString().slice(0, 10);
   const todayStats = dailyLog[today] || { completed: 0, weight: 0 };
   const weight = todayStats.weight;
-
-  let material = 'dormant';
-  let materialName = 'Dormant';
-  let auraColor = 'rgba(255, 255, 255, 0.05)';
-  
-  // Base materials
-  if (weight >= 1 && weight < 3) { material = 'wood'; materialName = 'Wooden'; auraColor = 'rgba(139, 69, 19, 0.2)'; }
-  else if (weight >= 3 && weight < 7) { material = 'steel'; materialName = 'Steel'; auraColor = 'rgba(200, 200, 200, 0.3)'; }
-  else if (weight >= 7 && weight < 10) { material = 'silver'; materialName = 'Silver'; auraColor = 'rgba(220, 220, 255, 0.4)'; }
-  else if (weight >= 10) { material = 'gold'; materialName = 'Golden'; auraColor = 'rgba(197, 160, 89, 0.5)'; }
-
-  // Streak materials
-  if (streakCount >= 25 && unlockedScythes.includes('platinum')) { material = 'platinum'; materialName = 'Platinum'; auraColor = 'rgba(229, 228, 226, 0.6)'; }
-  if (streakCount >= 50 && unlockedScythes.includes('void')) { material = 'void'; materialName = 'Void'; auraColor = 'rgba(138, 43, 226, 0.6)'; }
-  if (streakCount >= 100 && unlockedScythes.includes('eternal')) { material = 'eternal'; materialName = 'Eternal'; auraColor = 'rgba(255, 60, 60, 0.6)'; }
-
-  const fullName = weight === 0 ? 'Dormant Scythe' : `${materialName} Reaper`;
 
   const triggerSlash = () => {
     if (isSlashing) return;
@@ -35,22 +19,43 @@ export default function ScytheCenter() {
   };
 
   const stages = [
-    { id: 'dormant', name: 'DORMANT', req: 0, type: 'weight' },
-    { id: 'awakened', name: 'AWAKENED', req: 3, type: 'weight' },
-    { id: 'hardened', name: 'HARDENED', req: 7, type: 'weight' },
-    { id: 'refined', name: 'REFINED', req: 10, type: 'weight' },
-    { id: 'ascended', name: 'ASCENDED', req: 25, type: 'streak' },
-    { id: 'platinum', name: 'PLATINUM', req: 50, type: 'streak' },
+    { id: 'dormant', name: 'DORMANT', req: 0, type: 'weight', material: 'dormant', materialName: 'Dormant' },
+    { id: 'awakened', name: 'AWAKENED', req: 3, type: 'weight', material: 'wood', materialName: 'Wooden' },
+    { id: 'hardened', name: 'HARDENED', req: 7, type: 'weight', material: 'steel', materialName: 'Steel' },
+    { id: 'refined', name: 'REFINED', req: 10, type: 'weight', material: 'silver', materialName: 'Silver' },
+    { id: 'ascended', name: 'ASCENDED', req: 25, type: 'streak', material: 'gold', materialName: 'Golden' },
+    { id: 'platinum', name: 'PLATINUM', req: 50, type: 'streak', material: 'platinum', materialName: 'Platinum' },
+    { id: 'void', name: 'VOID', req: 100, type: 'streak', material: 'void', materialName: 'Void' },
+    { id: 'eternal', name: 'ETERNAL', req: 200, type: 'streak', material: 'eternal', materialName: 'Eternal' }
   ];
 
   const currentStageIndex = (() => {
-    if (streakCount >= 50 && unlockedScythes.includes('void')) return 5;
-    if (streakCount >= 25 && unlockedScythes.includes('platinum')) return 4;
+    if (streakCount >= 100 && unlockedScythes.includes('eternal')) return 7;
+    if (streakCount >= 50 && unlockedScythes.includes('void')) return 6;
+    if (streakCount >= 25 && unlockedScythes.includes('platinum')) return 5;
+    if (streakCount >= 25) return 4;
     if (weight >= 10) return 3;
     if (weight >= 7) return 2;
     if (weight >= 3) return 1;
     return 0;
   })();
+
+  const activeStageIndex = viewedStageIndex !== null ? viewedStageIndex : currentStageIndex;
+  const activeStage = stages[activeStageIndex];
+  let material = activeStage.material;
+  let materialName = activeStage.materialName;
+  let auraColor = 'rgba(255, 255, 255, 0.05)';
+  
+  if (material === 'dormant') auraColor = 'rgba(255, 255, 255, 0.05)';
+  else if (material === 'wood') auraColor = 'rgba(139, 69, 19, 0.2)';
+  else if (material === 'steel') auraColor = 'rgba(200, 200, 200, 0.3)';
+  else if (material === 'silver') auraColor = 'rgba(220, 220, 255, 0.4)';
+  else if (material === 'gold') auraColor = 'rgba(197, 160, 89, 0.5)';
+  else if (material === 'platinum') auraColor = 'rgba(229, 228, 226, 0.6)';
+  else if (material === 'void') auraColor = 'rgba(138, 43, 226, 0.6)';
+  else if (material === 'eternal') auraColor = 'rgba(255, 60, 60, 0.6)';
+
+  const fullName = material === 'dormant' ? 'Dormant Scythe' : `${materialName} Reaper`;
 
   return (
     <section className="scythe-center-section">
@@ -75,7 +80,13 @@ export default function ScytheCenter() {
               }
 
               return (
-                <div key={stage.id} className={`evo-item ${isUnlocked ? 'unlocked' : 'locked'} ${isCurrent ? 'current' : ''}`}>
+                <div 
+                  key={stage.id} 
+                  className={`evo-item ${isUnlocked ? 'unlocked cursor-pointer hover:opacity-100' : 'locked opacity-30'} ${isCurrent ? 'current' : ''} ${viewedStageIndex === index ? 'ring-1 ring-white/20 p-1 rounded bg-white/5' : ''}`}
+                  onClick={() => {
+                    if (isUnlocked) setViewedStageIndex(index);
+                  }}
+                >
                   <div className="evo-icon">
                     {isUnlocked ? <Unlock size={14} /> : <Lock size={14} />}
                   </div>
@@ -126,14 +137,29 @@ export default function ScytheCenter() {
               {streakCount > 0 && <span className="streak-tag">{streakCount}D STREAK</span>}
             </div>
             <div className="power-meter">
-              <div className="power-track">
-                <motion.div 
-                  className="power-fill" 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, (weight / 10) * 100)}%` }}
-                />
-              </div>
-              <span className="power-val">{Math.round(weight * 10) / 10} PWR</span>
+              {activeStage.type === 'streak' ? (
+                <>
+                  <div className="power-track">
+                    <motion.div 
+                      className="power-fill bg-purple-500" 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, (streakCount / activeStage.req) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="power-val">{streakCount} / {activeStage.req} STRK</span>
+                </>
+              ) : (
+                <>
+                  <div className="power-track">
+                    <motion.div 
+                      className="power-fill" 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, (weight / 10) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="power-val">{Math.round(weight * 10) / 10} PWR</span>
+                </>
+              )}
             </div>
           </div>
           </div>

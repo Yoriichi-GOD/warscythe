@@ -34,16 +34,28 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
           <div className="compass-flare" />
         </div>
 
-        {/* Right: Quest Map */}
-        <button 
-          className={`elite-tab ${activeTab === 'map' ? 'active' : ''}`}
-          onClick={() => onTabChange('map')}
-        >
-          <div className="tab-icon-box">
-            <BookOpen size={18} />
-          </div>
-          <span className="tab-label">Quest Map</span>
-        </button>
+        {/* Right: Log & Map */}
+        <div className="flex gap-4 sm:gap-10">
+          <button 
+            className={`elite-tab ${activeTab === 'log' ? 'active' : ''}`}
+            onClick={() => onTabChange('log')}
+          >
+            <div className="tab-icon-box">
+              <BookOpen size={18} />
+            </div>
+            <span className="tab-label">Log</span>
+          </button>
+
+          <button 
+            className={`elite-tab ${activeTab === 'map' ? 'active' : ''}`}
+            onClick={() => onTabChange('map')}
+          >
+            <div className="tab-icon-box">
+              <BookOpen size={18} />
+            </div>
+            <span className="tab-label">Map</span>
+          </button>
+        </div>
       </div>
     </nav>
   );
