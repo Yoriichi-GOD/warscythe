@@ -15,7 +15,6 @@ import QuestMap from './pages/QuestMap';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
-import CompletionLog from './pages/CompletionLog';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
@@ -105,7 +104,7 @@ export default function App() {
                 }}
               />
             </motion.div>
-          ) : activeTab === 'map' ? (
+          ) : (
             <motion.div
               key="map"
               initial={{ opacity: 0, x: 20 }}
@@ -114,16 +113,6 @@ export default function App() {
               className="h-full w-full"
             >
               <QuestMap />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="log"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="h-full w-full"
-            >
-              <CompletionLog />
             </motion.div>
           )}
         </AnimatePresence>

@@ -3,7 +3,15 @@ import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame } from 'lucide-react';
 
 export default function CommandCenter() {
-  const { xp, totalCompletions, scytheLevel } = useWarscytheStore();
+  const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [] } = useWarscytheStore();
+
+  const totalAttempted = completedTasks.length + abandonedTasks.length;
+  const executionRatio = totalAttempted === 0 ? 0 : Math.round((completedTasks.length / totalAttempted) * 100);
+  const dashOffset = 125 - (125 * executionRatio) / 100;
+
+  const allLogs = [...completedTasks.map(t => ({...t, status: 'CONQUERED'})), ...abandonedTasks.map(t => ({...t, status: 'ABANDONED'}))]
+    .sort((a, b) => new Date(b.completedAt || b.abandonedAt) - new Date(a.completedAt || a.abandonedAt))
+    .slice(0, 10);
 
   return (
     <div className="flex flex-col gap-4 h-full relative">
@@ -29,9 +37,9 @@ export default function CommandCenter() {
            <div className="relative w-12 h-12 mt-1">
              <svg className="w-full h-full transform -rotate-90">
                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
-               <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gold-core" strokeDasharray="125" strokeDashoffset="125" />
+               <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gold-core" strokeDasharray="125" strokeDashoffset={dashOffset} style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
              </svg>
-             <span className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-white">0%</span>
+             <span className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-white">{executionRatio}%</span>
            </div>
         </div>
       </div>
@@ -70,10 +78,29 @@ export default function CommandCenter() {
             <History size={14} className="text-gold-core/30" />
          </div>
          <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4" />
-         <div className="flex-1 flex flex-col items-center justify-center gap-6 opacity-30">
-            <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] text-center uppercase leading-relaxed">
-              No operations completed yet.<br/>The log awaits your victories.
-            </p>
+         
+         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            {allLogs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-6 opacity-30 mt-8">
+                <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] text-center uppercase leading-relaxed">
+                  No operations completed yet.<br/>The log awaits your victories.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {allLogs.map((log, i) => (
+                  <div key={i} className={`p-3 rounded border ${log.status === 'CONQUERED' ? 'bg-white/[0.02] border-gold-core/20' : 'bg-red-900/10 border-red-500/20'}`}>
+                    <div className="flex justify-between items-start mb-1">
+                      <span className={`text-[8px] font-mono tracking-widest font-bold ${log.status === 'CONQUERED' ? 'text-gold-core' : 'text-red-500'}`}>
+                        {log.status}
+                      </span>
+                      <span className="text-[7px] font-mono text-gray-500">{new Date(log.completedAt || log.abandonedAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-[10px] font-display text-white tracking-widest uppercase truncate">{log.title}</p>
+                  </div>
+                ))}
+              </div>
+            )}
          </div>
       </div>
     </div>
