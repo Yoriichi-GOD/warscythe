@@ -157,7 +157,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       </section>
 
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
-      <aside className="flex flex-col gap-6">
+      <aside className="flex flex-col gap-6 lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pr-2">
         <CommandCenter 
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
         />

@@ -34,7 +34,8 @@ export default function CommandCenter({ onPreviewUltimate }) {
     { days: 360, name: 'DEATH-LORD' }
   ];
 
-  const currentTier = streakTiers.findLast(t => streakCount >= t.days) || { name: 'DORMANT', days: 5 };
+  // More compatible findLast equivalent
+  const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days) || { name: 'NEOPHYTE', days: 5 };
   const nextTier = streakTiers.find(t => streakCount < t.days) || streakTiers[streakTiers.length - 1];
   const streakProgress = Math.min(100, (streakCount / nextTier.days) * 100);
 
