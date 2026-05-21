@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from './store/useWarscytheStore';
 import Header from './components/Header';
 import TaskModal from './components/TaskModal';
+import RitualModal from './components/RitualModal';
 import TaskDetail from './components/TaskDetail';
 import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
@@ -11,6 +12,7 @@ import { ShieldAlert } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
+import Rituals from './pages/Rituals';
 import QuestMap from './pages/QuestMap';
 import CompletionLog from './pages/CompletionLog';
 import LevelUpModal from './components/LevelUpModal';
@@ -21,6 +23,7 @@ import { initNetworkMonitoring } from './utils/nativeTriggers';
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showRitualModal, setShowRitualModal] = useState(false);
   const [showVault, setShowVault] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -64,6 +67,7 @@ export default function App() {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
         setShowTaskModal(false);
+        setShowRitualModal(false);
         setShowVault(false);
         setSelectedTaskId(null);
       }
@@ -114,6 +118,16 @@ export default function App() {
                 }}
               />
             </motion.div>
+          ) : activeTab === 'rituals' ? (
+            <motion.div
+              key="rituals"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full w-full"
+            >
+              <Rituals onAddTask={() => setShowRitualModal(true)} />
+            </motion.div>
           ) : activeTab === 'map' ? (
             <motion.div
               key="map"
@@ -151,6 +165,10 @@ export default function App() {
       <AnimatePresence>
         {showTaskModal && (
           <TaskModal onClose={() => setShowTaskModal(false)} />
+        )}
+        
+        {showRitualModal && (
+          <RitualModal onClose={() => setShowRitualModal(false)} />
         )}
         
         {selectedTaskId && (

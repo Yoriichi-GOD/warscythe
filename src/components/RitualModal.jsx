@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity } from 'lucide-react';
+import { X, ShieldAlert, Crosshair, Zap, Activity } from 'lucide-react';
 
-export default function TaskModal({ onClose }) {
+export default function RitualModal({ onClose }) {
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Work');
+  const [frequency, setFrequency] = useState('daily');
   const [effort, setEffort] = useState('Medium');
-  const [deadline, setDeadline] = useState('');
   
-  const addTask = useWarscytheStore(state => state.addTask);
+  const addRitual = useWarscytheStore(state => state.addRitual);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !deadline) return;
-    const success = addTask(title, category, effort, deadline);
+    if (!title) return;
+    
+    const success = addRitual(title, frequency, effort);
     if (success) onClose();
-    else alert("Operation failed: Max active tasks reached (3).");
+    else alert("Ritual creation failed.");
   };
 
   return (
@@ -32,17 +32,17 @@ export default function TaskModal({ onClose }) {
         <div className="modal-header">
           <div className="modal-title-box">
             <Crosshair size={18} className="text-gold" />
-            <h2>NEW OPERATION</h2>
+            <h2>ENSHRINE RITUAL</h2>
           </div>
           <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="tactical-form">
           <div className="form-group full">
-            <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
+            <label><Zap size={10} /> RITUAL IDENTIFIER</label>
             <input 
               type="text" 
-              placeholder="ENTER TASK PROTOCOL..." 
+              placeholder="ENTER HABIT ROUTINE..." 
               value={title} 
               onChange={e => setTitle(e.target.value)}
               autoFocus
@@ -52,12 +52,10 @@ export default function TaskModal({ onClose }) {
 
           <div className="form-grid">
             <div className="form-group">
-              <label><ShieldAlert size={10} /> CATEGORY</label>
-              <select value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="Work">SYSTEMS // WORK</option>
-                <option value="Study">INTEL // STUDY</option>
-                <option value="Fitness">FORCE // FITNESS</option>
-                <option value="Creative">FORGE // CREATIVE</option>
+              <label><ShieldAlert size={10} /> FREQUENCY</label>
+              <select value={frequency} onChange={e => setFrequency(e.target.value)}>
+                <option value="daily">DAILY REPETITION</option>
+                <option value="weekly">WEEKLY CADENCE</option>
               </select>
             </div>
 
@@ -72,21 +70,9 @@ export default function TaskModal({ onClose }) {
             </div>
           </div>
 
-          <div className="form-group full">
-            <label><Calendar size={10} /> TARGET DEADLINE</label>
-            <div className="date-input-wrapper">
-              <input 
-                type="date" 
-                value={deadline} 
-                onChange={e => setDeadline(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
           <div className="modal-footer">
             <button type="submit" className="btn-primary deploy-btn">
-              <span>CONFIRM DEPLOYMENT</span>
+              <span>CONFIRM ENSHRINEMENT</span>
             </button>
           </div>
         </form>
@@ -180,15 +166,6 @@ export default function TaskModal({ onClose }) {
         
         input::placeholder { color: var(--text-dark); opacity: 0.5; }
 
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          filter: invert(1);
-          cursor: pointer;
-          opacity: 0.5;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover {
-          opacity: 1;
-        }
-        
         .deploy-btn {
           height: 54px;
           border-radius: 4px;

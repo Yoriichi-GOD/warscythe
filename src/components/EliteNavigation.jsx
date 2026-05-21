@@ -1,21 +1,33 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Swords, BookOpen, History } from 'lucide-react';
+import { Swords, BookOpen, History, Flame } from 'lucide-react';
 
 export default function EliteNavigation({ activeTab, onTabChange }) {
   return (
     <nav className="elite-nav">
       <div className="nav-container">
-        {/* Left: Operations */}
-        <button 
-          className={`elite-tab ${activeTab === 'ops' ? 'active' : ''}`}
-          onClick={() => onTabChange('ops')}
-        >
-          <div className="tab-icon-box">
-            <Swords size={18} />
-          </div>
-          <span className="tab-label">Operations</span>
-        </button>
+        {/* Left: Operations & Rituals */}
+        <div className="flex gap-4 sm:gap-10">
+          <button 
+            className={`elite-tab ${activeTab === 'ops' ? 'active' : ''}`}
+            onClick={() => onTabChange('ops')}
+          >
+            <div className="tab-icon-box">
+              <Swords size={18} />
+            </div>
+            <span className="tab-label">Operations</span>
+          </button>
+
+          <button 
+            className={`elite-tab ${activeTab === 'rituals' ? 'active' : ''}`}
+            onClick={() => onTabChange('rituals')}
+          >
+            <div className="tab-icon-box">
+              <Flame size={18} />
+            </div>
+            <span className="tab-label">Rituals</span>
+          </button>
+        </div>
 
         {/* Center: Command Core Emblem */}
         <div className="compass-center">
