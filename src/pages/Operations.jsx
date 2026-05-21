@@ -94,7 +94,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
             
             <div className="flex flex-col gap-3">
               {tasks.map(task => (
-                <MissionCard key={task.id} task={task} onComplete={onCompleteTask} />
+                <MissionCard key={task.id} task={task} onOpen={onOpenTask} />
               ))}
 
               {tasks.length < 3 && (

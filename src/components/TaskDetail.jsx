@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, CheckCircle, Trash2, Zap } from 'lucide-react';
+import { X, CheckCircle, Trash2, Zap, Target, BookOpen } from 'lucide-react';
 
 export default function TaskDetail({ taskId, onClose, onComplete }) {
   const task = useWarscytheStore(state => 
@@ -20,167 +20,257 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
     onComplete();
   };
 
+  const trackColor = 'var(--gold-core)';
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <motion.div 
         layoutId={taskId}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: [0.8, 1.05, 1] }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="modal-content detail-content glass-panel"
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="task-detail-panel"
         onClick={e => e.stopPropagation()}
       >
-        <div className="modal-header">
-          <div className="title-area">
-            <span className="cat-tag">{task.category}</span>
-            <h2>{task.title}</h2>
+        {/* Header */}
+        <div className="td-header">
+          <div className="td-title-group">
+            <span className="td-category">{task.category}</span>
+            <h2 className="td-title">{task.title}</h2>
           </div>
-          <button className="btn-close" onClick={onClose}><X size={20} /></button>
+          <button className="td-close" onClick={onClose}><X size={20} /></button>
         </div>
 
-        <div className="detail-body">
-          <div className="progress-section">
-            <div className="progress-info">
+        <div className="td-body custom-scrollbar">
+          
+          {/* Progress Slider */}
+          <div className="td-section">
+            <div className="td-section-header">
               <label>PROGRESS: {task.progress}%</label>
-              <span className="stage-name">{task.progress < 70 ? 'BUILD' : task.progress < 95 ? 'FINISH' : 'SHIP'}</span>
+              <span className="td-stage" style={{ color: trackColor }}>
+                {task.progress < 70 ? 'BUILD' : task.progress < 95 ? 'FINISH' : 'SHIP'}
+              </span>
             </div>
-            <input 
-              type="range" 
-              min="0" max="100" step="5"
-              value={task.progress}
-              onChange={e => updateProgress(task.id, parseInt(e.target.value))}
-            />
-            <div className="progress-track large">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${task.progress}%`, background: task.progress < 70 ? 'var(--stage-build)' : task.progress < 95 ? 'var(--stage-finish)' : 'var(--stage-ship)' }} 
+            
+            <div className="td-slider-container">
+              <div className="td-slider-track">
+                <div className="td-slider-fill" style={{ width: `${task.progress}%`, background: trackColor }} />
+              </div>
+              <input 
+                type="range" 
+                min="0" max="100" step="5"
+                value={task.progress}
+                onChange={e => updateProgress(task.id, parseInt(e.target.value))}
+                className="td-native-slider"
               />
             </div>
           </div>
 
-          <div className="micro-steps-section">
-             <div className="section-label">
-                <label>MICRO STEPS</label>
+          {/* Micro Steps */}
+          <div className="td-section">
+             <div className="td-section-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Target size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
+                  <label>MICRO STEPS</label>
+                </div>
                 <button 
-                  className="btn-tiny" 
+                  className="td-btn-recalc" 
                   onClick={() => generateMicroSteps(task.id)}
-                  title="Generate steps to overcome resistance"
                 >
                   <Zap size={10} /> RECALCULATE
                 </button>
              </div>
-             <div className="steps-list">
+             
+             <div className="td-steps-list">
                {task.microSteps.length === 0 ? (
-                 <p className="empty-sub">No steps generated. Resistance is high? Use Recalculate.</p>
+                 <div className="td-empty-state">
+                   <p>No tactical steps generated.</p>
+                   <span>Resistance is high? Recalculate your approach.</span>
+                 </div>
                ) : (
                  task.microSteps.map(step => (
                    <div 
                     key={step.id} 
-                    className={`step-item ${step.checked ? 'checked' : ''}`}
+                    className={`td-step-item ${step.checked ? 'checked' : ''}`}
                     onClick={() => toggleMicroStep(task.id, step.id)}
                    >
-                     <div className="checkbox">{step.checked && <CheckCircle size={14} />}</div>
-                     <span>{step.label}</span>
+                     <div className="td-checkbox">
+                       {step.checked && <CheckCircle size={14} style={{ color: 'var(--gold-core)' }} />}
+                     </div>
+                     <span className="td-step-label">{step.label}</span>
                    </div>
                  ))
                )}
              </div>
           </div>
 
-          <div className="notes-section">
-            <label>FIELD NOTES</label>
+          {/* Field Notes */}
+          <div className="td-section">
+            <div className="td-section-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <BookOpen size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
+                <label>FIELD NOTES</label>
+              </div>
+            </div>
             <textarea 
-              placeholder="Strategic observations..."
+              className="td-textarea"
+              placeholder="Record strategic observations, roadblocks, or intelligence..."
               value={task.notes}
               onChange={e => updateNotes(task.id, e.target.value)}
             />
           </div>
 
-          <div className="detail-actions">
-            <button className="btn-primary flex-1" onClick={handleComplete}>
-              <CheckCircle size={18} /> VALIDATE EXECUTION
-            </button>
-            <button className="btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); onClose(); }}}>
-              <Trash2 size={18} />
-            </button>
-          </div>
         </div>
+
+        {/* Action Bar */}
+        <div className="td-footer">
+          <button className="td-btn-validate" onClick={handleComplete}>
+            <CheckCircle size={18} /> 
+            <span>VALIDATE EXECUTION</span>
+          </button>
+          
+          <button className="td-btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); onClose(); }}}>
+            <Trash2 size={18} />
+          </button>
+        </div>
+
       </motion.div>
 
       <style jsx>{`
         .modal-backdrop {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          position: fixed; inset: 0;
           background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-          display: flex; align-items: center; justify-content: center; z-index: 1000;
+          display: flex; align-items: center; justify-content: center; z-index: 2000;
           padding: 1rem;
         }
-        .detail-content { max-width: 550px; width: 100%; padding: 1.5rem; }
-        @media (min-width: 640px) {
-          .detail-content { padding: 2rem; }
+
+        .task-detail-panel {
+          width: 100%; max-width: 500px; max-height: 90vh;
+          background: #0a0a0d;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          display: flex; flex-direction: column;
+          overflow: hidden;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .cat-tag { font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold-core); letter-spacing: 0.1em; }
-        
-        .modal-header h2 { margin-top: 0.2rem; font-size: 1.1rem; color: var(--text-primary); }
-        @media (min-width: 640px) {
-          .modal-header h2 { font-size: 1.4rem; }
+        /* HEADER */
+        .td-header {
+          display: flex; justify-content: space-between; align-items: flex-start;
+          padding: 1.5rem;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.02);
         }
-        
-        .progress-section { margin-top: 1rem; }
-        @media (min-width: 640px) {
-          .progress-section { margin-top: 1.5rem; }
-        }
-        .progress-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem; }
-        .stage-name { font-weight: 900; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.2em; }
-        
-        .progress-track.large { height: 12px; }
-        input[type="range"] { margin-bottom: 1rem; width: 100%; }
+        .td-title-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .td-category { font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-core); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 900; }
+        .td-title { font-family: var(--font-display); font-size: 1.25rem; color: #fff; letter-spacing: 0.05em; line-height: 1.3; margin: 0; }
+        .td-close { color: rgba(255,255,255,0.4); cursor: pointer; transition: 0.2s; padding: 0.25rem; background: transparent; border: none; }
+        .td-close:hover { color: #fff; transform: rotate(90deg); }
 
-        .micro-steps-section { margin-top: 1.5rem; }
-        @media (min-width: 640px) {
-          .micro-steps-section { margin-top: 2rem; }
+        /* BODY */
+        .td-body {
+          padding: 1.5rem;
+          overflow-y: auto;
+          display: flex; flex-direction: column; gap: 2rem;
         }
-        .section-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        .btn-tiny { background: rgba(255,255,255,0.05); color: var(--gold-core); font-size: 0.6rem; padding: 4px 8px; border-radius: 4px; font-weight: 800; }
         
-        .steps-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto; padding-right: 4px; }
-        @media (min-width: 640px) {
-          .steps-list { max-height: 250px; }
+        .td-section { display: flex; flex-direction: column; gap: 0.75rem; }
+        .td-section-header { display: flex; justify-content: space-between; align-items: center; }
+        .td-section-header label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 900; color: rgba(255,255,255,0.6); letter-spacing: 0.15em; margin: 0; }
+        .td-stage { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.2em; text-shadow: 0 0 10px currentColor; }
+
+        /* SLIDER */
+        .td-slider-container { position: relative; height: 24px; display: flex; align-items: center; margin-top: 0.5rem; }
+        .td-slider-track { position: absolute; left: 0; right: 0; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: visible; }
+        .td-slider-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease, background 0.3s ease; position: relative; }
+        .td-slider-fill::after {
+          content: '';
+          position: absolute;
+          right: -8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          background: var(--gold-bright);
+          border-radius: 50%;
+          box-shadow: 0 0 10px var(--gold-core);
         }
-        .step-item { 
-          display: flex; align-items: center; gap: 0.8rem; 
-          background: rgba(255,255,255,0.03); padding: 0.6rem 1rem; 
-          border-radius: 8px; cursor: pointer; transition: 0.2s;
-          font-size: 0.75rem; border: 1px solid transparent;
-        }
-        @media (min-width: 640px) {
-          .step-item { font-size: 0.8rem; }
-        }
-        .step-item:hover { background: rgba(255,255,255,0.06); border-color: var(--border); }
-        .step-item.checked { opacity: 0.4; }
-        .checkbox { width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--gold-core); }
-        
-        .notes-section { margin-top: 1.5rem; }
-        textarea {
-          width: 100%; min-height: 80px; background: rgba(0,0,0,0.2); 
-          border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);
-          padding: 1rem; font-family: inherit; font-size: 0.8rem; margin-top: 0.5rem;
-        }
-        @media (min-width: 640px) {
-          textarea { min-height: 100px; font-size: 0.85rem; }
+        .td-native-slider {
+          position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; margin: 0;
         }
 
-        .detail-actions { margin-top: 1.5rem; display: flex; gap: 0.8rem; }
-        @media (min-width: 640px) {
-          .detail-actions { margin-top: 2rem; }
+        /* MICRO STEPS */
+        .td-btn-recalc { 
+          display: flex; align-items: center; gap: 0.25rem;
+          background: rgba(197, 160, 89, 0.1); color: var(--gold-core); 
+          font-family: var(--font-mono); font-size: 0.55rem; padding: 4px 8px; border-radius: 4px; font-weight: 800; letter-spacing: 0.1em;
+          border: 1px solid rgba(197, 160, 89, 0.2); transition: 0.2s; cursor: pointer;
         }
-        .flex-1 { flex: 1; }
-        .btn-danger { width: 48px; height: 48px; border-radius: var(--radius); background: rgba(139, 0, 0, 0.2); color: var(--red-hot); border: 1px solid rgba(139, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        @media (min-width: 640px) {
-          .btn-danger { width: 50px; height: 50px; }
+        .td-btn-recalc:hover { background: rgba(197, 160, 89, 0.2); border-color: rgba(197, 160, 89, 0.4); }
+
+        .td-steps-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .td-step-item { 
+          display: flex; align-items: flex-start; gap: 0.8rem; 
+          background: rgba(255,255,255,0.02); padding: 1rem; 
+          border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+          cursor: pointer; transition: 0.2s;
         }
-        .btn-danger:hover { background: var(--red-core); color: #fff; }
+        .td-step-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+        .td-step-item.checked { opacity: 0.5; border-color: transparent; }
+        .td-step-item.checked .td-step-label { text-decoration: line-through; color: rgba(255,255,255,0.4); }
+        
+        .td-checkbox { 
+          width: 20px; height: 20px; flex-shrink: 0;
+          border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; 
+          display: flex; align-items: center; justify-content: center; 
+          margin-top: 2px; transition: 0.2s;
+        }
+        .td-step-item.checked .td-checkbox { border-color: transparent; background: transparent; }
+        .td-step-label { font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.4; transition: 0.2s; }
+
+        .td-empty-state {
+          padding: 1.5rem; text-align: center; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1);
+        }
+        .td-empty-state p { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; }
+        .td-empty-state span { font-size: 0.65rem; font-family: var(--font-mono); color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* TEXTAREA */
+        .td-textarea {
+          width: 100%; min-height: 100px; 
+          background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+          border-radius: 8px; color: #fff; padding: 1rem; 
+          font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.5;
+          resize: vertical; transition: 0.2s;
+        }
+        .td-textarea:focus { outline: none; border-color: rgba(197, 160, 89, 0.4); background: rgba(0,0,0,0.5); }
+
+        /* FOOTER ACTIONS */
+        .td-footer {
+          display: flex; gap: 0.75rem; padding: 1.5rem;
+          background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .td-btn-validate {
+          flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+          background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(197, 160, 89, 0.05) 100%);
+          border: 1px solid var(--gold-core); border-radius: 8px;
+          color: var(--gold-bright); font-family: var(--font-mono); font-weight: 900; font-size: 0.85rem; letter-spacing: 0.15em;
+          padding: 1rem; cursor: pointer; transition: 0.3s;
+          box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+        }
+        .td-btn-validate:hover {
+          background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
+        }
+
+        .td-btn-danger {
+          width: 54px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+          background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px;
+          color: rgba(220, 38, 38, 0.8); cursor: pointer; transition: 0.2s;
+        }
+        .td-btn-danger:hover {
+          background: rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.6); color: #ef4444; transform: translateY(-2px);
+        }
       `}</style>
     </div>
   );

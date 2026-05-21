@@ -1,15 +1,50 @@
 import { motion } from "framer-motion";
 import { Flame, MoreHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
 
-export default function MissionCard({ task, onComplete }) {
+export default function MissionCard({ task, onOpen }) {
   const progress = task.progress || 0;
-  const timeLeft = task.timeLeft || "15:00";
+  
+  const [timeLeft, setTimeLeft] = useState({ value: "---", unit: "NO LIMIT" });
+
+  useEffect(() => {
+    const calculateTime = () => {
+      if (!task.deadline) {
+        setTimeLeft({ value: "---", unit: "ANYTIME" });
+        return;
+      }
+      const deadline = new Date(task.deadline);
+      const now = new Date();
+      const diffMs = deadline - now;
+      
+      if (diffMs <= 0) {
+        setTimeLeft({ value: "00", unit: "OVERDUE" });
+        return;
+      }
+      
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      
+      if (diffDays > 0) {
+        setTimeLeft({ value: diffDays.toString(), unit: diffDays === 1 ? 'DAY' : 'DAYS' });
+      } else if (diffHours > 0) {
+        setTimeLeft({ value: diffHours.toString(), unit: diffHours === 1 ? 'HR' : 'HRS' });
+      } else {
+        setTimeLeft({ value: diffMins.toString(), unit: 'MIN' });
+      }
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, [task.deadline]);
 
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
       className="relative group cursor-pointer rounded-xl border border-gold-core/10 bg-white/[0.02] hover:bg-white/[0.05] transition-all overflow-hidden"
-      onClick={() => onComplete(task.id)}
+      onClick={() => onOpen(task.id)}
     >
       <div className="flex items-center gap-4 p-4">
         
@@ -27,8 +62,8 @@ export default function MissionCard({ task, onComplete }) {
             />
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-white font-mono text-[11px] font-bold leading-none">{timeLeft.split(':')[0]}:{timeLeft.split(':')[1] || '00'}</span>
-            <span className="text-[6px] font-mono text-gray-500 uppercase tracking-wider">Remaining</span>
+            <span className="text-white font-mono text-[11px] font-bold leading-none">{timeLeft.value}</span>
+            <span className="text-[6px] font-mono text-gray-500 uppercase tracking-wider">{timeLeft.unit}</span>
           </div>
         </div>
 
@@ -37,7 +72,7 @@ export default function MissionCard({ task, onComplete }) {
           <h3 className="text-white font-display text-[10px] tracking-[0.2em] uppercase truncate group-hover:text-gold-bright transition-colors">
             {task.title}
           </h3>
-          <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">15 Minute Strike</span>
+          <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">{task.category || 'Strategic'} Strike</span>
           <div className="flex items-center gap-2 mt-0.5">
             <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
               <motion.div 
@@ -53,7 +88,7 @@ export default function MissionCard({ task, onComplete }) {
         {/* GOLDEN FLAME + MENU */}
         <div className="flex items-center gap-2 shrink-0">
           <Flame size={20} className="text-gold-core drop-shadow-[0_0_8px_rgba(197,160,89,0.4)]" fill="currentColor" />
-          <button className="w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:text-white transition-colors" onClick={(e) => e.stopPropagation()}>
+          <button className="w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); onOpen(task.id); }}>
             <MoreHorizontal size={14} />
           </button>
         </div>

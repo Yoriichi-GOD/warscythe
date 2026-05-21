@@ -525,9 +525,28 @@ export const useWarscytheStore = create(
         };
         const v = verbs[task.category] || verbs.Work;
 
+        let durationText = "5-10 min";
+        if (task.deadline) {
+          const diffMs = new Date(task.deadline) - new Date();
+          if (diffMs > 0) {
+            const msPerStep = diffMs / count;
+            const hoursPerStep = msPerStep / (1000 * 60 * 60);
+            if (hoursPerStep >= 24) {
+              const days = Math.round(hoursPerStep / 24);
+              durationText = `${days} day${days > 1 ? 's' : ''}`;
+            } else if (hoursPerStep >= 1) {
+              const hrs = Math.round(hoursPerStep);
+              durationText = `${hrs} hr${hrs > 1 ? 's' : ''}`;
+            } else {
+              const mins = Math.max(5, Math.round(msPerStep / (1000 * 60)));
+              durationText = `${mins} min`;
+            }
+          }
+        }
+
         const microSteps = Array.from({ length: count }, (_, i) => ({
           id: genId(),
-          label: `${v[i % v.length]}: ${task.progress + sz * i}% → ${Math.min(100, task.progress + sz * (i + 1))}% (5-10 min)`,
+          label: `${v[i % v.length]}: ${task.progress + sz * i}% → ${Math.min(100, task.progress + sz * (i + 1))}% (${durationText})`,
           checked: false
         }));
 

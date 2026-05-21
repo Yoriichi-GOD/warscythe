@@ -198,7 +198,7 @@ export default function App() {
           <RitualModal onClose={() => setShowRitualModal(false)} />
         )}
         
-        {selectedTaskId && (
+        {selectedTaskId && !showRealityLock && !isValidating && (
           <TaskDetail 
             taskId={selectedTaskId} 
             onClose={() => setSelectedTaskId(null)} 
