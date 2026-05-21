@@ -16,6 +16,7 @@ import CompletionLog from './pages/CompletionLog';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
+import { initNetworkMonitoring } from './utils/nativeTriggers';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
@@ -35,6 +36,7 @@ export default function App() {
   const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
   const completeTask = useWarscytheStore(state => state.completeTask);
   const updateProgress = useWarscytheStore(state => state.updateProgress);
+  const updateStreak = useWarscytheStore(state => state.updateStreak);
 
   const handleFinalize = () => {
     setShowRealityLock(false);
@@ -58,6 +60,7 @@ export default function App() {
   };
 
   useEffect(() => {
+    initNetworkMonitoring();
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
         setShowTaskModal(false);
@@ -68,6 +71,12 @@ export default function App() {
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      updateStreak();
+    }
+  }, [user, updateStreak]);
 
   if (!user) {
     return (

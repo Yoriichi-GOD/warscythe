@@ -4,19 +4,30 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity } from 'lucide-react';
 
 export default function TaskModal({ onClose }) {
+  const [type, setType] = useState('Operation'); // 'Operation' | 'Ritual'
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Work');
   const [effort, setEffort] = useState('Medium');
   const [deadline, setDeadline] = useState('');
+  const [frequency, setFrequency] = useState('daily'); // 'daily' | 'weekly'
   
   const addTask = useWarscytheStore(state => state.addTask);
+  const addRitual = useWarscytheStore(state => state.addRitual);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !deadline) return;
-    const success = addTask(title, category, effort, deadline);
-    if (success) onClose();
-    else alert("Operation failed: Max active tasks reached (3).");
+    if (!title) return;
+    
+    if (type === 'Operation') {
+      if (!deadline) return;
+      const success = addTask(title, category, effort, deadline);
+      if (success) onClose();
+      else alert("Operation failed: Max active tasks reached (3).");
+    } else {
+      const success = addRitual(title, frequency, effort);
+      if (success) onClose();
+      else alert("Ritual creation failed.");
+    }
   };
 
   return (
@@ -32,17 +43,45 @@ export default function TaskModal({ onClose }) {
         <div className="modal-header">
           <div className="modal-title-box">
             <Crosshair size={18} className="text-gold" />
-            <h2>NEW OPERATION</h2>
+            <h2>NEW INITIATIVE</h2>
           </div>
           <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="tactical-form">
           <div className="form-group full">
-            <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
+            <label>TACTICAL CLASSIFICATION</label>
+            <div className="flex gap-4 mt-1">
+              <button 
+                type="button" 
+                className={`flex-1 py-3 rounded border text-[9px] font-display tracking-widest uppercase transition-all ${
+                  type === 'Operation' 
+                    ? 'border-gold-core/60 bg-gold-core/10 text-gold-core' 
+                    : 'border-white/5 bg-white/[0.02] text-gray-500 hover:text-white'
+                }`}
+                onClick={() => setType('Operation')}
+              >
+                Operation (Task)
+              </button>
+              <button 
+                type="button" 
+                className={`flex-1 py-3 rounded border text-[9px] font-display tracking-widest uppercase transition-all ${
+                  type === 'Ritual' 
+                    ? 'border-gold-core/60 bg-gold-core/10 text-gold-core' 
+                    : 'border-white/5 bg-white/[0.02] text-gray-500 hover:text-white'
+                }`}
+                onClick={() => setType('Ritual')}
+              >
+                Ritual (Habit)
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group full">
+            <label><Zap size={10} /> {type === 'Operation' ? 'OBJECTIVE IDENTIFIER' : 'RITUAL IDENTIFIER'}</label>
             <input 
               type="text" 
-              placeholder="ENTER TASK PROTOCOL..." 
+              placeholder={type === 'Operation' ? "ENTER TASK PROTOCOL..." : "ENTER HABIT ROUTINE..."} 
               value={title} 
               onChange={e => setTitle(e.target.value)}
               autoFocus
@@ -51,15 +90,25 @@ export default function TaskModal({ onClose }) {
           </div>
 
           <div className="form-grid">
-            <div className="form-group">
-              <label><ShieldAlert size={10} /> CATEGORY</label>
-              <select value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="Work">SYSTEMS // WORK</option>
-                <option value="Study">INTEL // STUDY</option>
-                <option value="Fitness">FORCE // FITNESS</option>
-                <option value="Creative">FORGE // CREATIVE</option>
-              </select>
-            </div>
+            {type === 'Operation' ? (
+              <div className="form-group">
+                <label><ShieldAlert size={10} /> CATEGORY</label>
+                <select value={category} onChange={e => setCategory(e.target.value)}>
+                  <option value="Work">SYSTEMS // WORK</option>
+                  <option value="Study">INTEL // STUDY</option>
+                  <option value="Fitness">FORCE // FITNESS</option>
+                  <option value="Creative">FORGE // CREATIVE</option>
+                </select>
+              </div>
+            ) : (
+              <div className="form-group">
+                <label><ShieldAlert size={10} /> FREQUENCY</label>
+                <select value={frequency} onChange={e => setFrequency(e.target.value)}>
+                  <option value="daily">DAILY REPETITION</option>
+                  <option value="weekly">WEEKLY CADENCE</option>
+                </select>
+              </div>
+            )}
 
             <div className="form-group">
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
@@ -72,17 +121,19 @@ export default function TaskModal({ onClose }) {
             </div>
           </div>
 
-          <div className="form-group full">
-            <label><Calendar size={10} /> TARGET DEADLINE</label>
-            <div className="date-input-wrapper">
-              <input 
-                type="date" 
-                value={deadline} 
-                onChange={e => setDeadline(e.target.value)}
-                required
-              />
+          {type === 'Operation' && (
+            <div className="form-group full">
+              <label><Calendar size={10} /> TARGET DEADLINE</label>
+              <div className="date-input-wrapper">
+                <input 
+                  type="date" 
+                  value={deadline} 
+                  onChange={e => setDeadline(e.target.value)}
+                  required={type === 'Operation'}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="modal-footer">
             <button type="submit" className="btn-primary deploy-btn">

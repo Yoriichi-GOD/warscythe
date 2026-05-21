@@ -3,12 +3,15 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import ObjectiveRitual from '../components/operations/ObjectiveRitual';
 import MissionCard from '../components/operations/MissionCard';
+import RitualCard from '../components/operations/RitualCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
 import { Zap, Lock } from 'lucide-react';
 
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
+  const rituals = useWarscytheStore(state => state.rituals) || [];
+  const completeRitual = useWarscytheStore(state => state.completeRitual);
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
@@ -101,6 +104,33 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
                 >
                   <span className="text-[9px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
                 </button>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-[9px] font-mono text-gray-500 tracking-widest uppercase">Active Rituals</span>
+              <span className="text-[9px] font-mono text-gold-core/60">{rituals.length} Active</span>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {rituals.map(ritual => (
+                <RitualCard key={ritual.id} ritual={ritual} onComplete={completeRitual} />
+              ))}
+
+              {rituals.length === 0 && (
+                <div className="w-full py-6 border border-dashed border-white/5 rounded flex flex-col items-center justify-center text-white/10 bg-white/[0.005]">
+                  <span className="text-[8px] font-mono tracking-[0.25em] uppercase text-gray-600 mb-1">No Rituals Enshrined</span>
+                  <button 
+                    onClick={onAddTask}
+                    className="text-[8px] font-mono text-gold-core hover:text-gold-bright tracking-widest uppercase underline"
+                  >
+                    + Enshrine Ritual
+                  </button>
+                </div>
               )}
             </div>
           </div>

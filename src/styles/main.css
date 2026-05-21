@@ -387,3 +387,84 @@
   0%, 100% { opacity: 0.8; box-shadow: 0 0 10px rgba(220, 38, 38, 0.1); }
   50% { opacity: 1; box-shadow: 0 0 20px rgba(220, 38, 38, 0.35); }
 }
+
+/* ═══════════════ TACTICAL TOAST SYSTEM ═══════════════ */
+#toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 4rem);
+}
+
+.tactical-toast {
+  pointer-events: auto;
+  background: rgba(10, 10, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.tactical-toast.toast-active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.toast-marker {
+  width: 3px;
+  height: 16px;
+  border-radius: 99px;
+  flex-shrink: 0;
+  background: var(--color-gold-core);
+}
+
+.toast-text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #fff;
+  line-height: 1.4;
+}
+
+/* Toast variants */
+.toast-success .toast-marker {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+.toast-success {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.toast-warning .toast-marker {
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+.toast-warning {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.toast-info .toast-marker {
+  background: var(--color-gold-core);
+  box-shadow: 0 0 10px var(--color-gold-core);
+}
+.toast-info {
+  border-color: rgba(197, 160, 89, 0.2);
+}

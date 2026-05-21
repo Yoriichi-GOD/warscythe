@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
+import { triggerHaptics, scheduleStreakAlert } from '../utils/nativeTriggers';
 import {
   REGIONS, TITLES, LORE_TEMPLATES, ARTIFACT_POOL,
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
@@ -55,6 +56,7 @@ export const useWarscytheStore = create(
   persist(
     (set, get) => ({
       tasks: [],
+      rituals: [],
       completedTasks: [],
       abandonedTasks: [],
       executionScore: 0,
@@ -133,6 +135,29 @@ export const useWarscytheStore = create(
         return true;
       },
 
+      addRitual: (title, frequency, effort) => {
+        const newRitual = {
+          id: genId(),
+          title,
+          frequency, // 'daily' | 'weekly'
+          effort,    // 'Low' | 'Medium' | 'High' | 'Boss'
+          streak: 0,
+          bestStreak: 0,
+          lastCompletedAt: null,
+          createdAt: new Date().toISOString()
+        };
+        set(state => ({
+          rituals: [...(state.rituals || []), newRitual]
+        }));
+        return true;
+      },
+
+      deleteRitual: (id) => {
+        set(state => ({
+          rituals: (state.rituals || []).filter(r => r.id !== id)
+        }));
+      },
+
       updateProgress: (id, prog) => {
         set(state => {
           const tasks = state.tasks.map(t => {
@@ -161,6 +186,7 @@ export const useWarscytheStore = create(
       },
 
       completeTask: (id) => {
+        get().updateStreak();
         const state = get();
         const taskIdx = state.tasks.findIndex(t => t.id === id);
         if (taskIdx === -1) return;
@@ -258,7 +284,103 @@ export const useWarscytheStore = create(
           level_up: !!pendingLevelUp
         });
 
+        triggerHaptics(task.effort === 'Boss' ? 'HEAVY' : 'MEDIUM');
+        scheduleStreakAlert(18);
+      },
+
+      completeRitual: (id) => {
         get().updateStreak();
+        const state = get();
+        const rituals = state.rituals || [];
+        const ritIdx = rituals.findIndex(r => r.id === id);
+        if (ritIdx === -1) return;
+
+        const ritual = { ...rituals[ritIdx] };
+        const today = todayKey();
+        
+        // Prevent completing multiple times a day for daily rituals
+        const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === today;
+        if (isCompletedToday) return;
+
+        ritual.lastCompletedAt = new Date().toISOString();
+        const newStreak = (ritual.streak || 0) + 1;
+        ritual.streak = newStreak;
+        ritual.bestStreak = Math.max(ritual.bestStreak || 0, newStreak);
+
+        const mult = EFFORT_MULT[ritual.effort] || 1;
+        let basePts = Math.round(POINTS_BASE * mult);
+        const reward = rollReward(ritual.effort === 'Boss');
+
+        const totalPts = basePts + reward.bonusPts;
+        const newXP = state.xp + totalPts;
+
+        // Elite Leveling Logic
+        let newScytheLevel = "DORMANT";
+        if (newXP >= 1000) newScytheLevel = "PLATINUM";
+        else if (newXP >= 600) newScytheLevel = "ASCENDED";
+        else if (newXP >= 300) newScytheLevel = "REFINED";
+        else if (newXP >= 150) newScytheLevel = "HARDENED";
+        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+
+        const dailyLog = { ...state.dailyLog };
+        if (!dailyLog[today]) dailyLog[today] = { completed: 0, weight: 0 };
+        dailyLog[today].completed++;
+        dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
+
+        const currentLevelProgress = state.currentLevelProgress + 1;
+        let level = state.level;
+        let currentTitle = state.currentTitle;
+        let pendingLevelUp = null;
+
+        // Lore unlock
+        const regionIdx = level - 1;
+        const loreArr = getLore(regionIdx);
+        const fragment = loreArr[Math.min(currentLevelProgress - 1, loreArr.length - 1)];
+        const unlockedLore = { ...state.unlockedLore };
+        if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
+        if (unlockedLore[regionIdx].length < 10) unlockedLore[regionIdx].push(fragment);
+
+        // Level up check
+        let finalLevelProgress = currentLevelProgress;
+        if (currentLevelProgress >= TASKS_PER_LEVEL) {
+          finalLevelProgress = 0;
+          level++;
+          currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
+          pendingLevelUp = {
+            regionIdx: level - 1,
+            newLevel: level,
+            newTitle: currentTitle
+          };
+        }
+
+        const updatedRituals = rituals.map(r => r.id === id ? ritual : r);
+
+        set({
+          rituals: updatedRituals,
+          executionScore: state.executionScore + totalPts,
+          dailyLog,
+          xp: newXP,
+          scytheLevel: newScytheLevel,
+          totalCompletions: state.totalCompletions + 1,
+          currentLevelProgress: finalLevelProgress,
+          level,
+          currentTitle,
+          collectedArtifacts: [...state.collectedArtifacts, { ...reward.artifact, rarity: reward.rarity, date: new Date().toISOString() }],
+          unlockedLore,
+          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title },
+          pendingLevelUp,
+          closerDismissed: false,
+          lastActiveDate: today
+        });
+
+        ph.capture('ritual_conquered', {
+          effort: ritual.effort,
+          pts: totalPts,
+          level_up: !!pendingLevelUp
+        });
+
+        triggerHaptics(ritual.effort === 'Boss' ? 'HEAVY' : 'MEDIUM');
+        scheduleStreakAlert(18);
       },
 
       updateStreak: () => {
@@ -290,10 +412,26 @@ export const useWarscytheStore = create(
         else if (newXP >= 150) newScytheLevel = "HARDENED";
         else if (newXP >= 50) newScytheLevel = "AWAKENED";
 
+        // Reset missed daily rituals
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+        const updatedRituals = (state.rituals || []).map(r => {
+          if (r.frequency === 'daily') {
+            const lastCompDate = r.lastCompletedAt ? r.lastCompletedAt.slice(0, 10) : null;
+            if (lastCompDate !== yesterdayStr && lastCompDate !== today) {
+              return { ...r, streak: 0 };
+            }
+          }
+          return r;
+        });
+
         set({ 
           streakCount: newStreak, 
           xp: newXP,
           scytheLevel: newScytheLevel,
+          rituals: updatedRituals,
           lastActiveDate: today 
         });
 

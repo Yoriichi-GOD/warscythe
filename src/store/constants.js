@@ -39,8 +39,8 @@ export const TITLES = [
 export const LORE_TEMPLATES = [
   [
     "The gates open slowly, resisting decades of rust. Truth: Resistance is proof you are moving in the right direction.", 
-    "A figure carved into the stone watches with hollow eyes. Tactic: Remove emotion from the execution. Be the stone.", 
-    "Footsteps echo — yours are the first in a long time. Reality: Isolation is the price of extreme focus.", 
+    "A figure carved into the stone watches with hollow eyes. Cost: To be the stone, you must let your soft parts harden. Know what you are giving up to stand this still.", 
+    "Footsteps echo — yours are the first in a long time. Reality: Extreme focus is a lonely country. The silence is the price of entry.", 
     "An inscription reads: 'Only those who finish may pass.' Rule: Unfinished work is cognitive debt.", 
     "The wind carries whispers of abandoned ambitions. Insight: Motivation fades. Systems remain.", 
     "A broken sword lies at the entrance. Lesson: Burnout breaks the tool; pace your aggression.", 
@@ -50,8 +50,8 @@ export const LORE_TEMPLATES = [
     "The Threshold accepts you. The journey has begun. Rule: Action precedes clarity."
   ],
   [
-    "Smoke rises from a distant camp. Tactic: Observe the competition, but do not join their fire.", 
-    "A merchant offers supplies. Insight: Time is the only currency you cannot earn back.", 
+    "Smoke rises from a distant camp. Cost: To stay on course, you must pass by warm hearths and human laughter. Choose the cold march over comfortable stagnation.", 
+    "A merchant offers shortcuts for gold. Lesson: You cannot buy consistency. Every path bought with ease breaks under the first heavy load.", 
     "The frontier stretches endlessly. Rule: Focus only on the next 100 meters.", 
     "Wild creatures test your resolve. Reality: Distractions will escalate as your focus deepens.", 
     "A fellow traveler warns: 'Most turn back here.' Truth: The crowd is a monument to average.", 
@@ -65,7 +65,7 @@ export const LORE_TEMPLATES = [
     "Heat rises from cracks in the earth. Truth: Pressure creates diamonds or dust. Choose.", 
     "Molten rivers flow between narrow paths. Tactic: Restrict your options to force execution.", 
     "A voice booms: 'Show me your commitment.' Reality: The world tests what you claim to desire.", 
-    "The air is thick with the ash of failed attempts. Insight: Failure is data. Collect it.", 
+    "The air is thick with the ash of failed attempts. The crucible doesn't reset them; they pile up. Tactic: Acknowledge the cost of learning, or the cost will consume you.", 
     "Your tools glow red — forged stronger by the trial. Lesson: Friction sharpens the blade.", 
     "Others have tried this path. Their marks remain. Strategy: Learn from their deaths, not their words.", 
     "Each step forward costs more than the last. Doctrine: Compounding effort requires compounding sacrifice.", 
@@ -75,8 +75,8 @@ export const LORE_TEMPLATES = [
   ],
   [
     "Iron gates rise thirty feet. They open for you. Truth: Consistency commands respect from reality itself.", 
-    "Sentinels stand motionless — they recognize discipline. Tactic: Automate your behaviors until they are reflex.", 
-    "Every corridor is measured. Every stone placed with intent. Strategy: Precision beats force over time.", 
+    "Sentinels stand motionless — they recognize discipline. Cost: To automate your life is to surrender spontaneity. Accept the routine, or remain a chaotic amateur.", 
+    "Every corridor is measured. Every stone placed with intent. Strategy: Precision requires slowing down. Do not mistake frantic activity for progress.", 
     "A war room displays campaigns spanning centuries. Insight: Play the decade game, not the daily game.", 
     "The garrison's motto: 'Hesitation is defeat.' Rule: Speed of implementation is the ultimate advantage.", 
     "You find armor that fits — it was waiting for you. Lesson: You grow into the responsibilities you take on.", 
@@ -161,31 +161,106 @@ export const LORE_TEMPLATES = [
 
 export const ARTIFACT_POOL = {
   common: [
-    {name:'Iron Quill',icon:'🖋️',lore:'Tactical Insight: The mind forgets. The ink remembers. Write down your immediate next step to offload cognitive burden.'},
-    {name:'Wax Seal of Intent',icon:'📜',lore:'Execution Doctrine: A decision unsealed by action is just a wish. Commit to a 5-minute start; the rest will follow.'},
-    {name:'Ember Stone',icon:'🪨',lore:'Philosophical Truth: Motivation is an ember. Discipline is the bellows. Do not wait for the fire—start striking the flint.'},
-    {name:'Scout\'s Compass',icon:'🧭',lore:'Strategic Rule: Speed without direction is just exhaust. Spend the first 10 minutes of your day defining the single most vital target.'},
-    {name:'Whetstone of Focus',icon:'🪨',lore:'Cognitive Edge: Multitasking dulls the blade. Apply relentless, singular focus to one objective until it breaks.'},
-    {name:'Ink of Resolve',icon:'🫗',lore:'Mental Framework: You are not what you plan to do. You are what you have finished. Leave a mark.'},
+    {
+      name: 'Iron Quill',
+      icon: '🖋️',
+      lore: 'The Threshold: The gate guards ask for a name. Write it down or you cannot pass. First step of execution: define yourself. The mind is a leaky vessel; the ink is solid.'
+    },
+    {
+      name: 'Scout\'s Compass',
+      icon: '🧭',
+      lore: 'Ashwood Frontier: The frontier stretches in all directions, paralyzing the weak. Pick a single tree on the horizon and walk to it. One target. One day.'
+    },
+    {
+      name: 'Ember Stone',
+      icon: '🪨',
+      lore: 'The Crucible: A cold anvil produces no blades. The spark doesn\'t wait for you to feel ready. Strike the flint when it is cold, or remain in the dark.'
+    },
+    {
+      name: 'Wax Seal of Intent',
+      icon: '📜',
+      lore: 'The Threshold: A broken seal is proof of a compromised word. Once you stamp your intent on a task, it is no longer negotiable. Do not negotiate with yourself.'
+    },
+    {
+      name: 'Whetstone of Focus',
+      icon: '🪨',
+      lore: 'Ironveil Fortress: A blade ground against too many stones is ruined. Apply relentless, singular friction to one task. To work on everything is to finish nothing.'
+    },
+    {
+      name: 'Ink of Resolve',
+      icon: '🫗',
+      lore: 'Ashwood Frontier: Plans drawn in the dirt are washed away by the first rain. Ink is permanent. Write the task down as a commitment to the earth.'
+    },
+    {
+      name: 'Scout\'s Journal',
+      icon: '📓',
+      lore: 'The Threshold: The gate does not open for vague intentions. Write down the micro-steps of your ascent. Clarity is the first defense against paralysis.'
+    },
+    {
+      name: 'Ironveil Ruler',
+      icon: '📏',
+      lore: 'Ironveil Fortress: Every block in these walls is measured to the millimeter. Measure your time, or others will steal it. Precision is discipline.'
+    }
   ],
   uncommon: [
-    {name:'Blade of Persistence',icon:'🗡️',lore:'Execution Doctrine: Resistance is highest right before the breakthrough. When you want to quit, push for exactly 10 more minutes.'},
-    {name:'Shield of No Retreat',icon:'🛡️',lore:'Tactical Insight: Burn the boats. Create environments where failure to execute is more painful than the work itself.'},
-    {name:'Cloak of Momentum',icon:'🧥',lore:'Psychological Fact: An object in motion stays in motion. The first task of the day should be small enough to guarantee a win.'},
-    {name:'Ring of Execution',icon:'💍',lore:'Philosophical Truth: To say "yes" to a goal is to say "no" to a hundred distractions. Wear your refusal proudly.'},
-    {name:'Helm of Clarity',icon:'⛑️',lore:'Strategic Rule: Fatigue attacks the decision-making center first. Standardize your routines so you execute on autopilot.'},
-    {name:'Staff of Deadlines',icon:'🏑',lore:'Mental Framework: Work expands to fill the time allotted. Halve your deadlines to force ruthless prioritization.'},
+    {
+      name: 'Shield of No Retreat',
+      icon: '🛡️',
+      lore: 'Crucible Exit: Burn the boats—but know exactly what you are burning. This choice is irreversible. To commit to this path means letting other versions of you die.'
+    },
+    {
+      name: 'Cloak of Momentum',
+      icon: '🧥',
+      lore: 'Shadowmere Depths: Motion covers weakness. But motion in the wrong direction is collapse at speed. Momentum requires constant direction, not just activity.'
+    },
+    {
+      name: 'Blade of Persistence',
+      icon: '🗡️',
+      lore: 'The Forge Eternal: The hammer strikes when the arm is tired, not when it is fresh. The final strikes determine the temper. Push through the exhaustion; the heat is temporary.'
+    },
+    {
+      name: 'Helm of Auto-Reflex',
+      icon: '⛑️',
+      lore: 'Ironveil Fortress: Fatigue attacks the decision-making center first. Standardize your starting actions until they require no choice. Make discipline a habit, not a debate.'
+    },
+    {
+      name: 'Hourglass of Scarcity',
+      icon: '⏳',
+      lore: 'Crimson Summit: As you climb, the air thins and energy becomes scarce. You cannot do everything. Choose what to ignore, or the mountain will choose for you.'
+    }
   ],
   rare: [
-    {name:'Warscythe\'s Gauntlet',icon:'🧤',lore:'Mastery Principle: Do not protect your hands from the work. Embrace the friction, for it is the only thing that thickens the skin.'},
-    {name:'Crown of Completion',icon:'👑',lore:'Execution Doctrine: A 99% finished project has zero market value. The final 1% requires 50% of the effort. Crown it.'},
-    {name:'Eye of the Strategist',icon:'👁️',lore:'Tactical Insight: Step back from the battlefield. Are you fighting the right war, or just winning a meaningless skirmish?'},
-    {name:'Dragon Scale Armor',icon:'🐉',lore:'Philosophical Truth: Criticism and failure are fire. Let them harden you, not consume you. A sovereign mind is impervious to lesser opinions.'},
-    {name:'Void Walker\'s Boots',icon:'👢',lore:'Strategic Rule: Step into the unknown without hesitation. The perfect plan is an illusion; execution is the only reality.'},
+    {
+      name: 'Throne Fragment',
+      icon: '🏛️',
+      lore: 'The War Council: You sit at the table now. The chair will accept a coward just as easily as a commander. The seat does not make you sovereign; your decisions do.'
+    },
+    {
+      name: 'Shard of Reality',
+      icon: '🔮',
+      lore: 'Dreadspire Academy: The Academy measures everything. But not every metric matters. Learn which numbers are weapons for execution and which are just mirrors for vanity.'
+    },
+    {
+      name: 'Crown of Completion',
+      icon: '👑',
+      lore: 'Throne of the Warscythe: A 99% finished campaign is a defeat. The final steps are the heaviest because you are tired. Wear this crown not as a reward, but as a duty to finish.'
+    },
+    {
+      name: 'Warscythe\'s Gauntlet',
+      icon: '🧤',
+      lore: 'War Council: Your hands are no longer soft. The friction of difficult work is no longer a test—it is a language you speak fluently. You have become the kind of person for whom hesitation feels foreign.'
+    }
   ],
   epic: [
-    {name:'The Finisher',icon:'⚔️',lore:'Ultimate Truth: The world does not care about your potential. It only rewards your completed work. Be ruthless in closing the loop.'},
-    {name:'Throne Fragment',icon:'🏛️',lore:'Sovereign Logic: You are the sole architect of your condition. To rule your reality, you must take absolute ownership of your failures.'},
-    {name:'Shard of Reality',icon:'🔮',lore:'Mastery Principle: What you measure, you master. Confront the brutal metrics of your daily execution without flinching.'},
-  ],
+    {
+      name: 'The Finisher',
+      icon: '⚔️',
+      lore: 'The Threshold of the Warscythe: The world rewards finished work, but the real victory is internal. You must finish knowing it is not perfect, knowing you could have done more, and choosing to close the loop anyway. Imperfection + closure beats perfection + paralysis.'
+    },
+    {
+      name: 'The Sovereign\'s Legacy',
+      icon: '👑',
+      lore: 'Voidwalker\'s Expanse: You have completed the trials. You hold the crowns. The question is no longer whether you have the discipline to finish. The question is: what are you building with it? The tool is mastered; now build your empire.'
+    }
+  ]
 };
