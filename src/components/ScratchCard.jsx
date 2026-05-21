@@ -147,8 +147,8 @@ export default function ScratchCard({ data, onClose }) {
                 </div>
                 <p className="lore-body-text">{fragment}</p>
               </div>
-              <button className="btn-primary full-width claim-btn" onClick={onClose}>
-                CLAIM REWARD & CONTINUE
+              <button className="loot-claim-btn" onClick={onClose}>
+                <span>CLAIM REWARD & CONTINUE</span>
               </button>
             </motion.div>
           )}
@@ -230,7 +230,17 @@ export default function ScratchCard({ data, onClose }) {
         .lore-header-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.5rem; font-weight: 900; color: var(--text-dark); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
         .lore-body-text { font-size: 0.8rem; font-style: italic; color: var(--text-dim); line-height: 1.5; }
         
-        .claim-btn { height: 50px; font-weight: 900; letter-spacing: 0.05em; }
+        .loot-claim-btn {
+          width: 100%; height: 50px; display: flex; align-items: center; justify-content: center;
+          background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(197, 160, 89, 0.05) 100%);
+          border: 1px solid var(--gold-core); border-radius: 8px;
+          color: var(--gold-bright); font-family: var(--font-mono); font-weight: 900; font-size: 0.85rem; letter-spacing: 0.15em;
+          cursor: pointer; transition: 0.3s;
+          box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+        }
+        .loot-claim-btn:hover {
+          background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
+        }
       `}</style>
     </div>
   );
