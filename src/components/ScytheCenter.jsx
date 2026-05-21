@@ -23,17 +23,28 @@ export default function ScytheCenter() {
     { id: 'awakened', name: 'AWAKENED', req: 3, type: 'weight', material: 'wood', materialName: 'Wooden' },
     { id: 'hardened', name: 'HARDENED', req: 7, type: 'weight', material: 'steel', materialName: 'Steel' },
     { id: 'refined', name: 'REFINED', req: 10, type: 'weight', material: 'silver', materialName: 'Silver' },
-    { id: 'ascended', name: 'ASCENDED', req: 25, type: 'streak', material: 'gold', materialName: 'Golden' },
-    { id: 'platinum', name: 'PLATINUM', req: 50, type: 'streak', material: 'platinum', materialName: 'Platinum' },
-    { id: 'void', name: 'VOID', req: 100, type: 'streak', material: 'void', materialName: 'Void' },
-    { id: 'eternal', name: 'ETERNAL', req: 200, type: 'streak', material: 'eternal', materialName: 'Eternal' }
+    
+    // Ultimate Streak Upgrades
+    { id: 'neophyte', name: 'NEOPHYTE', req: 5, type: 'streak', material: 'neophyte', materialName: 'Neophyte' },
+    { id: 'acolyte', name: 'ACOLYTE', req: 15, type: 'streak', material: 'acolyte', materialName: 'Acolyte' },
+    { id: 'reaper', name: 'REAPER', req: 30, type: 'streak', material: 'reaper', materialName: 'Reaper' },
+    { id: 'executioner', name: 'EXECUTIONER', req: 60, type: 'streak', material: 'executioner', materialName: 'Executioner' },
+    { id: 'sovereign', name: 'SOVEREIGN', req: 120, type: 'streak', material: 'sovereign', materialName: 'Sovereign' },
+    { id: 'void-walker', name: 'VOID-WALKER', req: 200, type: 'streak', material: 'void-walker', materialName: 'Void-Walker' },
+    { id: 'eternal', name: 'ETERNAL', req: 300, type: 'streak', material: 'eternal', materialName: 'Eternal' },
+    { id: 'death-lord', name: 'DEATH-LORD', req: 360, type: 'streak', material: 'death-lord', materialName: 'Death-Lord' }
   ];
 
   const currentStageIndex = (() => {
-    if (streakCount >= 100 && unlockedScythes.includes('eternal')) return 7;
-    if (streakCount >= 50 && unlockedScythes.includes('void')) return 6;
-    if (streakCount >= 25 && unlockedScythes.includes('platinum')) return 5;
-    if (streakCount >= 25) return 4;
+    if (streakCount >= 360 && unlockedScythes.includes('death-lord')) return 11;
+    if (streakCount >= 300 && unlockedScythes.includes('eternal')) return 10;
+    if (streakCount >= 200 && unlockedScythes.includes('void-walker')) return 9;
+    if (streakCount >= 120 && unlockedScythes.includes('sovereign')) return 8;
+    if (streakCount >= 60 && unlockedScythes.includes('executioner')) return 7;
+    if (streakCount >= 30 && unlockedScythes.includes('reaper')) return 6;
+    if (streakCount >= 15 && unlockedScythes.includes('acolyte')) return 5;
+    if (streakCount >= 5 && unlockedScythes.includes('neophyte')) return 4;
+    
     if (weight >= 10) return 3;
     if (weight >= 7) return 2;
     if (weight >= 3) return 1;
@@ -50,10 +61,14 @@ export default function ScytheCenter() {
   else if (material === 'wood') auraColor = 'rgba(139, 69, 19, 0.2)';
   else if (material === 'steel') auraColor = 'rgba(200, 200, 200, 0.3)';
   else if (material === 'silver') auraColor = 'rgba(220, 220, 255, 0.4)';
-  else if (material === 'gold') auraColor = 'rgba(197, 160, 89, 0.5)';
-  else if (material === 'platinum') auraColor = 'rgba(229, 228, 226, 0.6)';
-  else if (material === 'void') auraColor = 'rgba(138, 43, 226, 0.6)';
-  else if (material === 'eternal') auraColor = 'rgba(255, 60, 60, 0.6)';
+  else if (material === 'neophyte') auraColor = 'rgba(255, 255, 255, 0.3)';
+  else if (material === 'acolyte') auraColor = 'rgba(100, 149, 237, 0.4)';
+  else if (material === 'reaper') auraColor = 'rgba(75, 0, 130, 0.5)';
+  else if (material === 'executioner') auraColor = 'rgba(220, 20, 60, 0.5)';
+  else if (material === 'sovereign') auraColor = 'rgba(197, 160, 89, 0.6)';
+  else if (material === 'void-walker') auraColor = 'rgba(138, 43, 226, 0.6)';
+  else if (material === 'eternal') auraColor = 'rgba(255, 60, 60, 0.7)';
+  else if (material === 'death-lord') auraColor = 'rgba(30, 30, 30, 0.8)';
 
   const fullName = material === 'dormant' ? 'Dormant Scythe' : `${materialName} Reaper`;
 
@@ -118,16 +133,27 @@ export default function ScytheCenter() {
               )}
             </AnimatePresence>
 
-            <div className="scythe-visual">
-               <motion.svg 
-                 viewBox="0 0 100 100" 
-                 className="scythe-svg"
-                 animate={isSlashing ? { rotate: [0, -20, 0], scale: [1, 1.1, 1] } : { rotate: [0, 2, 0] }}
-                 transition={{ duration: isSlashing ? 0.3 : 4, ease: "easeInOut" }}
-               >
-                  <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" className="scythe-handle" />
-                  <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" className={`scythe-blade ${material}`} />
-                </motion.svg>
+            <div className="scythe-visual w-full h-full flex items-center justify-center">
+               {activeStage.type === 'streak' ? (
+                 <motion.img 
+                   src={`/ultimate/${material}.png`} 
+                   alt={material}
+                   className="w-full h-full object-contain mix-blend-lighten"
+                   animate={isSlashing ? { rotate: [0, -20, 0], scale: [1, 1.1, 1] } : { rotate: [0, 2, 0] }}
+                   transition={{ duration: isSlashing ? 0.3 : 4, ease: "easeInOut" }}
+                   onError={(e) => { e.target.src = '/scythe/DORMANT.png'; }}
+                 />
+               ) : (
+                 <motion.svg 
+                   viewBox="0 0 100 100" 
+                   className="scythe-svg"
+                   animate={isSlashing ? { rotate: [0, -20, 0], scale: [1, 1.1, 1] } : { rotate: [0, 2, 0] }}
+                   transition={{ duration: isSlashing ? 0.3 : 4, ease: "easeInOut" }}
+                 >
+                    <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" className="scythe-handle" />
+                    <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" className={`scythe-blade ${material}`} />
+                  </motion.svg>
+               )}
             </div>
           </motion.div>
 
@@ -264,10 +290,14 @@ export default function ScytheCenter() {
         .material-wood { border-color: #5d4037; }
         .material-steel { border-color: #78909c; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
         .material-silver { border-color: #e0e0e0; box-shadow: 0 0 30px rgba(255,255,255,0.4); }
-        .material-gold { border-color: var(--gold-core); box-shadow: 0 0 40px var(--gold-glow); }
-        .material-platinum { border-color: #b2ebf2; box-shadow: 0 0 50px rgba(178, 235, 242, 0.6); }
-        .material-void { border-color: #4a148c; box-shadow: 0 0 60px rgba(74, 20, 140, 0.8); }
-        .material-eternal { border-color: #b71c1c; box-shadow: 0 0 80px rgba(183, 28, 28, 1); }
+        .material-neophyte { border-color: #fff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+        .material-acolyte { border-color: #6495ed; box-shadow: 0 0 30px rgba(100, 149, 237, 0.4); }
+        .material-reaper { border-color: #4b0082; box-shadow: 0 0 40px rgba(75, 0, 130, 0.5); }
+        .material-executioner { border-color: #dc143c; box-shadow: 0 0 50px rgba(220, 20, 60, 0.6); }
+        .material-sovereign { border-color: var(--gold-core); box-shadow: 0 0 60px var(--gold-glow); }
+        .material-void-walker { border-color: #8a2be2; box-shadow: 0 0 70px rgba(138, 43, 226, 0.7); }
+        .material-eternal { border-color: #ff3c3c; box-shadow: 0 0 80px rgba(255, 60, 60, 0.8); }
+        .material-death-lord { border-color: #1e1e1e; box-shadow: 0 0 90px rgba(30, 30, 30, 0.9); }
 
         .scythe-svg { width: 100%; height: 100%; }
         .scythe-handle { fill: #1a1a1a; }

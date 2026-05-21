@@ -12,6 +12,7 @@ import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
 import QuestMap from './pages/QuestMap';
+import CompletionLog from './pages/CompletionLog';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
@@ -104,7 +105,7 @@ export default function App() {
                 }}
               />
             </motion.div>
-          ) : (
+          ) : activeTab === 'map' ? (
             <motion.div
               key="map"
               initial={{ opacity: 0, x: 20 }}
@@ -112,7 +113,22 @@ export default function App() {
               exit={{ opacity: 0, x: -20 }}
               className="h-full w-full"
             >
-              <QuestMap />
+              <QuestMap onTabChange={(tab, options) => {
+                setActiveTab(tab);
+                if (options?.openAddTask) {
+                  setShowTaskModal(true);
+                }
+              }} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="log"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <CompletionLog />
             </motion.div>
           )}
         </AnimatePresence>

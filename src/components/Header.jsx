@@ -2,12 +2,13 @@ import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { TASKS_PER_LEVEL } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
   const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress } = useWarscytheStore();
   
   const xpForNext = level * 1000;
-  const progress = ((currentLevelProgress || 0) / 10) * 100;
+  const progress = ((currentLevelProgress || 0) / TASKS_PER_LEVEL) * 100;
 
   return (
     <header className="main-header glass-panel">
@@ -37,7 +38,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
         <div className="progress-hub">
           <div className="progress-header">
             <span className="progress-label">REGION PROGRESS</span>
-            <span className="progress-value">{(currentLevelProgress || 0)}/10</span>
+            <span className="progress-value">{(currentLevelProgress || 0)}/{TASKS_PER_LEVEL}</span>
           </div>
           <div className="progress-bar-container">
             <motion.div 

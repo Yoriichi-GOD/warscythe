@@ -21,7 +21,7 @@ export default function CommandCenter({ onPreviewUltimate }) {
       const dateB = new Date(b.completedAt || b.abandonedAt || 0);
       return dateB - dateA;
     })
-    .slice(0, 10);
+    .slice(0, 25);
 
   const streakTiers = [
     { days: 5, name: 'NEOPHYTE' },
@@ -40,15 +40,15 @@ export default function CommandCenter({ onPreviewUltimate }) {
   const streakProgress = Math.min(100, (streakCount / nextTier.days) * 100);
 
   return (
-    <div className="flex flex-col gap-4 h-full relative">
+    <div className="flex flex-col gap-4 min-h-full relative">
       {/* 📊 COMMAND CENTER HEADER */}
-      <div className="flex items-center gap-3 mb-2 px-2">
+      <div className="flex items-center gap-3 mb-2 px-2 shrink-0">
         <Swords size={14} className="text-gold-core" />
         <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Command Center</h2>
       </div>
 
       {/* 🔢 STATS GRID */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 shrink-0">
         <div className="elite-panel p-4 flex flex-col items-center justify-center gap-2">
           <span className="text-[8px] font-mono text-gray-500 tracking-[0.3em] uppercase">Daily Completions</span>
           <div className="flex items-center gap-3">
@@ -71,75 +71,78 @@ export default function CommandCenter({ onPreviewUltimate }) {
       </div>
 
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 shrink-0">
         <div 
-          className="elite-panel p-6 flex flex-col items-center justify-center text-center relative group min-h-[220px] overflow-hidden cursor-pointer hover:border-gold-core/40 transition-all"
+          className="elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden cursor-pointer hover:border-gold-core/40 transition-all bg-[#050505]"
           onClick={() => onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500')}
         >
-          <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10">
-            <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Ultimate Artifact</span>
-            <h4 className="text-white font-display text-[10px] tracking-[0.2em] uppercase">Cosmic Reaper</h4>
-          </div>
-          
-          <div className="relative w-36 h-36 mt-2 flex items-center justify-center">
+          {/* The Image (Centered and Blended) */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center p-4 bg-black/40">
              <img 
                src={`/ultimate/${currentTier.name.toLowerCase()}.png`} 
                alt={currentTier.name} 
-               className="w-full h-full object-contain opacity-40 group-hover:opacity-80 transition-all scale-[1.3] drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]"
+               className="w-[85%] h-[85%] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300"
                onError={(e) => { e.target.src = '/scythe/PLATINUM.png'; }}
              />
-             <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/60 to-transparent pointer-events-none" />
+             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40 pointer-events-none" />
+          </div>
+
+          {/* Labels (Overlay) */}
+          <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10 text-left">
+            <span className="text-[7px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold">Ultimate Artifact</span>
+            <h4 className="text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">Cosmic Reaper</h4>
           </div>
           
           <div className="absolute bottom-6 right-6 text-right z-10">
-             <p className="text-white font-display text-[9px] tracking-widest uppercase">{currentTier.name}</p>
-             <p className="text-[7px] font-mono text-gold-core/60 mt-1 uppercase">TIER {streakTiers.indexOf(currentTier) + 2}</p>
+             <p className="text-white font-display text-[10px] tracking-widest uppercase drop-shadow-md">{currentTier.name}</p>
+             <p className="text-[8px] font-mono text-gold-core/60 mt-1 uppercase font-black">TIER {streakTiers.indexOf(currentTier) + 1}</p>
           </div>
 
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none">
-             <span className="text-[8px] font-mono text-gold-core tracking-[0.5em] uppercase font-bold">Inspect Weapon</span>
+          {/* Inspect Prompt */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none z-20">
+             <div className="px-4 py-2 border border-gold-core/20 bg-black/60 backdrop-blur-md">
+                <span className="text-[8px] font-mono text-gold-core tracking-[0.5em] uppercase font-bold">Inspect Weapon</span>
+             </div>
           </div>
         </div>
 
-        {/* STREAK PROGRESS BAR (Outside the card to prevent overlap) */}
-        <div className="elite-panel p-4 flex flex-col gap-3">
+        {/* STREAK PROGRESS BAR */}
+        <div className="elite-panel p-5 flex flex-col gap-4 bg-black/20">
            <div className="flex justify-between items-center">
               <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Streak Descent</span>
               <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
            </div>
            
-           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+           <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
               <div 
-                className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_10px_rgba(197,160,89,0.5)] transition-all duration-1000"
+                className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_15px_rgba(197,160,89,0.4)] transition-all duration-1000"
                 style={{ width: `${streakProgress}%` }}
               />
            </div>
 
-           {/* Ultimate Tier Preview Dots */}
-           <div className="flex justify-between items-center mt-1 px-1">
+           <div className="flex justify-between items-center px-1">
               {streakTiers.map((tier, idx) => {
                 const isUnlocked = streakCount >= tier.days;
                 return (
                   <button
                     key={tier.name}
-                    onClick={() => onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString())}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString());
+                    }}
                     className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      isUnlocked ? 'bg-gold-core hover:scale-150' : 'bg-white/10 hover:bg-white/20'
-                    }`}
+                      isUnlocked ? 'bg-gold-core scale-125 shadow-[0_0_8px_#c5a059]' : 'bg-white/10 hover:bg-white/20'
+                    } hover:scale-150`}
                     title={tier.name}
                   />
                 );
               })}
            </div>
-
-           <p className="text-[7px] font-mono text-gray-600 uppercase text-center">
-              Inspect tiers to witness the evolution
-           </p>
         </div>
       </div>
 
       {/* 📜 RECENT INTEL */}
-      <div className="elite-panel p-5 flex flex-col h-[300px]">
+      <div className="elite-panel p-5 flex flex-col h-[450px] shrink-0">
          <div className="flex justify-between items-center mb-4">
             <div className="flex flex-col gap-1">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Recent Intel</span>
@@ -149,7 +152,7 @@ export default function CommandCenter({ onPreviewUltimate }) {
          </div>
          <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4" />
          
-         <div className="flex-1 overflow-y-scroll pr-2 custom-scrollbar">
+         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {allLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-6 opacity-30 mt-8">
                 <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] text-center uppercase leading-relaxed">
@@ -157,7 +160,7 @@ export default function CommandCenter({ onPreviewUltimate }) {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 pb-8">
                 {allLogs.map((log, i) => (
                   <div key={i} className={`p-3 rounded border ${log.status === 'CONQUERED' ? 'bg-white/[0.02] border-gold-core/20' : 'bg-red-900/10 border-red-500/20'}`}>
                     <div className="flex justify-between items-start mb-1">

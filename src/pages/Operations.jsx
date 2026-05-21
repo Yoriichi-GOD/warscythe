@@ -10,14 +10,54 @@ import { Zap, Lock } from 'lucide-react';
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
+  const streakCount = useWarscytheStore(state => state.streakCount) || 0;
+  const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [recalcSuccess, setRecalcSuccess] = useState(false);
+
+  const handleRecalculate = () => {
+    if (tasks.length === 0) {
+      alert("No active operations to recalculate.");
+      return;
+    }
+    setIsRecalculating(true);
+    setRecalcSuccess(false);
+    setTimeout(() => {
+      tasks.forEach(task => generateMicroSteps(task.id));
+      setIsRecalculating(false);
+      setRecalcSuccess(true);
+      setTimeout(() => setRecalcSuccess(false), 2000);
+    }, 1200);
+  };
 
   const stageOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
   const currentStageIndex = stageOrder.indexOf(scytheLevel.toUpperCase());
   
-  const activeDisplayLevel = preview.level || scytheLevel;
-  const activeDisplayType = preview.type || 'standard';
-  const activeDisplayPwr = preview.pwr || "10";
+  const streakTiers = [
+    { days: 5, name: 'NEOPHYTE' },
+    { days: 15, name: 'ACOLYTE' },
+    { days: 30, name: 'REAPER' },
+    { days: 60, name: 'EXECUTIONER' },
+    { days: 120, name: 'SOVEREIGN' },
+    { days: 200, name: 'VOID-WALKER' },
+    { days: 300, name: 'ETERNAL' },
+    { days: 360, name: 'DEATH-LORD' }
+  ];
+
+  const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days);
+  const standardPwrs = {
+    'DORMANT': '10',
+    'AWAKENED': '35',
+    'HARDENED': '60',
+    'REFINED': '75',
+    'ASCENDED': '90',
+    'PLATINUM': '100'
+  };
+
+  const activeDisplayLevel = preview.level || (currentTier ? currentTier.name : scytheLevel);
+  const activeDisplayType = preview.type || (currentTier ? 'ultimate' : 'standard');
+  const activeDisplayPwr = preview.pwr || (currentTier ? (100 + streakTiers.indexOf(currentTier) * 50).toString() : (standardPwrs[scytheLevel.toUpperCase()] || '10'));
 
   const evolutionStages = [
     { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },
@@ -67,15 +107,21 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
         </div>
 
         {/* RECALCULATE PROTOCOL */}
-        <button className="mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
+        <button 
+          onClick={handleRecalculate}
+          disabled={isRecalculating}
+          className="mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60"
+        >
           <div className="flex items-center justify-center gap-3">
-            <div className="w-2 h-2 rounded-full border border-gold-core/40" />
+            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
             <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
-              Recalculate Protocol
+              {isRecalculating ? 'Recalculating...' : recalcSuccess ? 'Protocol Decomposed' : 'Recalculate Protocol'}
             </span>
-            <div className="w-2 h-2 rounded-full border border-gold-core/40" />
+            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
           </div>
-          <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">Break it down. Focus. Execute.</p>
+          <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">
+            {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
+          </p>
         </button>
       </section>
 
@@ -157,7 +203,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       </section>
 
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
-      <aside className="flex flex-col gap-6 lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pr-2">
+      <aside 
+        className="flex flex-col gap-6 lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pr-2 pb-36"
+        style={{ height: 'calc(100vh - 160px)' }}
+      >
         <CommandCenter 
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
         />

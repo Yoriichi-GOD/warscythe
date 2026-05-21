@@ -81,7 +81,7 @@ export default function MapModal({ onClose }) {
                   <p className="empty-msg">Vault is empty.</p>
                 ) : (
                   collectedArtifacts.map((art, i) => (
-                    <div key={i} className={`artifact-chip rarity-${art.rarity}`} title={art.description}>
+                    <div key={i} className={`artifact-chip rarity-${art.rarity}`} title={art.lore}>
                       <span>{art.icon}</span>
                       <label>{art.name}</label>
                     </div>

@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { REGIONS } from '../store/constants';
+import { REGIONS, LORE_TEMPLATES } from '../store/constants';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 export default function LevelUpModal({ data, onClose }) {
   const { newLevel, newTitle, regionIdx } = data;
   const region = REGIONS[regionIdx] || REGIONS[0];
+  const loreList = LORE_TEMPLATES[regionIdx] || LORE_TEMPLATES[0] || [];
+  const loreTemplate = loreList[0] || "A new horizon awaits your command.";
 
   return (
     <div className="modal-backdrop levelup-backdrop">
@@ -45,7 +47,7 @@ export default function LevelUpModal({ data, onClose }) {
           <div className="region-reveal">
              <span className="region-label">NOW ENTERING</span>
              <h3 className="new-region-name">{region.icon} {region.name}</h3>
-             <p className="region-desc">"{region.lore_templates[0].replace('{title}', newTitle)}"</p>
+             <p className="region-desc">"{loreTemplate.replace('{title}', newTitle)}"</p>
           </div>
 
           <button className="btn-primary full-width" onClick={onClose}>

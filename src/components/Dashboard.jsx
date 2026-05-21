@@ -59,8 +59,8 @@ export default function Dashboard({ onOpenTask }) {
               <p>NO DATA RECOVERED</p>
             </div>
           ) : (
-            completedTasks.slice(0, 5).map((task, i) => (
-              <TypewriterLog key={task.id} task={task} delay={i * 0.2} onClick={() => onOpenTask(task.id)} />
+            completedTasks.slice(0, 25).map((task, i) => (
+              <TypewriterLog key={task.id} task={task} delay={Math.min(i * 0.05, 1.5)} onClick={() => onOpenTask(task.id)} />
             ))
           )}
         </div>
@@ -114,7 +114,7 @@ export default function Dashboard({ onOpenTask }) {
         .header-with-icon { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); }
         .history-panel .panel-header { padding: 1.5rem 1.5rem 0.75rem 1.5rem; border-bottom: 1px solid var(--border); }
         
-        .intel-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .intel-list { height: 450px; overflow-y: auto; display: flex; flex-direction: column; }
         .intel-item { 
           display: flex; 
           align-items: center; 

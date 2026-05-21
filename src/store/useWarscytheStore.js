@@ -77,7 +77,7 @@ export const useWarscytheStore = create(
       scytheLevel: "DORMANT",
       lastActiveDate: null,
       bossKills: 0,
-      unlockedScythes: ['platinum', 'void', 'eternal'],
+      unlockedScythes: ['neophyte', 'acolyte', 'reaper', 'executioner', 'sovereign', 'void-walker', 'eternal', 'death-lord'],
       user: null,
 
       // Auth & Sync
@@ -225,7 +225,7 @@ export const useWarscytheStore = create(
           // Get title from TITLES array
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
-            regionIdx,
+            regionIdx: level - 1,
             newLevel: level,
             newTitle: currentTitle
           };
@@ -298,7 +298,16 @@ export const useWarscytheStore = create(
         });
 
         // Check for milestones
-        const milestones = { 25: 'platinum', 50: 'void', 100: 'eternal' };
+        const milestones = { 
+          5: 'neophyte', 
+          15: 'acolyte', 
+          30: 'reaper', 
+          60: 'executioner', 
+          120: 'sovereign', 
+          200: 'void-walker', 
+          300: 'eternal', 
+          360: 'death-lord' 
+        };
         if (milestones[newStreak]) {
           set(state => ({
             unlockedScythes: [...new Set([...state.unlockedScythes, milestones[newStreak]])]

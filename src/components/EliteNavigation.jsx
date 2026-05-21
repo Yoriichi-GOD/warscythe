@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Swords, BookOpen } from 'lucide-react';
+import { Swords, BookOpen, History } from 'lucide-react';
 
 export default function EliteNavigation({ activeTab, onTabChange }) {
   return (
@@ -34,7 +34,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
           <div className="compass-flare" />
         </div>
 
-        {/* Right: Map */}
+        {/* Right: Map & Ledger */}
         <div className="flex gap-4 sm:gap-10">
           <button 
             className={`elite-tab ${activeTab === 'map' ? 'active' : ''}`}
@@ -44,6 +44,16 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
               <BookOpen size={18} />
             </div>
             <span className="tab-label">Map</span>
+          </button>
+
+          <button 
+            className={`elite-tab ${activeTab === 'log' ? 'active' : ''}`}
+            onClick={() => onTabChange('log')}
+          >
+            <div className="tab-icon-box">
+              <History size={18} />
+            </div>
+            <span className="tab-label">Ledger</span>
           </button>
         </div>
       </div>

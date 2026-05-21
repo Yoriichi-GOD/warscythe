@@ -6,6 +6,7 @@ export default function ScratchCard({ data, onClose }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
+  const isRevealedRef = useRef(false);
   
   const { reward, basePts, totalPts, fragment, taskTitle } = data;
 
@@ -45,7 +46,8 @@ export default function ScratchCard({ data, onClose }) {
       ctx.fill();
       
       scratchedPixels += 1500; // Rough estimate
-      if (scratchedPixels > pixels * 0.5 && !isRevealed) {
+      if (scratchedPixels > pixels * 0.4 && !isRevealedRef.current) {
+        isRevealedRef.current = true;
         setIsRevealed(true);
         ctx.clearRect(0, 0, w, h);
       }
@@ -73,6 +75,16 @@ export default function ScratchCard({ data, onClose }) {
       window.removeEventListener('touchend', handleEnd);
     };
   }, []);
+
+  const revealAll = () => {
+    setIsRevealed(true);
+    isRevealedRef.current = true;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
 
   return (
     <div className="modal-backdrop loot-overlay">
@@ -112,6 +124,15 @@ export default function ScratchCard({ data, onClose }) {
           <canvas ref={canvasRef} width={360} height={220} className="scratch-canvas" />
         </div>
 
+        {!isRevealed && (
+          <button 
+            className="text-[9px] font-mono tracking-widest text-gold-core/60 hover:text-gold-bright uppercase transition-all mb-4 px-3 py-1 border border-gold-core/20 hover:border-gold-core/60 rounded bg-black/40"
+            onClick={revealAll}
+          >
+            [ DECRYPT IMMEDIATELY ]
+          </button>
+        )}
+
         <AnimatePresence>
           {isRevealed && (
             <motion.div 
@@ -135,8 +156,17 @@ export default function ScratchCard({ data, onClose }) {
       </motion.div>
 
       <style jsx>{`
-        .loot-overlay { background: rgba(0,0,0,0.95); }
-        .loot-card-modal { max-width: 440px; width: 100%; padding: 3rem; text-align: center; border: 1px solid var(--border-bright); }
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+          background: rgba(0, 0, 0, 0.9);
+          backdrop-filter: blur(8px);
+        }
+        .loot-card-modal { max-width: 440px; width: 100%; padding: 2.5rem; text-align: center; border: 1px solid var(--border-bright); }
         
         .validation-pill {
           display: inline-flex;
@@ -158,7 +188,7 @@ export default function ScratchCard({ data, onClose }) {
         
         .scratch-container { 
           position: relative; width: 100%; height: 220px; 
-          margin: 2rem 0; border-radius: 12px; overflow: hidden;
+          margin: 1.5rem 0; border-radius: 12px; overflow: hidden;
           background: #050505; border: 1px solid var(--border);
         }
         .scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: crosshair; }

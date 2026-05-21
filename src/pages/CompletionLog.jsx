@@ -1,59 +1,127 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { Check, Trash2, Calendar, ShieldAlert } from 'lucide-react';
 
 export default function CompletionLog() {
-  const completedTasks = useWarscytheStore(state => state.completedTasks);
-  const abandonedTasks = useWarscytheStore(state => state.abandonedTasks);
+  const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
+  const abandonedTasks = useWarscytheStore(state => state.abandonedTasks) || [];
+  const [filter, setFilter] = useState('ALL'); // ALL, CONQUERED, ABANDONED
 
-  const allLogs = [...completedTasks.map(t => ({...t, type: 'completed'})), ...abandonedTasks.map(t => ({...t, type: 'abandoned'}))]
-    .sort((a, b) => {
-      const dateA = new Date(a.completedAt || a.abandonedAt);
-      const dateB = new Date(b.completedAt || b.abandonedAt);
-      return dateB - dateA;
-    });
+  const allLogs = [
+    ...completedTasks.map(t => ({ ...t, status: 'CONQUERED', type: 'completed' })),
+    ...abandonedTasks.map(t => ({ ...t, status: 'ABANDONED', type: 'abandoned' }))
+  ].sort((a, b) => {
+    const dateA = new Date(a.completedAt || a.abandonedAt || 0);
+    const dateB = new Date(b.completedAt || b.abandonedAt || 0);
+    return dateB - dateA;
+  });
+
+  const filteredLogs = allLogs.filter(log => {
+    if (filter === 'CONQUERED') return log.type === 'completed';
+    if (filter === 'ABANDONED') return log.type === 'abandoned';
+    return true;
+  });
 
   return (
-    <div className="w-full h-full p-4 flex flex-col gap-4 overflow-y-auto">
-      <div className="flex flex-col gap-1 mb-4">
-        <h2 className="text-2xl font-display text-gold-core tracking-widest uppercase">Finishing Page</h2>
-        <p className="text-sm font-mono text-text-dim tracking-widest">THE LOG OF YOUR EXECUTIONS</p>
+    <div className="w-full max-w-4xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-6">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col gap-2 border-b border-white/5 pb-4">
+        <span className="text-[9px] font-mono text-gold-core/60 tracking-[0.4em] uppercase font-bold">Ledger of Executions</span>
+        <h2 className="text-3xl font-display text-white tracking-[0.1em] uppercase">SYSTEM HISTORY</h2>
+        <p className="text-[10px] font-mono text-text-dim tracking-wider uppercase">
+          A chronologically archived index of your operational outcomes.
+        </p>
       </div>
 
-      {allLogs.length === 0 ? (
-        <div className="flex items-center justify-center h-64 text-text-dim font-mono tracking-widest text-sm opacity-50">
-          NO RECORDS FOUND
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {allLogs.map((log, i) => (
-            <motion.div 
-              key={`${log.id}-${i}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className={`elite-panel flex flex-row items-center gap-4 ${log.type === 'abandoned' ? 'opacity-60 grayscale' : ''}`}
+      {/* FILTER CONTROL TABS */}
+      <div className="flex gap-2 p-1 bg-black/40 border border-white/5 rounded w-fit">
+        {['ALL', 'CONQUERED', 'ABANDONED'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={`px-4 py-1.5 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+              filter === tab 
+                ? 'bg-gold-core text-black font-bold shadow-[0_0_12px_rgba(197,160,89,0.3)]' 
+                : 'text-text-dim hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {tab} ({
+              tab === 'ALL' ? allLogs.length : 
+              tab === 'CONQUERED' ? completedTasks.length : 
+              abandonedTasks.length
+            })
+          </button>
+        ))}
+      </div>
+
+      {/* EXECUTION LIST */}
+      <div className="flex flex-col gap-3">
+        <AnimatePresence mode="popLayout">
+          {filteredLogs.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-white/5 rounded-lg"
             >
-              <div className="flex-shrink-0">
-                {log.type === 'completed' ? (
-                  <CheckCircle2 size={24} className="text-gold-core" />
-                ) : (
-                  <XCircle size={24} className="text-red-500" />
-                )}
-              </div>
-              <div className="flex flex-col flex-1">
-                <span className="font-display text-white text-lg tracking-wide">{log.title}</span>
-                <div className="flex gap-3 text-xs font-mono text-text-dim mt-1">
-                  <span className="text-gold-bright">{log.category}</span>
-                  <span>{new Date(log.completedAt || log.abandonedAt).toLocaleDateString()}</span>
-                  <span>{log.type === 'completed' ? 'CONQUERED' : 'ABANDONED'}</span>
-                </div>
-              </div>
+              <ShieldAlert size={24} className="text-gray-600" />
+              <span className="text-[10px] font-mono text-text-dim tracking-[0.3em] uppercase">No logs recorded</span>
             </motion.div>
-          ))}
-        </div>
-      )}
+          ) : (
+            filteredLogs.map((log, i) => {
+              const isCompleted = log.type === 'completed';
+              return (
+                <motion.div
+                  key={`${log.id}-${log.status}-${i}`}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3) }}
+                  className={`elite-panel p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.01] ${
+                    isCompleted 
+                      ? 'border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent' 
+                      : 'border-red-500/20 bg-gradient-to-r from-red-500/[0.02] to-transparent'
+                  }`}
+                >
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className={`mt-0.5 w-5 h-5 rounded flex items-center justify-center border flex-shrink-0 ${
+                      isCompleted ? 'border-gold-core/30 text-gold-core bg-gold-core/5' : 'border-red-500/30 text-red-500 bg-red-500/5'
+                    }`}>
+                      {isCompleted ? <Check size={10} /> : <Trash2 size={10} />}
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 min-w-0 flex-1">
+                      <h4 className="text-white font-display text-[12px] tracking-wider uppercase leading-snug truncate">
+                        {log.title || 'UNSPECIFIED STRIKE'}
+                      </h4>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-[8px] font-mono text-text-dim uppercase tracking-wider">
+                        <span className="text-gold-core/80 font-bold">{log.category || 'WORK'}</span>
+                        <span className="flex items-center gap-1">
+                          <Calendar size={8} />
+                          {new Date(log.completedAt || log.abandonedAt || 0).toLocaleDateString()} 
+                          {' '}
+                          {new Date(log.completedAt || log.abandonedAt || 0).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 self-end sm:self-auto flex-shrink-0">
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-mono tracking-widest font-extrabold uppercase border ${
+                      isCompleted 
+                        ? 'text-gold-bright bg-gold-core/10 border-gold-core/20 shadow-[0_0_8px_rgba(197,160,89,0.15)]' 
+                        : 'text-red-400 bg-red-950/20 border-red-500/10'
+                    }`}>
+                      {log.status}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
