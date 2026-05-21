@@ -14,11 +14,13 @@ import {
   Users,
   ArrowLeft,
   Shield,
-  X
+  X,
+  ScrollText
 } from 'lucide-react';
+import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
 
 export default function MapSection({ onTabChange }) {
-  const { level, bossKills, dailyLog, tasks, generateMicroSteps } = useWarscytheStore();
+  const { level, bossKills, dailyLog, tasks, generateMicroSteps, currentLevelProgress, unlockedLore } = useWarscytheStore();
   const [selectedNode, setSelectedNode] = useState(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -46,13 +48,19 @@ export default function MapSection({ onTabChange }) {
   ];
 
   const regionThemes = [
-    { name: 'VALORIA', hue: 0, sepia: 0.2, saturate: 1 },
-    { name: 'THE ASHEN WASTES', hue: 20, sepia: 0.8, saturate: 1.5 },
-    { name: 'FROSTFALL PEAKS', hue: 200, sepia: 0.3, saturate: 0.8 },
-    { name: 'THE VERDANT REACH', hue: 100, sepia: 0.5, saturate: 1.2 },
-    { name: 'VOID REALM', hue: 280, sepia: 0.6, saturate: 2 },
+    { hue: 0, sepia: 0.2, saturate: 1 },
+    { hue: 20, sepia: 0.8, saturate: 1.5 },
+    { hue: 200, sepia: 0.3, saturate: 0.8 },
+    { hue: 100, sepia: 0.5, saturate: 1.2 },
+    { hue: 280, sepia: 0.6, saturate: 2 },
   ];
-  const currentRegion = regionThemes[(level - 1) % regionThemes.length];
+  const currentRegionTheme = regionThemes[(level - 1) % regionThemes.length];
+  
+  const regionIdx = Math.min(level - 1, REGIONS.length - 1);
+  const activeRegion = REGIONS[regionIdx];
+  const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
+  const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
+  const currentLore = unlockedLore?.[regionIdx] || [];
 
   return (
     <motion.div 
@@ -123,7 +131,7 @@ export default function MapSection({ onTabChange }) {
               className="map-image-layer" 
               style={{ 
                 backgroundImage: "url('/campaign-map.png')",
-                filter: `hue-rotate(${currentRegion.hue}deg) sepia(${currentRegion.sepia}) saturate(${currentRegion.saturate})`
+                filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia}) saturate(${currentRegionTheme.saturate})`
               }} 
             >
             <div className="map-nodes-overlay">
@@ -213,41 +221,46 @@ export default function MapSection({ onTabChange }) {
             </div>
             
             <div className="region-branding">
-              <h4>{currentRegion.name}</h4>
+              <h4>{activeRegion.name} {activeRegion.icon}</h4>
               <div className="region-banner-placeholder" style={{ 
                 backgroundImage: "url('/region-banner.png')",
-                filter: `hue-rotate(${currentRegion.hue}deg)`
+                filter: `hue-rotate(${currentRegionTheme.hue}deg)`
               }} />
             </div>
 
             <div className="region-completion">
                <span className="stat-label">REGION COMPLETION</span>
                <div className="completion-dial">
-                  <span className="pct">20%</span>
+                  <span className="pct">{progressPct}%</span>
                </div>
+               <p className="text-[10px] text-gray-500 font-mono tracking-widest text-center mt-2 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
             </div>
 
             <div className="active-modifiers">
-              <span className="stat-label">ACTIVE MODIFIERS</span>
-              <div className="modifier-item">
-                <div className="mod-icon"><Users size={14} /></div>
-                <div className="mod-info">
-                  <p>FOG OF WAR</p>
-                  <span>Unscouted territories remain hidden.</span>
-                </div>
+              <span className="stat-label">TERRITORY LORE</span>
+              <div className="modifier-item" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+                <p className="text-[10px] font-mono text-gold-core/80 leading-relaxed italic border-l-2 border-gold-core/30 pl-2">
+                  "{activeRegion.desc}"
+                </p>
               </div>
             </div>
 
-            <div className="upcoming-threat glass-panel">
-               <span className="stat-label">UPCOMING THREAT</span>
-               <div className="threat-card">
-                  <div className="threat-image" style={{ backgroundImage: "url('/monster-wyrm.png')" }} />
-                  <div className="threat-info">
-                    <h5>DREAD WYRM</h5>
-                    <p>A deadly presence stirs in the north. Prepare accordingly.</p>
-                  </div>
+            <div className="upcoming-threat glass-panel" style={{ padding: '1rem' }}>
+               <span className="stat-label">RECOVERED FRAGMENTS</span>
+               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[160px] custom-scrollbar pr-2">
+                 {currentLore.length === 0 ? (
+                   <p className="text-[9px] font-mono text-gray-600 text-center py-4 uppercase tracking-widest">
+                     No fragments recovered yet.<br/>Conquer operations to reveal the truth.
+                   </p>
+                 ) : (
+                   [...currentLore].reverse().map((fragment, idx) => (
+                     <div key={idx} className="flex gap-2 items-start p-2 rounded bg-white/[0.02] border border-white/5">
+                        <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
+                        <p className="text-[9px] font-mono text-gray-400 leading-relaxed italic">"{fragment}"</p>
+                     </div>
+                   ))
+                 )}
                </div>
-               <button className="view-target-btn" onClick={() => setSelectedNode('boss')}>VIEW TARGET</button>
             </div>
           </div>
         </aside>

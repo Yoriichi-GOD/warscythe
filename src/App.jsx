@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarscytheStore } from './store/useWarscytheStore';
+import { useWarscytheStore, getLore } from './store/useWarscytheStore';
+import { TASKS_PER_LEVEL } from './store/constants';
 import Header from './components/Header';
 import TaskModal from './components/TaskModal';
 import RitualModal from './components/RitualModal';
@@ -21,6 +22,32 @@ import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
 
 export default function App() {
+  useEffect(() => {
+    const state = useWarscytheStore.getState();
+    const ritualsCompleted = state.rituals.reduce((acc, r) => acc + (r.streak || 0), 0);
+    const tasksCompleted = state.completedTasks.length;
+    const trueTotalCompletions = tasksCompleted + ritualsCompleted;
+    
+    const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
+    const trueProgress = trueTotalCompletions % TASKS_PER_LEVEL;
+    
+    // Retroactively rebuild unlocked lore based on true completions
+    const reconstructedLore = {};
+    for (let r = 0; r < trueLevel; r++) {
+      const loreArr = getLore(r);
+      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : TASKS_PER_LEVEL;
+      reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
+    }
+    
+    // Unconditionally force sync to fix any corrupted state
+    useWarscytheStore.setState({
+      totalCompletions: trueTotalCompletions,
+      level: trueLevel,
+      currentLevelProgress: trueProgress,
+      unlockedLore: reconstructedLore
+    });
+  }, []);
+
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showRitualModal, setShowRitualModal] = useState(false);

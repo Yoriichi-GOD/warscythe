@@ -25,7 +25,7 @@ const getProceduralRegion = (idx) => {
   };
 };
 
-const getLore = (regionIdx) => {
+export const getLore = (regionIdx) => {
   if (regionIdx < LORE_TEMPLATES.length) return LORE_TEMPLATES[regionIdx];
   const r = getProceduralRegion(regionIdx);
   return Array.from({ length: 10 }, (_, i) => {
@@ -230,7 +230,10 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const currentLevelProgress = state.currentLevelProgress + 1;
+        const newTotalCompletions = state.totalCompletions + 1;
+        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
+        const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
+
         let level = state.level;
         let currentTitle = state.currentTitle;
         let pendingLevelUp = null;
@@ -238,17 +241,17 @@ export const useWarscytheStore = create(
         // Lore unlock
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
-        const fragment = loreArr[Math.min(currentLevelProgress - 1, loreArr.length - 1)];
+        const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
+        const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
         const unlockedLore = { ...state.unlockedLore };
         if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
-        if (unlockedLore[regionIdx].length < 10) unlockedLore[regionIdx].push(fragment);
+        if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
+          unlockedLore[regionIdx].push(fragment);
+        }
 
         // Level up check
-        let finalLevelProgress = currentLevelProgress;
-        if (currentLevelProgress >= TASKS_PER_LEVEL) {
-          finalLevelProgress = 0;
-          level++;
-          // Get title from TITLES array
+        if (newLevel > state.level) {
+          level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
             regionIdx: level - 1,
@@ -264,7 +267,7 @@ export const useWarscytheStore = create(
           dailyLog,
           xp: newXP,
           scytheLevel: newScytheLevel,
-          totalCompletions: state.totalCompletions + 1,
+          totalCompletions: newTotalCompletions,
           currentLevelProgress: finalLevelProgress,
           level,
           currentTitle,
@@ -327,7 +330,10 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const currentLevelProgress = state.currentLevelProgress + 1;
+        const newTotalCompletions = state.totalCompletions + 1;
+        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
+        const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
+
         let level = state.level;
         let currentTitle = state.currentTitle;
         let pendingLevelUp = null;
@@ -335,16 +341,17 @@ export const useWarscytheStore = create(
         // Lore unlock
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
-        const fragment = loreArr[Math.min(currentLevelProgress - 1, loreArr.length - 1)];
+        const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
+        const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
         const unlockedLore = { ...state.unlockedLore };
         if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
-        if (unlockedLore[regionIdx].length < 10) unlockedLore[regionIdx].push(fragment);
+        if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
+          unlockedLore[regionIdx].push(fragment);
+        }
 
         // Level up check
-        let finalLevelProgress = currentLevelProgress;
-        if (currentLevelProgress >= TASKS_PER_LEVEL) {
-          finalLevelProgress = 0;
-          level++;
+        if (newLevel > state.level) {
+          level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
             regionIdx: level - 1,
@@ -361,7 +368,7 @@ export const useWarscytheStore = create(
           dailyLog,
           xp: newXP,
           scytheLevel: newScytheLevel,
-          totalCompletions: state.totalCompletions + 1,
+          totalCompletions: newTotalCompletions,
           currentLevelProgress: finalLevelProgress,
           level,
           currentTitle,

@@ -190,15 +190,27 @@ export default function TaskModal({ onClose }) {
         }
         
         .deploy-btn {
+          width: 100%;
           height: 54px;
           border-radius: 4px;
           font-family: var(--font-display);
           font-size: 0.9rem;
           letter-spacing: 0.1em;
-          box-shadow: 0 0 20px var(--gold-glow);
+          background: rgba(197, 160, 89, 0.1);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-core);
+          box-shadow: 0 0 15px rgba(197, 160, 89, 0.2), inset 0 0 10px rgba(197, 160, 89, 0.1);
+          transition: all 0.2s ease;
+          margin-top: 1rem;
         }
         
-        .deploy-btn span { position: relative; z-index: 2; }
+        .deploy-btn:hover {
+          background: var(--gold-core);
+          color: #000;
+          box-shadow: 0 0 25px rgba(197, 160, 89, 0.4);
+        }
+        
+        .deploy-btn span { position: relative; z-index: 2; font-weight: 700; }
       `}</style>
     </div>
   );

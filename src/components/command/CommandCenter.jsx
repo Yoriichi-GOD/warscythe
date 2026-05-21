@@ -1,9 +1,9 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
-import { Swords, History, Flame } from 'lucide-react';
+import { Swords, History, Flame, Award } from 'lucide-react';
 
 export default function CommandCenter({ onPreviewUltimate }) {
-  const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0 } = useWarscytheStore();
+  const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0, collectedArtifacts = [] } = useWarscytheStore();
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
@@ -139,6 +139,57 @@ export default function CommandCenter({ onPreviewUltimate }) {
               })}
            </div>
         </div>
+      </div>
+
+      {/* 🏆 ARSENAL (Trophy Wall) */}
+      <div className="elite-panel p-5 flex flex-col shrink-0 bg-black/20">
+         <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Arsenal</span>
+              <h4 className="text-white font-display text-[10px] tracking-[0.3em] uppercase">Battle Trophies</h4>
+            </div>
+            <Award size={14} className="text-gold-core/30" />
+         </div>
+         
+         <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
+            {collectedArtifacts.length === 0 ? (
+              <span className="text-[8px] font-mono text-gray-600 tracking-widest uppercase">No artifacts recovered yet.</span>
+            ) : (
+              [...collectedArtifacts].reverse().slice(0, 5).map((artifact, i) => (
+                <div key={i} className="group relative shrink-0">
+                   <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer">
+                     <span className="text-2xl opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all drop-shadow-md grayscale group-hover:grayscale-0">{artifact.icon || '💎'}</span>
+                   </div>
+                   {/* Hover Tooltip */}
+                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
+                     <span className={`text-[8px] font-mono tracking-widest uppercase font-bold mb-1 block ${
+                        artifact.rarity === 'Mythic' ? 'text-yellow-400' :
+                        artifact.rarity === 'Legendary' ? 'text-orange-400' :
+                        artifact.rarity === 'Epic' ? 'text-purple-400' :
+                        artifact.rarity === 'Rare' ? 'text-blue-400' :
+                        artifact.rarity === 'Uncommon' ? 'text-green-400' :
+                        'text-gray-400'
+                     }`}>{artifact.rarity}</span>
+                     <p className="text-[10px] font-display text-white tracking-widest uppercase mb-2 leading-tight">{artifact.name}</p>
+                     <div className="h-[1px] w-full bg-white/10 mb-2" />
+                     <p className="text-[7px] font-mono text-gray-400 uppercase leading-relaxed">"{artifact.desc}"</p>
+                     <p className="text-[6px] font-mono text-gold-core/60 uppercase mt-3 font-black">
+                       FORGED: {new Date(artifact.date || Date.now()).toLocaleDateString()}
+                     </p>
+                   </div>
+                </div>
+              ))
+            )}
+         </div>
+
+         {collectedArtifacts.length > 0 && (
+           <button 
+             onClick={() => document.querySelector('.nav-btn[title="Artifact Vault"]')?.click()}
+             className="w-full mt-3 py-2 border border-white/5 rounded flex items-center justify-center hover:bg-white/5 hover:border-white/10 transition-all group"
+           >
+             <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
+           </button>
+         )}
       </div>
 
       {/* 📜 RECENT INTEL */}

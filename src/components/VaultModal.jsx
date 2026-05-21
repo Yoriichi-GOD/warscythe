@@ -80,7 +80,7 @@ export default function VaultModal({ onClose }) {
             </div>
           </div>
 
-          <div className="artifact-inspector">
+          <div className="artifact-inspector custom-scrollbar">
             <AnimatePresence mode="wait">
               {selectedArtifact ? (
                 <motion.div 
@@ -235,6 +235,7 @@ export default function VaultModal({ onClose }) {
           display: flex;
           flex-direction: column;
           padding: 2rem 1.5rem;
+          overflow-y: auto;
         }
 
         @media (min-width: 1024px) {
