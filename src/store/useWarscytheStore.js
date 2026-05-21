@@ -97,8 +97,8 @@ export const useWarscytheStore = create(
         // If email confirmation is enabled, data.user might be null or not fully logged in.
         // Assuming auto-login or that the user is returned.
         if (data.user) {
-           set({ user: data.user });
-           ph.identify(data.user.id, { email });
+          set({ user: data.user });
+          ph.identify(data.user.id, { email });
         }
         ph.capture('warscythe_sign_up');
       },
@@ -215,7 +215,7 @@ export const useWarscytheStore = create(
 
         const totalPts = basePts + reward.bonusPts;
         const newXP = state.xp + totalPts;
-        
+
         // Elite Leveling Logic
         let newScytheLevel = "DORMANT";
         if (newXP >= 1000) newScytheLevel = "PLATINUM";
@@ -272,7 +272,13 @@ export const useWarscytheStore = create(
           level,
           currentTitle,
           consecutiveLow,
-          collectedArtifacts: [...state.collectedArtifacts, { ...reward.artifact, rarity: reward.rarity, date: new Date().toISOString() }],
+          collectedArtifacts: [...state.collectedArtifacts, {
+            ...reward.artifact,
+            rarity: reward.rarity,
+            date: new Date().toISOString(),
+            context: `Forged on Day ${state.streakCount} of the Quest.`,
+            effortContext: `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
+          }],
           unlockedLore,
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title },
           pendingLevelUp,
@@ -300,7 +306,7 @@ export const useWarscytheStore = create(
 
         const ritual = { ...rituals[ritIdx] };
         const today = todayKey();
-        
+
         // Prevent completing multiple times a day for daily rituals
         const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === today;
         if (isCompletedToday) return;
@@ -372,7 +378,13 @@ export const useWarscytheStore = create(
           currentLevelProgress: finalLevelProgress,
           level,
           currentTitle,
-          collectedArtifacts: [...state.collectedArtifacts, { ...reward.artifact, rarity: reward.rarity, date: new Date().toISOString() }],
+          collectedArtifacts: [...state.collectedArtifacts, {
+            ...reward.artifact,
+            rarity: reward.rarity,
+            date: new Date().toISOString(),
+            context: `Forged on Day ${state.streakCount} of the Quest.`,
+            effortContext: `Claimed during a Daily Ritual Strike.`
+          }],
           unlockedLore,
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title },
           pendingLevelUp,
@@ -434,24 +446,24 @@ export const useWarscytheStore = create(
           return r;
         });
 
-        set({ 
-          streakCount: newStreak, 
+        set({
+          streakCount: newStreak,
           xp: newXP,
           scytheLevel: newScytheLevel,
           rituals: updatedRituals,
-          lastActiveDate: today 
+          lastActiveDate: today
         });
 
         // Check for milestones
-        const milestones = { 
-          5: 'neophyte', 
-          15: 'acolyte', 
-          30: 'reaper', 
-          60: 'executioner', 
-          120: 'sovereign', 
-          200: 'void-walker', 
-          300: 'eternal', 
-          360: 'death-lord' 
+        const milestones = {
+          5: 'neophyte',
+          15: 'acolyte',
+          30: 'reaper',
+          60: 'executioner',
+          120: 'sovereign',
+          200: 'void-walker',
+          300: 'eternal',
+          360: 'death-lord'
         };
         if (milestones[newStreak]) {
           set(state => ({

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS, LORE_TEMPLATES } from '../store/constants';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, X } from 'lucide-react';
 
 export default function LevelUpModal({ data, onClose }) {
   const { newLevel, newTitle, regionIdx } = data;
@@ -20,6 +20,10 @@ export default function LevelUpModal({ data, onClose }) {
       >
         <div className="levelup-aura" />
         
+        <button className="levelup-close-btn" onClick={onClose}>
+          <X size={20} />
+        </button>
+
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -73,6 +77,21 @@ export default function LevelUpModal({ data, onClose }) {
           position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
           background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 60%);
           animation: rotateAura 10s linear infinite;
+          pointer-events: none;
+        }
+        .levelup-content {
+          position: relative;
+          z-index: 10;
+        }
+        .levelup-close-btn {
+          position: absolute; top: 15px; right: 15px; z-index: 20;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.5); width: 32px; height: 32px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .levelup-close-btn:hover {
+          background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.5); color: var(--gold-core);
         }
         @keyframes rotateAura { from { rotate: 0deg; } to { rotate: 360deg; } }
         

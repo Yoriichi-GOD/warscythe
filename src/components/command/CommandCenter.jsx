@@ -172,10 +172,23 @@ export default function CommandCenter({ onPreviewUltimate }) {
                      }`}>{artifact.rarity}</span>
                      <p className="text-[10px] font-display text-white tracking-widest uppercase mb-2 leading-tight">{artifact.name}</p>
                      <div className="h-[1px] w-full bg-white/10 mb-2" />
-                     <p className="text-[7px] font-mono text-gray-400 uppercase leading-relaxed">"{artifact.desc}"</p>
-                     <p className="text-[6px] font-mono text-gold-core/60 uppercase mt-3 font-black">
-                       FORGED: {new Date(artifact.date || Date.now()).toLocaleDateString()}
-                     </p>
+                     <p className="text-[9px] font-mono text-gold-core/90 italic leading-relaxed mb-3">"{artifact.hook || artifact.desc || artifact.lore}"</p>
+                     
+                     <div className="flex flex-col gap-1">
+                        {artifact.context && (
+                          <p className="text-[6.5px] font-mono text-gray-400 uppercase font-bold tracking-[0.2em] border-l border-gray-600 pl-1">
+                            {artifact.context}
+                          </p>
+                        )}
+                        {artifact.effortContext && (
+                          <p className="text-[6px] font-mono text-gray-500 uppercase tracking-widest pl-1">
+                            {artifact.effortContext}
+                          </p>
+                        )}
+                        <p className="text-[6px] font-mono text-gold-core/40 uppercase mt-1 tracking-widest">
+                          FORGED: {new Date(artifact.date || Date.now()).toLocaleDateString()}
+                        </p>
+                     </div>
                    </div>
                 </div>
               ))

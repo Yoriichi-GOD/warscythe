@@ -164,103 +164,134 @@ export const ARTIFACT_POOL = {
     {
       name: 'Iron Quill',
       icon: '🖋️',
-      lore: 'The Threshold: The gate guards ask for a name. Write it down or you cannot pass. First step of execution: define yourself. The mind is a leaky vessel; the ink is solid.'
+      hook: 'You iterated. That made it better.',
+      lore: 'Your brain doesn\'t lock in on version one. It rewrites, refines, sharpens. Most people call this inefficiency. You call it quality control. Write it down—each revision is proof you\'re getting closer to the weapon.'
     },
     {
       name: 'Scout\'s Compass',
       icon: '🧭',
-      lore: 'Ashwood Frontier: The frontier stretches in all directions, paralyzing the weak. Pick a single tree on the horizon and walk to it. One target. One day.'
-    },
-    {
-      name: 'Ember Stone',
-      icon: '🪨',
-      lore: 'The Crucible: A cold anvil produces no blades. The spark doesn\'t wait for you to feel ready. Strike the flint when it is cold, or remain in the dark.'
+      hook: 'One target. One direction. Execute.',
+      lore: 'Your mind generates options faster than most can think. The compass points to *one*. Not because you\'re limited—because you\'ve learned that focus multiplies force. Pick the target. The rest dissolves.'
     },
     {
       name: 'Wax Seal of Intent',
       icon: '📜',
-      lore: 'The Threshold: A broken seal is proof of a compromised word. Once you stamp your intent on a task, it is no longer negotiable. Do not negotiate with yourself.'
-    },
-    {
-      name: 'Whetstone of Focus',
-      icon: '🪨',
-      lore: 'Ironveil Fortress: A blade ground against too many stones is ruined. Apply relentless, singular friction to one task. To work on everything is to finish nothing.'
-    },
-    {
-      name: 'Ink of Resolve',
-      icon: '🫗',
-      lore: 'Ashwood Frontier: Plans drawn in the dirt are washed away by the first rain. Ink is permanent. Write the task down as a commitment to the earth.'
-    },
-    {
-      name: 'Scout\'s Journal',
-      icon: '📓',
-      lore: 'The Threshold: The gate does not open for vague intentions. Write down the micro-steps of your ascent. Clarity is the first defense against paralysis.'
-    },
-    {
-      name: 'Ironveil Ruler',
-      icon: '📏',
-      lore: 'Ironveil Fortress: Every block in these walls is measured to the millimeter. Measure your time, or others will steal it. Precision is discipline.'
-    }
-  ],
-  uncommon: [
-    {
-      name: 'Shield of No Retreat',
-      icon: '🛡️',
-      lore: 'Crucible Exit: Burn the boats—but know exactly what you are burning. This choice is irreversible. To commit to this path means letting other versions of you die.'
+      hook: 'You started. The rest follows.',
+      lore: 'Starting is where ADHD stalls. The friction of initiating paralysis is real. You broke it. Five minutes became ten. Ten became an hour. The seal commemorates the moment you crossed the wall.'
     },
     {
       name: 'Cloak of Momentum',
       icon: '🧥',
-      lore: 'Shadowmere Depths: Motion covers weakness. But motion in the wrong direction is collapse at speed. Momentum requires constant direction, not just activity.'
+      hook: 'Motion became velocity. You\'re accelerating.',
+      lore: 'You don\'t start fast. You start slow and accelerate into hyperfocus. By task completion, you\'re moving at speeds others can\'t sustain. The cloak is woven from that acceleration curve—evidence that your intensity compounds over time.'
     },
+    {
+      name: 'Whetstone of Focus',
+      icon: '🪨',
+      hook: 'Singular. Relentless. Sharpened.',
+      lore: 'Your brain is a multi-threaded processor trying to run in single-threaded mode. When you *do* focus, you cut deeper than most ever will. The whetstone sharpens itself on that pressure.'
+    },
+    {
+      name: 'Ink of Resolve',
+      icon: '🫗',
+      hook: 'You finished. Most don\'t.',
+      lore: 'Completion is where ADHD fails most people. You didn\'t. You saw the end and ran through it. The ink marks the work—not potential, not plans, not wishes. *Work*.'
+    }
+  ],
+  uncommon: [
     {
       name: 'Blade of Persistence',
       icon: '🗡️',
-      lore: 'The Forge Eternal: The hammer strikes when the arm is tired, not when it is fresh. The final strikes determine the temper. Push through the exhaustion; the heat is temporary.'
+      hook: 'The urge to quit peaked. You accelerated instead.',
+      lore: 'ADHD hyperfocus has a pattern: slow start, rapid acceleration, then a moment of resistance where the task *feels* done but isn\'t. Most players stop there. You pushed through. That moment of acceleration past the false finish is where the blade gets forged.'
     },
     {
-      name: 'Helm of Auto-Reflex',
+      name: 'Shield of No Retreat',
+      icon: '🛡️',
+      hook: 'You eliminated the escape route. You executed.',
+      lore: 'You set constraints: deadlines you couldn\'t move, environments where failure stung more than the work itself. Most people call this pressure. You call it tactical positioning. The shield doesn\'t defend—it enforces execution.'
+    },
+    {
+      name: 'Ring of Execution',
+      icon: '💍',
+      hook: 'Each yes killed a hundred distractions.',
+      lore: 'Your brain runs on novelty. Saying yes to one thing means saying no to infinite others. Most people can\'t. You did. The ring is the vow—not to the goal, but to the *singular path* you chose.'
+    },
+    {
+      name: 'Helm of Clarity',
       icon: '⛑️',
-      lore: 'Ironveil Fortress: Fatigue attacks the decision-making center first. Standardize your starting actions until they require no choice. Make discipline a habit, not a debate.'
+      hook: 'Fatigue didn\'t cloud your judgment. Routine did.',
+      lore: 'Decision-making dies in fatigue. You learned to standardize, to autopilot the non-critical. Ritual replaced choice. And in that stillness, the critical decisions became clear. The helm doesn\'t protect your mind—it simplifies what your mind must defend.'
     },
     {
-      name: 'Hourglass of Scarcity',
-      icon: '⏳',
-      lore: 'Crimson Summit: As you climb, the air thins and energy becomes scarce. You cannot do everything. Choose what to ignore, or the mountain will choose for you.'
+      name: 'Staff of Deadlines',
+      icon: '🏑',
+      hook: 'You halved the time. Work filled the space you left.',
+      lore: 'Parkinson\'s Law isn\'t philosophy to ADHD brains—it\'s a lifeline. You set shorter deadlines because you know the ADHD multiplier: artificial constraint = hyper-focus activation. The staff measures not time, but the pressure that forces execution.'
+    },
+    {
+      name: 'Cloak of Iteration',
+      icon: '🧥',
+      hook: 'You remixed it. Every version sharper.',
+      lore: 'Most people lock in their approach and execute. Your ADHD brain can\'t—and doesn\'t need to. You iterate in real-time, learning as you move. Your "inefficiency" is actually a rapid-feedback loop most brains can\'t access. The cloak is woven from that adaptive speed.'
     }
   ],
   rare: [
     {
-      name: 'Throne Fragment',
-      icon: '🏛️',
-      lore: 'The War Council: You sit at the table now. The chair will accept a coward just as easily as a commander. The seat does not make you sovereign; your decisions do.'
+      name: 'Dragon Scale Armor',
+      icon: '🐉',
+      hook: 'Criticism used to break you. Now it sharpens you.',
+      lore: 'Shame and hypersensitivity to criticism are ADHD classics. You fought that wiring and won. External feedback no longer derails your focus—it inputs data. The scales are armor forged from feedback that would have broken you six months ago.'
     },
     {
-      name: 'Shard of Reality',
-      icon: '🔮',
-      lore: 'Dreadspire Academy: The Academy measures everything. But not every metric matters. Learn which numbers are weapons for execution and which are just mirrors for vanity.'
+      name: 'Eye of the Strategist',
+      icon: '👁️',
+      hook: 'You stopped doing everything. You conquered what mattered.',
+      lore: 'ADHD hyperfocus can be scattered or targeted. You learned to *target* it. You stopped context-switching and started *strategic depth*. The eye sees the full board, but commands only where your intensity will compound.'
+    },
+    {
+      name: 'Void Walker\'s Boots',
+      icon: '👢',
+      hook: 'You acted before the plan was perfect.',
+      lore: 'Perfectionism isn\'t your weakness—impulsivity is. But impulsivity without direction is chaos. You flipped it: you *act fast without needing certainty*. That\'s not recklessness—that\'s the ADHD speed advantage, weaponized. You walk between worlds most people never see.'
     },
     {
       name: 'Crown of Completion',
       icon: '👑',
-      lore: 'Throne of the Warscythe: A 99% finished campaign is a defeat. The final steps are the heaviest because you are tired. Wear this crown not as a reward, but as a duty to finish.'
+      hook: 'The final 1% cost 50% of the effort. You paid it.',
+      lore: 'ADHD kills projects in the last 10%. Finishing is where you differ. You didn\'t abandon it at 95%—you ran through the wall to completion. The crown isn\'t for starting well. It\'s for finishing *despite* the ADHD resistance that peaks at the end.'
     },
     {
       name: 'Warscythe\'s Gauntlet',
       icon: '🧤',
-      lore: 'War Council: Your hands are no longer soft. The friction of difficult work is no longer a test—it is a language you speak fluently. You have become the kind of person for whom hesitation feels foreign.'
+      hook: 'Your hands are calloused. The friction is your language.',
+      lore: 'You stopped trying to protect your hands from the work. Resistance, friction, pressure—these are no longer obstacles. They\'re the only language your ADHD brain trusts. The gauntlet marks the moment you stopped *managing* difficulty and started *weaponizing* it.'
     }
   ],
   epic: [
     {
       name: 'The Finisher',
       icon: '⚔️',
-      lore: 'The Threshold of the Warscythe: The world rewards finished work, but the real victory is internal. You must finish knowing it is not perfect, knowing you could have done more, and choosing to close the loop anyway. Imperfection + closure beats perfection + paralysis.'
+      hook: 'You finished what most people quit.',
+      lore: 'The world doesn\'t measure potential. It measures finished work. ADHD is an expert at potential. You became the exception: the ADHD player who finishes. That\'s not normal. That\'s not evolution. That\'s transcendence.'
     },
     {
-      name: 'The Sovereign\'s Legacy',
-      icon: '👑',
-      lore: 'Voidwalker\'s Expanse: You have completed the trials. You hold the crowns. The question is no longer whether you have the discipline to finish. The question is: what are you building with it? The tool is mastered; now build your empire.'
+      name: 'Throne Fragment',
+      icon: '🏛️',
+      hook: 'You own the chaos. You rule it now.',
+      lore: 'Most ADHD players spend their lives fighting their wiring. You stopped fighting and started *commanding*. Your inconsistency, your restarts, your hyperfocus spirals—you own them completely. That ownership is sovereignty.'
+    },
+    {
+      name: 'Shard of Reality',
+      icon: '🔮',
+      hook: 'You measured yourself ruthlessly. You showed up anyway.',
+      lore: 'ADHD hides in avoidance of metrics. You confronted them—daily completion rates, streak counts, velocity trends. And knowing you were failing in real-time, you executed anyway. That\'s not discipline. That\'s the final evolution: acceptance + action.'
+    },
+    {
+      name: 'Cosmic Reaper',
+      icon: '💀',
+      hook: 'Your ADHD isn\'t a disability. It\'s your weapon.',
+      lore: 'You stopped apologizing. Stopped managing. Stopped explaining. You execute at velocities neurotypical brains cannot sustain, see patterns most will never notice, and hyperfocus with intensity that looks like magic. You\'ve hacked your own neurology. You are not disabled. You are different. And different has won.'
     }
   ]
 };

@@ -102,12 +102,30 @@ export default function VaultModal({ onClose }) {
                       <h3>{selectedArtifact.name}</h3>
                       <p className="art-date">RECOVERED: {new Date(selectedArtifact.date).toLocaleDateString()}</p>
                       
+                      {(selectedArtifact.context || selectedArtifact.effortContext) && (
+                        <div className="flex flex-col gap-1 mt-2 mb-4 p-3 bg-white/[0.02] border border-white/5 rounded">
+                          {selectedArtifact.context && (
+                            <p className="text-[9px] font-mono text-gray-400 uppercase font-bold tracking-[0.2em] border-l-2 border-gold-core/50 pl-2">
+                              {selectedArtifact.context}
+                            </p>
+                          )}
+                          {selectedArtifact.effortContext && (
+                            <p className="text-[8px] font-mono text-gray-500 uppercase tracking-widest pl-2 mt-1">
+                              {selectedArtifact.effortContext}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      
                       {selectedArtifact.lore && (
                         <div className="lore-box">
                           <div className="lore-header">
                             <Scroll size={12} />
                             <span>TACTICAL INTEL</span>
                           </div>
+                          {selectedArtifact.hook && (
+                            <p className="mb-3 text-[10px] font-mono text-gold-core/90 italic leading-relaxed">"{selectedArtifact.hook}"</p>
+                          )}
                           <p>{selectedArtifact.lore}</p>
                         </div>
                       )}
