@@ -168,10 +168,7 @@ export default function Rituals({ onAddTask }) {
       </section>
 
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
-      <aside 
-        className="flex flex-col gap-6 lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pr-2 pb-36"
-        style={{ height: 'calc(100vh - 160px)' }}
-      >
+      <aside className="operations-sidebar custom-scrollbar">
         <CommandCenter 
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
         />

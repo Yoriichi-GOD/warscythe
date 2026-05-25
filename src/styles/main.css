@@ -67,7 +67,7 @@
   height: auto;
   padding: 1rem 1rem 120px 1rem;
   margin-top: 0;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 @media (min-width: 1024px) {
@@ -78,6 +78,23 @@
     height: calc(100vh - 148px);
     padding: 0 1.5rem 1rem 1.5rem;
     overflow: hidden;
+  }
+}
+
+.operations-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 9rem;
+  height: auto;
+  overflow-y: visible;
+}
+
+@media (min-width: 1024px) {
+  .operations-sidebar {
+    height: calc(100vh - 160px);
+    overflow-y: auto;
   }
 }
 

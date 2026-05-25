@@ -126,62 +126,47 @@ export default function App() {
         onOpenAuth={() => setShowAuth(true)}
       />
       
-      <main className="flex-1 w-full overflow-y-auto">
-        <AnimatePresence mode="wait">
-          {activeTab === 'ops' ? (
-            <motion.div
-              key="ops"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="h-full w-full"
-            >
-              <Operations 
-                onAddTask={() => setShowTaskModal(true)} 
-                onOpenTask={setSelectedTaskId}
-                onCompleteTask={(id) => {
-                  setSelectedTaskId(id);
-                  setShowRealityLock(true);
-                }}
-              />
-            </motion.div>
-          ) : activeTab === 'rituals' ? (
-            <motion.div
-              key="rituals"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="h-full w-full"
-            >
-              <Rituals onAddTask={() => setShowRitualModal(true)} />
-            </motion.div>
-          ) : activeTab === 'map' ? (
-            <motion.div
-              key="map"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="h-full w-full"
-            >
-              <QuestMap onTabChange={(tab, options) => {
-                setActiveTab(tab);
-                if (options?.openAddTask) {
-                  setShowTaskModal(true);
-                }
-              }} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="log"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="h-full w-full"
-            >
-              <CompletionLog />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <main className="flex-1 w-full overflow-hidden relative">
+        {/* Persistent Tab Pages for Smooth Mobile Switching */}
+        <div 
+          style={{ display: activeTab === 'ops' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <Operations 
+            onAddTask={() => setShowTaskModal(true)} 
+            onOpenTask={setSelectedTaskId}
+            onCompleteTask={(id) => {
+              setSelectedTaskId(id);
+              setShowRealityLock(true);
+            }}
+          />
+        </div>
+        
+        <div 
+          style={{ display: activeTab === 'rituals' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <Rituals onAddTask={() => setShowRitualModal(true)} />
+        </div>
+        
+        <div 
+          style={{ display: activeTab === 'map' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-hidden"
+        >
+          <QuestMap onTabChange={(tab, options) => {
+            setActiveTab(tab);
+            if (options?.openAddTask) {
+              setShowTaskModal(true);
+            }
+          }} />
+        </div>
+        
+        <div 
+          style={{ display: activeTab === 'log' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <CompletionLog />
+        </div>
       </main>
 
       <EliteNavigation 
