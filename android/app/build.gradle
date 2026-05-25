@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.saarthak.warscythe"
+    namespace "com.warscythe.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.saarthak.warscythe"
+        applicationId "com.warscythe.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "1.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -61,3 +61,18 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+// Automatically copy and rename the release bundle to "warscythe-v[versionName].aab" format
+tasks.whenTaskAdded { task ->
+    if (task.name == "bundleRelease") {
+        task.finalizedBy renameBundleRelease
+    }
+}
+
+task renameBundleRelease(type: Copy) {
+    from "${buildDir}/outputs/bundle/release"
+    into "${buildDir}/outputs/warscythe"
+    include "app-release.aab"
+    rename "app-release.aab", "warscythe-v${android.defaultConfig.versionName}.aab"
+}
+

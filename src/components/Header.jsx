@@ -16,7 +16,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
       <div className="header-left">
         <div className="logo-section">
           <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden' }}>
-            <img src="/command-core.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src="/icon.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
             <h1>WARSCYTHE</h1>

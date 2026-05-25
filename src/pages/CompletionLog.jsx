@@ -7,6 +7,12 @@ export default function CompletionLog() {
   const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
   const abandonedTasks = useWarscytheStore(state => state.abandonedTasks) || [];
   const [filter, setFilter] = useState('ALL'); // ALL, CONQUERED, ABANDONED
+  const [visibleCount, setVisibleCount] = useState(20);
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setVisibleCount(20);
+  };
 
   const allLogs = [
     ...completedTasks.map(t => ({ ...t, status: 'CONQUERED', type: 'completed' })),
@@ -39,7 +45,7 @@ export default function CompletionLog() {
         {['ALL', 'CONQUERED', 'ABANDONED'].map(tab => (
           <button
             key={tab}
-            onClick={() => setFilter(tab)}
+            onClick={() => handleFilterChange(tab)}
             className={`px-4 py-1.5 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
               filter === tab 
                 ? 'bg-gold-core text-black font-bold shadow-[0_0_12px_rgba(197,160,89,0.3)]' 
@@ -60,6 +66,7 @@ export default function CompletionLog() {
         <AnimatePresence mode="popLayout">
           {filteredLogs.length === 0 ? (
             <motion.div
+              key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               exit={{ opacity: 0 }}
@@ -69,7 +76,7 @@ export default function CompletionLog() {
               <span className="text-[10px] font-mono text-text-dim tracking-[0.3em] uppercase">No logs recorded</span>
             </motion.div>
           ) : (
-            filteredLogs.map((log, i) => {
+            filteredLogs.slice(0, visibleCount).map((log, i) => {
               const isCompleted = log.type === 'completed';
               return (
                 <motion.div
@@ -121,6 +128,15 @@ export default function CompletionLog() {
             })
           )}
         </AnimatePresence>
+
+        {filteredLogs.length > visibleCount && (
+          <button
+            onClick={() => setVisibleCount(prev => prev + 20)}
+            className="w-full py-4 border border-dashed border-white/10 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.01] cursor-pointer text-[10px] font-mono tracking-[0.25em] uppercase font-bold mt-4"
+          >
+            + Load Older Archive Files
+          </button>
+        )}
       </div>
     </div>
   );

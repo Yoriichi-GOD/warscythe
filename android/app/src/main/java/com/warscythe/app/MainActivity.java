@@ -1,4 +1,4 @@
-package com.saarthak.warscythe;
+package com.warscythe.app;
 
 import com.getcapacitor.BridgeActivity;
 
