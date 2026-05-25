@@ -244,7 +244,6 @@ export default function ScytheCenter() {
           gap: 1rem;
           opacity: 0.4;
           transition: 0.3s;
-          touch-action: manipulation;
         }
 
         .evo-item.unlocked { opacity: 0.8; }
@@ -276,8 +275,8 @@ export default function ScytheCenter() {
 
         .scythe-box { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 4rem; cursor: pointer; user-select: none; padding-left: 1rem; }
         
-        .scythe-visual-container { position: relative; width: 120px; height: 250px; will-change: transform; transform: translateZ(0); }
-        .scythe-visual { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(0,0,0,0.8)); will-change: transform; transform: translateZ(0); }
+        .scythe-visual-container { position: relative; width: 120px; height: 250px; }
+        .scythe-visual { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(0,0,0,0.8)); }
         
         .slash-effect {
           position: absolute;

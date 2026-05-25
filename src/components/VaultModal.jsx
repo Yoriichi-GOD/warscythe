@@ -183,7 +183,7 @@ export default function VaultModal({ onClose }) {
         .vault-close { background: none; color: var(--text-dark); transition: 0.2s; }
         .vault-close:hover { color: #fff; transform: rotate(90deg); }
 
-        .vault-layout { flex: 1; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .vault-layout { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         @media (min-width: 1024px) {
           .vault-layout { display: grid; grid-template-columns: 1fr 450px; overflow: hidden; }
         }
@@ -197,7 +197,7 @@ export default function VaultModal({ onClose }) {
         }
 
         @media (min-width: 1024px) {
-          .artifact-gallery { padding: 3rem; gap: 3rem; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+          .artifact-gallery { padding: 3rem; gap: 3rem; overflow-y: auto; }
         }
 
         .dragon-trophies-section {
@@ -234,7 +234,6 @@ export default function VaultModal({ onClose }) {
           cursor: pointer;
           position: relative;
           transition: 0.3s;
-          touch-action: manipulation;
         }
         .art-card:hover { border-color: var(--border-bright); background: rgba(255,255,255,0.06); }
         .art-card.active { border-color: var(--gold-core); background: rgba(197, 160, 89, 0.05); box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
@@ -255,7 +254,6 @@ export default function VaultModal({ onClose }) {
           flex-direction: column;
           padding: 2rem 1.5rem;
           overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
         }
 
         @media (min-width: 1024px) {

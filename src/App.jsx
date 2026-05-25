@@ -134,12 +134,10 @@ export default function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="h-full w-full"
             >
               <Operations 
                 onAddTask={() => setShowTaskModal(true)} 
-                onAddRitual={() => setShowRitualModal(true)}
                 onOpenTask={setSelectedTaskId}
                 onCompleteTask={(id) => {
                   setSelectedTaskId(id);
@@ -153,7 +151,6 @@ export default function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="h-full w-full"
             >
               <Rituals onAddTask={() => setShowRitualModal(true)} />
@@ -164,7 +161,6 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="h-full w-full"
             >
               <QuestMap onTabChange={(tab, options) => {
@@ -180,7 +176,6 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="h-full w-full"
             >
               <CompletionLog />
@@ -224,7 +219,6 @@ export default function App() {
              <motion.div 
                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
-               transition={{ type: "spring", stiffness: 350, damping: 26 }}
                className="modal-content reality-lock-panel"
              >
                 <div className="lock-icon-shield">

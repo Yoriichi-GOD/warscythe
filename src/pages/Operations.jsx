@@ -8,7 +8,7 @@ import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
 import { Zap, Lock } from 'lucide-react';
 
-export default function Operations({ onAddTask, onAddRitual, onOpenTask, onCompleteTask }) {
+export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
@@ -18,7 +18,6 @@ export default function Operations({ onAddTask, onAddRitual, onOpenTask, onCompl
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState('strikes');
 
   const handleRecalculate = () => {
     if (tasks.length === 0) {
@@ -75,125 +74,59 @@ export default function Operations({ onAddTask, onAddRitual, onOpenTask, onCompl
   return (
     <div className="elite-grid-container">
       
-      {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS & RITUALS ═══ */}
+      {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
       <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
-        <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
-          <div className="flex gap-6">
-            <button 
-              onClick={() => setActiveSubTab('strikes')}
-              className={`font-display text-[11px] tracking-[0.25em] uppercase transition-all pb-1 cursor-pointer ${
-                activeSubTab === 'strikes' ? 'text-gold-core font-bold border-b border-gold-core' : 'text-gray-500 hover:text-white'
-              }`}
-            >
-              Strikes
-            </button>
-            <button 
-              onClick={() => setActiveSubTab('rituals')}
-              className={`font-display text-[11px] tracking-[0.25em] uppercase transition-all pb-1 cursor-pointer ${
-                activeSubTab === 'rituals' ? 'text-gold-core font-bold border-b border-gold-core' : 'text-gray-500 hover:text-white'
-              }`}
-            >
-              Rituals
-            </button>
-          </div>
-          <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">
-            {activeSubTab === 'strikes' ? 'Strikes Active' : 'Shrine Habits'}
-          </span>
+        <div className="flex items-center gap-3 mb-8">
+          <Zap size={14} className="text-gold-core" />
+          <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
         </div>
 
         <div className="flex flex-col gap-8">
-          <AnimatePresence mode="wait">
-            {activeSubTab === 'strikes' ? (
-              <motion.div
-                key="strikes"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="flex flex-col gap-8"
-              >
-                <ObjectiveRitual onClick={onAddTask} />
-                
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+          <ObjectiveRitual onClick={onAddTask} />
+          
+          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
 
-                <div className="flex flex-col gap-4">
-                  <div className="flex justify-between items-center px-1">
-                    <span className="text-[9px] font-mono text-gray-500 tracking-widest uppercase">Missions in Progress</span>
-                    <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3">
-                    {tasks.map(task => (
-                      <MissionCard key={task.id} task={task} onOpen={onOpenTask} />
-                    ))}
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-[9px] font-mono text-gray-500 tracking-widest uppercase">Missions in Progress</span>
+              <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {tasks.map(task => (
+                <MissionCard key={task.id} task={task} onOpen={onOpenTask} />
+              ))}
 
-                    {tasks.length < 3 && (
-                      <button
-                        onClick={onAddTask}
-                        className="w-full py-10 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
-                      >
-                        <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="rituals"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="flex flex-col gap-4"
-              >
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-[9px] font-mono text-gray-500 tracking-widest uppercase">Enshrined Habits</span>
-                  <span className="text-[9px] font-mono text-gold-core/60">{rituals.length} Active</span>
-                </div>
-                
-                <div className="flex flex-col gap-3">
-                  {rituals.map(ritual => (
-                    <RitualCard key={ritual.id} ritual={ritual} onComplete={completeRitual} />
-                  ))}
+              {tasks.length < 3 && (
+                <button
+                  onClick={onAddTask}
+                  className="w-full py-10 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
+                >
+                  <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
+                </button>
+              )}
+            </div>
+          </div>
 
-                  {rituals.length === 0 && (
-                    <div className="w-full py-6 border border-dashed border-white/5 rounded flex flex-col items-center justify-center text-white/10 bg-white/[0.005]">
-                      <span className="text-[8px] font-mono tracking-[0.25em] uppercase text-gray-600 mb-1">No Rituals Enshrined</span>
-                    </div>
-                  )}
-                  
-                  <button 
-                    onClick={onAddRitual}
-                    className="w-full mt-4 py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
-                  >
-                    <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Enshrine Ritual</span>
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
-        {/* RECALCULATE PROTOCOL (Only relevant for strikes) */}
-        {activeSubTab === 'strikes' && (
-          <button 
-            onClick={handleRecalculate}
-            disabled={isRecalculating}
-            className="mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60"
-          >
-            <div className="flex items-center justify-center gap-3">
-              <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
-              <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
-                {isRecalculating ? 'Recalculating...' : recalcSuccess ? 'Protocol Decomposed' : 'Recalculate Protocol'}
-              </span>
-              <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
-            </div>
-            <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">
-              {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
-            </p>
-          </button>
-        )}
+        {/* RECALCULATE PROTOCOL */}
+        <button 
+          onClick={handleRecalculate}
+          disabled={isRecalculating}
+          className="mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
+            <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
+              {isRecalculating ? 'Recalculating...' : recalcSuccess ? 'Protocol Decomposed' : 'Recalculate Protocol'}
+            </span>
+            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
+          </div>
+          <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">
+            {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
+          </p>
+        </button>
       </section>
 
       <section className="elite-panel !p-0 flex !flex-col lg:!flex-row lg:!h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
