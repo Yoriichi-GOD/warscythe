@@ -280,10 +280,24 @@ export default function MapSection({ onTabChange }) {
 
         @media (min-width: 1024px) {
           .campaign-theater {
-            height: 100vh;
-            padding: 2rem;
-            overflow: hidden;
+            min-height: 100vh;
+            padding: 2rem 2rem 8rem 2rem;
+            overflow-y: auto;
           }
+        }
+
+        .campaign-theater::-webkit-scrollbar {
+          width: 6px;
+        }
+        .campaign-theater::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.3);
+        }
+        .campaign-theater::-webkit-scrollbar-thumb {
+          background: rgba(197, 160, 89, 0.2);
+          border-radius: 3px;
+        }
+        .campaign-theater::-webkit-scrollbar-thumb:hover {
+          background: rgba(197, 160, 89, 0.5);
         }
 
         .campaign-header {
@@ -336,8 +350,8 @@ export default function MapSection({ onTabChange }) {
             display: grid;
             grid-template-columns: 320px 1fr 320px;
             margin-bottom: 0;
-            min-height: 0;
-            height: calc(100% - 80px);
+            height: auto;
+            min-height: calc(100vh - 160px);
           }
         }
 
@@ -349,7 +363,8 @@ export default function MapSection({ onTabChange }) {
 
         @media (min-width: 1024px) {
           .campaign-aside {
-            overflow-y: auto;
+            height: auto;
+            overflow: visible;
           }
         }
 
