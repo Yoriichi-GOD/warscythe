@@ -92,9 +92,10 @@
 }
 
 @media (min-width: 1024px) {
-  .operations-sidebar {
+  .operations-sidebar,
+  .elite-panel.custom-scrollbar {
     height: calc(100vh - 160px);
-    overflow-y: auto;
+    overflow-y: auto !important;
   }
 }
 
