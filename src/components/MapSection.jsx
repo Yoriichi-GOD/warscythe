@@ -418,10 +418,24 @@ export default function MapSection({ onTabChange }) {
           gap: 1.5rem;
         }
 
-        @media (min-width: 1024px) {
+         @media (min-width: 1024px) {
           .map-viewport-container {
             height: 100%;
             min-height: 0;
+            overflow-y: auto;
+          }
+          .map-viewport-container::-webkit-scrollbar {
+            width: 6px;
+          }
+          .map-viewport-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+          }
+          .map-viewport-container::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.25);
+            border-radius: 3px;
+          }
+          .map-viewport-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(197, 160, 89, 0.55);
           }
         }
         .isometric-map-wrapper {
