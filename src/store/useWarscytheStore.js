@@ -89,14 +89,18 @@ export const useWarscytheStore = create(
         set({ user: data.user });
         ph.identify(data.user.id, { email });
         ph.capture('warscythe_sign_in');
+        
+        // Load state from profiles
+        await get().fetchUserState(data.user.id);
       },
 
       signUp: async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        // If email confirmation is enabled, data.user might be null or not fully logged in.
-        // Assuming auto-login or that the user is returned.
-        if (data.user) {
+        
+        // If email confirmation is enabled, session is null, so we DO NOT log them in.
+        // If email confirmation is disabled, session is populated, so we log them in.
+        if (data.session) {
           set({ user: data.user });
           ph.identify(data.user.id, { email });
         }
@@ -105,8 +109,117 @@ export const useWarscytheStore = create(
 
       signOut: async () => {
         await supabase.auth.signOut();
-        set({ user: null });
+        // Reset all client state to defaults on log out
+        set({
+          user: null,
+          tasks: [],
+          rituals: [],
+          completedTasks: [],
+          abandonedTasks: [],
+          executionScore: 0,
+          dailyLog: {},
+          notes: '',
+          level: 1,
+          totalCompletions: 0,
+          currentLevelProgress: 0,
+          collectedArtifacts: [],
+          unlockedLore: {},
+          currentTitle: 'Recruit',
+          pendingReward: null,
+          pendingLevelUp: null,
+          consecutiveLow: 0,
+          closerDismissed: false,
+          isFocusMode: false,
+          focusedTaskId: null,
+          streakCount: 0,
+          xp: 0,
+          scytheLevel: "DORMANT",
+          lastActiveDate: null,
+          bossKills: 0,
+        });
         ph.capture('warscythe_sign_out');
+      },
+
+      fetchUserState: async (userId) => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('state')
+            .eq('id', userId)
+            .single();
+            
+          if (error) {
+            // If no profile row exists, create one with the current store state
+            if (error.code === 'PGRST116') {
+              await get().saveUserState(userId);
+            } else {
+              console.error('Error fetching user state:', error.message);
+            }
+          } else if (data && data.state) {
+            const saved = data.state;
+            set({
+              tasks: saved.tasks || [],
+              rituals: saved.rituals || [],
+              completedTasks: saved.completedTasks || [],
+              abandonedTasks: saved.abandonedTasks || [],
+              executionScore: saved.executionScore || 0,
+              dailyLog: saved.dailyLog || {},
+              notes: saved.notes || '',
+              level: saved.level || 1,
+              totalCompletions: saved.totalCompletions || 0,
+              currentLevelProgress: saved.currentLevelProgress || 0,
+              collectedArtifacts: saved.collectedArtifacts || [],
+              unlockedLore: saved.unlockedLore || {},
+              currentTitle: saved.currentTitle || 'Recruit',
+              consecutiveLow: saved.consecutiveLow || 0,
+              streakCount: saved.streakCount || 0,
+              xp: saved.xp || 0,
+              scytheLevel: saved.scytheLevel || "DORMANT",
+              lastActiveDate: saved.lastActiveDate || null,
+              bossKills: saved.bossKills || 0,
+            });
+          }
+        } catch (err) {
+          console.error('Exception in fetchUserState:', err);
+        }
+      },
+
+      saveUserState: async (userId) => {
+        const u = userId || get().user?.id;
+        if (!u) return;
+        
+        const state = get();
+        const payload = {
+          tasks: state.tasks,
+          rituals: state.rituals,
+          completedTasks: state.completedTasks,
+          abandonedTasks: state.abandonedTasks,
+          executionScore: state.executionScore,
+          dailyLog: state.dailyLog,
+          notes: state.notes,
+          level: state.level,
+          totalCompletions: state.totalCompletions,
+          currentLevelProgress: state.currentLevelProgress,
+          collectedArtifacts: state.collectedArtifacts,
+          unlockedLore: state.unlockedLore,
+          currentTitle: state.currentTitle,
+          consecutiveLow: state.consecutiveLow,
+          streakCount: state.streakCount,
+          xp: state.xp,
+          scytheLevel: state.scytheLevel,
+          lastActiveDate: state.lastActiveDate,
+          bossKills: state.bossKills,
+        };
+
+        try {
+          await supabase.from('profiles').upsert({
+            id: u,
+            state: payload,
+            updated_at: new Date().toISOString()
+          });
+        } catch (err) {
+          console.error('Exception in saveUserState:', err);
+        }
       },
 
       // Actions
@@ -568,3 +681,56 @@ export const useWarscytheStore = create(
     }
   )
 );
+
+// Auto-sync store state to Supabase on state change if user is logged in
+let saveTimeout = null;
+useWarscytheStore.subscribe((state, prevState) => {
+  if (state.user?.id) {
+    // Check if relevant game progress state has changed
+    if (
+      state.tasks !== prevState.tasks ||
+      state.rituals !== prevState.rituals ||
+      state.completedTasks !== prevState.completedTasks ||
+      state.abandonedTasks !== prevState.abandonedTasks ||
+      state.xp !== prevState.xp ||
+      state.level !== prevState.level ||
+      state.streakCount !== prevState.streakCount ||
+      state.notes !== prevState.notes ||
+      state.executionScore !== prevState.executionScore ||
+      state.collectedArtifacts !== prevState.collectedArtifacts
+    ) {
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const u = state.user.id;
+        const payload = {
+          tasks: state.tasks,
+          rituals: state.rituals,
+          completedTasks: state.completedTasks,
+          abandonedTasks: state.abandonedTasks,
+          executionScore: state.executionScore,
+          dailyLog: state.dailyLog,
+          notes: state.notes,
+          level: state.level,
+          totalCompletions: state.totalCompletions,
+          currentLevelProgress: state.currentLevelProgress,
+          collectedArtifacts: state.collectedArtifacts,
+          unlockedLore: state.unlockedLore,
+          currentTitle: state.currentTitle,
+          consecutiveLow: state.consecutiveLow,
+          streakCount: state.streakCount,
+          xp: state.xp,
+          scytheLevel: state.scytheLevel,
+          lastActiveDate: state.lastActiveDate,
+          bossKills: state.bossKills,
+        };
+        supabase.from('profiles').upsert({
+          id: u,
+          state: payload,
+          updated_at: new Date().toISOString()
+        }).then(({ error }) => {
+          if (error) console.error('Auto-save error:', error.message);
+        });
+      }, 1500); // 1.5 second debounce to prevent spamming queries
+    }
+  }
+});
