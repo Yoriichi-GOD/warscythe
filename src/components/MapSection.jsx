@@ -280,8 +280,8 @@ export default function MapSection({ onTabChange }) {
 
         @media (min-width: 1024px) {
           .campaign-theater {
-            height: 100vh;
-            padding: 2rem;
+            height: 100%;
+            padding: 1.5rem 1.5rem 0.5rem 1.5rem;
             overflow: hidden;
           }
         }
@@ -351,6 +351,7 @@ export default function MapSection({ onTabChange }) {
           .campaign-aside {
             height: 100%;
             overflow-y: auto;
+            padding-bottom: 4rem;
           }
           .campaign-aside::-webkit-scrollbar {
             width: 6px;
@@ -418,11 +419,12 @@ export default function MapSection({ onTabChange }) {
           gap: 1.5rem;
         }
 
-         @media (min-width: 1024px) {
+          @media (min-width: 1024px) {
           .map-viewport-container {
             height: 100%;
             min-height: 0;
             overflow-y: auto;
+            padding-bottom: 4rem;
           }
           .map-viewport-container::-webkit-scrollbar {
             width: 6px;
