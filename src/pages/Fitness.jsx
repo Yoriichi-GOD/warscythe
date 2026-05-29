@@ -156,7 +156,7 @@ export default function Fitness() {
   const totalWorkouts = gymLog.length;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pt-4 pb-32">
+    <div className="w-full pt-4 pb-32">
       {/* 3-COLUMN LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
