@@ -156,7 +156,7 @@ export default function App() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout activeTab={activeTab}>
       <Header 
         onOpenMap={() => setActiveTab('map')} 
         onOpenVault={() => setActiveTab('ledger')} 

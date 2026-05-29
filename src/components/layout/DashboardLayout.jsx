@@ -1,16 +1,26 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children, activeTab }) {
+  const bgImage = activeTab === 'fitness' ? '/olympus-bg.png' : '/castle-bg.png';
+  const bgAlt = activeTab === 'fitness' ? 'Olympus Temple' : 'Warscythe Castle';
+
   return (
     <div className="relative min-h-screen w-full bg-black text-white overflow-hidden">
       
       {/* 1. THE CINEMATIC BACKGROUND (Direct Image) */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/castle-bg.png" 
-          alt="Warscythe Castle" 
-          className="w-full h-full object-cover object-[center_15%] opacity-70"
-        />
+        <AnimatePresence mode="popLayout">
+          <motion.img 
+            key={bgImage}
+            src={bgImage} 
+            alt={bgAlt} 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
+          />
+        </AnimatePresence>
         {/* 2. THE ELITE GRADIENT OVERLAY (Pro-Tip) */}
         <div 
           className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" 
