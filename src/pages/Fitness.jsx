@@ -162,7 +162,7 @@ export default function Fitness() {
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="elite-panel border-gold-core/25">
+          <div className="elite-panel border-gold-core/25 !overflow-visible">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
