@@ -160,8 +160,8 @@ export default function Fitness() {
       {/* 3-COLUMN LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 3) ================= */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+        {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
           <div className="elite-panel border-gold-core/25">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
@@ -589,8 +589,8 @@ export default function Fitness() {
           )}
         </div>
 
-        {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 6) ================= */}
-        <div className="lg:col-span-6 flex flex-col gap-4">
+        {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 4) ================= */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
           <div className="elite-panel border-gold-core/25 text-center relative overflow-hidden bg-gradient-to-b from-black via-black/90 to-[#0e0c0a]">
             
             {/* Background God Aura Light */}
