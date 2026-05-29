@@ -1,22 +1,60 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity } from 'lucide-react';
+import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2 } from 'lucide-react';
+import { HABIT_TEMPLATES } from '../store/constants';
 
 export default function TaskModal({ onClose }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Work');
   const [effort, setEffort] = useState('Medium');
   const [deadline, setDeadline] = useState('');
+  const [priority, setPriority] = useState('none');
+  const [subTaskText, setSubTaskText] = useState('');
+  const [subTasks, setSubTasks] = useState([]);
+  const [error, setError] = useState(null);
   
   const addTask = useWarscytheStore(state => state.addTask);
 
+  const handleSelectPreset = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    const preset = HABIT_TEMPLATES.find(t => t.title === val);
+    if (preset) {
+      setTitle(preset.title);
+      setCategory(preset.category === 'Health' || preset.category === 'Physical' ? 'Fitness' : preset.category);
+      setEffort(preset.effort);
+      
+      // Auto-set deadline boundary
+      const d = new Date();
+      if (preset.effort === 'Low') d.setDate(d.getDate() + 1);
+      else if (preset.effort === 'Medium') d.setDate(d.getDate() + 3);
+      else if (preset.effort === 'High') d.setDate(d.getDate() + 7);
+      setDeadline(d.toISOString().slice(0, 10));
+    }
+  };
+
+  const handleAddSubTask = () => {
+    if (!subTaskText.trim()) return;
+    setSubTasks([...subTasks, subTaskText.trim()]);
+    setSubTaskText('');
+  };
+
+  const handleRemoveSubTask = (idx) => {
+    setSubTasks(subTasks.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError(null);
     if (!title || !deadline) return;
-    const success = addTask(title, category, effort, deadline);
-    if (success) onClose();
-    else alert("Operation failed: Max active tasks reached (3).");
+    
+    const success = addTask(title, category, effort, deadline, priority, subTasks);
+    if (success === true) {
+      onClose();
+    } else {
+      setError(success || "Operation failed.");
+    }
   };
 
   return (
@@ -26,7 +64,7 @@ export default function TaskModal({ onClose }) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="modal-content glass-panel tactical-modal"
+        className="modal-content glass-panel tactical-modal max-h-[90vh] overflow-y-auto custom-scrollbar"
         onClick={e => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -37,7 +75,24 @@ export default function TaskModal({ onClose }) {
           <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
         </div>
 
+        {error && (
+          <div className="error-banner">
+            <ShieldAlert size={14} />
+            <span>{error}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="tactical-form">
+          <div className="form-group full">
+            <label><Zap size={10} /> TEMPLATE PRESETS</label>
+            <select onChange={handleSelectPreset} defaultValue="">
+              <option value="">-- SELECT QUICK HABIT PRESET --</option>
+              {HABIT_TEMPLATES.map((h, idx) => (
+                <option key={idx} value={h.title}>{h.title} ({h.effort})</option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-group full">
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
@@ -82,6 +137,60 @@ export default function TaskModal({ onClose }) {
                 required
               />
             </div>
+          </div>
+
+          <div className="form-group full">
+            <label><ShieldAlert size={10} /> PRIORITY BEACON</label>
+            <div className="priority-toggle-group">
+              {[
+                { id: 'none', label: 'DEFAULT', color: 'var(--color-gold-core)' },
+                { id: 'low', label: 'LOW', color: '#2ecc71' },
+                { id: 'medium', label: 'MEDIUM', color: '#f1c40f' },
+                { id: 'high', label: 'HIGH', color: '#e74c3c' }
+              ].map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`priority-btn ${priority === p.id ? 'active' : ''}`}
+                  style={{ 
+                    borderColor: priority === p.id ? p.color : 'rgba(255,255,255,0.06)', 
+                    color: p.color,
+                    boxShadow: priority === p.id ? `0 0 10px ${p.color}33` : 'none'
+                  }}
+                  onClick={() => setPriority(p.id)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group full">
+            <label><Plus size={10} /> ADD TACTICAL SUB-TASKS</label>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="ENTER SUB-TASK REQUIREMENT..." 
+                value={subTaskText}
+                onChange={e => setSubTaskText(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubTask(); } }}
+              />
+              <button type="button" className="btn-add-sub" onClick={handleAddSubTask}>
+                <Plus size={16} />
+              </button>
+            </div>
+            {subTasks.length > 0 && (
+              <div className="sub-tasks-preview flex flex-col gap-2 mt-2">
+                {subTasks.map((st, idx) => (
+                  <div key={idx} className="sub-task-preview-item flex justify-between items-center p-2 rounded bg-white/[0.02] border border-white/5">
+                    <span className="text-[11px] font-mono text-gray-400">{st}</span>
+                    <button type="button" className="text-red-400 hover:text-red-500" onClick={() => handleRemoveSubTask(idx)}>
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="modal-footer">
@@ -147,6 +256,22 @@ export default function TaskModal({ onClose }) {
         }
         .btn-close-circle:hover { background: var(--red-core); color: #fff; border-color: var(--red-hot); }
 
+        .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          color: #f87171;
+          padding: 0.8rem 1.2rem;
+          border-radius: 4px;
+          margin-bottom: 1.5rem;
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+
         .tactical-form { display: flex; flex-direction: column; gap: 1.5rem; }
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
         @media (min-width: 640px) {
@@ -169,6 +294,7 @@ export default function TaskModal({ onClose }) {
           font-family: var(--font-mono);
           font-size: 0.8rem;
           transition: 0.2s;
+          flex: 1;
         }
         
         input:focus, select:focus { 
@@ -187,6 +313,49 @@ export default function TaskModal({ onClose }) {
         }
         input[type="date"]::-webkit-calendar-picker-indicator:hover {
           opacity: 1;
+        }
+
+        .priority-toggle-group {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.5rem;
+        }
+
+        .priority-btn {
+          background: rgba(255,255,255,0.01);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 4px;
+          padding: 0.8rem 0.5rem;
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          font-weight: 900;
+          cursor: pointer;
+          transition: 0.2s;
+          letter-spacing: 0.05em;
+        }
+
+        .priority-btn.active {
+          background: rgba(255,255,255,0.04);
+        }
+
+        .btn-add-sub {
+          width: 50px;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid var(--border);
+          color: var(--text-dim);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: 0.2s;
+          margin-left: 0.5rem;
+        }
+
+        .btn-add-sub:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: var(--gold-core);
+          color: #fff;
         }
         
         .deploy-btn {

@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Shield, Scroll, Award, Star } from 'lucide-react';
+import ScytheCenter from './ScytheCenter';
 
 export default function VaultModal({ onClose }) {
   const { collectedArtifacts, unlockedLore, currentTitle } = useWarscytheStore();
   const [selectedArtifact, setSelectedArtifact] = useState(null);
+  const [activeTab, setActiveTab] = useState('artifacts'); // 'artifacts' or 'scythes'
 
   const rarities = {
     common: { color: '#aaa', label: 'COMMON' },
     uncommon: { color: 'var(--stage-ship)', label: 'UNCOMMON' },
     rare: { color: 'var(--stage-build)', label: 'RARE' },
-    epic: { color: 'var(--stage-finish)', label: 'EPIC' }
+    epic: { color: 'var(--stage-finish)', label: 'EPIC' },
+    mythic: { color: '#ff3d00', label: 'MYTHIC' }
   };
 
   return (
@@ -24,17 +27,45 @@ export default function VaultModal({ onClose }) {
         onClick={e => e.stopPropagation()}
       >
         <div className="vault-header">
-          <div className="vault-title-group">
-            <Award size={24} className="text-gold" />
-            <div className="title-text">
-              <h2>THE ARTIFACT VAULT</h2>
-              <span>ARCHIVE OF THE {currentTitle.toUpperCase()}</span>
+          <div className="vault-title-group flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Award size={24} className="text-gold" />
+              <div className="title-text">
+                <h2>THE ARTIFACT VAULT</h2>
+                <span>ARCHIVE OF THE {currentTitle.toUpperCase()}</span>
+              </div>
+            </div>
+
+            {/* Tab Toggles */}
+            <div className="flex gap-1 border border-white/5 bg-black/40 p-1 rounded ml-4">
+              <button 
+                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+                  activeTab === 'artifacts' 
+                    ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+                onClick={() => setActiveTab('artifacts')}
+              >
+                Artifacts
+              </button>
+              <button 
+                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+                  activeTab === 'scythes' 
+                    ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+                onClick={() => setActiveTab('scythes')}
+              >
+                Scythe Armory
+              </button>
             </div>
           </div>
           <button className="vault-close" onClick={onClose}><X size={20} /></button>
         </div>
 
-        <div className="vault-layout">
+        <div className="flex-1 overflow-hidden">
+          {activeTab === 'artifacts' ? (
+            <div className="vault-layout h-full">
           <div className="artifact-gallery">
             <div className="dragon-trophies-section glass-panel">
                <div className="panel-label">
@@ -140,6 +171,12 @@ export default function VaultModal({ onClose }) {
             </AnimatePresence>
           </div>
         </div>
+        ) : (
+          <div className="h-full overflow-y-auto custom-scrollbar">
+            <ScytheCenter />
+          </div>
+        )}
+        </div>
       </motion.div>
 
       <style jsx>{`
@@ -242,10 +279,11 @@ export default function VaultModal({ onClose }) {
         @media (min-width: 1024px) { .art-card-icon { font-size: 2.5rem; } }
         .rarity-dot { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; border-radius: 50%; }
 
-        .rarity-common .rarity-dot { background: #aaa; }
+         .rarity-common .rarity-dot { background: #aaa; }
         .rarity-uncommon .rarity-dot { background: var(--stage-ship); box-shadow: 0 0 5px var(--stage-ship); }
         .rarity-rare .rarity-dot { background: var(--stage-build); box-shadow: 0 0 5px var(--stage-build); }
         .rarity-epic .rarity-dot { background: var(--stage-finish); box-shadow: 0 0 5px var(--stage-finish); }
+        .rarity-mythic .rarity-dot { background: #ff3d00; box-shadow: 0 0 5px #ff3d00; }
 
         .artifact-inspector { 
           background: rgba(0,0,0,0.4); 
@@ -299,19 +337,21 @@ export default function VaultModal({ onClose }) {
         .large-glow { position: absolute; inset: 0; border-radius: 50%; filter: blur(40px); opacity: 0.3; }
         @media (min-width: 1024px) { .large-glow { filter: blur(50px); } }
         
-        .large-glow.rarity-common { background: #fff; }
+         .large-glow.rarity-common { background: #fff; }
         .large-glow.rarity-uncommon { background: var(--stage-ship); }
         .large-glow.rarity-rare { background: var(--stage-build); }
         .large-glow.rarity-epic { background: var(--stage-finish); }
+        .large-glow.rarity-mythic { background: #ff3d00; }
 
         .inspector-details { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
         .rarity-label { font-size: 0.55rem; font-weight: 900; letter-spacing: 0.2em; margin-bottom: 0.25rem; }
         @media (min-width: 1024px) { .rarity-label { font-size: 0.6rem; letter-spacing: 0.3em; margin-bottom: 0.5rem; } }
 
-        .rarity-label.rarity-common { color: var(--text-dark); }
+         .rarity-label.rarity-common { color: var(--text-dark); }
         .rarity-label.rarity-uncommon { color: var(--stage-ship); }
         .rarity-label.rarity-rare { color: var(--stage-build); }
         .rarity-label.rarity-epic { color: var(--stage-finish); }
+        .rarity-label.rarity-mythic { color: #ff3d00; }
 
         .inspector-details h3 { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: 0.05em; }
         @media (min-width: 1024px) { .inspector-details h3 { font-size: 2rem; } }

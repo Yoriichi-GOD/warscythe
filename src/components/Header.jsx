@@ -1,10 +1,10 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog }) {
   const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress } = useWarscytheStore();
   
   const xpForNext = level * 1000;
@@ -66,6 +66,9 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth }) {
             title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
           >
             {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
+          </button>
+          <button className="nav-btn" onClick={onOpenGymLog} title="Gym & Fitness Log">
+            <Dumbbell size={18} />
           </button>
           <button className="nav-btn" onClick={() => onOpenVault()} title="Artifact Vault">
             <Award size={18} />

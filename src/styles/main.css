@@ -1,18 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;700;900&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;700;900&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;700;900&family=Rajdhani:wght@400;700;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-main: "Inter", system-ui, sans-serif;
+  --font-main: "Outfit", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --font-display: "Cinzel", serif;
-  --font-decorative: "Cinzel Decorative", serif;
+  --font-display: "Orbitron", "Cinzel", serif;
+  --font-decorative: "Rajdhani", "Cinzel Decorative", serif;
 
-  --color-gold-core: #c5a059;
-  --color-gold-glow: rgba(197, 160, 89, 0.25);
-  --color-gold-bright: #e8d0a0;
+  --color-gold-core: #ecc880;
+  --color-gold-glow: rgba(236, 200, 128, 0.25);
+  --color-gold-bright: #fff4dc;
   
   --color-text-primary: #ffffff;
-  --color-text-dim: #949494;
+  --color-text-dim: #c2c2c2;
 }
 
 @layer base {
@@ -22,6 +22,25 @@
     font-family: var(--font-main);
     overflow-x: hidden;
     height: 100vh;
+    transition: background-color 0.5s ease, color 0.3s ease;
+  }
+
+  body.priority-low {
+    --color-gold-core: #2ecc71;
+    --color-gold-glow: rgba(46, 204, 113, 0.25);
+    --color-gold-bright: #a3f7bf;
+  }
+
+  body.priority-medium {
+    --color-gold-core: #f1c40f;
+    --color-gold-glow: rgba(241, 196, 15, 0.25);
+    --color-gold-bright: #fef1b3;
+  }
+
+  body.priority-high {
+    --color-gold-core: #e74c3c;
+    --color-gold-glow: rgba(231, 76, 60, 0.25);
+    --color-gold-bright: #f9b4ab;
   }
 }
 

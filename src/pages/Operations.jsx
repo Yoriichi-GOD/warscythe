@@ -8,7 +8,7 @@ import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
 import { Zap, Lock } from 'lucide-react';
 
-export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
+export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOpenGymLog }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
@@ -210,6 +210,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask }) {
       <aside className="operations-sidebar custom-scrollbar">
         <CommandCenter 
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
+          onOpenGymLog={onOpenGymLog}
         />
       </aside>
 

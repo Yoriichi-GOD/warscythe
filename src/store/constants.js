@@ -1,4 +1,4 @@
-export const MAX_TASKS = 3;
+export const MAX_TASKS = 999;
 export const CLOSER_THRESH = 80;
 export const CLOSER_DAYS = 5;
 export const STALLED_HRS = 48;
@@ -293,5 +293,34 @@ export const ARTIFACT_POOL = {
       hook: 'Your ADHD isn\'t a disability. It\'s your weapon.',
       lore: 'You stopped apologizing. Stopped managing. Stopped explaining. You execute at velocities neurotypical brains cannot sustain, see patterns most will never notice, and hyperfocus with intensity that looks like magic. You\'ve hacked your own neurology. You are not disabled. You are different. And different has won.'
     }
+  ],
+  mythic: [
+    {
+      name: 'Sovereign Core',
+      icon: '🌌',
+      hook: 'Reality bent. You didn\'t.',
+      lore: 'The ultimate engine of execution. It doesn\'t measure output—it transforms intent directly into reality. Only forged under extreme cognitive pressure.'
+    },
+    {
+      name: 'Omega Catalyst',
+      icon: '🌀',
+      hook: 'The distraction died. The focus remains.',
+      lore: 'For those who have conquered the ADHD storm. The catalyst channels hyperfocus into a single laser-thin line that cuts through any obstacle.'
+    },
+    {
+      name: 'Grip of the Void',
+      icon: '🕳️',
+      hook: 'Nothing else exists. Only this moment.',
+      lore: 'A glove woven from absolute stillness. When worn, all noise, doubts, and excuses dissolve. There is only you, and the work.'
+    }
   ]
 };
+
+export const HABIT_TEMPLATES = [
+  { title: 'Hydrate', category: 'Health', effort: 'Low' },
+  { title: 'Meditate', category: 'Mental', effort: 'Low' },
+  { title: 'Stretch', category: 'Health', effort: 'Low' },
+  { title: 'Strength Train', category: 'Physical', effort: 'Medium' },
+  { title: 'Write Code', category: 'Creative', effort: 'Medium' },
+  { title: 'Read 10 Pages', category: 'Intellect', effort: 'Low' }
+];

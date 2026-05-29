@@ -13,11 +13,21 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   const updateNotes = useWarscytheStore(state => state.updateTaskNotes);
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const toggleMicroStep = useWarscytheStore(state => state.toggleMicroStep);
+  const addMicroStep = useWarscytheStore(state => state.addMicroStep);
+  const deleteMicroStep = useWarscytheStore(state => state.deleteMicroStep);
+
+  const [newSubText, setNewSubText] = useState('');
 
   if (!task) return null;
 
   const handleComplete = () => {
     onComplete();
+  };
+
+  const handleAddSub = () => {
+    if (!newSubText.trim()) return;
+    addMicroStep(task.id, newSubText.trim());
+    setNewSubText('');
   };
 
   const trackColor = 'var(--gold-core)';
@@ -36,7 +46,14 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
         {/* Header */}
         <div className="td-header">
           <div className="td-title-group">
-            <span className="td-category">{task.category}</span>
+            <div className="flex gap-2 items-center mb-1">
+              <span className="td-category">{task.category}</span>
+              {task.priority && task.priority !== 'none' && (
+                <span className={`priority-badge priority-${task.priority}`}>
+                  {task.priority.toUpperCase()} PRIORITY
+                </span>
+              )}
+            </div>
             <h2 className="td-title">{task.title}</h2>
           </div>
           <button className="td-close" onClick={onClose}><X size={20} /></button>
@@ -72,7 +89,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
              <div className="td-section-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Target size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
-                  <label>MICRO STEPS</label>
+                  <label>TACTICAL SUB-TASKS</label>
                 </div>
                 <button 
                   className="td-btn-recalc" 
@@ -93,14 +110,39 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
                    <div 
                     key={step.id} 
                     className={`td-step-item ${step.checked ? 'checked' : ''}`}
-                    onClick={() => toggleMicroStep(task.id, step.id)}
                    >
-                     <div className="td-checkbox">
+                     <div className="td-checkbox" onClick={() => toggleMicroStep(task.id, step.id)}>
                        {step.checked && <CheckCircle size={14} style={{ color: 'var(--gold-core)' }} />}
                      </div>
-                     <span className="td-step-label">{step.label}</span>
+                     <span className="td-step-label" onClick={() => toggleMicroStep(task.id, step.id)}>{step.label}</span>
+                     <button 
+                       className="text-red-400 hover:text-red-500 ml-auto p-1"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         deleteMicroStep(task.id, step.id);
+                       }}
+                     >
+                       <Trash2 size={12} />
+                     </button>
                    </div>
                  ))
+               )}
+
+               {/* Subtask Quick Add Input */}
+               {task.completedAt === null && (
+                 <div className="flex gap-2 mt-2">
+                   <input 
+                     type="text" 
+                     placeholder="Add custom sub-task step..."
+                     value={newSubText}
+                     onChange={e => setNewSubText(e.target.value)}
+                     onKeyDown={e => { if (e.key === 'Enter') handleAddSub(); }}
+                     className="td-sub-input"
+                   />
+                   <button className="td-btn-add-sub" onClick={handleAddSub}>
+                     <Plus size={14} />
+                   </button>
+                 </div>
                )}
              </div>
           </div>
@@ -234,6 +276,48 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
         }
         .td-empty-state p { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; }
         .td-empty-state span { font-size: 0.65rem; font-family: var(--font-mono); color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .td-sub-input {
+          flex: 1;
+          background: rgba(0,0,0,0.3);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 4px;
+          padding: 0.6rem 0.8rem;
+          color: #fff;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+        }
+        .td-sub-input:focus {
+          outline: none;
+          border-color: var(--gold-core);
+        }
+        .td-btn-add-sub {
+          background: rgba(197, 160, 89, 0.1);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-core);
+          border-radius: 4px;
+          padding: 0.6rem 0.8rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: 0.2s;
+        }
+        .td-btn-add-sub:hover {
+          background: var(--gold-core);
+          color: #000;
+        }
+        .priority-badge {
+          font-family: var(--font-mono);
+          font-size: 0.55rem;
+          font-weight: 900;
+          padding: 2px 6px;
+          border-radius: 4px;
+          letter-spacing: 0.05em;
+        }
+        .priority-badge.priority-low { background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; color: #2ecc71; }
+        .priority-badge.priority-medium { background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f; color: #f1c40f; }
+        .priority-badge.priority-high { background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; }
 
         /* TEXTAREA */
         .td-textarea {

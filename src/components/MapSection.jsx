@@ -62,6 +62,31 @@ export default function MapSection({ onTabChange }) {
   const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
   const currentLore = unlockedLore?.[regionIdx] || [];
 
+  // DAILY SHIFTING ROUTES LOGIC
+  const dayOfWeek = new Date().getDay();
+  const isAshendaleLocked = dayOfWeek % 2 === 0; // Locked on even days
+  const isStonehollowLocked = !isAshendaleLocked; // Locked on odd days
+
+  const nodes = [
+    { id: 'castle', label: 'CASTLE BLACKVALE', top: '78%', left: '48%', status: 'SECURED', type: 'secured' },
+    { id: 'ashendale', label: 'ASHENDALE', top: '48%', left: '22%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
+    { id: 'jail', label: 'IRON JAIL', top: '45%', left: '50%', status: 'IN PROGRESS', type: 'active' },
+    { id: 'stone', label: 'STONEHOLLOW', top: '52%', left: '80%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
+    { id: 'boss', label: "DRAGON'S NEST", top: '15%', left: '50%', status: 'FINAL OBJECTIVE', type: 'boss' }
+  ];
+
+  const connections = [
+    { from: 'castle', to: 'jail', color: 'rgba(197, 160, 89, 0.3)' },
+    { from: 'jail', to: 'ashendale', color: isAshendaleLocked ? 'rgba(255, 60, 60, 0.1)' : 'rgba(197, 160, 89, 0.3)' },
+    { from: 'jail', to: 'stone', color: isStonehollowLocked ? 'rgba(255, 60, 60, 0.1)' : 'rgba(197, 160, 89, 0.3)' },
+    { from: 'jail', to: 'boss', color: 'rgba(255, 60, 60, 0.3)', thick: true }
+  ];
+
+  const getNodePos = (id) => {
+    const node = nodes.find(n => n.id === id);
+    return node ? { x: node.left, y: node.top } : { x: '50%', y: '50%' };
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -137,53 +162,39 @@ export default function MapSection({ onTabChange }) {
             <div className="map-nodes-overlay">
               {/* Tactical Connection Paths */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-                {/* Castle to Ashendale */}
-                <line x1="48%" y1="75%" x2="22%" y2="45%" stroke="rgba(197, 160, 89, 0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
-                {/* Ashendale to Iron Jail */}
-                <line x1="22%" y1="45%" x2="50%" y2="44%" stroke="rgba(197, 160, 89, 0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
-                {/* Iron Jail to Stonehollow */}
-                <line x1="50%" y1="44%" x2="82%" y2="50%" stroke="rgba(197, 160, 89, 0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
-                {/* Iron Jail to Dragon's Nest */}
-                <line x1="50%" y1="44%" x2="50%" y2="12%" stroke="rgba(255, 60, 60, 0.3)" strokeWidth="2" strokeDasharray="4 4" />
+                {connections.map((c, i) => {
+                  const fromPos = getNodePos(c.from);
+                  const toPos = getNodePos(c.to);
+                  return (
+                    <line 
+                      key={i}
+                      x1={fromPos.x} 
+                      y1={fromPos.y} 
+                      x2={toPos.x} 
+                      y2={toPos.y} 
+                      stroke={c.color} 
+                      strokeWidth={c.thick ? "2" : "1.5"} 
+                      strokeDasharray="4 4" 
+                    />
+                  );
+                })}
               </svg>
                 
-                {/* 1. CASTLE BLACKVALE (Bottom) */}
-                <motion.div className="map-node" style={{ top: '75%', left: '48%' }} onClick={() => setSelectedNode('castle')}>
-                  <div className="node-glow secured" />
-                  <span className="node-label">CASTLE BLACKVALE</span>
-                  <div className="node-status">SECURED</div>
-                </motion.div>
-
-                {/* 2. VILLAGE OF ASHENDALE (Left) */}
-                <motion.div className="map-node" style={{ top: '45%', left: '22%' }} onClick={() => setSelectedNode('ashendale')}>
-                  <div className="node-glow secured" />
-                  <span className="node-label">ASHENDALE</span>
-                  <div className="node-status">SECURED</div>
-                </motion.div>
-
-                {/* 3. IRON JAIL (Center) */}
-                <motion.div className="map-node active" style={{ top: '44%', left: '50%' }} onClick={() => setSelectedNode('jail')}>
-                  <div className="node-glow active" />
-                  <div className="current-ping" />
-                  <span className="node-label">IRON JAIL</span>
-                  <div className="node-status">IN PROGRESS</div>
-                </motion.div>
-
-                {/* 4. STONEHOLLOW (Right) */}
-                <motion.div className="map-node locked" style={{ top: '50%', left: '82%' }} onClick={() => setSelectedNode('stone')}>
-                  <div className="node-glow locked" />
-                  <Lock size={12} className="lock-icon" />
-                  <span className="node-label">STONEHOLLOW</span>
-                  <div className="node-status">LOCKED</div>
-                </motion.div>
-
-                {/* 5. DRAGON'S NEST (Top Volcano) */}
-                <motion.div className="map-node boss-node" style={{ top: '12%', left: '50%' }} onClick={() => setSelectedNode('boss')}>
-                  <div className="node-glow boss" />
-                  <Skull size={20} className="boss-icon" />
-                  <span className="node-label">DRAGON'S NEST</span>
-                  <div className="node-status">FINAL OBJECTIVE</div>
-                </motion.div>
+                {nodes.map(node => (
+                  <motion.div 
+                    key={node.id} 
+                    className={`map-node ${node.type}`} 
+                    style={{ top: node.top, left: node.left }} 
+                    onClick={() => setSelectedNode(node.id)}
+                  >
+                    <div className={`node-glow ${node.type}`} />
+                    {node.type === 'active' && <div className="current-ping" />}
+                    {node.type === 'locked' && <Lock size={12} className="lock-icon" />}
+                    {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                    <span className="node-label">{node.label}</span>
+                    <div className="node-status">{node.status}</div>
+                  </motion.div>
+                ))}
 
               </div>
             </div>
@@ -447,7 +458,7 @@ export default function MapSection({ onTabChange }) {
           border-radius: 8px;
           position: relative;
           overflow: hidden;
-          min-height: 400px;
+          min-height: 600px;
         }
         .map-image-layer {
           position: absolute;

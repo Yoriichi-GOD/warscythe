@@ -21,6 +21,11 @@ import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
 
+import TutorialModal from './components/TutorialModal';
+import GymLogBook from './components/GymLogBook';
+import SimulatedAds from './components/SimulatedAds';
+import StreakScrollModal from './components/StreakScrollModal';
+
 export default function App() {
   useEffect(() => {
     const state = useWarscytheStore.getState();
@@ -57,6 +62,7 @@ export default function App() {
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
+  const [showGymLog, setShowGymLog] = useState(false);
   
   const user = useWarscytheStore(state => state.user);
   
@@ -67,6 +73,27 @@ export default function App() {
   const completeTask = useWarscytheStore(state => state.completeTask);
   const updateProgress = useWarscytheStore(state => state.updateProgress);
   const updateStreak = useWarscytheStore(state => state.updateStreak);
+
+  const tasks = useWarscytheStore(state => state.tasks);
+  const isFocusMode = useWarscytheStore(state => state.isFocusMode);
+  const focusedTaskId = useWarscytheStore(state => state.focusedTaskId);
+
+  // Sync priority body class
+  useEffect(() => {
+    if (!user) return;
+    const activeId = isFocusMode ? focusedTaskId : selectedTaskId;
+    const activeTask = (tasks || []).find(t => t.id === activeId);
+    const priority = activeTask ? activeTask.priority : 'none';
+
+    document.body.classList.remove('priority-low', 'priority-medium', 'priority-high');
+    if (priority === 'low') {
+      document.body.classList.add('priority-low');
+    } else if (priority === 'medium') {
+      document.body.classList.add('priority-medium');
+    } else if (priority === 'high') {
+      document.body.classList.add('priority-high');
+    }
+  }, [isFocusMode, focusedTaskId, selectedTaskId, tasks, user]);
 
   const handleFinalize = () => {
     setShowRealityLock(false);
@@ -124,7 +151,12 @@ export default function App() {
         onOpenMap={() => setActiveTab('map')} 
         onOpenVault={() => setShowVault(true)} 
         onOpenAuth={() => setShowAuth(true)}
+        onOpenGymLog={() => setShowGymLog(true)}
       />
+      
+      <div className="px-4 lg:px-8 pt-2">
+        <SimulatedAds />
+      </div>
       
       <main className="flex-1 w-full overflow-hidden relative">
         {/* Persistent Tab Pages for Smooth Mobile Switching */}
@@ -139,6 +171,7 @@ export default function App() {
               setSelectedTaskId(id);
               setShowRealityLock(true);
             }}
+            onOpenGymLog={() => setShowGymLog(true)}
           />
         </div>
         
@@ -197,6 +230,10 @@ export default function App() {
 
         {showAuth && (
           <AuthModal onClose={() => setShowAuth(false)} />
+        )}
+
+        {showGymLog && (
+          <GymLogBook onClose={() => setShowGymLog(false)} />
         )}
 
         {showRealityLock && (
@@ -276,6 +313,9 @@ export default function App() {
       <AnimatePresence>
         <FocusOverlay />
       </AnimatePresence>
+
+      <TutorialModal />
+      <StreakScrollModal />
 
       <div id="toast-container" />
     </DashboardLayout>

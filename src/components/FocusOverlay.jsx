@@ -330,6 +330,46 @@ export default function FocusOverlay() {
         .label-row { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; color: var(--text-dark); letter-spacing: 0.2em; }
         .focus-progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
         .focus-progress-fill { height: 100%; background: var(--gold-core); box-shadow: 0 0 15px var(--gold-glow); }
+
+        @media (max-width: 1023px) {
+          .focus-header {
+            padding: 1.25rem 1.5rem;
+          }
+          .focus-main-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 5rem 1.5rem 2rem 1.5rem;
+            overflow-y: auto;
+          }
+          .timer-digits {
+            font-size: 4rem;
+          }
+          .timer-progress-ring {
+            width: 220px;
+            height: 220px;
+          }
+          .task-focus-title {
+            font-size: 1.8rem;
+          }
+          .focus-task-info {
+            gap: 2rem;
+          }
+          .focus-steps-list {
+            max-height: 280px;
+          }
+          .focus-step-item {
+            padding: 0.9rem 1.1rem;
+          }
+          .step-label-text {
+            font-size: 0.85rem;
+          }
+          .focus-footer {
+            padding: 1.5rem;
+          }
+          .focus-progress-block {
+            max-width: 100%;
+          }
+        }
       `}</style>
     </motion.div>
   );

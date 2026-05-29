@@ -1,8 +1,8 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
-import { Swords, History, Flame, Award } from 'lucide-react';
+import { Swords, History, Flame, Award, Dumbbell } from 'lucide-react';
 
-export default function CommandCenter({ onPreviewUltimate }) {
+export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0, collectedArtifacts = [] } = useWarscytheStore();
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
@@ -69,6 +69,17 @@ export default function CommandCenter({ onPreviewUltimate }) {
            </div>
         </div>
       </div>
+
+      {/* 🏋️ GYM LOGBOOK LAUNCHER */}
+      <button 
+        onClick={onOpenGymLog}
+        className="w-full py-4 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group flex items-center justify-center gap-3 cursor-pointer shrink-0"
+      >
+        <Dumbbell size={14} className="text-gold-core group-hover:text-gold-bright transition-colors" />
+        <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
+          FITNESS LOGBOOK
+        </span>
+      </button>
 
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
       <div className="flex flex-col gap-3 shrink-0">

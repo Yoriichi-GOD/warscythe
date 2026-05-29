@@ -4,7 +4,7 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock } from 'lucide-react';
 
 export default function ScytheCenter() {
-  const { dailyLog, streakCount, unlockedScythes } = useWarscytheStore();
+  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
   const [viewedStageIndex, setViewedStageIndex] = useState(null);
 
@@ -35,15 +35,38 @@ export default function ScytheCenter() {
     { id: 'death-lord', name: 'DEATH-LORD', req: 360, type: 'streak', material: 'death-lord', materialName: 'Death-Lord' }
   ];
 
+  const scythePrices = {
+    'acolyte': 100,
+    'reaper': 250,
+    'executioner': 500,
+    'sovereign': 1000,
+    'void-walker': 2000,
+    'eternal': 4000,
+    'death-lord': 8000
+  };
+
+  const isScytheUnlocked = (stage) => {
+    if (stage.type === 'weight') {
+      if (stage.id === 'dormant') return true;
+      if (stage.id === 'awakened' && weight >= 3) return true;
+      if (stage.id === 'hardened' && weight >= 7) return true;
+      if (stage.id === 'refined' && weight >= 10) return true;
+      return false;
+    }
+    const reachedStreak = streakCount >= stage.req;
+    const bought = (unlockedScythes || []).includes(stage.id);
+    return reachedStreak || bought;
+  };
+
   const currentStageIndex = (() => {
-    if (streakCount >= 360 && unlockedScythes.includes('death-lord')) return 11;
-    if (streakCount >= 300 && unlockedScythes.includes('eternal')) return 10;
-    if (streakCount >= 200 && unlockedScythes.includes('void-walker')) return 9;
-    if (streakCount >= 120 && unlockedScythes.includes('sovereign')) return 8;
-    if (streakCount >= 60 && unlockedScythes.includes('executioner')) return 7;
-    if (streakCount >= 30 && unlockedScythes.includes('reaper')) return 6;
-    if (streakCount >= 15 && unlockedScythes.includes('acolyte')) return 5;
-    if (streakCount >= 5 && unlockedScythes.includes('neophyte')) return 4;
+    if (isScytheUnlocked(stages[11])) return 11;
+    if (isScytheUnlocked(stages[10])) return 10;
+    if (isScytheUnlocked(stages[9])) return 9;
+    if (isScytheUnlocked(stages[8])) return 8;
+    if (isScytheUnlocked(stages[7])) return 7;
+    if (isScytheUnlocked(stages[6])) return 6;
+    if (isScytheUnlocked(stages[5])) return 5;
+    if (isScytheUnlocked(stages[4])) return 4;
     
     if (weight >= 10) return 3;
     if (weight >= 7) return 2;
@@ -75,16 +98,22 @@ export default function ScytheCenter() {
   return (
     <section className="scythe-center-section">
       <div className="scythe-frame">
-        <div className="panel-header">
-          <span className="panel-tag">WEAPON EVOLUTION</span>
-          <h4>THE REAPER'S SCYTHE</h4>
+        <div className="panel-header flex justify-between items-center w-full mb-8">
+          <div className="flex flex-col gap-1">
+            <span className="panel-tag">WEAPON EVOLUTION</span>
+            <h4>THE REAPER'S SCYTHE</h4>
+          </div>
+          <div className="coins-indicator flex items-center gap-1 font-mono text-[10px] text-gold-core border border-gold-core/20 bg-gold-core/5 px-2 py-1 rounded">
+            <span>🪙 {coins} COINS</span>
+          </div>
         </div>
 
         <div className="scythe-content">
-          <div className="evolution-list">
+          <div className="evolution-list max-h-[360px] overflow-y-auto custom-scrollbar">
             {stages.map((stage, index) => {
-              const isUnlocked = currentStageIndex >= index;
+              const isUnlocked = isScytheUnlocked(stage);
               const isCurrent = currentStageIndex === index;
+              const cost = scythePrices[stage.id];
               
               let progressText = '';
               if (isCurrent) progressText = 'CURRENT';
@@ -97,18 +126,36 @@ export default function ScytheCenter() {
               return (
                 <div 
                   key={stage.id} 
-                  className={`evo-item ${isUnlocked ? 'unlocked cursor-pointer hover:opacity-100' : 'locked opacity-30'} ${isCurrent ? 'current' : ''} ${viewedStageIndex === index ? 'ring-1 ring-white/20 p-1 rounded bg-white/5' : ''}`}
+                  className={`evo-item ${isUnlocked ? 'unlocked cursor-pointer hover:opacity-100' : 'locked opacity-70'} ${isCurrent ? 'current' : ''} ${viewedStageIndex === index ? 'ring-1 ring-white/20 p-1 rounded bg-white/5' : ''}`}
                   onClick={() => {
                     if (isUnlocked) setViewedStageIndex(index);
                   }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}
                 >
-                  <div className="evo-icon">
-                    {isUnlocked ? <Unlock size={14} /> : <Lock size={14} />}
+                  <div className="flex items-center gap-3">
+                    <div className="evo-icon shrink-0">
+                      {isUnlocked ? <Unlock size={14} /> : <Lock size={14} />}
+                    </div>
+                    <div className="evo-details">
+                      <span className="evo-name">{stage.name}</span>
+                      <span className="evo-req">{progressText}</span>
+                    </div>
                   </div>
-                  <div className="evo-details">
-                    <span className="evo-name">{stage.name}</span>
-                    <span className="evo-req">{progressText}</span>
-                  </div>
+                  {!isUnlocked && cost && (
+                    <button 
+                      className="btn-buy-scythe"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (coins >= cost) {
+                          buyScythe(stage.id, cost);
+                        } else {
+                          alert("Insufficient digital coins.");
+                        }
+                      }}
+                    >
+                      {cost} 🪙
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -124,11 +171,11 @@ export default function ScytheCenter() {
             <AnimatePresence>
               {isSlashing && (
                 <motion.div 
-                  key="slash"
-                  initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
-                  animate={{ opacity: [0, 1, 0], scale: [1, 2, 1], rotate: 45 }}
-                  exit={{ opacity: 0 }}
-                  className={`slash-effect material-${material}`}
+                   key="slash"
+                   initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
+                   animate={{ opacity: [0, 1, 0], scale: [1, 2, 1], rotate: 45 }}
+                   exit={{ opacity: 0 }}
+                   className={`slash-effect material-${material}`}
                 />
               )}
             </AnimatePresence>
@@ -320,6 +367,23 @@ export default function ScytheCenter() {
         .power-track { height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
         .power-fill { height: 100%; background: var(--gold-core); }
         .power-val { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dark); text-align: center; }
+
+        .btn-buy-scythe {
+          background: rgba(197, 160, 89, 0.15);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-bright);
+          font-family: var(--font-mono);
+          font-size: 0.55rem;
+          font-weight: 800;
+          padding: 2px 6px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+        .btn-buy-scythe:hover {
+          background: var(--gold-core);
+          color: #000;
+        }
       `}</style>
     </section>
   );

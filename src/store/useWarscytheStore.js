@@ -40,13 +40,19 @@ export const getLore = (regionIdx) => {
   });
 };
 
-const rollReward = (forceEpic = false) => {
+const rollReward = (isBoss = false) => {
   const r = Math.random();
   let rarity, bonusPts;
-  if (forceEpic || r < 0.05) { rarity = 'epic'; bonusPts = 300 + Math.floor(Math.random() * 200); }
-  else if (r < 0.15) { rarity = 'rare'; bonusPts = 150 + Math.floor(Math.random() * 100); }
-  else if (r < 0.40) { rarity = 'uncommon'; bonusPts = 75 + Math.floor(Math.random() * 75); }
-  else { rarity = 'common'; bonusPts = 25 + Math.floor(Math.random() * 50); }
+  if (isBoss) {
+    if (r < 0.25) { rarity = 'mythic'; bonusPts = 500 + Math.floor(Math.random() * 300); }
+    else { rarity = 'epic'; bonusPts = 300 + Math.floor(Math.random() * 200); }
+  } else {
+    if (r < 0.01) { rarity = 'mythic'; bonusPts = 500 + Math.floor(Math.random() * 300); }
+    else if (r < 0.05) { rarity = 'epic'; bonusPts = 300 + Math.floor(Math.random() * 200); }
+    else if (r < 0.15) { rarity = 'rare'; bonusPts = 150 + Math.floor(Math.random() * 100); }
+    else if (r < 0.40) { rarity = 'uncommon'; bonusPts = 75 + Math.floor(Math.random() * 75); }
+    else { rarity = 'common'; bonusPts = 25 + Math.floor(Math.random() * 50); }
+  }
   const pool = ARTIFACT_POOL[rarity];
   const artifact = pool[Math.floor(Math.random() * pool.length)];
   return { rarity, artifact, bonusPts };
@@ -79,7 +85,12 @@ export const useWarscytheStore = create(
       scytheLevel: "DORMANT",
       lastActiveDate: null,
       bossKills: 0,
-      unlockedScythes: ['neophyte', 'acolyte', 'reaper', 'executioner', 'sovereign', 'void-walker', 'eternal', 'death-lord'],
+      unlockedScythes: ['neophyte'],
+      coins: 0,
+      gymLog: [],
+      hasCompletedTutorial: false,
+      dailyPoints: 0,
+      lastResetDate: null,
       user: null,
 
       // Auth & Sync
@@ -136,6 +147,12 @@ export const useWarscytheStore = create(
           scytheLevel: "DORMANT",
           lastActiveDate: null,
           bossKills: 0,
+          unlockedScythes: ['neophyte'],
+          coins: 0,
+          gymLog: [],
+          hasCompletedTutorial: false,
+          dailyPoints: 0,
+          lastResetDate: null,
         });
         ph.capture('warscythe_sign_out');
       },
@@ -177,6 +194,12 @@ export const useWarscytheStore = create(
               scytheLevel: saved.scytheLevel || "DORMANT",
               lastActiveDate: saved.lastActiveDate || null,
               bossKills: saved.bossKills || 0,
+              unlockedScythes: saved.unlockedScythes || ['neophyte'],
+              coins: saved.coins || 0,
+              gymLog: saved.gymLog || [],
+              hasCompletedTutorial: saved.hasCompletedTutorial || false,
+              dailyPoints: saved.dailyPoints || 0,
+              lastResetDate: saved.lastResetDate || null,
             });
           }
         } catch (err) {
@@ -209,6 +232,12 @@ export const useWarscytheStore = create(
           scytheLevel: state.scytheLevel,
           lastActiveDate: state.lastActiveDate,
           bossKills: state.bossKills,
+          unlockedScythes: state.unlockedScythes,
+          coins: state.coins,
+          gymLog: state.gymLog,
+          hasCompletedTutorial: state.hasCompletedTutorial,
+          dailyPoints: state.dailyPoints,
+          lastResetDate: state.lastResetDate,
         };
 
         try {
@@ -223,9 +252,30 @@ export const useWarscytheStore = create(
       },
 
       // Actions
-      addTask: (title, category, effort, deadline) => {
-        const activeCount = get().tasks.filter(t => t.progress < 80).length;
-        if (activeCount >= MAX_TASKS) return false;
+      addTask: (title, category, effort, deadline, priority = 'none', subTasks = []) => {
+        if (deadline) {
+          const diffMs = new Date(deadline) - new Date();
+          const diffDays = diffMs / (1000 * 60 * 60 * 24);
+          
+          if (effort === 'Low' && diffDays > 1.1) {
+            return "Low effort tasks are limited to 1 day.";
+          }
+          if (effort === 'Medium' && diffDays > 3.1) {
+            return "Medium effort tasks are limited to 3 days.";
+          }
+          if (effort === 'High' && diffDays > 7.1) {
+            return "High effort tasks are limited to 7 days.";
+          }
+          if (effort === 'Boss' && diffDays < 13.9) {
+            return "Boss Raid tasks must be at least 2 weeks.";
+          }
+        }
+
+        const microSteps = (subTasks || []).map(label => ({
+          id: genId(),
+          label,
+          checked: false
+        }));
 
         const newTask = {
           id: genId(),
@@ -233,12 +283,13 @@ export const useWarscytheStore = create(
           category,
           effort,
           deadline,
+          priority,
           progress: 0,
           createdAt: new Date().toISOString(),
           completedAt: null,
           stalledAt: null,
           notes: '',
-          microSteps: [],
+          microSteps,
           lastProgressUpdate: new Date().toISOString()
         };
 
@@ -329,13 +380,18 @@ export const useWarscytheStore = create(
         const totalPts = basePts + reward.bonusPts;
         const newXP = state.xp + totalPts;
 
-        // Elite Leveling Logic
+        // Daily Points and Daily-based Scythe Level Reset
+        const dailyPoints = state.dailyPoints + totalPts;
         let newScytheLevel = "DORMANT";
-        if (newXP >= 1000) newScytheLevel = "PLATINUM";
-        else if (newXP >= 600) newScytheLevel = "ASCENDED";
-        else if (newXP >= 300) newScytheLevel = "REFINED";
-        else if (newXP >= 150) newScytheLevel = "HARDENED";
-        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+        if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
+        else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
+        else if (dailyPoints >= 400) newScytheLevel = "REFINED";
+        else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
+        else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
+
+        // Digital Coins Award
+        const coinReward = Math.round(basePts * 0.1) + Math.round(reward.bonusPts * 0.1);
+        const newCoins = state.coins + coinReward;
 
         const today = todayKey();
         const dailyLog = { ...state.dailyLog };
@@ -379,6 +435,8 @@ export const useWarscytheStore = create(
           executionScore: state.executionScore + totalPts,
           dailyLog,
           xp: newXP,
+          dailyPoints,
+          coins: newCoins,
           scytheLevel: newScytheLevel,
           totalCompletions: newTotalCompletions,
           currentLevelProgress: finalLevelProgress,
@@ -436,13 +494,18 @@ export const useWarscytheStore = create(
         const totalPts = basePts + reward.bonusPts;
         const newXP = state.xp + totalPts;
 
-        // Elite Leveling Logic
+        // Daily Points and Daily-based Scythe Level Reset
+        const dailyPoints = state.dailyPoints + totalPts;
         let newScytheLevel = "DORMANT";
-        if (newXP >= 1000) newScytheLevel = "PLATINUM";
-        else if (newXP >= 600) newScytheLevel = "ASCENDED";
-        else if (newXP >= 300) newScytheLevel = "REFINED";
-        else if (newXP >= 150) newScytheLevel = "HARDENED";
-        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+        if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
+        else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
+        else if (dailyPoints >= 400) newScytheLevel = "REFINED";
+        else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
+        else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
+
+        // Digital Coins Award
+        const coinReward = Math.round(basePts * 0.1) + Math.round(reward.bonusPts * 0.1);
+        const newCoins = state.coins + coinReward;
 
         const dailyLog = { ...state.dailyLog };
         if (!dailyLog[today]) dailyLog[today] = { completed: 0, weight: 0 };
@@ -486,6 +549,8 @@ export const useWarscytheStore = create(
           executionScore: state.executionScore + totalPts,
           dailyLog,
           xp: newXP,
+          dailyPoints,
+          coins: newCoins,
           scytheLevel: newScytheLevel,
           totalCompletions: newTotalCompletions,
           currentLevelProgress: finalLevelProgress,
@@ -518,11 +583,31 @@ export const useWarscytheStore = create(
       updateStreak: () => {
         const today = todayKey();
         const state = get();
-        if (state.lastActiveDate === today) return;
+
+        // 5 AM RESET CHECK
+        const now = new Date();
+        const currentHour = now.getHours();
+        const lastResetDate = state.lastResetDate;
+        let scytheResetHappened = false;
+
+        if (lastResetDate !== today && currentHour >= 5) {
+          scytheResetHappened = true;
+        }
+
+        if (state.lastActiveDate === today) {
+          if (scytheResetHappened && state.scytheLevel !== "DORMANT") {
+            set({
+              scytheLevel: "DORMANT",
+              dailyPoints: 0,
+              lastResetDate: today
+            });
+          }
+          return;
+        }
 
         const last = state.lastActiveDate ? new Date(state.lastActiveDate) : null;
-        const now = new Date(today);
-        const diffDays = last ? Math.floor((now - last) / (1000 * 60 * 60 * 24)) : 0;
+        const nowDay = new Date(today);
+        const diffDays = last ? Math.floor((nowDay - last) / (1000 * 60 * 60 * 24)) : 0;
 
         let newStreak = state.streakCount;
         let newXP = state.xp;
@@ -536,16 +621,12 @@ export const useWarscytheStore = create(
           newXP = Math.max(0, state.xp - decayAmount);
         }
 
-        // Re-calculate Scythe Level after potential decay
-        let newScytheLevel = "DORMANT";
-        if (newXP >= 1000) newScytheLevel = "PLATINUM";
-        else if (newXP >= 600) newScytheLevel = "ASCENDED";
-        else if (newXP >= 300) newScytheLevel = "REFINED";
-        else if (newXP >= 150) newScytheLevel = "HARDENED";
-        else if (newXP >= 50) newScytheLevel = "AWAKENED";
+        // Daily active reset of scythe level on day transition
+        const newScytheLevel = "DORMANT";
+        const dailyPoints = 0;
 
         // Reset missed daily rituals
-        const yesterday = new Date(now);
+        const yesterday = new Date(nowDay);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
@@ -562,9 +643,11 @@ export const useWarscytheStore = create(
         set({
           streakCount: newStreak,
           xp: newXP,
+          dailyPoints,
           scytheLevel: newScytheLevel,
           rituals: updatedRituals,
-          lastActiveDate: today
+          lastActiveDate: today,
+          lastResetDate: today
         });
 
         // Check for milestones
@@ -609,17 +692,34 @@ export const useWarscytheStore = create(
       },
 
       toggleMicroStep: (taskId, stepId) => {
-        set(state => ({
-          tasks: state.tasks.map(t => {
+        set(state => {
+          const tasks = state.tasks.map(t => {
             if (t.id === taskId) {
+              const updatedSteps = t.microSteps.map(s => s.id === stepId ? { ...s, checked: !s.checked } : s);
+              const checkedCount = updatedSteps.filter(s => s.checked).length;
+              const totalCount = updatedSteps.length;
+              const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : t.progress;
+
+              const oldProgress = t.progress;
+              let stalledAt = t.stalledAt;
+              if (progress >= 80 && progress < 95) {
+                if (oldProgress < 80 || !stalledAt) stalledAt = new Date().toISOString();
+              } else {
+                stalledAt = null;
+              }
+
               return {
                 ...t,
-                microSteps: t.microSteps.map(s => s.id === stepId ? { ...s, checked: !s.checked } : s)
+                microSteps: updatedSteps,
+                progress,
+                stalledAt,
+                lastProgressUpdate: new Date().toISOString()
               };
             }
             return t;
-          })
-        }));
+          });
+          return { tasks };
+        });
       },
 
       generateMicroSteps: (taskId) => {
@@ -673,6 +773,100 @@ export const useWarscytheStore = create(
           isFocusMode: !state.isFocusMode,
           focusedTaskId: taskId || (state.tasks.length > 0 ? state.tasks[0].id : null)
         }));
+      },
+
+      addMicroStep: (taskId, label) => {
+        set(state => ({
+          tasks: state.tasks.map(t => {
+            if (t.id === taskId) {
+              const updatedSteps = [...t.microSteps, { id: genId(), label, checked: false }];
+              const checkedCount = updatedSteps.filter(s => s.checked).length;
+              const totalCount = updatedSteps.length;
+              const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : t.progress;
+              return { ...t, microSteps: updatedSteps, progress };
+            }
+            return t;
+          })
+        }));
+      },
+
+      deleteMicroStep: (taskId, stepId) => {
+        set(state => ({
+          tasks: state.tasks.map(t => {
+            if (t.id === taskId) {
+              const updatedSteps = t.microSteps.filter(s => s.id !== stepId);
+              const checkedCount = updatedSteps.filter(s => s.checked).length;
+              const totalCount = updatedSteps.length;
+              const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : t.progress;
+              return { ...t, microSteps: updatedSteps, progress };
+            }
+            return t;
+          })
+        }));
+      },
+
+      buyScythe: (scytheId, cost) => {
+        const state = get();
+        if (state.coins >= cost && !state.unlockedScythes.includes(scytheId)) {
+          set({
+            coins: state.coins - cost,
+            unlockedScythes: [...state.unlockedScythes, scytheId]
+          });
+          return true;
+        }
+        return false;
+      },
+
+      logWorkout: (workout) => {
+        set(state => ({
+          gymLog: [
+            {
+              id: genId(),
+              date: new Date().toISOString(),
+              ...workout
+            },
+            ...(state.gymLog || [])
+          ]
+        }));
+      },
+
+      completeTutorial: () => {
+        set({ hasCompletedTutorial: true });
+      },
+
+      recalculateState: () => {
+        set(state => {
+          let newXP = 0;
+          let bossKills = 0;
+
+          (state.completedTasks || []).forEach(t => {
+            const mult = EFFORT_MULT[t.effort] || 1;
+            const basePts = Math.round(POINTS_BASE * mult);
+            if (t.effort === 'Boss') bossKills++;
+            const bonus = t.reward?.bonusPts || 50;
+            newXP += (basePts + bonus);
+          });
+
+          const totalCompletions = (state.completedTasks || []).length;
+          const newLevel = Math.floor(totalCompletions / TASKS_PER_LEVEL) + 1;
+          const finalLevelProgress = totalCompletions % TASKS_PER_LEVEL;
+
+          let newScytheLevel = "DORMANT";
+          if (state.dailyPoints >= 1000) newScytheLevel = "PLATINUM";
+          else if (state.dailyPoints >= 700) newScytheLevel = "ASCENDED";
+          else if (state.dailyPoints >= 400) newScytheLevel = "REFINED";
+          else if (state.dailyPoints >= 250) newScytheLevel = "HARDENED";
+          else if (state.dailyPoints >= 100) newScytheLevel = "AWAKENED";
+
+          return {
+            xp: newXP,
+            level: newLevel,
+            totalCompletions,
+            currentLevelProgress: finalLevelProgress,
+            scytheLevel: newScytheLevel,
+            bossKills
+          };
+        });
       }
     }),
     {
