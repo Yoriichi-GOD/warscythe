@@ -1,14 +1,40 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Crosshair, Zap, Activity } from 'lucide-react';
+import { X, ShieldAlert, Crosshair, Zap, Activity, ChevronDown } from 'lucide-react';
+import { HABIT_TEMPLATES } from '../store/constants';
 
 export default function RitualModal({ onClose }) {
   const [title, setTitle] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [effort, setEffort] = useState('Medium');
   
+  const [presetOpen, setPresetOpen] = useState(false);
+  const [frequencyOpen, setFrequencyOpen] = useState(false);
+  const [effortOpen, setEffortOpen] = useState(false);
+  
   const addRitual = useWarscytheStore(state => state.addRitual);
+
+  const handleSelectPreset = (presetTitle) => {
+    const preset = HABIT_TEMPLATES.find(t => t.title === presetTitle);
+    if (preset) {
+      setTitle(preset.title);
+      setEffort(preset.effort);
+    }
+    setPresetOpen(false);
+  };
+
+  const frequencyOptions = [
+    { value: 'daily', label: 'DAILY REPETITION' },
+    { value: 'weekly', label: 'WEEKLY CADENCE' }
+  ];
+
+  const effortOptions = [
+    { value: 'Low', label: 'RECON (LOW)' },
+    { value: 'Medium', label: 'SKIRMISH (MED)' },
+    { value: 'High', label: 'ASSAULT (HIGH)' },
+    { value: 'Boss', label: 'BOSS RAID' }
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -37,7 +63,41 @@ export default function RitualModal({ onClose }) {
           <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
         </div>
 
+        {(presetOpen || frequencyOpen || effortOpen) && (
+          <div 
+            className="fixed inset-0 z-40 bg-transparent" 
+            onClick={() => { setPresetOpen(false); setFrequencyOpen(false); setEffortOpen(false); }} 
+          />
+        )}
+
         <form onSubmit={handleSubmit} className="tactical-form">
+          <div className="form-group full" style={{ position: 'relative' }}>
+            <label><Zap size={10} /> TEMPLATE PRESETS</label>
+            <div className="custom-select-container">
+              <button 
+                type="button" 
+                className="custom-select-trigger" 
+                onClick={() => { setPresetOpen(!presetOpen); setFrequencyOpen(false); setEffortOpen(false); }}
+              >
+                <span>-- SELECT QUICK HABIT PRESET --</span>
+                <ChevronDown size={12} />
+              </button>
+              {presetOpen && (
+                <div className="custom-select-options">
+                  {HABIT_TEMPLATES.map((h, idx) => (
+                    <div 
+                      key={idx} 
+                      className="custom-select-option" 
+                      onClick={() => handleSelectPreset(h.title)}
+                    >
+                      {h.title} ({h.effort})
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="form-group full">
             <label><Zap size={10} /> RITUAL IDENTIFIER</label>
             <input 
@@ -51,22 +111,58 @@ export default function RitualModal({ onClose }) {
           </div>
 
           <div className="form-grid">
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label><ShieldAlert size={10} /> FREQUENCY</label>
-              <select value={frequency} onChange={e => setFrequency(e.target.value)}>
-                <option value="daily">DAILY REPETITION</option>
-                <option value="weekly">WEEKLY CADENCE</option>
-              </select>
+              <div className="custom-select-container">
+                <button 
+                  type="button" 
+                  className="custom-select-trigger" 
+                  onClick={() => { setFrequencyOpen(!frequencyOpen); setPresetOpen(false); setEffortOpen(false); }}
+                >
+                  <span>{frequencyOptions.find(o => o.value === frequency)?.label}</span>
+                  <ChevronDown size={12} />
+                </button>
+                {frequencyOpen && (
+                  <div className="custom-select-options">
+                    {frequencyOptions.map(opt => (
+                      <div 
+                        key={opt.value} 
+                        className="custom-select-option" 
+                        onClick={() => { setFrequency(opt.value); setFrequencyOpen(false); }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
-              <select value={effort} onChange={e => setEffort(e.target.value)}>
-                <option value="Low">RECON (LOW)</option>
-                <option value="Medium">SKIRMISH (MED)</option>
-                <option value="High">ASSAULT (HIGH)</option>
-                <option value="Boss">BOSS RAID</option>
-              </select>
+              <div className="custom-select-container">
+                <button 
+                  type="button" 
+                  className="custom-select-trigger" 
+                  onClick={() => { setEffortOpen(!effortOpen); setPresetOpen(false); setFrequencyOpen(false); }}
+                >
+                  <span>{effortOptions.find(o => o.value === effort)?.label}</span>
+                  <ChevronDown size={12} />
+                </button>
+                {effortOpen && (
+                  <div className="custom-select-options">
+                    {effortOptions.map(opt => (
+                      <div 
+                        key={opt.value} 
+                        className="custom-select-option" 
+                        onClick={() => { setEffort(opt.value); setEffortOpen(false); }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -188,6 +284,59 @@ export default function RitualModal({ onClose }) {
         }
         
         .deploy-btn span { position: relative; z-index: 2; font-weight: 700; }
+
+        /* ═══════════════ CUSTOM SELECT STYLE (BLACK & WHITE) ═══════════════ */
+        .custom-select-container {
+          position: relative;
+          width: 100%;
+          z-index: 50;
+        }
+        .custom-select-trigger {
+          width: 100%;
+          background: #000;
+          border: 1px solid #fff;
+          border-radius: 4px;
+          padding: 1rem;
+          color: #fff;
+          font-family: var(--font-mono);
+          font-size: 0.8rem;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .custom-select-trigger:focus {
+          outline: none;
+          border-color: var(--color-gold-core);
+        }
+        .custom-select-options {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: #000;
+          border: 1px solid #fff;
+          border-radius: 4px;
+          margin-top: 4px;
+          z-index: 100;
+          max-height: 200px;
+          overflow-y: auto;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .custom-select-option {
+          padding: 0.8rem 1rem;
+          color: #fff;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.1s ease;
+        }
+        .custom-select-option:hover {
+          background: #fff;
+          color: #000;
+        }
       `}</style>
     </div>
   );

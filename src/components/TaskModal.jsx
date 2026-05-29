@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2 } from 'lucide-react';
-import { HABIT_TEMPLATES } from '../store/constants';
+import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
 
 export default function TaskModal({ onClose }) {
   const [title, setTitle] = useState('');
@@ -14,25 +13,24 @@ export default function TaskModal({ onClose }) {
   const [subTasks, setSubTasks] = useState([]);
   const [error, setError] = useState(null);
   
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [effortOpen, setEffortOpen] = useState(false);
+  
   const addTask = useWarscytheStore(state => state.addTask);
 
-  const handleSelectPreset = (e) => {
-    const val = e.target.value;
-    if (!val) return;
-    const preset = HABIT_TEMPLATES.find(t => t.title === val);
-    if (preset) {
-      setTitle(preset.title);
-      setCategory(preset.category === 'Health' || preset.category === 'Physical' ? 'Fitness' : preset.category);
-      setEffort(preset.effort);
-      
-      // Auto-set deadline boundary
-      const d = new Date();
-      if (preset.effort === 'Low') d.setDate(d.getDate() + 1);
-      else if (preset.effort === 'Medium') d.setDate(d.getDate() + 3);
-      else if (preset.effort === 'High') d.setDate(d.getDate() + 7);
-      setDeadline(d.toISOString().slice(0, 10));
-    }
-  };
+  const categoryOptions = [
+    { value: 'Work', label: 'SYSTEMS // WORK' },
+    { value: 'Study', label: 'INTEL // STUDY' },
+    { value: 'Fitness', label: 'FORCE // FITNESS' },
+    { value: 'Creative', label: 'FORGE // CREATIVE' }
+  ];
+
+  const effortOptions = [
+    { value: 'Low', label: 'RECON (LOW)' },
+    { value: 'Medium', label: 'SKIRMISH (MED)' },
+    { value: 'High', label: 'ASSAULT (HIGH)' },
+    { value: 'Boss', label: 'BOSS RAID' }
+  ];
 
   const handleAddSubTask = () => {
     if (!subTaskText.trim()) return;
@@ -82,17 +80,14 @@ export default function TaskModal({ onClose }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="tactical-form">
-          <div className="form-group full">
-            <label><Zap size={10} /> TEMPLATE PRESETS</label>
-            <select onChange={handleSelectPreset} defaultValue="">
-              <option value="">-- SELECT QUICK HABIT PRESET --</option>
-              {HABIT_TEMPLATES.map((h, idx) => (
-                <option key={idx} value={h.title}>{h.title} ({h.effort})</option>
-              ))}
-            </select>
-          </div>
+        {(categoryOpen || effortOpen) && (
+          <div 
+            className="fixed inset-0 z-40 bg-transparent" 
+            onClick={() => { setCategoryOpen(false); setEffortOpen(false); }} 
+          />
+        )}
 
+        <form onSubmit={handleSubmit} className="tactical-form">
           <div className="form-group full">
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
@@ -106,24 +101,58 @@ export default function TaskModal({ onClose }) {
           </div>
 
           <div className="form-grid">
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label><ShieldAlert size={10} /> CATEGORY</label>
-              <select value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="Work">SYSTEMS // WORK</option>
-                <option value="Study">INTEL // STUDY</option>
-                <option value="Fitness">FORCE // FITNESS</option>
-                <option value="Creative">FORGE // CREATIVE</option>
-              </select>
+              <div className="custom-select-container">
+                <button 
+                  type="button" 
+                  className="custom-select-trigger" 
+                  onClick={() => { setCategoryOpen(!categoryOpen); setEffortOpen(false); }}
+                >
+                  <span>{categoryOptions.find(o => o.value === category)?.label}</span>
+                  <ChevronDown size={12} />
+                </button>
+                {categoryOpen && (
+                  <div className="custom-select-options">
+                    {categoryOptions.map(opt => (
+                      <div 
+                        key={opt.value} 
+                        className="custom-select-option" 
+                        onClick={() => { setCategory(opt.value); setCategoryOpen(false); }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
-              <select value={effort} onChange={e => setEffort(e.target.value)}>
-                <option value="Low">RECON (LOW)</option>
-                <option value="Medium">SKIRMISH (MED)</option>
-                <option value="High">ASSAULT (HIGH)</option>
-                <option value="Boss">BOSS RAID</option>
-              </select>
+              <div className="custom-select-container">
+                <button 
+                  type="button" 
+                  className="custom-select-trigger" 
+                  onClick={() => { setEffortOpen(!effortOpen); setCategoryOpen(false); }}
+                >
+                  <span>{effortOptions.find(o => o.value === effort)?.label}</span>
+                  <ChevronDown size={12} />
+                </button>
+                {effortOpen && (
+                  <div className="custom-select-options">
+                    {effortOptions.map(opt => (
+                      <div 
+                        key={opt.value} 
+                        className="custom-select-option" 
+                        onClick={() => { setEffort(opt.value); setEffortOpen(false); }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -380,6 +409,59 @@ export default function TaskModal({ onClose }) {
         }
         
         .deploy-btn span { position: relative; z-index: 2; font-weight: 700; }
+
+        /* ═══════════════ CUSTOM SELECT STYLE (BLACK & WHITE) ═══════════════ */
+        .custom-select-container {
+          position: relative;
+          width: 100%;
+          z-index: 50;
+        }
+        .custom-select-trigger {
+          width: 100%;
+          background: #000;
+          border: 1px solid #fff;
+          border-radius: 4px;
+          padding: 1rem;
+          color: #fff;
+          font-family: var(--font-mono);
+          font-size: 0.8rem;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .custom-select-trigger:focus {
+          outline: none;
+          border-color: var(--color-gold-core);
+        }
+        .custom-select-options {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: #000;
+          border: 1px solid #fff;
+          border-radius: 4px;
+          margin-top: 4px;
+          z-index: 100;
+          max-height: 200px;
+          overflow-y: auto;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .custom-select-option {
+          padding: 0.8rem 1rem;
+          color: #fff;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.1s ease;
+        }
+        .custom-select-option:hover {
+          background: #fff;
+          color: #000;
+        }
       `}</style>
     </div>
   );
