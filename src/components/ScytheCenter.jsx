@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock } from 'lucide-react';
@@ -116,14 +116,13 @@ export default function ScytheCenter() {
                 {isSlashing && <motion.div className="absolute inset-0 border-2 border-white/50 rounded-full" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1.5, opacity: 0 }} exit={{ opacity: 0 }} />}
               </AnimatePresence>
               <div className="w-32 h-64 flex items-center justify-center">
-                 {activeStage.type === 'streak' ? (
-                   <img src={`/ultimate/${material}.png`} className="w-full h-full object-contain" onError={(e) => e.target.src = '/scythe/DORMANT.png'} />
-                 ) : (
-                   <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-2xl">
-                     <path d="M 85,95 C 75,70 65,40 60,10 L 55,10 C 60,40 70,70 80,95 Z" fill="#333" />
-                     <path d="M 60,15 C 30,5 5,30 5,60 C 15,40 35,25 55,25 Z" fill={material === 'dormant' ? '#555' : '#aaa'} />
-                   </svg>
-                 )}
+                <img 
+                  src={activeStage.type === 'streak' ? `/ultimate/${material}.png` : `/scythe/${activeStage.name}.png`} 
+                  className="w-full h-full object-contain" 
+                  onError={(e) => {
+                    e.target.src = '/scythe/DORMANT.png';
+                  }} 
+                />
               </div>
             </motion.div>
             <div className="mt-6 w-full text-center">
@@ -201,6 +200,10 @@ export default function ScytheCenter() {
           background: rgba(197,160,89,0.05);
           border-color: rgba(197,160,89,0.25);
           box-shadow: 0 0 10px rgba(197,160,89,0.08);
+        }
+
+        .evo-item.locked {
+          opacity: 0.25;
         }
       `}</style>
     </section>
