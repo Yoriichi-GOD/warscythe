@@ -936,14 +936,42 @@ export const useWarscytheStore = create(
 
       logWorkout: (workout) => {
         set(state => {
+          const rawWorkout = workout || state.activeWorkout;
+          if (!rawWorkout) return {};
+
+          let finalWorkout = { ...rawWorkout };
+          if (finalWorkout.movements) {
+            finalWorkout.movements = finalWorkout.movements.map(m => ({
+              ...m,
+              sets: (m.sets || []).map(s => {
+                if ((Number(s.weight) > 0 && Number(s.reps) > 0) || s.completed) {
+                  return { ...s, completed: true };
+                }
+                return s;
+              })
+            }));
+          }
+
           const newWorkout = {
             id: genId(),
             date: new Date().toISOString(),
-            ...(workout || state.activeWorkout)
+            ...finalWorkout
           };
           return {
             gymLog: [newWorkout, ...(state.gymLog || [])],
             activeWorkout: null
+          };
+        });
+      },
+
+      updateActiveWorkoutNotes: (notes) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              notes
+            }
           };
         });
       },

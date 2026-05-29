@@ -4,7 +4,8 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
-  Calendar, Flame, Sparkles, ChevronDown, CheckSquare, SquareSquare
+  Calendar, Flame, Sparkles, ChevronDown, CheckSquare, SquareSquare,
+  ClipboardList, X
 } from 'lucide-react';
 
 export default function Fitness() {
@@ -20,7 +21,8 @@ export default function Fitness() {
     deleteSetFromMovement,
     logWorkout,
     getTotalTonnage,
-    getDeityProgress
+    getDeityProgress,
+    updateActiveWorkoutNotes
   } = useWarscytheStore();
 
   const deityState = getDeityProgress();
@@ -47,6 +49,9 @@ export default function Fitness() {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
+
+  // Detailed History Modal state
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   // Split presets
   const splitPresets = [
@@ -84,15 +89,13 @@ export default function Fitness() {
     }
   };
 
-  // Timer loop
+  // Timer loop (Only restarts when active state changes, avoiding the per-second restart bug)
   useEffect(() => {
-    if (timerActive && timerSeconds > 0) {
+    if (timerActive) {
       timerRef.current = setInterval(() => {
         setTimerSeconds(prev => {
           if (prev <= 1) {
             setTimerActive(false);
-            clearInterval(timerRef.current);
-            // Trigger haptics / sound if available
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             return 0;
           }
@@ -100,10 +103,16 @@ export default function Fitness() {
         });
       }, 1000);
     } else {
-      clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     }
-    return () => clearInterval(timerRef.current);
-  }, [timerActive, timerSeconds]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [timerActive]);
 
   const handleStartWorkout = (split) => {
     startWorkout(split);
@@ -444,6 +453,19 @@ export default function Fitness() {
                   )}
                 </div>
 
+                {/* Session Notes Input */}
+                <div className="flex flex-col gap-1 mt-2">
+                  <label className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">
+                    SESSION NOTES
+                  </label>
+                  <textarea 
+                    placeholder="ENTER TRAINING NOTES (E.G. FEELING STRONG, SLEEP QUALITY, ETC.)" 
+                    value={activeWorkout.notes || ''} 
+                    onChange={e => updateActiveWorkoutNotes(e.target.value)} 
+                    className="w-full bg-black border border-white/10 hover:border-gold-core/30 rounded p-2 text-[9px] text-white font-mono placeholder-gray-600 focus:outline-none focus:border-gold-core h-16 resize-none uppercase"
+                  />
+                </div>
+
                 {/* Submit Session Button */}
                 <button
                   onClick={() => {
@@ -547,7 +569,12 @@ export default function Fitness() {
 
                   <div className="flex flex-col gap-1">
                     <button
-                      onClick={() => setTimerActive(!timerActive)}
+                      onClick={() => {
+                        if (!timerActive && timerSeconds === 0) {
+                          setTimerSeconds(timerDuration);
+                        }
+                        setTimerActive(!timerActive);
+                      }}
                       className={`w-6 h-6 rounded flex items-center justify-center border transition-all ${
                         timerActive 
                           ? 'border-gold-core text-black bg-gold-core'
@@ -802,10 +829,110 @@ export default function Fitness() {
                 ))
               )}
             </div>
+            {gymLog.length > 0 && (
+              <button
+                onClick={() => setShowHistoryModal(true)}
+                className="w-full mt-3 border border-white/10 hover:border-gold-core/40 bg-white/[0.02] hover:bg-gold-core/5 text-gray-300 hover:text-gold-core font-mono text-[8px] py-1.5 rounded uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
+              >
+                <ClipboardList size={10} /> VIEW FULL DETAILED HISTORY
+              </button>
+            )}
           </div>
         </div>
 
       </div>
+
+      <AnimatePresence>
+        {showHistoryModal && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4" style={{ zIndex: 2500 }}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="w-full max-w-4xl border border-gold-core/20 p-6 bg-[#08080a]/95 rounded-lg max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 shadow-[0_0_40px_rgba(197,160,89,0.1),_inset_0_0_25px_rgba(0,0,0,0.85)]"
+            >
+              <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2">
+                  <ClipboardList size={18} className="text-gold-core" />
+                  <h2 className="font-display text-sm text-white tracking-widest uppercase">THE IRON ARCHIVES // WORKOUT HISTORY</h2>
+                </div>
+                <button 
+                  className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all"
+                  onClick={() => setShowHistoryModal(false)}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <span className="font-mono text-[9px] text-gold-core uppercase tracking-widest">HISTORICAL TRAINING LOGS // READ ONLY</span>
+                
+                <div className="overflow-x-auto border border-white/5 rounded bg-black/40">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 bg-white/[0.02] text-[8px] font-mono text-gray-400 uppercase tracking-widest">
+                        <th className="p-3 w-[20%]">DATE & SPLIT</th>
+                        <th className="p-3 w-[40%]">EXERCISE DETAILS</th>
+                        <th className="p-3 w-[15%]">VOLUME</th>
+                        <th className="p-3 w-[25%] font-bold">NOTES</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03] text-[10px] font-mono">
+                      {gymLog.map((log) => (
+                        <tr key={log.id} className="hover:bg-white/[0.01] transition-all align-top">
+                          <td className="p-3">
+                            <div className="text-white font-extrabold uppercase tracking-wide">{log.split}</div>
+                            <div className="text-gray-500 text-[8px] mt-1 flex items-center gap-1">
+                              <Calendar size={8} /> {new Date(log.date).toLocaleDateString()}
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            {log.movements ? (
+                              <div className="flex flex-col gap-2">
+                                {log.movements.map((m, idx) => (
+                                  <div key={idx} className="border-b border-white/[0.03] pb-1 last:border-0 last:pb-0">
+                                    <span className="text-gold-core font-bold uppercase">{m.name}:</span>
+                                    <div className="pl-2 flex flex-col gap-0.5 mt-0.5 text-gray-400 text-[9px]">
+                                      {(m.sets || []).map((s, sIdx) => (
+                                        <div key={sIdx} className={s.completed ? "text-gray-300" : "text-gray-500 line-through"}>
+                                          SET {sIdx + 1} ({s.type.toUpperCase()}): {s.weight} KG × {s.reps} REPS {s.rpe ? `@ ${s.rpe}` : ''} {s.completed ? '✓' : '✗'}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : log.exercises ? (
+                              <div className="flex flex-col gap-1.5">
+                                {log.exercises.map((ex, idx) => (
+                                  <div key={idx} className="border-b border-white/[0.03] pb-1 last:border-0 last:pb-0">
+                                    <span className="text-white font-bold uppercase">{ex.name}:</span>
+                                    <div className="pl-2 text-gray-400 text-[9px] mt-0.5">
+                                      {ex.sets} SETS × {ex.reps} REPS {ex.weight > 0 ? `@ ${ex.weight} KG` : ''}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-600 text-[8px] uppercase">NO DETAILS</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-gold-core font-bold">
+                            {Math.round(getSessionTonnage(log)).toLocaleString()} KG
+                          </td>
+                          <td className="p-3 text-gray-400 whitespace-pre-wrap uppercase break-words leading-relaxed text-[9px]">
+                            {log.notes || <span className="text-gray-600">—</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

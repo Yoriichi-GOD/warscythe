@@ -12,6 +12,7 @@ export default function GymLogBook({ onClose }) {
   const [weight, setWeight] = useState('');
   const [currentExercises, setCurrentExercises] = useState([]);
   const [showLogForm, setShowLogForm] = useState(false);
+  const [notes, setNotes] = useState('');
 
   const handleAddExercise = () => {
     if (!exerciseName.trim() || !sets || !reps) return;
@@ -39,9 +40,11 @@ export default function GymLogBook({ onClose }) {
     if (!split.trim() || currentExercises.length === 0) return;
     logWorkout({
       split: split.trim(),
-      exercises: currentExercises
+      exercises: currentExercises,
+      notes: notes.trim()
     });
     setSplit('');
+    setNotes('');
     setCurrentExercises([]);
     setShowLogForm(false);
   };
@@ -91,6 +94,16 @@ export default function GymLogBook({ onClose }) {
                     onChange={e => setSplit(e.target.value)} 
                     required 
                     className="logbook-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>SESSION NOTES</label>
+                  <textarea 
+                    placeholder="Enter training notes..." 
+                    value={notes} 
+                    onChange={e => setNotes(e.target.value)} 
+                    className="logbook-input h-16 resize-none"
                   />
                 </div>
 
@@ -183,14 +196,37 @@ export default function GymLogBook({ onClose }) {
                       <Calendar size={10} /> {new Date(log.date).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="flex flex-col gap-1.5 pl-2 border-l border-gold-core/25">
-                    {log.exercises.map((ex, idx) => (
-                      <div key={idx} className="flex justify-between text-[10px] font-mono">
-                        <span className="text-white font-bold">{ex.name}</span>
-                        <span className="text-gray-400">{ex.sets}s × {ex.reps}r {ex.weight > 0 && `@ ${ex.weight} kg`}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {log.exercises && (
+                    <div className="flex flex-col gap-1.5 pl-2 border-l border-gold-core/25">
+                      {log.exercises.map((ex, idx) => (
+                        <div key={idx} className="flex justify-between text-[10px] font-mono">
+                          <span className="text-white font-bold">{ex.name}</span>
+                          <span className="text-gray-400">{ex.sets}s × {ex.reps}r {ex.weight > 0 && `@ ${ex.weight} kg`}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {log.movements && (
+                    <div className="flex flex-col gap-2 pl-2 border-l border-gold-core/25">
+                      {log.movements.map((mov, idx) => (
+                        <div key={idx} className="flex flex-col gap-0.5 text-[10px] font-mono">
+                          <span className="text-white font-bold">{mov.name}</span>
+                          <div className="pl-2 text-gray-400 text-[9px] flex flex-wrap gap-x-2">
+                            {(mov.sets || []).map((s, sIdx) => (
+                              <span key={sIdx}>
+                                S{sIdx + 1}: {s.weight}kg × {s.reps} {s.rpe ? `@${s.rpe}` : ''}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {log.notes && (
+                    <div className="text-[9px] font-mono text-gray-500 italic mt-1 pl-2 border-l border-white/10 uppercase">
+                      Notes: {log.notes}
+                    </div>
+                  )}
                 </div>
               ))
             )}
