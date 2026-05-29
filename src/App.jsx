@@ -29,8 +29,8 @@ import StreakScrollModal from './components/StreakScrollModal';
 export default function App() {
   useEffect(() => {
     const state = useWarscytheStore.getState();
-    const ritualsCompleted = state.rituals.reduce((acc, r) => acc + (r.streak || 0), 0);
-    const tasksCompleted = state.completedTasks.length;
+    const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
+    const tasksCompleted = (state.completedTasks || []).length;
     const trueTotalCompletions = tasksCompleted + ritualsCompleted;
     
     const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
@@ -39,14 +39,14 @@ export default function App() {
     // Retroactively rebuild unlocked lore based on true completions
     const reconstructedLore = {};
     for (let r = 0; r < trueLevel; r++) {
-      const loreArr = getLore(r);
+      const loreArr = getLore(r) || [];
       const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : TASKS_PER_LEVEL;
       reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
     }
     
     // Run one-time migration to clean up auto-unlocked scythes from legacy streak calculation
     const cleanUnlocked = state.scytheMigrationDone 
-      ? state.unlockedScythes 
+      ? (state.unlockedScythes || ['neophyte'])
       : ['neophyte'];
     
     // Unconditionally force sync to fix any corrupted state

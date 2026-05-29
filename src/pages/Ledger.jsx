@@ -27,7 +27,10 @@ export default function Ledger() {
   });
 
   // Vault tab state & logic (from VaultModal)
-  const { collectedArtifacts, unlockedLore, currentTitle, bossKills } = useWarscytheStore();
+  const collectedArtifacts = useWarscytheStore(state => state.collectedArtifacts) || [];
+  const unlockedLore = useWarscytheStore(state => state.unlockedLore) || {};
+  const currentTitle = useWarscytheStore(state => state.currentTitle) || 'Recruit';
+  const bossKills = useWarscytheStore(state => state.bossKills) || 0;
   const [selectedArtifact, setSelectedArtifact] = useState(null);
 
   const rarities = {
