@@ -287,7 +287,7 @@ export default function MapSection({ onTabChange }) {
 
             <div className="upcoming-threat glass-panel" style={{ padding: '1rem' }}>
                <span className="stat-label">RECOVERED FRAGMENTS</span>
-               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[380px] custom-scrollbar pr-2">
+               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[550px] custom-scrollbar pr-2">
                  {currentLore.length === 0 ? (
                    <p className="text-[9px] font-mono text-gray-600 text-center py-4 uppercase tracking-widest">
                      No fragments recovered yet.<br/>Conquer operations to reveal the truth.
@@ -375,6 +375,7 @@ export default function MapSection({ onTabChange }) {
           .campaign-content {
             display: grid;
             grid-template-columns: 320px 1fr 320px;
+            grid-template-rows: minmax(0, 1fr);
             margin-bottom: 0;
             min-height: 0;
             height: calc(100% - 80px);

@@ -88,7 +88,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
 
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center px-1">
-              <span className="text-[9px] font-mono text-gray-500 tracking-widest uppercase">Missions in Progress</span>
+              <span className="text-[9px] font-mono text-gray-300 tracking-widest uppercase">Missions in Progress</span>
               <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
             </div>
             
@@ -132,7 +132,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="w-full lg:w-64 shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col py-6 lg:py-10 px-6 lg:px-8 bg-black/20">
           <div className="mb-6 lg:mb-10">
-            <span className="text-[8px] font-mono text-gray-500 tracking-widest uppercase block mb-1">Weapon Evolution</span>
+            <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
             <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
           </div>
           

@@ -89,6 +89,7 @@ export const useWarscytheStore = create(
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
+      activeWorkout: null,
       hasCompletedTutorial: false,
       dailyPoints: 0,
       lastResetDate: null,
@@ -152,6 +153,7 @@ export const useWarscytheStore = create(
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
+          activeWorkout: null,
           hasCompletedTutorial: false,
           dailyPoints: 0,
           lastResetDate: null,
@@ -200,6 +202,7 @@ export const useWarscytheStore = create(
               scytheMigrationDone: saved.scytheMigrationDone || false,
               coins: saved.coins || 0,
               gymLog: saved.gymLog || [],
+              activeWorkout: saved.activeWorkout || null,
               hasCompletedTutorial: saved.hasCompletedTutorial || false,
               dailyPoints: saved.dailyPoints || 0,
               lastResetDate: saved.lastResetDate || null,
@@ -239,6 +242,7 @@ export const useWarscytheStore = create(
           scytheMigrationDone: state.scytheMigrationDone,
           coins: state.coins,
           gymLog: state.gymLog,
+          activeWorkout: state.activeWorkout,
           hasCompletedTutorial: state.hasCompletedTutorial,
           dailyPoints: state.dailyPoints,
           lastResetDate: state.lastResetDate,
@@ -805,17 +809,206 @@ export const useWarscytheStore = create(
         return false;
       },
 
+      startWorkout: (split) => {
+        set({
+          activeWorkout: {
+            id: genId(),
+            date: new Date().toISOString(),
+            split: split || 'Default Split',
+            movements: []
+          }
+        });
+      },
+
+      cancelWorkout: () => {
+        set({ activeWorkout: null });
+      },
+
+      addMovement: (name) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          const newMovement = {
+            id: genId(),
+            name: name || 'Unnamed Movement',
+            sets: []
+          };
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              movements: [...state.activeWorkout.movements, newMovement]
+            }
+          };
+        });
+      },
+
+      removeMovement: (movementId) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              movements: state.activeWorkout.movements.filter(m => m.id !== movementId)
+            }
+          };
+        });
+      },
+
+      addSetToMovement: (movementId, setDetail = {}) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          const movements = state.activeWorkout.movements.map(m => {
+            if (m.id === movementId) {
+              const newSet = {
+                id: genId(),
+                weight: Number(setDetail.weight) || 0,
+                reps: Number(setDetail.reps) || 0,
+                rpe: Number(setDetail.rpe) || 8,
+                type: setDetail.type || 'working',
+                completed: false
+              };
+              return {
+                ...m,
+                sets: [...m.sets, newSet]
+              };
+            }
+            return m;
+          });
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              movements
+            }
+          };
+        });
+      },
+
+      updateSetInMovement: (movementId, setId, updates) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          const movements = state.activeWorkout.movements.map(m => {
+            if (m.id === movementId) {
+              const sets = m.sets.map(s => {
+                if (s.id === setId) {
+                  return {
+                    ...s,
+                    ...updates,
+                    weight: updates.weight !== undefined ? Number(updates.weight) : s.weight,
+                    reps: updates.reps !== undefined ? Number(updates.reps) : s.reps,
+                    rpe: updates.rpe !== undefined ? Number(updates.rpe) : s.rpe
+                  };
+                }
+                return s;
+              });
+              return { ...m, sets };
+            }
+            return m;
+          });
+          
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              movements
+            }
+          };
+        });
+      },
+
+      deleteSetFromMovement: (movementId, setId) => {
+        set(state => {
+          if (!state.activeWorkout) return {};
+          const movements = state.activeWorkout.movements.map(m => {
+            if (m.id === movementId) {
+              return {
+                ...m,
+                sets: m.sets.filter(s => s.id !== setId)
+              };
+            }
+            return m;
+          });
+          return {
+            activeWorkout: {
+              ...state.activeWorkout,
+              movements
+            }
+          };
+        });
+      },
+
       logWorkout: (workout) => {
-        set(state => ({
-          gymLog: [
-            {
-              id: genId(),
-              date: new Date().toISOString(),
-              ...workout
-            },
-            ...(state.gymLog || [])
-          ]
-        }));
+        set(state => {
+          const newWorkout = {
+            id: genId(),
+            date: new Date().toISOString(),
+            ...(workout || state.activeWorkout)
+          };
+          return {
+            gymLog: [newWorkout, ...(state.gymLog || [])],
+            activeWorkout: null
+          };
+        });
+      },
+
+      getTotalTonnage: () => {
+        const gymLog = get().gymLog || [];
+        return gymLog.reduce((total, workout) => {
+          if (workout.movements) {
+            return total + workout.movements.reduce((movTotal, mov) => {
+              return movTotal + (mov.sets || []).reduce((setTotal, s) => {
+                if (s.completed && s.type !== 'warmup') {
+                  return setTotal + (Number(s.weight) || 0) * (Number(s.reps) || 0);
+                }
+                return setTotal;
+              }, 0);
+            }, 0);
+          }
+          if (workout.exercises) {
+            return total + workout.exercises.reduce((exTotal, ex) => {
+              return exTotal + (Number(ex.sets) || 0) * (Number(ex.reps) || 0) * (Number(ex.weight) || 0);
+            }, 0);
+          }
+          return total;
+        }, 0);
+      },
+
+      getDeityProgress: () => {
+        const totalTonnage = get().getTotalTonnage();
+        const DEITIES = [
+          { id: 'hermes', name: 'Hermes', threshold: 0, nextThreshold: 10000, buff: '+5% Speed & Stamina', desc: 'The Messenger of the Gods. Agile, swift, tireless.' },
+          { id: 'apollo', name: 'Apollo', threshold: 10000, nextThreshold: 50000, buff: '+10% Focus & Will', desc: 'The God of Light and Sun. Pure, radiant, focused.' },
+          { id: 'ares', name: 'Ares', threshold: 50000, nextThreshold: 150000, buff: '+15% Peak Force', desc: 'The God of War. Unrelenting aggression, explosive power.' },
+          { id: 'hercules', name: 'Hercules', threshold: 150000, nextThreshold: 400000, buff: '+20% Raw Strength', desc: 'The Champion of Olympia. Unbroken fortitude, infinite strength.' },
+          { id: 'zeus', name: 'Zeus', threshold: 400000, nextThreshold: null, buff: '+25% Godlike Power', desc: 'The King of Olympus. Cosmic authority, supreme power.' }
+        ];
+        
+        let activeDeityIndex = 0;
+        for (let i = DEITIES.length - 1; i >= 0; i--) {
+          if (totalTonnage >= DEITIES[i].threshold) {
+            activeDeityIndex = i;
+            break;
+          }
+        }
+        
+        const activeDeity = DEITIES[activeDeityIndex];
+        const nextDeity = activeDeityIndex < DEITIES.length - 1 ? DEITIES[activeDeityIndex + 1] : null;
+        
+        let progressPercent = 100;
+        if (nextDeity) {
+          const range = nextDeity.threshold - activeDeity.threshold;
+          const currentProgress = totalTonnage - activeDeity.threshold;
+          progressPercent = Math.min(100, Math.max(0, (currentProgress / range) * 100));
+        }
+        
+        return {
+          totalTonnage,
+          activeDeity,
+          nextDeity,
+          progressPercent,
+          deities: DEITIES.map((d, index) => ({
+            ...d,
+            unlocked: totalTonnage >= d.threshold,
+            isCurrent: index === activeDeityIndex
+          }))
+        };
       },
 
       completeTutorial: () => {
@@ -879,7 +1072,9 @@ useWarscytheStore.subscribe((state, prevState) => {
       state.streakCount !== prevState.streakCount ||
       state.notes !== prevState.notes ||
       state.executionScore !== prevState.executionScore ||
-      state.collectedArtifacts !== prevState.collectedArtifacts
+      state.collectedArtifacts !== prevState.collectedArtifacts ||
+      state.gymLog !== prevState.gymLog ||
+      state.activeWorkout !== prevState.activeWorkout
     ) {
       if (saveTimeout) clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
@@ -904,6 +1099,8 @@ useWarscytheStore.subscribe((state, prevState) => {
           scytheLevel: state.scytheLevel,
           lastActiveDate: state.lastActiveDate,
           bossKills: state.bossKills,
+          gymLog: state.gymLog,
+          activeWorkout: state.activeWorkout,
         };
         supabase.from('profiles').upsert({
           id: u,

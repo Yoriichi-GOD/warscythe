@@ -50,7 +50,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       {/* 🔢 STATS GRID */}
       <div className="grid grid-cols-2 gap-3 shrink-0">
         <div className="elite-panel p-4 flex flex-col items-center justify-center gap-2">
-          <span className="text-[8px] font-mono text-gray-500 tracking-[0.3em] uppercase">Daily Completions</span>
+          <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Daily Completions</span>
           <div className="flex items-center gap-3">
             <span className="text-2xl font-display text-gold-bright leading-none">{totalCompletions || 0}</span>
             <Flame size={12} className="text-gold-core/40" />
@@ -58,8 +58,8 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         </div>
 
         <div className="elite-panel p-4 flex flex-col items-center justify-center gap-1 text-center">
-           <span className="text-[8px] font-mono text-gray-500 tracking-[0.3em] uppercase block">Execution</span>
-           <span className="text-[8px] font-mono text-gray-500 tracking-[0.3em] uppercase block">Ratio</span>
+           <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Execution</span>
+           <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Ratio</span>
            <div className="relative w-12 h-12 mt-1">
              <svg className="w-full h-full transform -rotate-90">
                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
@@ -120,7 +120,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         {/* STREAK PROGRESS BAR */}
         <div className="elite-panel p-5 flex flex-col gap-4 bg-black/20">
            <div className="flex justify-between items-center">
-              <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Streak Descent</span>
+              <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">Streak Descent</span>
               <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
            </div>
            

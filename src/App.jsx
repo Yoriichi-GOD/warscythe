@@ -15,14 +15,15 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
 import Rituals from './pages/Rituals';
 import QuestMap from './pages/QuestMap';
-import CompletionLog from './pages/CompletionLog';
+import Fitness from './pages/Fitness';
+import Forge from './pages/Forge';
+import Ledger from './pages/Ledger';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
 
 import TutorialModal from './components/TutorialModal';
-import GymLogBook from './components/GymLogBook';
 import StreakScrollModal from './components/StreakScrollModal';
 
 export default function App() {
@@ -62,13 +63,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showRitualModal, setShowRitualModal] = useState(false);
-  const [showVault, setShowVault] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
-  const [showGymLog, setShowGymLog] = useState(false);
   
   const user = useWarscytheStore(state => state.user);
   
@@ -134,7 +133,6 @@ export default function App() {
       if (e.key === 'Escape') {
         setShowTaskModal(false);
         setShowRitualModal(false);
-        setShowVault(false);
         setSelectedTaskId(null);
       }
     };
@@ -161,9 +159,9 @@ export default function App() {
     <DashboardLayout>
       <Header 
         onOpenMap={() => setActiveTab('map')} 
-        onOpenVault={() => setShowVault(true)} 
+        onOpenVault={() => setActiveTab('ledger')} 
         onOpenAuth={() => setShowAuth(true)}
-        onOpenGymLog={() => setShowGymLog(true)}
+        onOpenGymLog={() => setActiveTab('fitness')}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -179,8 +177,15 @@ export default function App() {
               setSelectedTaskId(id);
               setShowRealityLock(true);
             }}
-            onOpenGymLog={() => setShowGymLog(true)}
+            onOpenGymLog={() => setActiveTab('fitness')}
           />
+        </div>
+
+        <div 
+          style={{ display: activeTab === 'fitness' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <Fitness />
         </div>
         
         <div 
@@ -188,6 +193,13 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
           <Rituals onAddTask={() => setShowRitualModal(true)} />
+        </div>
+
+        <div 
+          style={{ display: activeTab === 'forge' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <Forge />
         </div>
         
         <div 
@@ -203,10 +215,10 @@ export default function App() {
         </div>
         
         <div 
-          style={{ display: activeTab === 'log' ? 'block' : 'none' }} 
+          style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
-          <CompletionLog />
+          <Ledger />
         </div>
       </main>
 
@@ -232,16 +244,8 @@ export default function App() {
           />
         )}
 
-        {showVault && (
-          <VaultModal onClose={() => setShowVault(false)} />
-        )}
-
         {showAuth && (
           <AuthModal onClose={() => setShowAuth(false)} />
-        )}
-
-        {showGymLog && (
-          <GymLogBook onClose={() => setShowGymLog(false)} />
         )}
 
         {showRealityLock && (

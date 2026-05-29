@@ -5,7 +5,7 @@ export default function ObjectiveRitual({ onClick }) {
     <div className="flex flex-col items-center gap-2 py-0">
       <div className="flex flex-col items-center gap-1 mb-0 text-center relative z-20">
         <h3 className="text-[11px] font-decorative tracking-[0.4em] text-white">WHAT WILL YOU EXECUTE TODAY?</h3>
-        <p className="text-[9px] font-mono text-gray-200 tracking-[0.3em] uppercase italic opacity-90">Every task is a strike. Every strike shapes your legend.</p>
+        <p className="text-[9px] font-mono text-white tracking-[0.3em] uppercase italic opacity-100">Every task is a strike. Every strike shapes your legend.</p>
       </div>
       
       <div className="relative flex flex-col items-center justify-center w-full max-w-[400px] mt-[-30px]">
