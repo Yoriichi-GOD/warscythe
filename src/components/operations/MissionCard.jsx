@@ -48,9 +48,19 @@ export default function MissionCard({ task, onOpen }) {
     >
       <div className="flex items-center gap-4 p-4">
         
-        {/* GOLDEN EMBLEM */}
-        <div className="w-12 h-12 shrink-0 rounded-full border border-gold-core/30 bg-gold-core/5 flex items-center justify-center">
-          <Flame size={18} className="text-gold-core" />
+        {/* EMBLEM WITH DYNAMIC PRIORITY COLOR */}
+        <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${
+          task.priority === 'high' ? 'border-red-500/30 bg-red-500/5' :
+          task.priority === 'medium' ? 'border-yellow-500/30 bg-yellow-500/5' :
+          task.priority === 'low' ? 'border-green-500/30 bg-green-500/5' :
+          'border-gold-core/30 bg-gold-core/5'
+        }`}>
+          <Flame size={18} className={
+            task.priority === 'high' ? 'text-red-500' :
+            task.priority === 'medium' ? 'text-yellow-500' :
+            task.priority === 'low' ? 'text-green-500' :
+            'text-gold-core'
+          } />
         </div>
 
         {/* CIRCULAR TIMER */}
@@ -85,9 +95,26 @@ export default function MissionCard({ task, onOpen }) {
           </div>
         </div>
 
-        {/* GOLDEN FLAME + MENU */}
+        {/* FLAME + MENU WITH DYNAMIC PRIORITY COLOR */}
         <div className="flex items-center gap-2 shrink-0">
-          <Flame size={20} className="text-gold-core drop-shadow-[0_0_8px_rgba(197,160,89,0.4)]" fill="currentColor" />
+          <Flame 
+            size={20} 
+            className={
+              task.priority === 'high' ? 'text-red-500' :
+              task.priority === 'medium' ? 'text-yellow-500' :
+              task.priority === 'low' ? 'text-green-500' :
+              'text-gold-core'
+            }
+            style={{
+              filter: `drop-shadow(0 0 8px ${
+                task.priority === 'high' ? 'rgba(231, 76, 60, 0.4)' :
+                task.priority === 'medium' ? 'rgba(241, 196, 15, 0.4)' :
+                task.priority === 'low' ? 'rgba(46, 204, 113, 0.4)' :
+                'rgba(197, 160, 89, 0.4)'
+              })`
+            }} 
+            fill="currentColor" 
+          />
           <button className="w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); onOpen(task.id); }}>
             <MoreHorizontal size={14} />
           </button>

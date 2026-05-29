@@ -97,14 +97,12 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                 <MissionCard key={task.id} task={task} onOpen={onOpenTask} />
               ))}
 
-              {tasks.length < 3 && (
-                <button
-                  onClick={onAddTask}
-                  className="w-full py-10 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
-                >
-                  <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
-                </button>
-              )}
+              <button
+                onClick={onAddTask}
+                className="w-full py-10 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
+              >
+                <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
+              </button>
             </div>
           </div>
 

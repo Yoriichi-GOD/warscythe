@@ -16,6 +16,7 @@ export default function TaskModal({ onClose }) {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [effortOpen, setEffortOpen] = useState(false);
   
+  const tasks = useWarscytheStore(state => state.tasks) || [];
   const addTask = useWarscytheStore(state => state.addTask);
 
   const categoryOptions = [
@@ -88,6 +89,16 @@ export default function TaskModal({ onClose }) {
         )}
 
         <form onSubmit={handleSubmit} className="tactical-form">
+          {tasks.length >= 3 && (
+            <div className="capacity-warning">
+              <div className="warning-icon-shield">
+                <ShieldAlert size={16} />
+              </div>
+              <p className="warning-text">
+                You're exceeding your Command Capacity. Beyond 3 Active Operations, your focus dilutes. Hyperfocus becomes scatter. Momentum compounds into chaos. You can proceed, but understand: every operation beyond 3 is a target you won't finish.
+              </p>
+            </div>
+          )}
           <div className="form-group full">
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
@@ -461,6 +472,37 @@ export default function TaskModal({ onClose }) {
         .custom-select-option:hover {
           background: #fff;
           color: #000;
+        }
+
+        /* ═══════════════ CAPACITY WARNING STYLE (RED & BLACK) ═══════════════ */
+        .capacity-warning {
+          display: flex;
+          gap: 0.75rem;
+          align-items: flex-start;
+          background: #000;
+          border: 1px solid #e74c3c;
+          padding: 1rem;
+          border-radius: 4px;
+          box-shadow: 0 0 15px rgba(231, 76, 60, 0.1);
+        }
+        .warning-icon-shield {
+          color: #e74c3c;
+          flex-shrink: 0;
+          margin-top: 0.15rem;
+          animation: warning-pulse-red 2s infinite ease-in-out;
+        }
+        .warning-text {
+          font-family: var(--font-main);
+          font-size: 0.75rem;
+          color: #e74c3c;
+          line-height: 1.4;
+          margin: 0;
+          letter-spacing: 0.01em;
+          text-transform: none;
+        }
+        @keyframes warning-pulse-red {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.1); opacity: 1; }
         }
       `}</style>
     </div>
