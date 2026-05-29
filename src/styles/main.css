@@ -2,17 +2,17 @@
 @import "tailwindcss";
 
 @theme {
-  --font-main: "Outfit", "Inter", system-ui, sans-serif;
+  --font-main: "Times New Roman", Times, Georgia, serif;
   --font-mono: "JetBrains Mono", monospace;
-  --font-display: "Orbitron", "Cinzel", serif;
-  --font-decorative: "Rajdhani", "Cinzel Decorative", serif;
+  --font-display: "Times New Roman", Times, Georgia, serif;
+  --font-decorative: "Times New Roman", Times, Georgia, serif;
 
   --color-gold-core: #ecc880;
   --color-gold-glow: rgba(236, 200, 128, 0.25);
   --color-gold-bright: #fff4dc;
   
   --color-text-primary: #ffffff;
-  --color-text-dim: #c2c2c2;
+  --color-text-dim: #dfdfdf;
 }
 
 @layer base {

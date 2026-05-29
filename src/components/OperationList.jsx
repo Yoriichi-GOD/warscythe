@@ -121,7 +121,7 @@ export default function OperationList({ onAddTask, onOpenTask }) {
         .ritual-prompt p {
           font-family: var(--font-mono);
           font-size: 0.7rem;
-          color: var(--text-dim);
+          color: #e5e5e5;
           letter-spacing: 0.1em;
         }
 

@@ -53,9 +53,8 @@ export default function ScytheCenter() {
       if (stage.id === 'refined' && weight >= 10) return true;
       return false;
     }
-    const reachedStreak = streakCount >= stage.req;
     const bought = (unlockedScythes || []).includes(stage.id);
-    return reachedStreak || bought;
+    return bought;
   };
 
   const currentStageIndex = (() => {

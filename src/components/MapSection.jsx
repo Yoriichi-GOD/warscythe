@@ -40,11 +40,40 @@ export default function MapSection({ onTabChange }) {
     }, 1200);
   };
   
-  // Fake data for the Elite UI feel
+  // Dynamic expansion logs based on current progress / level
+  const getRegion = (idx) => {
+    if (idx < 0) return null;
+    return REGIONS[idx % REGIONS.length];
+  };
+
+  const lastRegion = getRegion(level - 2);
+  const currentRegion = getRegion(level - 1);
+  const nextRegion = getRegion(level);
+
   const expansionLogs = [
-    { id: 1, type: 'scout', text: 'SCOUTED NEW TERRITORY: Unknown Sector', time: '2h ago' },
-    { id: 2, type: 'secure', text: 'SECURED VILLAGE: Outpost Alpha', time: '1d ago' },
-    { id: 3, type: 'intel', text: 'INTELLIGENCE UPDATE: New threat detected in the north', time: '2d ago' },
+    { 
+      id: 1, 
+      type: 'scout', 
+      text: `SCOUTED SECTOR: ${nextRegion ? nextRegion.name.toUpperCase() : 'UNKNOWN REACH'}`, 
+      time: 'Locked' 
+    },
+    { 
+      id: 2, 
+      type: 'secure', 
+      text: `CURRENT AREA: ${currentRegion ? currentRegion.name.toUpperCase() : 'THE THRESHOLD'} (STRIKE ACTIVE)`, 
+      time: 'In Progress' 
+    },
+    ...(lastRegion ? [{ 
+      id: 3, 
+      type: 'intel', 
+      text: `SECURED CAMPAIGN: ${lastRegion.name.toUpperCase()}`, 
+      time: 'Secured' 
+    }] : [{
+      id: 3,
+      type: 'intel',
+      text: 'TACTICAL BASE: GATEWAY OF THE THRESHOLD SECURED',
+      time: 'Secured'
+    }])
   ];
 
   const regionThemes = [
@@ -258,7 +287,7 @@ export default function MapSection({ onTabChange }) {
 
             <div className="upcoming-threat glass-panel" style={{ padding: '1rem' }}>
                <span className="stat-label">RECOVERED FRAGMENTS</span>
-               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[160px] custom-scrollbar pr-2">
+               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[380px] custom-scrollbar pr-2">
                  {currentLore.length === 0 ? (
                    <p className="text-[9px] font-mono text-gray-600 text-center py-4 uppercase tracking-widest">
                      No fragments recovered yet.<br/>Conquer operations to reveal the truth.

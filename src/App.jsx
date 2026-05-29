@@ -23,7 +23,6 @@ import { initNetworkMonitoring } from './utils/nativeTriggers';
 
 import TutorialModal from './components/TutorialModal';
 import GymLogBook from './components/GymLogBook';
-import SimulatedAds from './components/SimulatedAds';
 import StreakScrollModal from './components/StreakScrollModal';
 
 export default function App() {
@@ -77,6 +76,7 @@ export default function App() {
   const tasks = useWarscytheStore(state => state.tasks);
   const isFocusMode = useWarscytheStore(state => state.isFocusMode);
   const focusedTaskId = useWarscytheStore(state => state.focusedTaskId);
+  const scytheLevel = useWarscytheStore(state => state.scytheLevel);
 
   // Sync priority body class
   useEffect(() => {
@@ -103,10 +103,15 @@ export default function App() {
     setTimeout(() => {
       setShowSlash(true);
       setTimeout(() => {
-        completeTask(selectedTaskId);
-        setIsValidating(false);
-        setShowSlash(false);
-        setSelectedTaskId(null);
+        try {
+          completeTask(selectedTaskId);
+        } catch (err) {
+          console.error("Task completion failed:", err);
+        } finally {
+          setIsValidating(false);
+          setShowSlash(false);
+          setSelectedTaskId(null);
+        }
       }, 500);
     }, 1500);
   };
@@ -153,10 +158,6 @@ export default function App() {
         onOpenAuth={() => setShowAuth(true)}
         onOpenGymLog={() => setShowGymLog(true)}
       />
-      
-      <div className="px-4 lg:px-8 pt-2">
-        <SimulatedAds />
-      </div>
       
       <main className="flex-1 w-full overflow-hidden relative">
         {/* Persistent Tab Pages for Smooth Mobile Switching */}
@@ -287,7 +288,7 @@ export default function App() {
                     initial={{ scaleX: 0, rotate: -45, opacity: 1 }}
                     animate={{ scaleX: 1, rotate: -45, opacity: [1, 0] }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className={`slash-line slash-material-${useWarscytheStore.getState().scytheLevel.toLowerCase()}`}
+                    className={`slash-line slash-material-${(scytheLevel || 'dormant').toLowerCase()}`}
                   />
                 </motion.div>
               )}

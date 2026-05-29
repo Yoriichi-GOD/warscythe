@@ -208,6 +208,7 @@ export default function ScratchCard({ data, onClose }) {
         .rarity-glow.uncommon { background: var(--stage-ship); }
         .rarity-glow.rare { background: var(--stage-build); }
         .rarity-glow.epic { background: var(--stage-finish); }
+        .rarity-glow.mythic { background: #ff3d00; }
         
         .loot-details { display: flex; flex-direction: column; gap: 4px; }
         .loot-rarity-text { font-size: 0.5rem; font-weight: 900; letter-spacing: 0.2em; }
@@ -215,6 +216,7 @@ export default function ScratchCard({ data, onClose }) {
         .loot-rarity-text.uncommon { color: var(--stage-ship); }
         .loot-rarity-text.rare { color: var(--stage-build); }
         .loot-rarity-text.epic { color: var(--stage-finish); }
+        .loot-rarity-text.mythic { color: #ff3d00; }
         
         .loot-art-name { font-family: var(--font-display); font-size: 1.1rem; color: #fff; letter-spacing: 0.05em; }
         .loot-xp-badge { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--gold-core); }
