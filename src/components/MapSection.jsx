@@ -310,7 +310,7 @@ export default function MapSection({ onTabChange }) {
       <style jsx>{`
         .campaign-theater {
           width: 100%;
-          min-height: 100vh;
+          height: 100%;
           display: flex;
           flex-direction: column;
           padding: 1rem;
@@ -464,7 +464,7 @@ export default function MapSection({ onTabChange }) {
             height: 100%;
             min-height: 0;
             overflow-y: auto;
-            padding-bottom: 4rem;
+            padding-bottom: 8rem;
           }
           .map-viewport-container::-webkit-scrollbar {
             width: 6px;

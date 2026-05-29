@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, CheckCircle, Trash2, Zap, Target, BookOpen } from 'lucide-react';
+import { X, CheckCircle, Trash2, Zap, Target, BookOpen, Plus } from 'lucide-react';
 
 export default function TaskDetail({ taskId, onClose, onComplete }) {
   const task = useWarscytheStore(state => 

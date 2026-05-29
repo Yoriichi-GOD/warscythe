@@ -86,6 +86,7 @@ export const useWarscytheStore = create(
       lastActiveDate: null,
       bossKills: 0,
       unlockedScythes: ['neophyte'],
+      scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
       hasCompletedTutorial: false,
@@ -148,6 +149,7 @@ export const useWarscytheStore = create(
           lastActiveDate: null,
           bossKills: 0,
           unlockedScythes: ['neophyte'],
+          scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
           hasCompletedTutorial: false,
@@ -195,6 +197,7 @@ export const useWarscytheStore = create(
               lastActiveDate: saved.lastActiveDate || null,
               bossKills: saved.bossKills || 0,
               unlockedScythes: saved.unlockedScythes || ['neophyte'],
+              scytheMigrationDone: saved.scytheMigrationDone || false,
               coins: saved.coins || 0,
               gymLog: saved.gymLog || [],
               hasCompletedTutorial: saved.hasCompletedTutorial || false,
@@ -233,6 +236,7 @@ export const useWarscytheStore = create(
           lastActiveDate: state.lastActiveDate,
           bossKills: state.bossKills,
           unlockedScythes: state.unlockedScythes,
+          scytheMigrationDone: state.scytheMigrationDone,
           coins: state.coins,
           gymLog: state.gymLog,
           hasCompletedTutorial: state.hasCompletedTutorial,
@@ -650,22 +654,6 @@ export const useWarscytheStore = create(
           lastResetDate: today
         });
 
-        // Check for milestones
-        const milestones = {
-          5: 'neophyte',
-          15: 'acolyte',
-          30: 'reaper',
-          60: 'executioner',
-          120: 'sovereign',
-          200: 'void-walker',
-          300: 'eternal',
-          360: 'death-lord'
-        };
-        if (milestones[newStreak]) {
-          set(state => ({
-            unlockedScythes: [...new Set([...state.unlockedScythes, milestones[newStreak]])]
-          }));
-        }
       },
 
       abandonTask: (id) => {

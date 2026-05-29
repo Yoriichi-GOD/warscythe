@@ -43,12 +43,19 @@ export default function App() {
       reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
     }
     
+    // Run one-time migration to clean up auto-unlocked scythes from legacy streak calculation
+    const cleanUnlocked = state.scytheMigrationDone 
+      ? state.unlockedScythes 
+      : ['neophyte'];
+    
     // Unconditionally force sync to fix any corrupted state
     useWarscytheStore.setState({
       totalCompletions: trueTotalCompletions,
       level: trueLevel,
       currentLevelProgress: trueProgress,
-      unlockedLore: reconstructedLore
+      unlockedLore: reconstructedLore,
+      unlockedScythes: cleanUnlocked,
+      scytheMigrationDone: true
     });
   }, []);
 
