@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock } from 'lucide-react';
 
 export default function ScytheCenter() {
-  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe } = useWarscytheStore();
+  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
   const [viewedStageIndex, setViewedStageIndex] = useState(null);
 
@@ -35,9 +35,19 @@ export default function ScytheCenter() {
 
   const scythePrices = { 'acolyte': 100, 'reaper': 250, 'executioner': 500, 'sovereign': 1000, 'void-walker': 2000, 'eternal': 4000, 'death-lord': 8000 };
 
+  const scytheLevelsOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
+
   const isScytheUnlocked = (stage) => {
     if (stage.type === 'weight') {
       if (stage.id === 'dormant') return true;
+
+      // Sync with global scytheLevel from store
+      const currentLevelIndex = scytheLevelsOrder.indexOf(scytheLevel);
+      const stageLevelIndex = scytheLevelsOrder.indexOf(stage.name);
+      if (currentLevelIndex >= stageLevelIndex && stageLevelIndex !== -1) {
+        return true;
+      }
+
       if (stage.id === 'awakened' && weight >= 3) return true;
       if (stage.id === 'hardened' && weight >= 7) return true;
       if (stage.id === 'refined' && weight >= 10) return true;
