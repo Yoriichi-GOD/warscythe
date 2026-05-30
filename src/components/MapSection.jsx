@@ -457,7 +457,9 @@ export default function MapSection({ onTabChange }) {
             height: 100%;
             min-height: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-bottom: 8rem;
+            padding-right: 4px;
           }
           .map-viewport-container::-webkit-scrollbar {
             width: 6px;
@@ -472,6 +474,22 @@ export default function MapSection({ onTabChange }) {
           .map-viewport-container::-webkit-scrollbar-thumb:hover {
             background: rgba(197, 160, 89, 0.55);
           }
+        }
+
+        /* Custom Scrollbar for Fragments List */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(197, 160, 89, 0.35);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(197, 160, 89, 0.65);
         }
         .isometric-map-wrapper {
           flex: 1;
