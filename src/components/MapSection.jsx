@@ -457,9 +457,8 @@ export default function MapSection({ onTabChange }) {
             height: 100%;
             min-height: 0;
             overflow-y: auto;
-            overflow-x: hidden;
             padding-bottom: 8rem;
-            padding-right: 4px;
+            padding-right: 2px;
           }
           .map-viewport-container::-webkit-scrollbar {
             width: 6px;
