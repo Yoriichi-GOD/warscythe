@@ -3,8 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star } from 'lucide-react';
 
-export default function Ledger() {
-  const [subTab, setSubTab] = useState('history'); // 'history' or 'vault'
+export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
+  const [subTab, setSubTab] = useState(initialSubTab);
+
+  // Sync when parent changes the tab (e.g. 'Access Full Vault' deep-link)
+  React.useEffect(() => {
+    setSubTab(initialSubTab);
+  }, [initialSubTab]);
+
+  const handleSubTab = (tab) => {
+    setSubTab(tab);
+    onSubTabChange?.(tab);
+  };
   
   // History tab state & logic (from CompletionLog)
   const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
@@ -58,7 +68,7 @@ export default function Ledger() {
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
-            onClick={() => setSubTab('history')}
+            onClick={() => handleSubTab('history')}
           >
             History Logs
           </button>
@@ -68,7 +78,7 @@ export default function Ledger() {
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
-            onClick={() => setSubTab('vault')}
+            onClick={() => handleSubTab('vault')}
           >
             Relics & Lore
           </button>

@@ -61,6 +61,7 @@ export default function App() {
   }, []);
 
   const [activeTab, setActiveTab] = useState('ops');
+  const [ledgerSubTab, setLedgerSubTab] = useState('history');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showRitualModal, setShowRitualModal] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -153,14 +154,22 @@ export default function App() {
       }
     };
 
+    // Navigation handler for 'Access Full Vault' -> Ledger Relics & Lore
+    const handleNavToLedgerVault = () => {
+      setActiveTab('ledger');
+      setLedgerSubTab('vault');
+    };
+
     window.addEventListener('keydown', handleEsc);
     window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('navToLedgerVault', handleNavToLedgerVault);
 
     return () => {
       window.removeEventListener('keydown', handleEsc);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('navToLedgerVault', handleNavToLedgerVault);
     };
   }, []);
 
@@ -242,7 +251,7 @@ export default function App() {
           style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
-          <Ledger />
+          <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
         </div>
       </main>
 

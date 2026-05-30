@@ -208,7 +208,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
 
          {collectedArtifacts.length > 0 && (
            <button 
-             onClick={() => document.querySelector('.nav-btn[title="Artifact Vault"]')?.click()}
+             onClick={() => window.dispatchEvent(new CustomEvent('navToLedgerVault'))}
              className="w-full mt-3 py-2 border border-white/5 rounded flex items-center justify-center hover:bg-white/5 hover:border-white/10 transition-all group"
            >
              <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
