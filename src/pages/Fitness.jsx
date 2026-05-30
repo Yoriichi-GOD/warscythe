@@ -11,12 +11,7 @@ import {
 
 const OrnatePanel = ({ children, className = '', ...props }) => {
   return (
-    <div className={`elite-panel-ornate ${className}`} {...props}>
-      <div className="elite-panel-inner-border" />
-      <div className="corner-ornament corner-tl" />
-      <div className="corner-ornament corner-tr" />
-      <div className="corner-ornament corner-bl" />
-      <div className="corner-ornament corner-br" />
+    <div className={`elite-panel ${className}`} {...props}>
       <div className="relative z-10 w-full h-full flex flex-col">
         {children}
       </div>

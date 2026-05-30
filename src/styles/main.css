@@ -129,16 +129,50 @@
 /* ═══════════════ ELITE PANEL ═══════════════ */
 
 .elite-panel {
-  background: rgba(10, 10, 14, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(197, 160, 89, 0.15);
+  background: rgba(8, 8, 10, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 160, 89, 0.16);
   border-radius: 4px;
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 1.2rem;
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.85), 0 8px 32px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+}
+
+/* Automatic gold corner brackets on all elite-panels */
+.elite-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, var(--color-gold-core) 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, var(--color-gold-core) 2px, transparent 2px) 0 0,
+    linear-gradient(to left, var(--color-gold-core) 2px, transparent 2px) 100% 0,
+    linear-gradient(to bottom, var(--color-gold-core) 2px, transparent 2px) 100% 0,
+    linear-gradient(to right, var(--color-gold-core) 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, var(--color-gold-core) 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, var(--color-gold-core) 2px, transparent 2px) 100% 100%,
+    linear-gradient(to top, var(--color-gold-core) 2px, transparent 2px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 8px 8px;
+  z-index: 20;
+}
+
+/* Thin inner border line on all elite-panels */
+.elite-panel::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(197, 160, 89, 0.03);
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 10;
 }
 
 /* ═══════════════ ELITE NAVIGATION ═══════════════ */
