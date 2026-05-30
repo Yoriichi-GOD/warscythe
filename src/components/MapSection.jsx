@@ -143,7 +143,7 @@ export default function MapSection({ onTabChange }) {
         
         {/* LEFT COLUMN: Logs and Legend */}
         <aside className="campaign-aside left">
-          <div className="expansion-log-panel glass-panel">
+          <div className="expansion-log-panel elite-panel">
             <div className="panel-header">
               <span className="panel-tag">EXPANSION LOG</span>
             </div>
@@ -164,7 +164,7 @@ export default function MapSection({ onTabChange }) {
             </div>
           </div>
 
-          <div className="legend-panel glass-panel">
+          <div className="legend-panel elite-panel">
              <div className="panel-header">
               <span className="panel-tag">LEGEND</span>
             </div>
@@ -229,7 +229,7 @@ export default function MapSection({ onTabChange }) {
             </div>
           </div>
 
-          <div className="quick-actions-panel glass-panel">
+          <div className="quick-actions-panel elite-panel">
             <div className="panel-header">
               <span className="panel-tag">QUICK ACTIONS</span>
             </div>
@@ -255,7 +255,7 @@ export default function MapSection({ onTabChange }) {
 
         {/* RIGHT COLUMN: Region Intel */}
         <aside className="campaign-aside right">
-          <div className="region-intel-panel glass-panel">
+          <div className="region-intel-panel elite-panel">
             <div className="panel-header">
               <span className="panel-tag">REGION INTEL</span>
             </div>
@@ -285,7 +285,7 @@ export default function MapSection({ onTabChange }) {
               </div>
             </div>
 
-            <div className="upcoming-threat glass-panel" style={{ padding: '1rem' }}>
+            <div className="upcoming-threat elite-panel" style={{ padding: '1rem' }}>
                <span className="stat-label">RECOVERED FRAGMENTS</span>
                <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[550px] custom-scrollbar pr-2">
                  {currentLore.length === 0 ? (
@@ -417,15 +417,7 @@ export default function MapSection({ onTabChange }) {
           letter-spacing: 0.2em;
         }
 
-        .glass-panel {
-          background: rgba(10, 10, 12, 0.8);
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 8px;
-          padding: 1rem;
-        }
-        @media (min-width: 1024px) {
-          .glass-panel { padding: 1.5rem; }
-        }
+
 
         /* Log Panel */
         .log-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }

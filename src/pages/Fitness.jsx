@@ -182,7 +182,7 @@ export default function Fitness() {
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <OrnatePanel className="border-gold-core/25 !overflow-visible">
+          <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
@@ -497,7 +497,7 @@ export default function Fitness() {
             <div className="grid grid-cols-2 gap-4">
               
               {/* RPE Dial Widget */}
-              <OrnatePanel className="bg-black/70 flex flex-col justify-between h-[155px] relative overflow-hidden !p-3">
+              <OrnatePanel className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-start mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
@@ -606,7 +606,7 @@ export default function Fitness() {
               </OrnatePanel>
 
               {/* Rest Timer Widget */}
-              <OrnatePanel className="bg-black/70 flex flex-col justify-between h-[155px] relative overflow-hidden !p-3">
+              <OrnatePanel className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-center mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>
@@ -717,7 +717,7 @@ export default function Fitness() {
 
         {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 4) ================= */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <OrnatePanel className="border-gold-core/25 text-center relative overflow-hidden bg-gradient-to-b from-black via-black/90 to-[#0e0c0a] !p-4">
+          <OrnatePanel className="text-center relative overflow-hidden !p-4 elite-panel-clear">
             
             {/* Background God Aura Light */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.12)_0%,transparent_70%)] pointer-events-none" />
@@ -827,7 +827,7 @@ export default function Fitness() {
         <div className="lg:col-span-3 flex flex-col gap-4 sticky top-4">
           
           {/* Quick Metrics Widget */}
-          <OrnatePanel className="bg-black/40">
+          <OrnatePanel className="fitness-panel-glass">
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="flex flex-col gap-1 border-r border-white/5 py-1">
                 <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">TOTAL VOLUME</span>
@@ -852,7 +852,7 @@ export default function Fitness() {
           </OrnatePanel>
 
           {/* Ascension Path Panel */}
-          <OrnatePanel className="border-gold-core/25">
+          <OrnatePanel className="border-gold-core/25 fitness-panel-glass">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">ASCENSION PATH</span>
@@ -934,7 +934,7 @@ export default function Fitness() {
           </OrnatePanel>
 
           {/* Historical Logs List */}
-          <OrnatePanel className="border-white/5 bg-black/40">
+          <OrnatePanel className="border-white/5 fitness-panel-glass">
             <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest block mb-3 border-b border-white/5 pb-2">
               RECENT WORKOUTS HISTORY
             </span>

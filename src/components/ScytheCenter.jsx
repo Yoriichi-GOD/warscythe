@@ -75,7 +75,7 @@ export default function ScytheCenter() {
 
   return (
     <section className="scythe-center-section">
-      <div className="scythe-frame">
+      <div className="elite-panel">
         <div className="flex justify-between items-start mb-6">
           <div>
             <span className="panel-tag">WEAPON EVOLUTION</span>
@@ -142,12 +142,7 @@ export default function ScytheCenter() {
           padding: 2rem 1.5rem 4rem 1.5rem;
         }
 
-        .scythe-frame {
-          background: linear-gradient(180deg, rgba(20,20,20,0.5) 0%, rgba(5,5,5,0.88) 100%);
-          border: 1px solid rgba(197,160,89,0.12);
-          border-radius: 10px;
-          padding: 2rem;
-        }
+
 
         .panel-tag {
           font-family: var(--font-mono);

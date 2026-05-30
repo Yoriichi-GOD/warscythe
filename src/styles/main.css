@@ -141,7 +141,7 @@
   overflow: hidden;
 }
 
-/* Automatic gold corner brackets on all elite-panels */
+/* Automatic gold corner brackets on all elite-panels (translucent gold) */
 .elite-panel::before {
   content: "";
   position: absolute;
@@ -151,14 +151,14 @@
   bottom: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, var(--color-gold-core) 2px, transparent 2px) 0 0,
-    linear-gradient(to bottom, var(--color-gold-core) 2px, transparent 2px) 0 0,
-    linear-gradient(to left, var(--color-gold-core) 2px, transparent 2px) 100% 0,
-    linear-gradient(to bottom, var(--color-gold-core) 2px, transparent 2px) 100% 0,
-    linear-gradient(to right, var(--color-gold-core) 2px, transparent 2px) 0 100%,
-    linear-gradient(to top, var(--color-gold-core) 2px, transparent 2px) 0 100%,
-    linear-gradient(to left, var(--color-gold-core) 2px, transparent 2px) 100% 100%,
-    linear-gradient(to top, var(--color-gold-core) 2px, transparent 2px) 100% 100%;
+    linear-gradient(to right, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 0 0,
+    linear-gradient(to left, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 100% 0,
+    linear-gradient(to bottom, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 100% 0,
+    linear-gradient(to right, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 100% 100%,
+    linear-gradient(to top, rgba(236, 200, 128, 0.45) 2px, transparent 2px) 100% 100%;
   background-repeat: no-repeat;
   background-size: 8px 8px;
   z-index: 20;
@@ -173,6 +173,25 @@
   pointer-events: none;
   border-radius: 2px;
   z-index: 10;
+}
+
+/* Custom Overrides for page-specific visual layouts */
+.elite-panel-clear {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.elite-panel-clear::before {
+  display: none !important;
+}
+.elite-panel-clear::after {
+  display: none !important;
+}
+
+.fitness-panel-glass {
+  background: rgba(8, 8, 10, 0.42) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 /* ═══════════════ ELITE NAVIGATION ═══════════════ */
