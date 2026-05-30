@@ -11,6 +11,9 @@ import {
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
+let isSyncingFromServer = false;
+let lastState = null;
+
 const getProceduralRegion = (idx) => {
   if (idx < REGIONS.length) return REGIONS[idx];
   const prefixes = ['Shadow', 'Iron', 'Storm', 'Void', 'Crimson', 'Eternal', 'Dark', 'Ancient', 'Lost', 'Burning'];
@@ -163,6 +166,7 @@ export const useWarscytheStore = create(
 
       fetchUserState: async (userId) => {
         try {
+          isSyncingFromServer = true;
           const { data, error } = await supabase
             .from('profiles')
             .select('state')
@@ -172,6 +176,7 @@ export const useWarscytheStore = create(
           if (error) {
             // If no profile row exists, create one with the current store state
             if (error.code === 'PGRST116') {
+              isSyncingFromServer = false;
               await get().saveUserState(userId);
             } else {
               console.error('Error fetching user state:', error.message);
@@ -210,6 +215,8 @@ export const useWarscytheStore = create(
           }
         } catch (err) {
           console.error('Exception in fetchUserState:', err);
+        } finally {
+          isSyncingFromServer = false;
         }
       },
 
@@ -1087,57 +1094,124 @@ export const useWarscytheStore = create(
 
 // Auto-sync store state to Supabase on state change if user is logged in
 let saveTimeout = null;
-useWarscytheStore.subscribe((state, prevState) => {
-  if (state.user?.id) {
-    // Check if relevant game progress state has changed
-    if (
-      state.tasks !== prevState.tasks ||
-      state.rituals !== prevState.rituals ||
-      state.completedTasks !== prevState.completedTasks ||
-      state.abandonedTasks !== prevState.abandonedTasks ||
-      state.xp !== prevState.xp ||
-      state.level !== prevState.level ||
-      state.streakCount !== prevState.streakCount ||
-      state.notes !== prevState.notes ||
-      state.executionScore !== prevState.executionScore ||
-      state.collectedArtifacts !== prevState.collectedArtifacts ||
-      state.gymLog !== prevState.gymLog ||
-      state.activeWorkout !== prevState.activeWorkout
-    ) {
-      if (saveTimeout) clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        const u = state.user.id;
-        const payload = {
-          tasks: state.tasks,
-          rituals: state.rituals,
-          completedTasks: state.completedTasks,
-          abandonedTasks: state.abandonedTasks,
-          executionScore: state.executionScore,
-          dailyLog: state.dailyLog,
-          notes: state.notes,
-          level: state.level,
-          totalCompletions: state.totalCompletions,
-          currentLevelProgress: state.currentLevelProgress,
-          collectedArtifacts: state.collectedArtifacts,
-          unlockedLore: state.unlockedLore,
-          currentTitle: state.currentTitle,
-          consecutiveLow: state.consecutiveLow,
-          streakCount: state.streakCount,
-          xp: state.xp,
-          scytheLevel: state.scytheLevel,
-          lastActiveDate: state.lastActiveDate,
-          bossKills: state.bossKills,
-          gymLog: state.gymLog,
-          activeWorkout: state.activeWorkout,
-        };
-        supabase.from('profiles').upsert({
-          id: u,
-          state: payload,
-          updated_at: new Date().toISOString()
-        }).then(({ error }) => {
-          if (error) console.error('Auto-save error:', error.message);
-        });
-      }, 1500); // 1.5 second debounce to prevent spamming queries
-    }
+useWarscytheStore.subscribe((state) => {
+  if (!state.user?.id) {
+    lastState = null;
+    return;
+  }
+
+  // If currently pulling data from server, keep lastState aligned and skip save
+  if (isSyncingFromServer) {
+    lastState = {
+      tasks: state.tasks,
+      rituals: state.rituals,
+      completedTasks: state.completedTasks,
+      abandonedTasks: state.abandonedTasks,
+      xp: state.xp,
+      level: state.level,
+      streakCount: state.streakCount,
+      notes: state.notes,
+      executionScore: state.executionScore,
+      collectedArtifacts: state.collectedArtifacts,
+      gymLog: state.gymLog,
+      activeWorkout: state.activeWorkout,
+    };
+    return;
+  }
+
+  // Initialize lastState if it hasn't been set yet
+  if (!lastState) {
+    lastState = {
+      tasks: state.tasks,
+      rituals: state.rituals,
+      completedTasks: state.completedTasks,
+      abandonedTasks: state.abandonedTasks,
+      xp: state.xp,
+      level: state.level,
+      streakCount: state.streakCount,
+      notes: state.notes,
+      executionScore: state.executionScore,
+      collectedArtifacts: state.collectedArtifacts,
+      gymLog: state.gymLog,
+      activeWorkout: state.activeWorkout,
+    };
+    return;
+  }
+
+  // Check if relevant game progress state has changed
+  const hasChanged =
+    state.tasks !== lastState.tasks ||
+    state.rituals !== lastState.rituals ||
+    state.completedTasks !== lastState.completedTasks ||
+    state.abandonedTasks !== lastState.abandonedTasks ||
+    state.xp !== lastState.xp ||
+    state.level !== lastState.level ||
+    state.streakCount !== lastState.streakCount ||
+    state.notes !== lastState.notes ||
+    state.executionScore !== lastState.executionScore ||
+    state.collectedArtifacts !== lastState.collectedArtifacts ||
+    state.gymLog !== lastState.gymLog ||
+    state.activeWorkout !== lastState.activeWorkout;
+
+  if (hasChanged) {
+    // Update local snapshot immediately to prevent duplicate triggers
+    lastState = {
+      tasks: state.tasks,
+      rituals: state.rituals,
+      completedTasks: state.completedTasks,
+      abandonedTasks: state.abandonedTasks,
+      xp: state.xp,
+      level: state.level,
+      streakCount: state.streakCount,
+      notes: state.notes,
+      executionScore: state.executionScore,
+      collectedArtifacts: state.collectedArtifacts,
+      gymLog: state.gymLog,
+      activeWorkout: state.activeWorkout,
+    };
+
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      const u = state.user.id;
+      const payload = {
+        tasks: state.tasks,
+        rituals: state.rituals,
+        completedTasks: state.completedTasks,
+        abandonedTasks: state.abandonedTasks,
+        executionScore: state.executionScore,
+        dailyLog: state.dailyLog,
+        notes: state.notes,
+        level: state.level,
+        totalCompletions: state.totalCompletions,
+        currentLevelProgress: state.currentLevelProgress,
+        collectedArtifacts: state.collectedArtifacts,
+        unlockedLore: state.unlockedLore,
+        currentTitle: state.currentTitle,
+        consecutiveLow: state.consecutiveLow,
+        streakCount: state.streakCount,
+        xp: state.xp,
+        scytheLevel: state.scytheLevel,
+        lastActiveDate: state.lastActiveDate,
+        bossKills: state.bossKills,
+        gymLog: state.gymLog,
+        activeWorkout: state.activeWorkout,
+      };
+      
+      supabase.from('profiles').upsert({
+        id: u,
+        state: payload,
+        updated_at: new Date().toISOString()
+      }).then(({ error }) => {
+        if (error) console.error('Auto-save error:', error.message);
+      });
+    }, 1500); // 1.5 second debounce to prevent spamming queries
+  }
+});
+
+// Listen to auth state changes to fetch latest user state on app initialization/refresh
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    useWarscytheStore.setState({ user: session.user });
+    await useWarscytheStore.getState().fetchUserState(session.user.id);
   }
 });
