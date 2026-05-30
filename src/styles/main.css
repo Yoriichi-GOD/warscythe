@@ -190,8 +190,8 @@
 }
 
 .fitness-panel-glass {
-  background: rgba(8, 8, 10, 0.42) !important;
-  backdrop-filter: blur(8px) !important;
+  background: rgba(6, 6, 8, 0.22) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 /* ═══════════════ ELITE NAVIGATION ═══════════════ */

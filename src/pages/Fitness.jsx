@@ -769,9 +769,20 @@ export default function Fitness() {
                   animate={{ y: [0, -6, 0] }}
                   transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
                 >
-                  {/* Dynamic Particle Sparkles */}
+                  {/* Glowing Divine Aura (Pulsing background light) */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <Sparkles className="text-gold-core/10 w-48 h-48 animate-pulse" />
+                    {/* Outer soft glow */}
+                    <motion.div 
+                      className="absolute w-72 h-72 rounded-full bg-gold-core/5 filter blur-3xl"
+                      animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+                      transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                    />
+                    {/* Inner glowing halo ring */}
+                    <motion.div 
+                      className="absolute w-56 h-56 rounded-full border border-gold-core/10 bg-gradient-to-t from-transparent via-gold-core/[0.02] to-gold-core/[0.05] filter blur-[2px]"
+                      animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                    />
                   </div>
 
                   {/* Deity Statue Image - Full height, standing on bottom */}
