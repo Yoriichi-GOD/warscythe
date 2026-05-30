@@ -1,11 +1,11 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress } = useWarscytheStore();
+  const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress, syncStatus, forceSync } = useWarscytheStore();
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
@@ -60,6 +60,22 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         </div>
         
         <div className="action-buttons">
+          {user && (
+            <button 
+              className={`nav-btn sync-btn status-${syncStatus}`} 
+              onClick={forceSync}
+              title={
+                syncStatus === 'synced' ? 'All progress synced with command core' :
+                syncStatus === 'pending' ? 'Synchronizing with command core...' :
+                'Sync failure! Click to force strike sync.'
+              }
+            >
+              {syncStatus === 'synced' && <RefreshCw size={14} className="text-gold-core/60" />}
+              {syncStatus === 'pending' && <RefreshCw size={14} className="text-gold-core animate-spin" />}
+              {syncStatus === 'failed' && <AlertCircle size={14} className="text-red-500 animate-pulse" />}
+            </button>
+          )}
+          
           <button 
             className={`nav-btn ${user ? 'active' : ''}`} 
             onClick={user ? () => signOut() : () => onOpenAuth()}
@@ -216,6 +232,18 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
+        
+        .sync-btn {
+          cursor: pointer;
+          position: relative;
+        }
+        .sync-btn.status-failed {
+          border-color: rgba(239, 68, 68, 0.4);
+          background: rgba(239, 68, 68, 0.05);
+        }
+        .sync-btn.status-pending {
+          border-color: rgba(236, 200, 128, 0.3);
+        }
       `}</style>
     </header>
   );

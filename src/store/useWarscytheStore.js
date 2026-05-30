@@ -14,6 +14,143 @@ const todayKey = () => new Date().toISOString().slice(0, 10);
 let isSyncingFromServer = false;
 let lastState = null;
 
+const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
+  const map = new Map();
+  const parseDate = (d) => (d ? new Date(d).getTime() : 0);
+
+  (arrA || []).forEach(item => {
+    if (item && item[idKey]) {
+      map.set(item[idKey], item);
+    }
+  });
+
+  (arrB || []).forEach(item => {
+    if (item && item[idKey]) {
+      const existing = map.get(item[idKey]);
+      if (existing) {
+        const timeA = parseDate(existing[timeKey]);
+        const timeB = parseDate(item[timeKey]);
+        if (timeB > timeA) {
+          map.set(item[idKey], item);
+        }
+      } else {
+        map.set(item[idKey], item);
+      }
+    }
+  });
+
+  return Array.from(map.values());
+};
+
+const mergeState = (local, saved) => {
+  if (!saved) return local;
+
+  const parseDate = (d) => (d ? new Date(d).getTime() : 0);
+
+  // Array Merging
+  const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate');
+  const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
+  const completedTasks = mergeArraysById(local.completedTasks || [], saved.completedTasks || [], 'id', 'completedAt');
+  const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'completedAt');
+  const gymLog = mergeArraysById(local.gymLog || [], saved.gymLog || [], 'id', 'date');
+  const collectedArtifacts = mergeArraysById(local.collectedArtifacts || [], saved.collectedArtifacts || [], 'name', 'date');
+
+  // Primatives / Metrics
+  const xp = Math.max(local.xp || 0, saved.xp || 0);
+  const level = Math.max(local.level || 1, saved.level || 1);
+  const streakCount = Math.max(local.streakCount || 0, saved.streakCount || 0);
+  const coins = Math.max(local.coins || 0, saved.coins || 0);
+  const bossKills = Math.max(local.bossKills || 0, saved.bossKills || 0);
+  const dailyPoints = Math.max(local.dailyPoints || 0, saved.dailyPoints || 0);
+  const executionScore = Math.max(local.executionScore || 0, saved.executionScore || 0);
+  const totalCompletions = Math.max(local.totalCompletions || 0, saved.totalCompletions || 0);
+  const currentLevelProgress = Math.max(local.currentLevelProgress || 0, saved.currentLevelProgress || 0);
+
+  // Notes
+  const notes = local.notes !== saved.notes 
+    ? ((local.notes || '').length >= (saved.notes || '').length ? local.notes : saved.notes)
+    : local.notes;
+
+  // Unlocked Scythes (Union)
+  const unlockedScythes = Array.from(new Set([
+    ...(local.unlockedScythes || ['neophyte']),
+    ...(saved.unlockedScythes || ['neophyte'])
+  ]));
+
+  // Daily Log
+  const dailyLog = { ...(local.dailyLog || {}) };
+  Object.entries(saved.dailyLog || {}).forEach(([date, score]) => {
+    dailyLog[date] = Math.max(dailyLog[date] || 0, score || 0);
+  });
+
+  // Unlocked Lore
+  const unlockedLore = { ...(local.unlockedLore || {}) };
+  Object.entries(saved.unlockedLore || {}).forEach(([region, serverFrags]) => {
+    const localFrags = unlockedLore[region] || [];
+    if (serverFrags.length > localFrags.length) {
+      unlockedLore[region] = serverFrags;
+    }
+  });
+
+  // Active Workout
+  let activeWorkout = local.activeWorkout;
+  if (saved.activeWorkout) {
+    if (!activeWorkout) {
+      activeWorkout = saved.activeWorkout;
+    } else {
+      const timeLocal = parseDate(activeWorkout.date);
+      const timeServer = parseDate(saved.activeWorkout.date);
+      if (timeServer > timeLocal) {
+        activeWorkout = saved.activeWorkout;
+      }
+    }
+  }
+
+  // Scythe Level
+  const scytheLevels = ["DORMANT", "AWAKENED", "HARDENED", "REFINED", "ASCENDED", "PLATINUM"];
+  const levelLocal = scytheLevels.indexOf(local.scytheLevel || "DORMANT");
+  const levelServer = scytheLevels.indexOf(saved.scytheLevel || "DORMANT");
+  const scytheLevel = scytheLevels[Math.max(levelLocal, levelServer)];
+
+  // Simple Flags
+  const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
+  const hasCompletedTutorial = !!(local.hasCompletedTutorial || saved.hasCompletedTutorial);
+  const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
+    ? local.lastActiveDate
+    : saved.lastActiveDate;
+  const lastResetDate = parseDate(local.lastResetDate) >= parseDate(saved.lastResetDate)
+    ? local.lastResetDate
+    : saved.lastResetDate;
+
+  return {
+    tasks,
+    rituals,
+    completedTasks,
+    abandonedTasks,
+    gymLog,
+    collectedArtifacts,
+    xp,
+    level,
+    streakCount,
+    coins,
+    bossKills,
+    dailyPoints,
+    executionScore,
+    totalCompletions,
+    currentLevelProgress,
+    notes,
+    unlockedScythes,
+    dailyLog,
+    unlockedLore,
+    activeWorkout,
+    scytheLevel,
+    scytheMigrationDone,
+    hasCompletedTutorial,
+    lastActiveDate,
+    lastResetDate
+  };
+};
+
 const getProceduralRegion = (idx) => {
   if (idx < REGIONS.length) return REGIONS[idx];
   const prefixes = ['Shadow', 'Iron', 'Storm', 'Void', 'Crimson', 'Eternal', 'Dark', 'Ancient', 'Lost', 'Burning'];
@@ -96,6 +233,9 @@ export const useWarscytheStore = create(
       hasCompletedTutorial: false,
       dailyPoints: 0,
       lastResetDate: null,
+      syncStatus: 'synced',
+      hasPendingChanges: false,
+      isMerging: false,
       user: null,
 
       // Auth & Sync
@@ -160,11 +300,16 @@ export const useWarscytheStore = create(
           hasCompletedTutorial: false,
           dailyPoints: 0,
           lastResetDate: null,
+          syncStatus: 'synced',
+          hasPendingChanges: false,
+          isMerging: false,
         });
         ph.capture('warscythe_sign_out');
       },
 
       fetchUserState: async (userId) => {
+        if (get().isMerging) return;
+        set({ isMerging: true });
         try {
           isSyncingFromServer = true;
           const { data, error } = await supabase
@@ -183,40 +328,20 @@ export const useWarscytheStore = create(
             }
           } else if (data && data.state) {
             const saved = data.state;
+            const merged = mergeState(get(), saved);
             set({
-              tasks: saved.tasks || [],
-              rituals: saved.rituals || [],
-              completedTasks: saved.completedTasks || [],
-              abandonedTasks: saved.abandonedTasks || [],
-              executionScore: saved.executionScore || 0,
-              dailyLog: saved.dailyLog || {},
-              notes: saved.notes || '',
-              level: saved.level || 1,
-              totalCompletions: saved.totalCompletions || 0,
-              currentLevelProgress: saved.currentLevelProgress || 0,
-              collectedArtifacts: saved.collectedArtifacts || [],
-              unlockedLore: saved.unlockedLore || {},
-              currentTitle: saved.currentTitle || 'Recruit',
-              consecutiveLow: saved.consecutiveLow || 0,
-              streakCount: saved.streakCount || 0,
-              xp: saved.xp || 0,
-              scytheLevel: saved.scytheLevel || "DORMANT",
-              lastActiveDate: saved.lastActiveDate || null,
-              bossKills: saved.bossKills || 0,
-              unlockedScythes: saved.unlockedScythes || ['neophyte'],
-              scytheMigrationDone: saved.scytheMigrationDone || false,
-              coins: saved.coins || 0,
-              gymLog: saved.gymLog || [],
-              activeWorkout: saved.activeWorkout || null,
-              hasCompletedTutorial: saved.hasCompletedTutorial || false,
-              dailyPoints: saved.dailyPoints || 0,
-              lastResetDate: saved.lastResetDate || null,
+              ...merged,
+              syncStatus: 'synced',
+              hasPendingChanges: false
             });
+            // Immediately write the merged state back to the server to ensure parity
+            await get().saveUserState(userId);
           }
         } catch (err) {
           console.error('Exception in fetchUserState:', err);
         } finally {
           isSyncingFromServer = false;
+          set({ isMerging: false });
         }
       },
 
@@ -224,6 +349,7 @@ export const useWarscytheStore = create(
         const u = userId || get().user?.id;
         if (!u) return;
         
+        set({ syncStatus: 'pending' });
         const state = get();
         const payload = {
           tasks: state.tasks,
@@ -256,13 +382,37 @@ export const useWarscytheStore = create(
         };
 
         try {
-          await supabase.from('profiles').upsert({
+          const { error } = await supabase.from('profiles').upsert({
             id: u,
             state: payload,
             updated_at: new Date().toISOString()
           });
+          if (error) {
+            console.error('Save error:', error.message);
+            set({ syncStatus: 'failed' });
+          } else {
+            set({ syncStatus: 'synced', hasPendingChanges: false });
+          }
         } catch (err) {
           console.error('Exception in saveUserState:', err);
+          set({ syncStatus: 'failed' });
+        }
+      },
+
+      forceSync: async () => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        set({ syncStatus: 'pending' });
+        try {
+          if (saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+          }
+          await get().saveUserState(u);
+        } catch (err) {
+          console.error("Force sync failed:", err);
+          set({ syncStatus: 'failed' });
         }
       },
 
@@ -1170,40 +1320,12 @@ useWarscytheStore.subscribe((state) => {
       activeWorkout: state.activeWorkout,
     };
 
+    // Set status to pending and mark unsynced changes immediately
+    useWarscytheStore.setState({ syncStatus: 'pending', hasPendingChanges: true });
+
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-      const u = state.user.id;
-      const payload = {
-        tasks: state.tasks,
-        rituals: state.rituals,
-        completedTasks: state.completedTasks,
-        abandonedTasks: state.abandonedTasks,
-        executionScore: state.executionScore,
-        dailyLog: state.dailyLog,
-        notes: state.notes,
-        level: state.level,
-        totalCompletions: state.totalCompletions,
-        currentLevelProgress: state.currentLevelProgress,
-        collectedArtifacts: state.collectedArtifacts,
-        unlockedLore: state.unlockedLore,
-        currentTitle: state.currentTitle,
-        consecutiveLow: state.consecutiveLow,
-        streakCount: state.streakCount,
-        xp: state.xp,
-        scytheLevel: state.scytheLevel,
-        lastActiveDate: state.lastActiveDate,
-        bossKills: state.bossKills,
-        gymLog: state.gymLog,
-        activeWorkout: state.activeWorkout,
-      };
-      
-      supabase.from('profiles').upsert({
-        id: u,
-        state: payload,
-        updated_at: new Date().toISOString()
-      }).then(({ error }) => {
-        if (error) console.error('Auto-save error:', error.message);
-      });
+      useWarscytheStore.getState().saveUserState(state.user.id);
     }, 1500); // 1.5 second debounce to prevent spamming queries
   }
 });

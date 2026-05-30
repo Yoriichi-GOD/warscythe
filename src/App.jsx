@@ -136,8 +136,32 @@ export default function App() {
         setSelectedTaskId(null);
       }
     };
+    
+    const handleBeforeUnload = () => {
+      const store = useWarscytheStore.getState();
+      if (store.hasPendingChanges) {
+        store.forceSync();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        const store = useWarscytheStore.getState();
+        if (store.hasPendingChanges) {
+          store.forceSync();
+        }
+      }
+    };
+
     window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {

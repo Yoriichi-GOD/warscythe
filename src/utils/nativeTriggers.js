@@ -108,6 +108,10 @@ export const initNetworkMonitoring = () => {
       const isOnline = status.connected;
       if (isOnline) {
         triggerToast("RE-ESTABLISHED SYNC WITH SERVER", "success");
+        const store = useWarscytheStore.getState();
+        if (store.hasPendingChanges) {
+          store.forceSync();
+        }
       } else {
         triggerToast("ENTERED OFFLINE SANCTUM. PROGRESS SAVED LOCALLY.", "warning");
       }
