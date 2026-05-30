@@ -8,6 +8,22 @@ import {
   ClipboardList, X
 } from 'lucide-react';
 
+
+const OrnatePanel = ({ children, className = '', ...props }) => {
+  return (
+    <div className={`elite-panel-ornate ${className}`} {...props}>
+      <div className="elite-panel-inner-border" />
+      <div className="corner-ornament corner-tl" />
+      <div className="corner-ornament corner-tr" />
+      <div className="corner-ornament corner-bl" />
+      <div className="corner-ornament corner-br" />
+      <div className="relative z-10 w-full h-full flex flex-col">
+        {children}
+      </div>
+    </div>
+  );
+};
+
 export default function Fitness() {
   const {
     gymLog,
@@ -171,7 +187,7 @@ export default function Fitness() {
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="elite-panel border-gold-core/25 !overflow-visible">
+          <OrnatePanel className="border-gold-core/25 !overflow-visible">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
@@ -479,77 +495,138 @@ export default function Fitness() {
                 </button>
               </div>
             )}
-          </div>
+          </OrnatePanel>
 
           {/* Training Controls widgets: RPE Dial and Rest Timer */}
           {activeWorkout && (
             <div className="grid grid-cols-2 gap-4">
               
               {/* RPE Dial Widget */}
-              <div className="elite-panel border-gold-core/20 bg-black/70 flex flex-col justify-between h-[155px]">
-                <div className="flex flex-col">
-                  <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
-                  <span className="text-[9px] font-mono text-gray-500 uppercase">Focused Set Fatigue</span>
+              <OrnatePanel className="bg-black/70 flex flex-col justify-between h-[155px] relative overflow-hidden !p-3">
+                <div className="flex justify-between items-start mb-1 z-10">
+                  <div className="flex flex-col">
+                    <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
+                    <span className="text-[8px] font-mono text-gray-500 uppercase">Focused Set Fatigue</span>
+                  </div>
                 </div>
 
-                {focusedSet ? (
-                  (() => {
-                    const movement = activeWorkout.movements.find(m => m.id === focusedSet.movementId);
-                    const setObj = movement?.sets.find(s => s.id === focusedSet.setId);
-                    if (!setObj) return null;
-
-                    return (
-                      <div className="flex flex-col items-center justify-center gap-1.5 my-1">
-                        <div className="flex items-center gap-3">
-                          <button 
-                            onClick={() => handleAdjustRpe(-0.5)}
-                            className="w-6 h-6 rounded border border-white/10 hover:border-gold-core text-white font-mono text-[11px] flex items-center justify-center bg-black/80 hover:bg-gold-core/10 transition-all select-none"
-                          >
-                            -
-                          </button>
-                          <div className="flex flex-col items-center">
-                            <span className="font-display text-2xl font-extrabold text-gold-bright tracking-widest leading-none">
+                <div className="flex items-center justify-between gap-1 z-10 flex-1">
+                  {/* Circular Dial Column */}
+                  <div className="flex items-center justify-center relative w-[80px] h-[80px] select-none shrink-0">
+                    <svg className="w-full h-full radial-dial-svg" viewBox="0 0 80 80">
+                      {/* Background arc: 270 deg (circumference 213.6 * 0.75 = 160.2) rotated 135 deg to center gap at bottom */}
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="34"
+                        className="radial-dial-bg"
+                        strokeWidth="3.5"
+                        fill="transparent"
+                        strokeDasharray="160.2 53.4"
+                        strokeLinecap="round"
+                        transform="rotate(135 40 40)"
+                      />
+                      {/* Progress arc */}
+                      {focusedSet && activeWorkout && (() => {
+                        const movement = activeWorkout.movements.find(m => m.id === focusedSet.movementId);
+                        const setObj = movement?.sets.find(s => s.id === focusedSet.setId);
+                        if (!setObj) return null;
+                        
+                        const rpeVal = Number(setObj.rpe) || 0;
+                        const progressRatio = Math.min(10, Math.max(0, rpeVal)) / 10;
+                        const progressStroke = progressRatio * 160.2;
+                        
+                        return (
+                          <circle
+                            cx="40"
+                            cy="40"
+                            r="34"
+                            className="radial-dial-progress radial-dial-glow"
+                            strokeWidth="3.5"
+                            fill="transparent"
+                            strokeDasharray={`${progressStroke} ${213.6 - progressStroke}`}
+                            strokeLinecap="round"
+                            transform="rotate(135 40 40)"
+                          />
+                        );
+                      })()}
+                    </svg>
+                    {/* Centered Content */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pt-1.5">
+                      {focusedSet && activeWorkout ? (() => {
+                        const movement = activeWorkout.movements.find(m => m.id === focusedSet.movementId);
+                        const setObj = movement?.sets.find(s => s.id === focusedSet.setId);
+                        if (!setObj) return <span className="font-mono text-xs text-gray-600">--</span>;
+                        return (
+                          <>
+                            <span className="font-display text-sm font-extrabold text-gold-bright tracking-wider leading-none">
                               {Number(setObj.rpe).toFixed(1)}
                             </span>
-                            <span className="text-[6px] font-mono text-gray-500 uppercase tracking-widest">rating</span>
-                          </div>
-                          <button 
-                            onClick={() => handleAdjustRpe(0.5)}
-                            className="w-6 h-6 rounded border border-white/10 hover:border-gold-core text-white font-mono text-[11px] flex items-center justify-center bg-black/80 hover:bg-gold-core/10 transition-all select-none"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <span className="text-[7px] font-mono text-gold-core/70 uppercase tracking-widest text-center truncate max-w-full px-1">
-                          {movement.name} (SET)
-                        </span>
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <div className="flex items-center justify-center text-center py-4">
-                    <span className="text-[7px] font-mono text-gray-600 uppercase max-w-[120px] tracking-wider leading-relaxed">
-                      Select a set to activate RPE dial controls
-                    </span>
+                            <span className="text-[5px] font-mono text-gray-500 uppercase tracking-widest mt-0.5 font-bold">RPE</span>
+                          </>
+                        );
+                      })() : (
+                        <>
+                          <span className="font-mono text-xs text-gray-600">--</span>
+                          <span className="text-[5px] font-mono text-gray-500 uppercase tracking-widest mt-0.5">READY</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                )}
-                <div className="text-[6px] font-mono text-center text-gray-600 uppercase tracking-widest">
-                  Powerlifting RPE Scale
+
+                  {/* Actions Column */}
+                  <div className="flex flex-col justify-center gap-1.5 flex-1 pl-1 min-w-0">
+                    {focusedSet && activeWorkout ? (() => {
+                      const movement = activeWorkout.movements.find(m => m.id === focusedSet.movementId);
+                      const setObj = movement?.sets.find(s => s.id === focusedSet.setId);
+                      if (!setObj) return null;
+                      return (
+                        <>
+                          <span className="text-[7.5px] font-mono text-gold-core/70 uppercase tracking-wider text-center truncate max-w-full font-bold block">
+                            {movement.name}
+                          </span>
+                          <div className="flex gap-1 w-full">
+                            <button 
+                              onClick={() => handleAdjustRpe(-0.5)}
+                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none transition-all flex items-center justify-center font-bold cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <button 
+                              onClick={() => handleAdjustRpe(0.5)}
+                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none transition-all flex items-center justify-center font-bold cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </>
+                      );
+                    })() : (
+                      <span className="text-[6.5px] font-mono text-gray-500 uppercase tracking-wider leading-relaxed text-center block">
+                        Select a set to enable dial
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </OrnatePanel>
 
               {/* Rest Timer Widget */}
-              <div className="elite-panel border-gold-core/20 bg-black/70 flex flex-col justify-between h-[155px] relative overflow-hidden">
-                <div className="flex justify-between items-start">
+              <OrnatePanel className="bg-black/70 flex flex-col justify-between h-[155px] relative overflow-hidden !p-3">
+                <div className="flex justify-between items-center mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>
-                    <span className="text-[9px] font-mono text-gray-500 uppercase">Active Recovery</span>
+                    <span className="text-[8px] font-mono text-gray-500 uppercase">Active Recovery</span>
                   </div>
+                  
                   {/* Select Rest Duration */}
                   <select 
                     value={timerDuration}
-                    onChange={(e) => setTimerDuration(Number(e.target.value))}
-                    className="bg-black border border-white/10 text-white font-mono text-[7px] rounded px-1 py-0.5 focus:outline-none"
+                    onChange={(e) => {
+                      const dur = Number(e.target.value);
+                      setTimerDuration(dur);
+                      if (!timerActive) setTimerSeconds(dur);
+                    }}
+                    className="bg-black border border-white/10 text-white font-mono text-[7px] rounded px-1 py-0.5 focus:outline-none cursor-pointer"
                   >
                     <option value={60}>60s</option>
                     <option value={90}>90s</option>
@@ -559,58 +636,85 @@ export default function Fitness() {
                   </select>
                 </div>
 
-                <div className="flex items-center justify-center gap-3 my-1 z-10">
-                  <div className="flex flex-col items-center">
-                    <span className="font-mono text-xl font-extrabold text-white tracking-widest leading-none">
-                      {formatTime(timerSeconds)}
-                    </span>
-                    <span className="text-[6px] font-mono text-gray-500 uppercase tracking-widest mt-1">countdown</span>
+                <div className="flex items-center justify-between gap-1 z-10 flex-1">
+                  {/* Circular Dial Column */}
+                  <div className="flex items-center justify-center relative w-[80px] h-[80px] select-none cursor-pointer shrink-0"
+                    onClick={() => {
+                      if (!timerActive && timerSeconds === 0) {
+                        setTimerSeconds(timerDuration);
+                      }
+                      setTimerActive(!timerActive);
+                    }}
+                  >
+                    <svg className="w-full h-full -rotate-90 radial-dial-svg" viewBox="0 0 80 80">
+                      {/* Background circle */}
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="34"
+                        className="radial-dial-bg"
+                        strokeWidth="3.5"
+                        fill="transparent"
+                      />
+                      {/* Progress circle */}
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="34"
+                        className="radial-dial-progress radial-dial-glow"
+                        strokeWidth="3.5"
+                        fill="transparent"
+                        strokeDasharray={213.6}
+                        strokeDashoffset={213.6 - (timerSeconds / (timerDuration || 1)) * 213.6}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {/* Centered Content */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="font-mono text-[10.5px] font-bold text-white tracking-wider leading-none">
+                        {formatTime(timerSeconds)}
+                      </span>
+                      <span className="text-[5.5px] font-mono text-gold-core/60 uppercase tracking-widest mt-1 font-bold">
+                        {timerActive ? 'PAUSE' : 'START'}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col gap-1">
+                  {/* Actions Column */}
+                  <div className="flex flex-col gap-1.5 flex-1 pl-1 min-w-0">
+                    <div className="flex gap-1 w-full">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTimerSeconds(prev => Math.max(0, prev - 30));
+                        }}
+                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none transition-all cursor-pointer"
+                      >
+                        -30s
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTimerSeconds(prev => prev + 30);
+                        }}
+                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none transition-all cursor-pointer"
+                      >
+                        +30s
+                      </button>
+                    </div>
                     <button
-                      onClick={() => {
-                        if (!timerActive && timerSeconds === 0) {
-                          setTimerSeconds(timerDuration);
-                        }
-                        setTimerActive(!timerActive);
-                      }}
-                      className={`w-6 h-6 rounded flex items-center justify-center border transition-all ${
-                        timerActive 
-                          ? 'border-gold-core text-black bg-gold-core'
-                          : 'border-white/10 text-white hover:border-gold-core hover:bg-gold-core/10'
-                      }`}
-                    >
-                      <Play size={10} fill={timerActive ? "#000" : "transparent"} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setTimerSeconds(0);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTimerSeconds(timerDuration);
                         setTimerActive(false);
                       }}
-                      className="w-6 h-6 rounded border border-white/10 hover:border-red-500 text-gray-400 hover:text-red-500 flex items-center justify-center transition-all"
+                      className="w-full bg-white/[0.02] border border-white/10 hover:border-red-500/40 hover:bg-red-500/5 text-gray-400 hover:text-red-400 font-mono text-[7px] py-1 rounded uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
                     >
-                      <RotateCcw size={10} />
+                      <RotateCcw size={8} /> RESET
                     </button>
                   </div>
                 </div>
-
-                {/* Adjust rest time buttons */}
-                <div className="flex justify-between gap-1 z-10">
-                  <button 
-                    onClick={() => setTimerSeconds(prev => Math.max(0, prev - 30))}
-                    className="flex-1 bg-white/[0.02] border border-white/10 hover:border-white/20 text-gray-400 font-mono text-[7px] py-1 rounded uppercase select-none transition-all"
-                  >
-                    -30s
-                  </button>
-                  <button 
-                    onClick={() => setTimerSeconds(prev => prev + 30)}
-                    className="flex-1 bg-white/[0.02] border border-white/10 hover:border-white/20 text-gray-400 font-mono text-[7px] py-1 rounded uppercase select-none transition-all"
-                  >
-                    +30s
-                  </button>
-                </div>
-              </div>
+              </OrnatePanel>
 
             </div>
           )}
@@ -618,42 +722,76 @@ export default function Fitness() {
 
         {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 4) ================= */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <div className="elite-panel border-gold-core/25 text-center relative overflow-hidden bg-gradient-to-b from-black via-black/90 to-[#0e0c0a]">
+          <OrnatePanel className="border-gold-core/25 text-center relative overflow-hidden bg-gradient-to-b from-black via-black/90 to-[#0e0c0a] !p-4">
             
             {/* Background God Aura Light */}
-            <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-gold-glow)_0%,transparent_70%)] opacity-35 pointer-events-none`} />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.12)_0%,transparent_70%)] pointer-events-none" />
 
-            <div className="flex flex-col items-center relative z-10 pt-2">
-              <span className="text-[9px] font-mono text-gold-core/60 tracking-[0.4em] uppercase font-bold mb-1">Active Deity Avatar</span>
-              <h2 className="font-display text-2xl text-white tracking-[0.1em] uppercase mb-4">{activeDeity.name}</h2>
+            <div className="flex flex-col items-center relative z-10 pt-1 w-full">
+              <span className="text-[8px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold mb-1">ACTIVE DEITY AVATAR</span>
+              <h2 className="font-display text-2xl text-white tracking-[0.1em] uppercase mb-1">{activeDeity.name}</h2>
+              <p className="text-[8.5px] font-mono text-gray-500 uppercase tracking-wider mb-4 px-2 leading-relaxed italic">"{activeDeity.desc}"</p>
 
-              {/* Deity Statue Visualizer */}
-              <div className="relative w-full h-96 border border-white/5 bg-black/60 rounded-lg flex items-center justify-center shadow-inner group overflow-hidden mb-4">
-                <div className="absolute inset-0 border border-gold-core/10 rounded-lg pointer-events-none" />
+              {/* Progress Slider towards next Deity (Gold Theme) - Moved Under Header */}
+              <div className="w-full mb-4 px-1">
+                {nextDeity ? (
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between text-[7.5px] font-mono text-gray-500 uppercase tracking-widest">
+                      <span>NEXT TIER: {nextDeity.name.toUpperCase()}</span>
+                      <span>{Math.round(totalTonnage).toLocaleString()} / {nextDeity.threshold.toLocaleString()} KG</span>
+                    </div>
+                    
+                    {/* Slider Progress Bar */}
+                    <div className="w-full h-2 bg-black border border-white/10 rounded-full overflow-hidden p-0.5">
+                      <motion.div 
+                        className="h-full bg-gold-core rounded-full"
+                        style={{ width: `${progressPercent}%` }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercent}%` }}
+                        transition={{ duration: 1 }}
+                      />
+                    </div>
+                    
+                    <span className="text-[7px] font-mono text-gold-core uppercase tracking-widest text-center">
+                      {Math.round(nextDeity.threshold - totalTonnage).toLocaleString()} KG remaining until {nextDeity.name.toUpperCase()} unlocks
+                    </span>
+                  </div>
+                ) : (
+                  <div className="w-full text-center py-1.5 bg-gold-core/5 border border-gold-core/20 rounded">
+                    <span className="text-[8.5px] font-mono text-gold-core font-extrabold tracking-widest uppercase">
+                      👑 SUPREME ZEUS TIER ACHIEVED 👑
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Deity Statue Visualizer (Expanded h-[420px], no inner gray box, golden halo) */}
+              <div className="relative w-full h-[420px] bg-black/40 rounded flex items-end justify-center overflow-hidden mb-4 border border-white/5">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.18)_0%,transparent_65%)] pointer-events-none" />
+                
                 <motion.div 
-                  className="w-full h-full flex flex-col items-center justify-center p-4 relative"
+                  className="w-full h-full flex items-end justify-center relative pb-12"
                   animate={{ y: [0, -6, 0] }}
                   transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
                 >
                   {/* Dynamic Particle Sparkles */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <Sparkles className="text-gold-core/15 w-32 h-32 animate-pulse" />
+                    <Sparkles className="text-gold-core/10 w-48 h-48 animate-pulse" />
                   </div>
 
-                  {/* Fallback Deity Icon / Image */}
-                  <div className="relative z-10 w-52 h-72 flex items-center justify-center bg-gradient-to-b from-white/[0.02] to-transparent border border-white/[0.04] rounded shadow-xl">
+                  {/* Deity Statue Image - Full height, standing on bottom */}
+                  <div className="relative z-10 w-full h-[360px] flex items-end justify-center">
                     <img 
                       src={`/deity/${activeDeity.id}.png`} 
                       alt={activeDeity.name}
-                      className="w-full h-full object-contain mix-blend-lighten"
+                      className="max-w-[90%] max-h-full object-contain"
                       onError={(e) => {
                         // Display clean SVG contour representation
                         e.target.style.display = 'none';
                         const parent = e.target.parentElement;
                         if (parent && !parent.querySelector('.deity-svg-fallback')) {
                           const svgHtml = `
-                            <svg viewBox="0 0 100 120" class="deity-svg-fallback w-24 h-32 text-gold-core opacity-70" fill="currentColor">
-                              <!-- Stylized temple pillars or God contour -->
+                            <svg viewBox="0 0 100 120" class="deity-svg-fallback w-36 h-48 text-gold-core opacity-70 mb-8" fill="currentColor">
                               <path d="M10 110 h80 v10 h-80 z M15 30 h70 v5 h-70 z M25 35 h6 v75 h-6 z M47 35 h6 v75 h-6 z M69 35 h6 v75 h-6 z M20 20 L50 5 L80 20 v10 H20 z" />
                             </svg>
                           `;
@@ -664,83 +802,62 @@ export default function Fitness() {
                   </div>
                 </motion.div>
 
-                {/* Hover Buff Stats Layer */}
-                <div className="absolute inset-x-0 bottom-0 bg-black/90 border-t border-white/10 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-[9px] font-mono text-gold-bright uppercase tracking-wider italic">"{activeDeity.desc}"</p>
+                {/* Dark serif quote text strip at bottom */}
+                <div className="absolute inset-x-0 bottom-0 bg-black/95 border-t border-white/5 py-2 px-3 text-center z-20">
+                  <p className="font-display text-[9px] text-gold-core tracking-[0.25em] uppercase font-bold italic">
+                    "STRENGTH IS WAR. THE BODY IS THE WEAPON."
+                  </p>
                 </div>
               </div>
 
-              {/* Deity Buff Status */}
-              <div className="w-full bg-white/[0.02] border border-white/5 rounded p-3 flex flex-col gap-2 mb-4">
-                <div className="flex justify-between items-center text-[9px] font-mono text-gray-400">
-                  <span>ACTIVE MULTIPLIER</span>
-                  <span className="text-gold-core font-bold uppercase tracking-widest">BUFF UNLOCKED</span>
+              {/* Deity Buff Status - DIVINE MULTIPLIER / ACTIVE BUFF */}
+              <div className="w-full bg-black/30 border border-white/5 rounded p-2.5 flex flex-col gap-1 text-left">
+                <div className="flex justify-between items-center text-[7.5px] font-mono text-gray-500 uppercase tracking-widest">
+                  <span>DIVINE MULTIPLIER</span>
+                  <span className="text-gold-core font-bold">BUFF ACTIVE</span>
                 </div>
-                <div className="flex items-center gap-2 justify-center">
-                  <Star size={12} className="text-gold-core" fill="currentColor" />
-                  <span className="font-display text-md text-white tracking-widest font-extrabold uppercase">{activeDeity.buff}</span>
-                </div>
-              </div>
-
-              {/* Progress Slider towards next Deity (Gold Theme) */}
-              {nextDeity ? (
-                <div className="w-full flex flex-col gap-2">
-                  <div className="flex justify-between text-[8px] font-mono text-gray-500 uppercase tracking-widest">
-                    <span>NEXT TIER: {nextDeity.name.toUpperCase()}</span>
-                    <span>{Math.round(totalTonnage)} / {nextDeity.threshold} KG</span>
-                  </div>
-                  
-                  {/* Slider Progress Bar */}
-                  <div className="w-full h-2.5 bg-black border border-white/10 rounded-full overflow-hidden p-0.5">
-                    <motion.div 
-                      className="h-full bg-gold-core rounded-full"
-                      style={{ width: `${progressPercent}%` }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPercent}%` }}
-                      transition={{ duration: 1 }}
-                    />
-                  </div>
-                  
-                  <span className="text-[7px] font-mono text-gold-core uppercase tracking-widest text-center mt-1">
-                    {Math.round(nextDeity.threshold - totalTonnage)} KG remaining until {nextDeity.name} unlocks
+                <div className="flex items-center gap-1.5">
+                  <Star size={10} className="text-gold-core animate-pulse" fill="currentColor" />
+                  <span className="font-display text-xs text-white tracking-widest font-extrabold uppercase">
+                    {activeDeity.buff}
                   </span>
                 </div>
-              ) : (
-                <div className="w-full text-center py-2 bg-gold-core/5 border border-gold-core/20 rounded">
-                  <span className="text-[9px] font-mono text-gold-core font-extrabold tracking-widest uppercase">
-                    👑 SUPREME ZEUS TIER ACHIEVED 👑
-                  </span>
-                </div>
-              )}
+              </div>
 
             </div>
-          </div>
-
-          {/* Quick Metrics widget */}
-          <div className="elite-panel border-white/5 bg-black/40">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="flex flex-col gap-1 border-r border-white/5 py-1">
-                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">TOTAL VOLUME</span>
-                <span className="font-display text-sm font-bold text-white tracking-wider">{Math.round(totalTonnage).toLocaleString()} <span className="text-[7px] font-mono text-gray-400">KG</span></span>
-              </div>
-              <div className="flex flex-col gap-1 border-r border-white/5 py-1">
-                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">SESSIONS</span>
-                <span className="font-display text-sm font-bold text-white tracking-wider">{totalWorkouts}</span>
-              </div>
-              <div className="flex flex-col gap-1 py-1">
-                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">WEEKLY STREAK</span>
-                <span className="font-display text-sm font-bold text-white tracking-wider flex items-center justify-center gap-1">
-                  <Flame size={12} className="text-orange-500" />
-                  {Math.round(totalWorkouts > 0 ? 1 + Math.floor(totalWorkouts / 3) : 0)}
-                </span>
-              </div>
-            </div>
-          </div>
+          </OrnatePanel>
         </div>
 
         {/* ================= RIGHT COLUMN: PANTHEON PROGRESSION (Columns: 3) ================= */}
         <div className="lg:col-span-3 flex flex-col gap-4 sticky top-4">
-          <div className="elite-panel border-gold-core/25">
+          
+          {/* Quick Metrics Widget */}
+          <OrnatePanel className="bg-black/40">
+            <div className="grid grid-cols-3 gap-1.5 text-center">
+              <div className="flex flex-col gap-1 border-r border-white/5 py-1">
+                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">TOTAL VOLUME</span>
+                <span className="font-display text-xs font-bold text-white tracking-wider">
+                  {Math.round(totalTonnage).toLocaleString()} <span className="text-[7px] font-mono text-gray-400">KG</span>
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 border-r border-white/5 py-1">
+                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">SESSIONS</span>
+                <span className="font-display text-xs font-bold text-white tracking-wider">
+                  {totalWorkouts}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 py-1">
+                <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">STREAK</span>
+                <span className="font-display text-xs font-bold text-white tracking-wider flex items-center justify-center gap-1">
+                  <Flame size={10} className="text-orange-500" />
+                  {Math.round(totalWorkouts > 0 ? 1 + Math.floor(totalWorkouts / 3) : 0)}
+                </span>
+              </div>
+            </div>
+          </OrnatePanel>
+
+          {/* Ascension Path Panel */}
+          <OrnatePanel className="border-gold-core/25">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">ASCENSION PATH</span>
@@ -749,7 +866,7 @@ export default function Fitness() {
               <Award size={16} className="text-gold-core" />
             </div>
 
-            {/* Vertical Stack of deities */}
+            {/* Vertical Stack of deities with Face Previews */}
             <div className="flex flex-col gap-3">
               {deities.map((deity, idx) => {
                 const isCurrent = deity.isCurrent;
@@ -758,51 +875,71 @@ export default function Fitness() {
                 return (
                   <div 
                     key={deity.id}
-                    className={`p-3 rounded border flex flex-col gap-1.5 transition-all relative ${
+                    className={`p-2.5 rounded border flex items-center gap-3 transition-all relative ${
                       isCurrent 
                         ? 'border-gold-core bg-gold-core/[0.03] shadow-[0_0_12px_rgba(197,160,89,0.15)]' 
                         : isUnlocked 
-                          ? 'border-white/10 bg-white/[0.01] opacity-70' 
+                          ? 'border-white/10 bg-white/[0.01] opacity-80' 
                           : 'border-white/5 bg-black/60 opacity-40'
                     }`}
                   >
-                    {isCurrent && (
-                      <div className="absolute top-2 right-2 bg-gold-core text-black text-[7px] font-mono font-black uppercase px-1 py-0.5 rounded tracking-widest">
-                        CURRENT
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border text-[8px] font-mono font-bold ${
-                        isUnlocked 
-                          ? 'border-gold-core/40 text-gold-core bg-gold-core/5' 
-                          : 'border-white/15 text-gray-500 bg-transparent'
+                    {/* Circle Avatar Face Preview */}
+                    <div className="relative shrink-0">
+                      <div className={`w-9 h-9 rounded-full overflow-hidden border flex items-center justify-center bg-black/60 transition-all ${
+                        isCurrent 
+                          ? 'border-2 border-gold-bright shadow-[0_0_10px_rgba(236,200,128,0.4)]' 
+                          : isUnlocked 
+                            ? 'border-gold-core/40' 
+                            : 'border-white/10'
                       }`}>
-                        {idx + 1}
+                        <img 
+                          src={`/deity/avatar/${deity.id}.png`} 
+                          alt={deity.name} 
+                          className={`w-full h-full object-cover ${!isUnlocked ? 'grayscale opacity-30' : ''}`}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const parent = e.target.parentElement;
+                            if (parent && !parent.querySelector('.avatar-fallback')) {
+                              parent.insertAdjacentHTML('beforeend', `<span class="avatar-fallback text-[10px] font-mono font-bold text-gray-500">${deity.name[0].toUpperCase()}</span>`);
+                            }
+                          }}
+                        />
                       </div>
-                      <span className="font-display text-xs text-white tracking-widest font-extrabold uppercase">
-                        {deity.name}
-                      </span>
+                      
+                      {/* Checkmark indicator for unlocked non-active tiers */}
+                      {isUnlocked && !isCurrent && (
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-gold-core text-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-black shadow">
+                          <Check size={8} strokeWidth={4} />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex flex-col gap-1 pl-6">
-                      <div className="flex justify-between text-[8px] font-mono text-gray-400">
-                        <span>REQUIREMENT:</span>
-                        <span>{deity.threshold.toLocaleString()} KG</span>
+                    {/* Deity Info Block */}
+                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                      <div className="flex justify-between items-baseline">
+                        <span className="font-display text-xs text-white tracking-wider font-extrabold uppercase truncate">
+                          {deity.name}
+                        </span>
+                        {isCurrent && (
+                          <span className="text-[6.5px] font-mono font-black text-gold-core tracking-widest uppercase">
+                            ACTIVE
+                          </span>
+                        )}
                       </div>
-                      <div className="flex justify-between text-[8px] font-mono text-gray-400">
-                        <span>PASSIVE MULTIPLIER:</span>
-                        <span className="text-gold-core font-bold">{deity.buff}</span>
+                      
+                      <div className="flex justify-between text-[7.5px] font-mono text-gray-400">
+                        <span className="uppercase">REQ: {deity.threshold.toLocaleString()} KG</span>
+                        <span className="text-gold-core font-bold uppercase">{deity.buff}</span>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </OrnatePanel>
 
           {/* Historical Logs List */}
-          <div className="elite-panel border-white/5 bg-black/40">
+          <OrnatePanel className="border-white/5 bg-black/40">
             <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest block mb-3 border-b border-white/5 pb-2">
               RECENT WORKOUTS HISTORY
             </span>
@@ -832,12 +969,12 @@ export default function Fitness() {
             {gymLog.length > 0 && (
               <button
                 onClick={() => setShowHistoryModal(true)}
-                className="w-full mt-3 border border-white/10 hover:border-gold-core/40 bg-white/[0.02] hover:bg-gold-core/5 text-gray-300 hover:text-gold-core font-mono text-[8px] py-1.5 rounded uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
+                className="w-full mt-3 border border-white/10 hover:border-gold-core/40 bg-white/[0.02] hover:bg-gold-core/5 text-gray-300 hover:text-gold-core font-mono text-[8px] py-1.5 rounded uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ClipboardList size={10} /> VIEW FULL DETAILED HISTORY
               </button>
             )}
-          </div>
+          </OrnatePanel>
         </div>
 
       </div>
