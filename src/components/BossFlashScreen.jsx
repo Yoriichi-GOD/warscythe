@@ -3,14 +3,6 @@ import { motion } from 'framer-motion';
 import { ShieldAlert, Trophy } from 'lucide-react';
 
 export default function BossFlashScreen({ type, onClose }) {
-  useEffect(() => {
-    // Auto-dismiss after 4 seconds
-    const timer = setTimeout(() => {
-      if (onClose) onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
   const config = {
     initiate: {
       image: '/boss-kill/boss-initiate-screen.png',
@@ -40,7 +32,7 @@ export default function BossFlashScreen({ type, onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed inset-0 z-[2000] bg-black select-none pointer-events-none overflow-hidden flex items-center justify-start"
+      className="fixed inset-0 z-[2000] bg-black select-none pointer-events-auto overflow-hidden flex items-center justify-start"
     >
       {/* 1. Cinematic Background Image Layer */}
       <motion.div 
@@ -98,7 +90,7 @@ export default function BossFlashScreen({ type, onClose }) {
           <motion.div 
             initial={{ left: '-100%' }}
             animate={{ left: '100%' }}
-            transition={{ duration: 4, ease: 'linear' }}
+            transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
             className="absolute top-0 bottom-0 w-24 bg-gradient-to-r from-transparent via-white/50 to-transparent"
             style={{ 
               background: `linear-gradient(to right, transparent, ${screen.titleColor}, transparent)` 
@@ -106,6 +98,32 @@ export default function BossFlashScreen({ type, onClose }) {
           />
         </div>
       </motion.div>
+
+      {/* 5. Bottom-Right Continue Button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 1.5 }}
+        onClick={onClose}
+        className="absolute bottom-8 right-8 z-30 font-display text-xs sm:text-sm tracking-[0.2em] uppercase font-bold py-3 px-8 rounded-sm bg-black/80 cursor-pointer border transition-all duration-300 pointer-events-auto"
+        style={{
+          borderColor: screen.titleColor,
+          color: screen.titleColor,
+          boxShadow: `0 0 15px ${screen.glowColor}`,
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = screen.titleColor;
+          e.currentTarget.style.color = '#000';
+          e.currentTarget.style.boxShadow = `0 0 25px ${screen.titleColor}`;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+          e.currentTarget.style.color = screen.titleColor;
+          e.currentTarget.style.boxShadow = `0 0 15px ${screen.glowColor}`;
+        }}
+      >
+        CONTINUE
+      </motion.button>
 
       <style jsx>{`
         .bg-radial-vignette {

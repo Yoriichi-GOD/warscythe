@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
 
-export default function TaskModal({ onClose }) {
+export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Work');
-  const [effort, setEffort] = useState('Medium');
+  const [effort, setEffort] = useState(initialEffort);
   const [deadline, setDeadline] = useState('');
   const [priority, setPriority] = useState('none');
   const [subTaskText, setSubTaskText] = useState('');
@@ -18,6 +18,7 @@ export default function TaskModal({ onClose }) {
   
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const addTask = useWarscytheStore(state => state.addTask);
+  const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
 
   const categoryOptions = [
     { value: 'Work', label: 'SYSTEMS // WORK' },
@@ -50,6 +51,9 @@ export default function TaskModal({ onClose }) {
     
     const success = addTask(title, category, effort, deadline, priority, subTasks);
     if (success === true) {
+      if (effort === 'Boss') {
+        triggerBossFlash('initiate');
+      }
       onClose();
     } else {
       setError(success || "Operation failed.");

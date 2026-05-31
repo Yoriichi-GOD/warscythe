@@ -14,6 +14,7 @@ export default function RitualModal({ onClose }) {
   const [effortOpen, setEffortOpen] = useState(false);
   
   const addRitual = useWarscytheStore(state => state.addRitual);
+  const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
 
   const handleSelectPreset = (presetTitle) => {
     const preset = HABIT_TEMPLATES.find(t => t.title === presetTitle);
@@ -41,7 +42,12 @@ export default function RitualModal({ onClose }) {
     if (!title) return;
     
     const success = addRitual(title, frequency, effort);
-    if (success) onClose();
+    if (success) {
+      if (effort === 'Boss') {
+        triggerBossFlash('initiate');
+      }
+      onClose();
+    }
     else alert("Ritual creation failed.");
   };
 

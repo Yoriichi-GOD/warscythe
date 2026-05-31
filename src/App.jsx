@@ -64,6 +64,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('ops');
   const [ledgerSubTab, setLedgerSubTab] = useState('history');
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [taskModalInitialEffort, setTaskModalInitialEffort] = useState('Medium');
   const [showRitualModal, setShowRitualModal] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -207,7 +208,10 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
           <Operations 
-            onAddTask={() => setShowTaskModal(true)} 
+            onAddTask={() => {
+              setTaskModalInitialEffort('Medium');
+              setShowTaskModal(true);
+            }} 
             onOpenTask={setSelectedTaskId}
             onCompleteTask={(id) => {
               setSelectedTaskId(id);
@@ -245,6 +249,7 @@ export default function App() {
           <QuestMap onTabChange={(tab, options) => {
             setActiveTab(tab);
             if (options?.openAddTask) {
+              setTaskModalInitialEffort(options.defaultEffort || 'Medium');
               setShowTaskModal(true);
             }
           }} />
@@ -265,7 +270,10 @@ export default function App() {
 
       <AnimatePresence>
         {showTaskModal && (
-          <TaskModal onClose={() => setShowTaskModal(false)} />
+          <TaskModal 
+            onClose={() => setShowTaskModal(false)} 
+            initialEffort={taskModalInitialEffort}
+          />
         )}
         
         {showRitualModal && (
@@ -352,6 +360,7 @@ export default function App() {
 
         {activeBossFlash && (
           <BossFlashScreen 
+            key="boss-flash-screen"
             type={activeBossFlash} 
             onClose={clearBossFlash} 
           />

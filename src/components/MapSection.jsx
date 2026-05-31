@@ -796,10 +796,7 @@ export default function MapSection({ onTabChange }) {
                     className="intel-action-btn btn-danger" 
                     onClick={() => { 
                       setSelectedNode(null); 
-                      triggerBossFlash('initiate');
-                      setTimeout(() => {
-                        onTabChange && onTabChange('ops', { openAddTask: true });
-                      }, 4000);
+                      onTabChange && onTabChange('ops', { openAddTask: true, defaultEffort: 'Boss' });
                     }}
                   >
                     INITIATE BOSS RAID
