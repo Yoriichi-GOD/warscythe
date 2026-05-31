@@ -25,6 +25,7 @@ import { initNetworkMonitoring } from './utils/nativeTriggers';
 
 import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
+import BossFlashScreen from './components/BossFlashScreen';
 
 export default function App() {
   useEffect(() => {
@@ -79,6 +80,8 @@ export default function App() {
   const completeTask = useWarscytheStore(state => state.completeTask);
   const updateProgress = useWarscytheStore(state => state.updateProgress);
   const updateStreak = useWarscytheStore(state => state.updateStreak);
+  const activeBossFlash = useWarscytheStore(state => state.activeBossFlash);
+  const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
 
   const tasks = useWarscytheStore(state => state.tasks);
   const isFocusMode = useWarscytheStore(state => state.isFocusMode);
@@ -340,10 +343,17 @@ export default function App() {
           </div>
         )}
 
-        {pendingReward && (
+        {pendingReward && !activeBossFlash && (
           <ScratchCard 
             data={pendingReward} 
             onClose={clearPendingReward} 
+          />
+        )}
+
+        {activeBossFlash && (
+          <BossFlashScreen 
+            type={activeBossFlash} 
+            onClose={clearBossFlash} 
           />
         )}
 

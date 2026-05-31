@@ -216,6 +216,7 @@ export const useWarscytheStore = create(
       currentTitle: 'Recruit',
       pendingReward: null,
       pendingLevelUp: null,
+      activeBossFlash: null,
       consecutiveLow: 0,
       closerDismissed: false,
       isFocusMode: false,
@@ -283,6 +284,7 @@ export const useWarscytheStore = create(
           currentTitle: 'Recruit',
           pendingReward: null,
           pendingLevelUp: null,
+          activeBossFlash: null,
           consecutiveLow: 0,
           closerDismissed: false,
           isFocusMode: false,
@@ -598,6 +600,7 @@ export const useWarscytheStore = create(
           tasks: state.tasks.filter(t => t.id !== id),
           completedTasks: [task, ...state.completedTasks],
           executionScore: state.executionScore + totalPts,
+          activeBossFlash: isBoss ? 'victory' : state.activeBossFlash,
           dailyLog,
           xp: newXP,
           dailyPoints,
@@ -712,6 +715,7 @@ export const useWarscytheStore = create(
         set({
           rituals: updatedRituals,
           executionScore: state.executionScore + totalPts,
+          activeBossFlash: ritual.effort === 'Boss' ? 'victory' : state.activeBossFlash,
           dailyLog,
           xp: newXP,
           dailyPoints,
@@ -833,6 +837,8 @@ export const useWarscytheStore = create(
       dismissCloser: () => set({ closerDismissed: true }),
       clearPendingReward: () => set({ pendingReward: null }),
       clearPendingLevelUp: () => set({ pendingLevelUp: null }),
+      triggerBossFlash: (type) => set({ activeBossFlash: type }),
+      clearBossFlash: () => set({ activeBossFlash: null }),
 
       updateTaskNotes: (id, notes) => {
         set(state => ({

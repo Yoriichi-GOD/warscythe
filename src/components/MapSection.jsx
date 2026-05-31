@@ -20,7 +20,10 @@ import {
 import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
 
 export default function MapSection({ onTabChange }) {
-  const { level, bossKills, dailyLog, tasks, generateMicroSteps, currentLevelProgress, unlockedLore } = useWarscytheStore();
+  const { 
+    level, bossKills, dailyLog, tasks, generateMicroSteps, 
+    currentLevelProgress, unlockedLore, triggerBossFlash 
+  } = useWarscytheStore();
   const [selectedNode, setSelectedNode] = useState(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -789,7 +792,16 @@ export default function MapSection({ onTabChange }) {
                     <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEGENDARY</span></div>
                     <div><span>REWARD</span><span className="text-gold-bright">COSMIC SOVEREIGN UPGRADE</span></div>
                   </div>
-                  <button className="intel-action-btn btn-danger" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops', { openAddTask: true }); }}>
+                  <button 
+                    className="intel-action-btn btn-danger" 
+                    onClick={() => { 
+                      setSelectedNode(null); 
+                      triggerBossFlash('initiate');
+                      setTimeout(() => {
+                        onTabChange && onTabChange('ops', { openAddTask: true });
+                      }, 4000);
+                    }}
+                  >
                     INITIATE BOSS RAID
                   </button>
                 </div>
