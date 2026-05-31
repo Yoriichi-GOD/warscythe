@@ -107,7 +107,6 @@ export const initNetworkMonitoring = () => {
     const handleNetworkChange = (status) => {
       const isOnline = status.connected;
       if (isOnline) {
-        triggerToast("RE-ESTABLISHED SYNC WITH SERVER", "success");
         const store = useWarscytheStore.getState();
         if (store.hasPendingChanges) {
           store.forceSync();
