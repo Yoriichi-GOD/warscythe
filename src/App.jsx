@@ -251,6 +251,8 @@ export default function App() {
             if (options?.openAddTask) {
               setTaskModalInitialEffort(options.defaultEffort || 'Medium');
               setShowTaskModal(true);
+            } else if (tab === 'ledger' && options?.subTab) {
+              setLedgerSubTab(options.subTab);
             }
           }} />
         </div>

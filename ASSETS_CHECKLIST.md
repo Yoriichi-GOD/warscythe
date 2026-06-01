@@ -91,14 +91,97 @@ One dragon per region archetype. 10 base assets cycled across 40 regions (every 
 
 ---
 
+## 🗺️ REGION MAPS — `public/maps/`
+
+10 base maps rotated across 40 regions. We will apply custom hue/color shifts in code to create 40 unique environments.
+
+| Status | Filename | Description | Regions |
+|---|---|---|---|
+| ☐ | `campaign-map-1.png` | Starting grasslands / fortress gateway | 1, 11, 21, 31 |
+| ☐ | `campaign-map-2.png` | Volcanic rift / ashen canyons | 2, 12, 22, 32 |
+| ☐ | `campaign-map-3.png` | Frozen peaks / glacial valleys | 3, 13, 23, 33 |
+| ☐ | `campaign-map-4.png` | Shadow forest / ancient ruins | 4, 14, 24, 34 |
+| ☐ | `campaign-map-5.png` | Desert dunes / crystal oasis | 5, 15, 25, 35 |
+| ☐ | `campaign-map-6.png` | Floating skylands / celestial temples | 6, 16, 26, 36 |
+| ☐ | `campaign-map-7.png` | Sunken cavern / abyssal deeps | 7, 17, 27, 37 |
+| ☐ | `campaign-map-8.png` | Toxic swampland / glowing fungal groves | 8, 18, 28, 38 |
+| ☐ | `campaign-map-9.png` | Cosmic void / shattered gravity islands | 9, 19, 29, 39 |
+| ☐ | `campaign-map-10.png` | Ancient titan colosseum / golden citadel | 10, 20, 30, 40 |
+
+**Total: 10 files**
+
+---
+
+## 💎 SCRATCH CARD FOIL TEXTURES — `public/scratch/`
+
+Textures representing the scratchable foil card covers. The color/glow intensity scales with rarity.
+
+| Status | Filename | Description |
+|---|---|---|
+| ☐ | `scratch-foil-common.png` | Slate metallic card cover |
+| ☐ | `scratch-foil-uncommon.png` | Verdigris copper metallic card cover |
+| ☐ | `scratch-foil-rare.png` | Gold leaf brushed metallic card cover |
+| ☐ | `scratch-foil-epic.png` | Crimson steel engraved card cover |
+| ☐ | `scratch-foil-mythic.png` | Cosmic obsidian glowing card cover |
+
+**Total: 5 files**
+
+---
+
+## 🛡️ REGION SHIELD CRESTS — `public/crests/`
+
+Emblems to display on the Ascension / Level Up popup instead of basic emojis (e.g. replacing the 🏰 emoji).
+
+| Status | Filename | Description | Archetype |
+|---|---|---|---|
+| ☐ | `region-crest-1.png` | Shield of the Gateway | Grasslands |
+| ☐ | `region-crest-2.png` | Crest of the Caldera | Volcanic |
+| ☐ | `region-crest-3.png` | Sigil of the Glacial Peaks | Frozen |
+| ☐ | `region-crest-4.png` | Mark of the Old Wood | Shadow Forest |
+| ☐ | `region-crest-5.png` | Seal of the Oasis | Desert |
+| ☐ | `region-crest-6.png` | Aegis of the Sun-Temple | Sky Temple |
+| ☐ | `region-crest-7.png` | Rune of the Abyss | Sunken Cavern |
+| ☐ | `region-crest-8.png` | Token of the Fungal Groves | Toxic Swamp |
+| ☐ | `region-crest-9.png` | Void-shard emblem | Cosmic Void |
+| ☐ | `region-crest-10.png` | Golden Citadel seal | Titan Rest |
+
+**Total: 10 files**
+
+---
+
+## 🐲 DRAGON TROPHY RELICS — `public/trophies/`
+
+High-fantasy trophies showing the severed heads/remnants of the regional dragon bosses. Displayed in the Ledger Trophy Wall instead of basic dragon emojis (🐲).
+
+| Status | Filename | Slain Boss Target |
+|---|---|---|
+| ☐ | `trophy-dragon-wyrm.png` | Dread Wyrm Trophy |
+| ☐ | `trophy-dragon-wyvern.png` | Stone Wyvern Trophy |
+| ☐ | `trophy-dragon-frost.png` | Frost Drake Trophy |
+| ☐ | `trophy-dragon-shadow.png` | Shadow Serpent Trophy |
+| ☐ | `trophy-dragon-lava.png` | Lava Drake Trophy |
+| ☐ | `trophy-dragon-celestial.png` | Celestial Wyrm Trophy |
+| ☐ | `trophy-dragon-skeletal.png` | Skeletal Dragon Trophy |
+| ☐ | `trophy-dragon-storm.png` | Storm Wyvern Trophy |
+| ☐ | `trophy-dragon-abyssal.png` | Abyssal Leviathan Trophy |
+| ☐ | `trophy-dragon-ancient.png` | Ancient Titan Trophy |
+
+**Total: 10 files**
+
+---
+
 ## 📊 GRAND TOTAL
 
 | Folder | Count |
 |---|---|
-| `public/boss-kill/` | 2 |
+| `public/boss-kill/` | 2 (desktop) + 2 (mobile) = 4 |
 | `public/dragons/` | 10 |
 | `public/artifacts/` | 125 |
-| **TOTAL** | **137 assets** |
+| `public/maps/` | 10 |
+| `public/scratch/` | 5 |
+| `public/crests/` | 10 |
+| `public/trophies/` | 10 |
+| **TOTAL** | **174 assets** |
 
 ---
 
@@ -152,9 +235,10 @@ The contrast between the two images tells the complete story of the battle witho
 
 ### 📦 Asset Generation Order (Priority)
 
-1. ✅ `boss-kill-screen.png` — Done
-2. ✅ `boss-initiate-screen.png` — Done
-3. ☐ `dragon-wyrm.png` — First/default region boss
-4. ☐ Remaining 9 dragons
-5. ☐ Skull artifact (5 rarity variants — started)
-6. ☐ Remaining 24 artifact types (5 variants each)
+1. ✅ `boss-kill-screen.png` / `boss-kill-screen-mobile.png` — Done
+2. ✅ `boss-initiate-screen.png` / `boss-initiate-screen-mobile.png` — Done
+3. ☐ 10 Region Map PNGs (`campaign-map-1.png` to `campaign-map-10.png`)
+4. ☐ `dragon-wyrm.png` — First/default region boss
+5. ☐ Remaining 9 dragons
+6. ☐ Skull artifact (5 rarity variants — started)
+7. ☐ Remaining 24 artifact types (5 variants each)

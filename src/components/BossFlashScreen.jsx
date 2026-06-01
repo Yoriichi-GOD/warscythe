@@ -6,6 +6,7 @@ export default function BossFlashScreen({ type, onClose }) {
   const config = {
     initiate: {
       image: '/boss-kill/boss-initiate-screen.png',
+      mobileImage: '/boss-kill/boss-initiate-screen-mobile.png',
       icon: <ShieldAlert className="text-red-500 animate-pulse" size={24} />,
       title: 'BOSS RAID INITIATED',
       subtitle: 'THE DREAD WYRM MALGRATH AWAITS',
@@ -15,6 +16,7 @@ export default function BossFlashScreen({ type, onClose }) {
     },
     victory: {
       image: '/boss-kill/boss-kill-screen.png',
+      mobileImage: '/boss-kill/boss-kill-screen-mobile.png',
       icon: <Trophy className="text-gold-core" size={24} />,
       title: 'BOSS CONQUERED',
       subtitle: 'MALGRATH THE DREAD HAS FALLEN',
@@ -40,8 +42,11 @@ export default function BossFlashScreen({ type, onClose }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 1.03, opacity: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${screen.image}')` }}
+        className="absolute inset-0 z-0 bg-cover bg-center bg-cinematic"
+        style={{ 
+          '--bg-desktop': `url('${screen.image}')`,
+          '--bg-mobile': `url('${screen.mobileImage}')`
+        }}
       />
 
       {/* 2. Heavy Vignette for Dramatic Focus */}
@@ -56,7 +61,7 @@ export default function BossFlashScreen({ type, onClose }) {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -30 }}
         transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-        className="relative z-20 pl-[8%] pr-6 max-w-[90%] sm:max-w-[70%] md:max-w-[50%] lg:max-w-[45%] flex flex-col gap-4 text-left"
+        className="relative z-20 pl-[8%] pr-6 max-w-[90%] sm:max-w-[70%] md:max-w-[50%] lg:max-w-[45%] flex flex-col gap-4 text-left tactical-text-container"
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center p-2 bg-black/60 border border-white/10 rounded-sm">
@@ -105,7 +110,7 @@ export default function BossFlashScreen({ type, onClose }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 1.5 }}
         onClick={onClose}
-        className="absolute bottom-8 right-8 z-30 font-display text-xs sm:text-sm tracking-[0.2em] uppercase font-bold py-3 px-8 rounded-sm bg-black/80 cursor-pointer border transition-all duration-300 pointer-events-auto"
+        className="absolute bottom-8 right-8 z-30 font-display text-xs sm:text-sm tracking-[0.2em] uppercase font-bold py-3 px-8 rounded-sm bg-black/80 cursor-pointer border transition-all duration-300 pointer-events-auto continue-btn-mobile"
         style={{
           borderColor: screen.titleColor,
           color: screen.titleColor,
@@ -141,6 +146,24 @@ export default function BossFlashScreen({ type, onClose }) {
           );
           background-size: 100% 4px, 6px 100%;
           opacity: 0.15;
+        }
+        .bg-cinematic {
+          background-image: var(--bg-desktop);
+        }
+        @media (max-width: 768px), (max-aspect-ratio: 1/1) {
+          .bg-cinematic {
+            background-image: var(--bg-mobile);
+          }
+          .tactical-text-container {
+            padding-left: 6% !important;
+            max-width: 88% !important;
+          }
+          .continue-btn-mobile {
+            right: 6% !important;
+            bottom: 6% !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+          }
         }
       `}</style>
     </motion.div>

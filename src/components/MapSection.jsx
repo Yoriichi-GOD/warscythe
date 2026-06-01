@@ -304,6 +304,14 @@ export default function MapSection({ onTabChange }) {
                    ))
                  )}
                </div>
+               
+               {/* Access Full Vault Button */}
+               <button 
+                 onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
+                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer"
+               >
+                 <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
+               </button>
             </div>
           </div>
         </aside>
