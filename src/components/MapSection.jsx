@@ -591,6 +591,7 @@ export default function MapSection({ onTabChange }) {
           border-radius: 8px;
           position: relative;
           overflow: hidden;
+          flex-shrink: 0;
         }
         .map-image-layer {
           position: absolute;
@@ -879,7 +880,7 @@ export default function MapSection({ onTabChange }) {
                     <h3>DRAGON'S NEST</h3>
                   </div>
                   <div className="threat-profile">
-                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, height: '120px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
+                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
                     <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
                   </div>
                   <div className="intel-stats font-mono mt-3">
