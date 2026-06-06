@@ -128,8 +128,12 @@ const getRegionNodeInfo = (mapIdx, nodeId) => {
 export default function MapSection({ onTabChange }) {
   const { 
     level, dailyLog, tasks, generateMicroSteps, 
-    currentLevelProgress, unlockedLore 
+    currentLevelProgress, unlockedLore, collectedArtifacts,
+    scytheLevel, coins, streakCount
   } = useWarscytheStore();
+
+  const activeTasksCount = tasks.filter(t => !t.completedAt).length;
+  const artifactsCount = collectedArtifacts?.length || 0;
   
   const [showFog, setShowFog] = useState(false);
   const prevLevelRef = useRef(level);
@@ -208,6 +212,17 @@ export default function MapSection({ onTabChange }) {
     { hue: 280, sepia: 0.6, saturate: 2 },
   ];
   const currentRegionTheme = regionThemes[(level - 1) % regionThemes.length];
+
+  const bannerStyle = (nodeId) => ({
+    width: '100%',
+    height: '120px',
+    backgroundImage: `url('${getNodeBanner(nodeId)}')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    borderRadius: '4px',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia}) saturate(${currentRegionTheme.saturate})`
+  });
   
   const regionIdx = Math.min(level - 1, REGIONS.length - 1);
   const activeRegion = REGIONS[regionIdx];
@@ -544,11 +559,13 @@ export default function MapSection({ onTabChange }) {
               <div className="corner-ornament corner-br" />
               <div className="elite-panel-inner-border" />
 
+              {/* Absolute Positioned Close Button */}
+              <button className="node-intel-close-btn" onClick={() => setSelectedNode(null)}>
+                <X size={16} />
+              </button>
+
               <div className="modal-header font-times">
                 <span className="panel-tag font-mono text-[9px] text-gold-core">TACTICAL NODE INTEL //</span>
-                <button className="text-gray-500 hover:text-white" onClick={() => setSelectedNode(null)}>
-                  <X size={16} />
-                </button>
               </div>
 
               {selectedNode === 'castle' && (
@@ -557,11 +574,11 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge secured">SECURED</span>
                     <h3>{nodeInfo('castle').name.toUpperCase()}</h3>
                   </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('castle')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <div className="modal-banner" style={bannerStyle('castle')} />
                   <p className="intel-desc">{nodeInfo('castle').desc}</p>
                   <div className="intel-stats font-mono">
-                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
-                    <div><span>XP HARVEST</span><span className="text-emerald-400">+300 XP</span></div>
+                    <div><span>COLLECTED RELICS</span><span className="text-emerald-400 font-bold">{artifactsCount} / 125</span></div>
+                    <div><span>VAULT BALANCE</span><span className="text-gold-core font-bold">{coins} COINS</span></div>
                   </div>
                 </div>
               )}
@@ -572,11 +589,11 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge secured">SECURED</span>
                     <h3>{nodeInfo('ashendale').name.toUpperCase()}</h3>
                   </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('ashendale')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <div className="modal-banner" style={bannerStyle('ashendale')} />
                   <p className="intel-desc">{nodeInfo('ashendale').desc}</p>
                   <div className="intel-stats font-mono">
-                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
-                    <div><span>RESOURCES SECURED</span><span className="text-emerald-400 font-bold">WOOD, STEEL</span></div>
+                    <div><span>SCYTHE RESONANCE</span><span className="text-emerald-400 font-bold">{scytheLevel}</span></div>
+                    <div><span>STREAK COUNT</span><span className="text-emerald-400 font-bold">{streakCount} DAYS</span></div>
                   </div>
                 </div>
               )}
@@ -587,11 +604,11 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge progress">IN PROGRESS</span>
                     <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
                   </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('jail')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <div className="modal-banner" style={bannerStyle('jail')} />
                   <p className="intel-desc">{nodeInfo('jail').desc}</p>
                   <div className="intel-stats font-mono">
-                    <div><span>THREAT LEVEL</span><span className="text-blue-400">MEDIUM</span></div>
-                    <div><span>OBJECTIVE</span><span className="text-blue-400 font-bold">ACQUIRE BLUEPRINTS</span></div>
+                    <div><span>ACTIVE OPERATIONS</span><span className="text-blue-400 font-bold">{activeTasksCount} ACTIVE</span></div>
+                    <div><span>LEVEL PROGRESS</span><span className="text-blue-400 font-bold">{displayProgress} / {TASKS_PER_LEVEL} SECURED</span></div>
                   </div>
                   <button className="intel-action-btn btn-gothic-gold" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops'); }}>
                     DEPLOY STRIKE PROTOCOL
@@ -605,11 +622,11 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge locked">LOCKED</span>
                     <h3>{nodeInfo('stone').name.toUpperCase()}</h3>
                   </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('stone')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <div className="modal-banner" style={bannerStyle('stone')} />
                   <p className="intel-desc">{nodeInfo('stone').desc}</p>
                   <div className="intel-stats font-mono">
-                    <div><span>SECTOR CODE</span><span className="text-gray-500">SH-04</span></div>
-                    <div><span>REQUIREMENT</span><span className="text-red-500 font-bold">DECRYPT BLUEPRINTS</span></div>
+                    <div><span>SECTOR CODE</span><span className="text-gray-500 font-bold">SH-0{mapIndex}</span></div>
+                    <div><span>LOGGED ACTIVITIES</span><span className="text-red-500 font-bold">{dailyLog ? Object.keys(dailyLog).length : 0} SESSIONS</span></div>
                   </div>
                 </div>
               )}
@@ -625,8 +642,8 @@ export default function MapSection({ onTabChange }) {
                     <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
                   </div>
                   <div className="intel-stats font-mono mt-3">
-                    <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEGENDARY</span></div>
-                    <div><span>REWARD</span><span className="text-gold-bright font-bold">COSMIC SOVEREIGN UPGRADE</span></div>
+                    <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEVEL {level} BOSS</span></div>
+                    <div><span>REWARD ELITE</span><span className="text-gold-bright font-bold">CREST OF {activeRegion.name.toUpperCase()}</span></div>
                   </div>
                   <button 
                     className="intel-action-btn btn-gothic-gold mt-3" 
@@ -983,12 +1000,37 @@ export default function MapSection({ onTabChange }) {
         /* Tactical Node Intel Modal Styles */
         .node-intel-overlay {
           position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
-          display: flex; align-items: center; justify-content: center; z-index: 2100; padding: 1rem;
+          display: flex; align-items: flex-start; justify-content: center; z-index: 2100; padding: 2rem 1rem;
+          overflow-y: auto;
         }
         .node-intel-modal {
           max-width: 420px; width: 100%;
           border-radius: 6px; display: flex; flex-direction: column; gap: 1.5rem;
           position: relative;
+          margin: auto 0;
+        }
+        .node-intel-close-btn {
+          position: absolute;
+          top: 1.25rem;
+          right: 1.25rem;
+          z-index: 50;
+          color: rgba(255, 255, 255, 0.5);
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          cursor: pointer;
+          transition: all 0.2s;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          outline: none;
+        }
+        .node-intel-close-btn:hover {
+          color: #ecc880;
+          border-color: #ecc880;
+          background: rgba(197, 160, 89, 0.15);
         }
         .node-intel-modal .modal-header {
           display: flex; justify-content: space-between; align-items: center;
