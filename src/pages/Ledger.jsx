@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, X } from 'lucide-react';
+import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star } from 'lucide-react';
 const dragonTrophies = [
   'wyrm', 'wyvern', 'frost', 'shadow', 'lava', 
   'celestial', 'skeletal', 'storm', 'abyssal', 'ancient'
@@ -283,15 +283,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="inspector-content-page relative w-full"
+                    className="inspector-content-page"
                   >
-                    <button 
-                      onClick={() => setSelectedArtifact(null)} 
-                      className="absolute top-0 right-0 p-1.5 text-gray-500 hover:text-[#ecc880] hover:bg-white/5 rounded-full transition-all cursor-pointer z-10"
-                      title="Clear Selection"
-                    >
-                      <X size={16} />
-                    </button>
                     <div className="inspector-visual">
                       <img 
                         src={getArtifactImage(selectedArtifact.name)} 
