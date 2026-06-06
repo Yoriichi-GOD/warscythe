@@ -4,11 +4,11 @@ import { Swords, Dumbbell, Flame, Hammer, Map, Scroll } from 'lucide-react';
 
 export default function EliteNavigation({ activeTab, onTabChange }) {
   return (
-    <nav className="elite-nav">
-      <div className="nav-container select-none">
+    <nav className="elite-nav select-none">
+      <div className="nav-container">
         
         {/* Left Side: Operations, Fitness, Rituals */}
-        <div className="flex gap-4 sm:gap-6 md:gap-8 justify-around items-center">
+        <div className="flex gap-2 sm:gap-4 md:gap-8 justify-around items-center">
           <button 
             type="button"
             className={`elite-tab ${activeTab === 'ops' ? 'active' : ''}`}
@@ -17,7 +17,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Swords size={18} />
             </div>
-            <span className="tab-label hidden md:block">Operations</span>
+            <span className="tab-label font-times">OPERATIONS</span>
           </button>
 
           <button 
@@ -28,7 +28,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Dumbbell size={18} />
             </div>
-            <span className="tab-label hidden md:block">Fitness</span>
+            <span className="tab-label font-times">FITNESS</span>
           </button>
 
           <button 
@@ -39,11 +39,11 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Flame size={18} />
             </div>
-            <span className="tab-label hidden md:block">Rituals</span>
+            <span className="tab-label font-times">RITUALS</span>
           </button>
         </div>
 
-        {/* Center: Command Core Emblem */}
+        {/* Center: Command Core Emblem (Winged Medallion) */}
         <div className="compass-center shrink-0">
           <div className="compass-outer">
             <div className="compass-ring-1" />
@@ -51,7 +51,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
                <motion.img 
                  src="/command-core.png" 
                  alt="Command Core"
-                 className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(197,160,89,0.4)]"
+                 className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(197,160,89,0.55)]"
                  animate={{ rotate: 360 }}
                  transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
                />
@@ -61,7 +61,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
         </div>
 
         {/* Right Side: Forge, Map, Ledger */}
-        <div className="flex gap-4 sm:gap-6 md:gap-8 justify-around items-center">
+        <div className="flex gap-2 sm:gap-4 md:gap-8 justify-around items-center">
           <button 
             type="button"
             className={`elite-tab ${activeTab === 'forge' ? 'active' : ''}`}
@@ -70,7 +70,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Hammer size={18} />
             </div>
-            <span className="tab-label hidden md:block">The Forge</span>
+            <span className="tab-label font-times">THE FORGE</span>
           </button>
 
           <button 
@@ -81,7 +81,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Map size={18} />
             </div>
-            <span className="tab-label hidden md:block">Quest Map</span>
+            <span className="tab-label font-times">QUEST MAP</span>
           </button>
 
           <button 
@@ -92,11 +92,17 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="tab-icon-box">
               <Scroll size={18} />
             </div>
-            <span className="tab-label hidden md:block">Ledger</span>
+            <span className="tab-label font-times">LEDGER</span>
           </button>
         </div>
 
       </div>
+
+      <style jsx>{`
+        .font-times {
+          font-family: "Times New Roman", "Cinzel", "IM Fell English", Times, Georgia, serif;
+        }
+      `}</style>
     </nav>
   );
 }

@@ -4,7 +4,7 @@ export const CLOSER_DAYS = 5;
 export const STALLED_HRS = 48;
 export const POINTS_BASE = 100;
 export const EFFORT_MULT = { Low: 1, Medium: 1.5, High: 2, Boss: 5 };
-export const TASKS_PER_LEVEL = 3;
+export const TASKS_PER_LEVEL = 5;
 
 export const REGIONS = [
   { name: 'The Threshold', icon: '🚪', desc: 'Where all journeys begin. The gate stands open — but only the resolute pass through.' },

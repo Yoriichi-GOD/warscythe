@@ -1,6 +1,95 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import { 
+  Lock, 
+  Map as MapIcon, 
+  Crosshair, 
+  Info, 
+  Sword, 
+  Skull, 
+  Eye, 
+  Flag,
+  RotateCcw,
+  ArrowLeft,
+  X,
+  ScrollText
+} from 'lucide-react';
+import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
+
+// Dynamic Region Node Themes Dictionary (10 Archetypes)
+const REGION_ARCHETYPES = {
+  1: { // Grasslands (Gateway Theme)
+    stone: { name: "Stonehollow Defiles", desc: "A rocky defile serving as the primary training grounds for physical grit." },
+    ashendale: { name: "Village of Ashendale", desc: "A peaceful valley farming outpost where daily routines are cultivated." },
+    castle: { name: "Castle Blackvale", desc: "The ancient gothic fortress housing the legendary Ledger of conquests." },
+    jail: { name: "Iron Jail Vanguard", desc: "A heavy stone garrison where tactical operations are directed." },
+    boss: { name: "Dragon's Nest", desc: "The smoking volcanic lair where the dread dragon Malgrath resides." }
+  },
+  2: { // Volcanic (Caldera Theme)
+    stone: { name: "Obsidian Sinks", desc: "Rich lava-warmed pits used for extreme physical conditioning." },
+    ashendale: { name: "Cinder Camp", desc: "A temporary encampment over hot volcanic vents for ritual meditation." },
+    castle: { name: "Citadel of Ash", desc: "A ruined obsidian castle housing the burning archives of the ledger." },
+    jail: { name: "Basalt Keep", desc: "A fortified stone prison guarding active lava strike blueprints." },
+    boss: { name: "Lava Crater Lair", desc: "The molten heart of the volcano where Stoneback Krul slumbers." }
+  },
+  3: { // Frozen (Glacial Peaks Theme)
+    stone: { name: "Glacial Crevasse", desc: "Deep ice gorges where climbers train their physical endurance." },
+    ashendale: { name: "Frostgate Shrine", desc: "A frozen altar where habits are kept cold and sharp as ice." },
+    castle: { name: "Icebound Cathedral", desc: "A majestic cathedral of frost keeping the frozen books of the vault." },
+    jail: { name: "Snowbound Outpost", desc: "A military outpost managing active strikes in blizzard territory." },
+    boss: { name: "Glacius' Summit", desc: "The wind-swept peak where Glacius the Eternal guards the frost hoard." }
+  },
+  4: { // Shadow Forest (Old Wood Theme)
+    stone: { name: "Shadewood Defiles", desc: "A dim wooded arena used for agility training and fitness drills." },
+    ashendale: { name: "Druid's Elder Grove", desc: "A runic glade where ancient habits and silent rituals are practiced." },
+    castle: { name: "Castle Shadowfen", desc: "A sunken stone library holding the hidden scrolls of the relic vault." },
+    jail: { name: "Miasma Outpost", desc: "A fortress keep managing active strike teams in the dark woods." },
+    boss: { name: "Void-Serpent Crypt", desc: "The dark clearing where the phantom serpent Vreth lurks." }
+  },
+  5: { // Desert (Oasis Theme)
+    stone: { name: "Dune Arena", desc: "A sun-baked arena used for high-heat strength and endurance logbooks." },
+    ashendale: { name: "Crystal Oasis", desc: "A glowing spring where warlock habits are cleansed and renewed." },
+    castle: { name: "Sunken Library", desc: "An ancient tomb of knowledge containing the golden ledger plates." },
+    jail: { name: "Desert Fortress", desc: "A mud-brick fortress managing operations across the shifting sands." },
+    boss: { name: "Ignarax's Caldera", desc: "The burning oasis crater ruled by Ignarax the Burning." }
+  },
+  6: { // Sky Temple (Celestial Skylands Theme)
+    stone: { name: "Skyreach Terrace", desc: "An open terrace floating in the wind, perfect for high-altitude physical focus." },
+    ashendale: { name: "Aether Gardens", desc: "A garden in the clouds for elevating daily habits and spiritual focus." },
+    castle: { name: "Cloudspire Archives", desc: "A floating ivory tower keeping the celestial records and relic vaults." },
+    jail: { name: "Zephyr Keep", desc: "A high-altitude command center deploying active aerial operations." },
+    boss: { name: "Sol-Varen's Sun Lair", desc: "The glowing sun temple where Sol-Varen the Radiant nests." }
+  },
+  7: { // Sunken Cavern (Abyssal Deeps Theme)
+    stone: { name: "Dripping Caverns", desc: "Deep dark caverns where strength is forged in cold stone and heavy humidity." },
+    ashendale: { name: "Glowing Fungal Grove", desc: "A subterranean grove where damp habits and cave rituals are completed." },
+    castle: { name: "Deepwood Vault", desc: "A secure vault buried beneath miles of stone holding ancient ledger artifacts." },
+    jail: { name: "Echoing Deep", desc: "An underground outpost managing strike operations in the dark tunnels." },
+    boss: { name: "Duskbone's Crypt", desc: "The skeletal tomb of the ancient Duskbone Revenant." }
+  },
+  8: { // Toxic Swamp (Fungal Groves Theme)
+    stone: { name: "Rotwood Arena", desc: "A treacherous swampland training grounds for raw physical resilience." },
+    ashendale: { name: "Mirewood Shrine", desc: "A decaying altar where warlock habits are fortified against the rot." },
+    castle: { name: "Bogtown Sluice", desc: "A heavy lock-gate treasury protecting the ledger records from acid rain." },
+    jail: { name: "Swamp Guard Keep", desc: "An iron keep directing active operations through the toxic wetlands." },
+    boss: { name: "Thundercoil's Nest", desc: "The storm-lashed swamp nest of Thundercoil Zarak." }
+  },
+  9: { // Cosmic Void (Gravity Islands Theme)
+    stone: { name: "Gravity Sinks", desc: "A zero-gravity zone used for intense physical conditioning and calisthenics." },
+    ashendale: { name: "Nebula Altar", desc: "A magical space rift where cosmic habits and space rituals align." },
+    castle: { name: "Shattered Sanctuary", desc: "A collection of floating debris holding the ledger logs in suspension." },
+    jail: { name: "Void Anchor", desc: "A mechanical satellite station managing active void strikes." },
+    boss: { name: "Nyxara's Rift", desc: "The deep black-hole rift where Nyxara the Void rules supreme." }
+  },
+  10: { // Titan Rest (Golden Citadel Theme)
+    stone: { name: "Titan's Forge", desc: "A colosseum where heroes lift heavy weights and train like giants." },
+    ashendale: { name: "Golden Basilica", desc: "A massive cathedral dedicated to perfect order and daily rituals." },
+    castle: { name: "Citadel Vault", desc: "The royal vault holding the golden crown relics of the ledger." },
+    jail: { name: "Imperial Keep", desc: "The grand seat of power deploying operations across the realm." },
+    boss: { name: "Gorvek's Tomb", desc: "The ancient stone sepulcher of Gorvek the Ancient." }
+  }
+};
 
 const getDragonAsset = (lvl) => {
   const dragonTypes = [
@@ -30,28 +119,16 @@ const getNodeBanner = (nodeId) => {
   };
   return banners[nodeId] || '/nodes/node-blackvale.png';
 };
-import { 
-  Lock, 
-  Map as MapIcon, 
-  Crosshair, 
-  Info, 
-  Sword, 
-  Skull, 
-  Eye, 
-  Flag,
-  RotateCcw,
-  Users,
-  ArrowLeft,
-  Shield,
-  X,
-  ScrollText
-} from 'lucide-react';
-import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
+
+const getRegionNodeInfo = (mapIdx, nodeId) => {
+  const arch = REGION_ARCHETYPES[mapIdx] || REGION_ARCHETYPES[1];
+  return arch[nodeId] || { name: "Unknown Location", desc: "No description available." };
+};
 
 export default function MapSection({ onTabChange }) {
   const { 
-    level, bossKills, dailyLog, tasks, generateMicroSteps, 
-    currentLevelProgress, unlockedLore, triggerBossFlash 
+    level, dailyLog, tasks, generateMicroSteps, 
+    currentLevelProgress, unlockedLore 
   } = useWarscytheStore();
   
   const [showFog, setShowFog] = useState(false);
@@ -88,7 +165,6 @@ export default function MapSection({ onTabChange }) {
     }, 1200);
   };
   
-  // Dynamic expansion logs based on current progress / level
   const getRegion = (idx) => {
     if (idx < 0) return null;
     return REGIONS[idx % REGIONS.length];
@@ -139,17 +215,18 @@ export default function MapSection({ onTabChange }) {
   const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
   const currentLore = unlockedLore?.[regionIdx] || [];
 
-  // DAILY SHIFTING ROUTES LOGIC
   const dayOfWeek = new Date().getDay();
-  const isAshendaleLocked = dayOfWeek % 2 === 0; // Locked on even days
-  const isStonehollowLocked = !isAshendaleLocked; // Locked on odd days
+  const isAshendaleLocked = dayOfWeek % 2 === 0;
+  const isStonehollowLocked = !isAshendaleLocked;
+
+  const nodeInfo = (nodeId) => getRegionNodeInfo(mapIndex, nodeId);
 
   const nodes = [
-    { id: 'castle', label: 'CASTLE BLACKVALE', top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
-    { id: 'ashendale', label: 'ASHENDALE', top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
-    { id: 'jail', label: 'IRON JAIL', top: '45%', left: '22%', status: 'IN PROGRESS', type: 'active' },
-    { id: 'stone', label: 'STONEHOLLOW', top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
-    { id: 'boss', label: "DRAGON'S NEST", top: '15%', left: '50%', status: 'FINAL OBJECTIVE', type: 'boss' }
+    { id: 'stone', label: nodeInfo('stone').name.toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
+    { id: 'ashendale', label: nodeInfo('ashendale').name.toUpperCase(), top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
+    { id: 'castle', label: nodeInfo('castle').name.toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
+    { id: 'jail', label: nodeInfo('jail').name.toUpperCase(), top: '45%', left: '22%', status: 'IN PROGRESS', type: 'active' },
+    { id: 'boss', label: nodeInfo('boss').name.toUpperCase(), top: '15%', left: '50%', status: 'FINAL OBJECTIVE', type: 'boss' }
   ];
 
   const connections = [
@@ -171,31 +248,54 @@ export default function MapSection({ onTabChange }) {
       exit={{ opacity: 0 }}
       className="campaign-theater"
     >
+      {/* Floating Fire Embers / Ashes */}
+      <div className="ember-field">
+        {[...Array(15)].map((_, i) => (
+          <div 
+            key={i} 
+            className="ember-particle" 
+            style={{
+              left: `${(i * 23) % 100}%`,
+              width: `${((i * 2) % 3) + 1.5}px`,
+              height: `${((i * 2) % 3) + 1.5}px`,
+              animationDelay: `${(i * 0.4) % 6}s`,
+              animationDuration: `${((i * 3) % 5) + 6}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* 1. Header Bar */}
-      <header className="campaign-header">
+      <header className="campaign-header font-times select-none">
         <div className="header-left">
-          <MapIcon size={20} className="gold-text" />
+          <MapIcon size={20} className="gold-text drop-shadow-[0_0_8px_rgba(236,200,128,0.5)]" />
           <div className="header-titles">
-            <h2>CAMPAIGN THEATER // LEVEL {level}</h2>
-            <p>The world is vast. Conquer tasks. Expand your reach.</p>
+            <h2 className="text-gold-gradient">CAMPAIGN THEATER // LEVEL {level}</h2>
+            <p className="text-gray-400">The world is vast. Conquer tasks. Expand your reach.</p>
           </div>
         </div>
-        <button className="scout-report-btn">
+        <button className="btn-gothic-gold scout-report-btn">
           <Info size={14} />
           <span>SCOUT REPORT</span>
         </button>
       </header>
 
       {/* 2. Main 3-Column Content */}
-      <div className="campaign-content">
+      <div className="campaign-content select-none">
         
         {/* LEFT COLUMN: Logs and Legend */}
         <aside className="campaign-aside left">
-          <div className="expansion-log-panel elite-panel">
-            <div className="panel-header">
+          <div className="expansion-log-panel elite-panel-ornate">
+            <div className="corner-ornament corner-tl" />
+            <div className="corner-ornament corner-tr" />
+            <div className="corner-ornament corner-bl" />
+            <div className="corner-ornament corner-br" />
+            <div className="elite-panel-inner-border" />
+            
+            <div className="panel-header font-times">
               <span className="panel-tag">EXPANSION LOG</span>
             </div>
-            <div className="log-list">
+            <div className="log-list font-times">
               {expansionLogs.map(log => (
                 <div key={log.id} className="log-item">
                   <div className={`log-icon ${log.type}`}>
@@ -204,19 +304,25 @@ export default function MapSection({ onTabChange }) {
                     {log.type === 'intel' && <Eye size={12} />}
                   </div>
                   <div className="log-details">
-                    <p>{log.text}</p>
-                    <span className="log-time">{log.time}</span>
+                    <p className="text-white font-medium">{log.text}</p>
+                    <span className="log-time text-gray-400">{log.time}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="legend-panel elite-panel">
-             <div className="panel-header">
+          <div className="legend-panel elite-panel-ornate">
+            <div className="corner-ornament corner-tl" />
+            <div className="corner-ornament corner-tr" />
+            <div className="corner-ornament corner-bl" />
+            <div className="corner-ornament corner-br" />
+            <div className="elite-panel-inner-border" />
+
+            <div className="panel-header font-times">
               <span className="panel-tag">LEGEND</span>
             </div>
-            <div className="legend-grid">
+            <div className="legend-grid font-times">
               <div className="legend-item"><div className="dot pos" /> YOUR POSITION</div>
               <div className="legend-item"><div className="dot avail" /> AVAILABLE NODE</div>
               <div className="legend-item"><div className="dot secured" /> SECURED NODE</div>
@@ -228,7 +334,7 @@ export default function MapSection({ onTabChange }) {
 
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
-          <div className="isometric-map-wrapper">
+          <div className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
             <AnimatePresence>
               {showFog && (
                 <motion.div
@@ -269,9 +375,8 @@ export default function MapSection({ onTabChange }) {
                       y1={fromPos.y} 
                       x2={toPos.x} 
                       y2={toPos.y} 
-                      stroke={c.color} 
-                      strokeWidth={c.thick ? "2" : "1.5"} 
-                      strokeDasharray="4 4" 
+                      className="leyline-path"
+                      strokeWidth={c.thick ? "2.5" : "1.5"} 
                     />
                   );
                 })}
@@ -286,10 +391,10 @@ export default function MapSection({ onTabChange }) {
                   >
                     <div className={`node-glow ${node.type}`} />
                     {node.type === 'active' && <div className="current-ping" />}
-                    {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon" alt="Locked" />}
+                    {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
                     {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
-                    <span className="node-label">{node.label}</span>
-                    <div className="node-status">{node.status}</div>
+                    <span className="node-label font-times font-bold">{node.label}</span>
+                    <div className="node-status font-times">{node.status}</div>
                   </motion.div>
                 ))}
 
@@ -297,25 +402,31 @@ export default function MapSection({ onTabChange }) {
             </div>
           </div>
 
-          <div className="quick-actions-panel elite-panel">
-            <div className="panel-header">
+          <div className="quick-actions-panel elite-panel-ornate">
+            <div className="corner-ornament corner-tl" />
+            <div className="corner-ornament corner-tr" />
+            <div className="corner-ornament corner-bl" />
+            <div className="corner-ornament corner-br" />
+            <div className="elite-panel-inner-border" />
+
+            <div className="panel-header font-times">
               <span className="panel-tag">QUICK ACTIONS</span>
             </div>
-            <div className="action-grid">
+            <div className="action-grid font-times">
               <button 
-                className="action-btn" 
+                className="btn-gothic-gold action-btn" 
                 onClick={handleRecalculate} 
                 disabled={isRecalculating}
                 style={{ opacity: isRecalculating ? 0.6 : 1 }}
               >
-                <RotateCcw size={16} className={isRecalculating ? 'animate-spin' : ''} /> 
+                <RotateCcw size={14} className={isRecalculating ? 'animate-spin' : ''} /> 
                 {isRecalculating ? 'RECALCULATING...' : recalcSuccess ? 'DECOMPOSITION DONE' : 'RECALCULATE PROTOCOL'}
               </button>
-              <button className="action-btn" onClick={() => onTabChange && onTabChange('ops', { openAddTask: true })}>
-                <Sword size={16} /> DEPLOY STRIKE TEAM
+              <button className="btn-gothic-gold action-btn" onClick={() => onTabChange && onTabChange('ops', { openAddTask: true })}>
+                <Sword size={14} /> DEPLOY STRIKE TEAM
               </button>
-              <button className="action-btn" onClick={() => onTabChange && onTabChange('ops')}>
-                <ArrowLeft size={16} /> RETURN TO OPERATIONS
+              <button className="btn-gothic-gold action-btn" onClick={() => onTabChange && onTabChange('ops')}>
+                <ArrowLeft size={14} /> RETURN TO OPERATIONS
               </button>
             </div>
           </div>
@@ -323,65 +434,81 @@ export default function MapSection({ onTabChange }) {
 
         {/* RIGHT COLUMN: Region Intel */}
         <aside className="campaign-aside right">
-          <div className="region-intel-panel elite-panel">
-            <div className="panel-header">
+          <div className="region-intel-panel elite-panel-ornate">
+            <div className="corner-ornament corner-tl" />
+            <div className="corner-ornament corner-tr" />
+            <div className="corner-ornament corner-bl" />
+            <div className="corner-ornament corner-br" />
+            <div className="elite-panel-inner-border" />
+
+            <div className="panel-header font-times">
               <span className="panel-tag">REGION INTEL</span>
             </div>
             
-            <div className="region-branding">
-              <h4>{activeRegion.name} {activeRegion.icon}</h4>
-              <div className="region-banner-placeholder" style={{ 
+            <div className="region-branding font-times">
+              <h4 className="text-gold-gradient text-lg font-bold">{activeRegion.name} {activeRegion.icon}</h4>
+              <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
                 backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
                 filter: `hue-rotate(${currentRegionTheme.hue}deg)`
               }} />
             </div>
 
-            <div className="region-completion">
+            <div className="region-completion font-times">
                <span className="stat-label">REGION COMPLETION</span>
-               <div className="completion-dial">
-                  <span className="pct">{progressPct}%</span>
+               <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
+                  <span className="pct text-gold-gradient font-bold">{progressPct}%</span>
                </div>
-               <p className="text-[10px] text-gray-500 font-mono tracking-widest text-center mt-2 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
+               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
             </div>
 
-            <div className="active-modifiers">
+            <div className="active-modifiers font-times">
               <span className="stat-label">TERRITORY LORE</span>
-              <div className="modifier-item" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
-                <p className="text-[10px] font-mono text-gold-core/80 leading-relaxed italic border-l-2 border-gold-core/30 pl-2">
+              <div className="modifier-item border border-[#ecc880]/15 bg-black/40" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+                <p className="text-[10px] font-mono text-[#ecc880]/85 leading-relaxed italic border-l-2 border-[#ecc880]/30 pl-2">
                   "{activeRegion.desc}"
                 </p>
               </div>
             </div>
 
-            <div className="upcoming-threat elite-panel" style={{ padding: '1rem' }}>
-              <span className="stat-label" style={{ marginTop: 0 }}>UPCOMING THREAT</span>
-              <div className="threat-card">
+            <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.04)' }}>
+              <div className="corner-ornament corner-tl" style={{ borderColor: '#ef4444' }} />
+              <div className="corner-ornament corner-tr" style={{ borderColor: '#ef4444' }} />
+              <div className="corner-ornament corner-bl" style={{ borderColor: '#ef4444' }} />
+              <div className="corner-ornament corner-br" style={{ borderColor: '#ef4444' }} />
+              
+              <span className="stat-label font-times" style={{ marginTop: 0, color: '#ff5555' }}>UPCOMING THREAT</span>
+              <div className="threat-card font-times">
                 <div 
-                  className="threat-image" 
+                  className="threat-image border border-red-500/20" 
                   style={{ backgroundImage: `url('${getDragonAsset(level)}')` }} 
                 />
                 <div className="threat-info">
-                  <h5>{getDragonName(level).toUpperCase()}</h5>
-                  <p>A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+                  <h5 className="text-red-500 font-bold">{getDragonName(level).toUpperCase()}</h5>
+                  <p className="text-gray-400">A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
                 </div>
               </div>
-              <button className="view-target-btn" onClick={() => setSelectedNode('boss')}>
+              <button className="btn-gothic-gold view-target-btn mt-3" style={{ borderColor: '#ef4444', color: '#ff4444' }} onClick={() => setSelectedNode('boss')}>
                 VIEW BOSS INTEL
               </button>
             </div>
 
-            <div className="recovered-fragments elite-panel" style={{ padding: '1rem', marginTop: '1.5rem' }}>
-               <span className="stat-label" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
-               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2">
+            <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem' }}>
+               <div className="corner-ornament corner-tl" />
+               <div className="corner-ornament corner-tr" />
+               <div className="corner-ornament corner-bl" />
+               <div className="corner-ornament corner-br" />
+               
+               <span className="stat-label font-times" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
+               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2 font-times">
                  {currentLore.length === 0 ? (
-                   <p className="text-[9px] font-mono text-gray-600 text-center py-4 uppercase tracking-widest">
+                   <p className="text-[9px] font-mono text-gray-500 text-center py-4 uppercase tracking-widest">
                      No fragments recovered yet.<br/>Conquer operations to reveal the truth.
                    </p>
                  ) : (
                    [...currentLore].reverse().map((fragment, idx) => (
-                     <div key={idx} className="flex gap-2 items-start p-2 rounded bg-white/[0.02] border border-white/5">
+                     <div key={idx} className="flex gap-2 items-start p-2 rounded bg-black/40 border border-white/5">
                         <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
-                        <p className="text-[9px] font-mono text-gray-400 leading-relaxed italic">"{fragment}"</p>
+                        <p className="text-[9px] font-mono text-gray-300 leading-relaxed italic">"{fragment}"</p>
                      </div>
                    ))
                  )}
@@ -390,15 +517,133 @@ export default function MapSection({ onTabChange }) {
                {/* Access Full Vault Button */}
                <button 
                  onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
-                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer"
+                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer font-times"
                >
-                 <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
+                 <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
                </button>
             </div>
           </div>
         </aside>
 
       </div>
+
+      {/* 🗺️ TACTICAL NODE INTEL MODAL */}
+      <AnimatePresence>
+        {selectedNode && (
+          <div className="node-intel-overlay" onClick={() => setSelectedNode(null)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="node-intel-modal elite-panel-ornate"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="corner-ornament corner-tl" />
+              <div className="corner-ornament corner-tr" />
+              <div className="corner-ornament corner-bl" />
+              <div className="corner-ornament corner-br" />
+              <div className="elite-panel-inner-border" />
+
+              <div className="modal-header font-times">
+                <span className="panel-tag font-mono text-[9px] text-gold-core">TACTICAL NODE INTEL //</span>
+                <button className="text-gray-500 hover:text-white" onClick={() => setSelectedNode(null)}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              {selectedNode === 'castle' && (
+                <div className="intel-content font-times">
+                  <div className="intel-header">
+                    <span className="node-badge secured">SECURED</span>
+                    <h3>{nodeInfo('castle').name.toUpperCase()}</h3>
+                  </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('castle')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <p className="intel-desc">{nodeInfo('castle').desc}</p>
+                  <div className="intel-stats font-mono">
+                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
+                    <div><span>XP HARVEST</span><span className="text-emerald-400">+300 XP</span></div>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode === 'ashendale' && (
+                <div className="intel-content font-times">
+                  <div className="intel-header">
+                    <span className="node-badge secured">SECURED</span>
+                    <h3>{nodeInfo('ashendale').name.toUpperCase()}</h3>
+                  </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('ashendale')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <p className="intel-desc">{nodeInfo('ashendale').desc}</p>
+                  <div className="intel-stats font-mono">
+                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
+                    <div><span>RESOURCES SECURED</span><span className="text-emerald-400 font-bold">WOOD, STEEL</span></div>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode === 'jail' && (
+                <div className="intel-content font-times">
+                  <div className="intel-header">
+                    <span className="node-badge progress">IN PROGRESS</span>
+                    <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                  </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('jail')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <p className="intel-desc">{nodeInfo('jail').desc}</p>
+                  <div className="intel-stats font-mono">
+                    <div><span>THREAT LEVEL</span><span className="text-blue-400">MEDIUM</span></div>
+                    <div><span>OBJECTIVE</span><span className="text-blue-400 font-bold">ACQUIRE BLUEPRINTS</span></div>
+                  </div>
+                  <button className="intel-action-btn btn-gothic-gold" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops'); }}>
+                    DEPLOY STRIKE PROTOCOL
+                  </button>
+                </div>
+              )}
+
+              {selectedNode === 'stone' && (
+                <div className="intel-content font-times">
+                  <div className="intel-header">
+                    <span className="node-badge locked">LOCKED</span>
+                    <h3>{nodeInfo('stone').name.toUpperCase()}</h3>
+                  </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('stone')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                  <p className="intel-desc">{nodeInfo('stone').desc}</p>
+                  <div className="intel-stats font-mono">
+                    <div><span>SECTOR CODE</span><span className="text-gray-500">SH-04</span></div>
+                    <div><span>REQUIREMENT</span><span className="text-red-500 font-bold">DECRYPT BLUEPRINTS</span></div>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode === 'boss' && (
+                <div className="intel-content font-times">
+                  <div className="intel-header">
+                    <span className="node-badge boss-badge">BOSS RAID</span>
+                    <h3>{nodeInfo('boss').name.toUpperCase()}</h3>
+                  </div>
+                  <div className="threat-profile">
+                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
+                    <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
+                  </div>
+                  <div className="intel-stats font-mono mt-3">
+                    <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEGENDARY</span></div>
+                    <div><span>REWARD</span><span className="text-gold-bright font-bold">COSMIC SOVEREIGN UPGRADE</span></div>
+                  </div>
+                  <button 
+                    className="intel-action-btn btn-gothic-gold mt-3" 
+                    style={{ borderColor: '#ef4444', color: '#ff4444' }}
+                    onClick={() => { 
+                      setSelectedNode(null); 
+                      onTabChange && onTabChange('ops', { openAddTask: true, defaultEffort: 'Boss' });
+                    }}
+                  >
+                    INITIATE BOSS RAID
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <style jsx>{`
         .campaign-theater {
@@ -409,6 +654,7 @@ export default function MapSection({ onTabChange }) {
           padding: 1rem;
           color: #fff;
           overflow-y: auto;
+          position: relative;
         }
 
         @media (min-width: 1024px) {
@@ -424,6 +670,8 @@ export default function MapSection({ onTabChange }) {
           flex-direction: column;
           gap: 1rem;
           margin-bottom: 2rem;
+          z-index: 10;
+          position: relative;
         }
 
         @media (min-width: 640px) {
@@ -435,16 +683,13 @@ export default function MapSection({ onTabChange }) {
         }
 
         .header-left { display: flex; gap: 1rem; align-items: center; }
-        .header-titles h2 { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.1em; }
+        .header-titles h2 { font-size: 1rem; letter-spacing: 0.1em; }
         @media (min-width: 1024px) {
-          .header-titles h2 { font-size: 1.2rem; }
+          .header-titles h2 { font-size: 1.25rem; }
         }
-        .header-titles p { font-size: 0.6rem; color: var(--text-dim); }
+        .header-titles p { font-size: 0.65rem; }
 
         .scout-report-btn {
-          background: rgba(197, 160, 89, 0.1);
-          border: 1px solid var(--color-gold-core);
-          color: var(--color-gold-bright);
           padding: 0.5rem 1rem;
           display: flex;
           align-items: center;
@@ -462,6 +707,8 @@ export default function MapSection({ onTabChange }) {
           gap: 1.5rem;
           flex: 1;
           margin-bottom: 100px;
+          z-index: 10;
+          position: relative;
         }
 
         @media (min-width: 1024px) {
@@ -504,37 +751,36 @@ export default function MapSection({ onTabChange }) {
 
         .panel-tag {
           font-family: var(--font-mono);
-          font-size: 0.5rem;
+          font-size: 0.55rem;
           font-weight: 900;
           color: var(--gold-core);
           letter-spacing: 0.2em;
         }
 
-
-
         /* Log Panel */
         .log-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
         .log-item { display: flex; gap: 1rem; align-items: flex-start; }
         .log-icon { 
-          width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+          width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08);
           display: flex; align-items: center; justify-content: center;
+          background: rgba(255,255,255,0.02);
         }
         .log-icon.scout { color: var(--gold-core); }
         .log-icon.secure { color: #10b981; }
         .log-icon.intel { color: #3b82f6; }
-        .log-details p { font-size: 0.65rem; font-weight: 500; }
-        .log-time { font-size: 0.5rem; color: var(--text-dim); }
+        .log-details p { font-size: 0.68rem; line-height: 1.3; }
+        .log-time { font-size: 0.52rem; }
 
         /* Legend Panel */
         .legend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 1rem; }
         @media (min-width: 1024px) {
           .legend-grid { grid-template-columns: 1fr; }
         }
-        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--text-dim); }
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.52rem; letter-spacing: 0.1em; color: var(--text-dim); }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
         .dot.pos { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
         .dot.avail { background: #10b981; box-shadow: 0 0 10px #10b981; }
-        .dot.secured { background: var(--gold-core); }
+        .dot.secured { background: var(--gold-core); box-shadow: 0 0 10px var(--gold-core); }
         .dot.locked { background: #444; }
         .dot.boss { background: #ff3c3c; box-shadow: 0 0 10px #ff3c3c; }
 
@@ -545,7 +791,7 @@ export default function MapSection({ onTabChange }) {
           gap: 1.5rem;
         }
 
-          @media (min-width: 1024px) {
+        @media (min-width: 1024px) {
           .map-viewport-container {
             height: 100%;
             min-height: 0;
@@ -587,7 +833,6 @@ export default function MapSection({ onTabChange }) {
           width: 100%;
           aspect-ratio: 1 / 1;
           background: #000;
-          border: 1px solid rgba(197, 160, 89, 0.1);
           border-radius: 8px;
           position: relative;
           overflow: hidden;
@@ -634,7 +879,7 @@ export default function MapSection({ onTabChange }) {
         }
 
         .node-glow.secured { background: var(--gold-core); box-shadow: 0 0 15px var(--gold-core); }
-        .node-glow.active { background: #3b82f6; box-shadow: 0 0 20px #3b82f6; }
+        .node-glow.active { background: #10b981; box-shadow: 0 0 20px #10b981; }
         .node-glow.locked { background: #444; box-shadow: none; opacity: 0.5; }
         .node-glow.boss { background: #ff3c3c; box-shadow: 0 0 25px #ff3c3c; }
 
@@ -643,58 +888,57 @@ export default function MapSection({ onTabChange }) {
           top: 0;
           width: 8px;
           height: 8px;
-          border: 1px solid #3b82f6;
+          border: 1px solid #10b981;
           border-radius: 50%;
-          animation: ping 2s infinite;
+          animation: ping-green 2s infinite;
         }
 
         @media (min-width: 1024px) {
           .current-ping { width: 12px; height: 12px; border-width: 2px; }
         }
 
-        @keyframes ping {
+        @keyframes ping-green {
           0% { transform: scale(1); opacity: 1; }
           100% { transform: scale(4); opacity: 0; }
         }
 
         .node-label { 
-          font-family: var(--font-display); 
-          font-size: 0.45rem; 
+          font-size: 0.52rem; 
           letter-spacing: 0.1em; 
           color: #fff; 
-          text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.85);
           white-space: nowrap;
         }
         @media (min-width: 1024px) {
-          .node-label { font-size: 0.6rem; }
+          .node-label { font-size: 0.65rem; }
         }
 
         .node-status {
           font-family: var(--font-mono);
-          font-size: 0.35rem;
+          font-size: 0.38rem;
           letter-spacing: 0.1em;
           color: var(--text-dim);
-          text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+          text-shadow: 0 1px 2px rgba(0,0,0,0.85);
         }
 
-        .map-node.active .node-label { color: var(--gold-bright); }
+        .map-node.active .node-label { color: #fff4dc; }
         .map-node.boss-node .node-label { color: #ff3c3c; }
 
         .boss-icon, .lock-icon {
           position: absolute;
           top: -20px;
-          filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+          filter: drop-shadow(0 0 5px rgba(0,0,0,0.85));
         }
         @media (min-width: 1024px) {
           .boss-icon, .lock-icon { top: -25px; }
         }
 
-        .lock-icon { color: rgba(255,255,255,0.3); }
-        .boss-icon { color: #ff3c3c; animation: breathe 3s infinite ease-in-out; }
+        .lock-icon { color: rgba(255,255,255,0.4); width: 16px; height: 16px; }
+        .boss-icon { color: #ff3c3c; animation: breathe-skull 3s infinite ease-in-out; }
 
-        @keyframes breathe {
+        @keyframes breathe-skull {
           0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.2); opacity: 1; }
+          50% { transform: scale(1.25); opacity: 1; filter: drop-shadow(0 0 8px #ff2222); }
         }
 
         .quick-actions-panel { height: fit-content; }
@@ -703,48 +947,38 @@ export default function MapSection({ onTabChange }) {
           .action-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
         }
         .action-btn {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: var(--text-dim);
           padding: 0.75rem;
           font-family: var(--font-mono);
-          font-size: 0.5rem;
+          font-size: 0.55rem;
           border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          transition: 0.3s;
         }
-        .action-btn:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: #fff; }
 
         /* Right Column Intel */
         .region-branding { margin-top: 1rem; text-align: center; }
-        .region-branding h4 { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
-        .region-banner-placeholder { width: 100%; height: 80px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.6; }
+        .region-branding h4 { font-size: 1.25rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
+        .region-banner-placeholder { width: 100%; height: 80px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.85; }
 
-        .stat-label { font-family: var(--font-mono); font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 1.5rem; margin-bottom: 0.75rem; }
         
         .completion-dial {
-          width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-gold-core);
+          width: 60px; height: 60px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center; margin: 0 auto;
-          box-shadow: 0 0 15px var(--color-gold-glow);
         }
-        .completion-dial .pct { font-family: var(--font-display); font-size: 0.8rem; color: var(--color-gold-bright); }
+        .completion-dial .pct { font-size: 0.85rem; }
 
         .active-modifiers { margin-top: 1.5rem; }
-        .modifier-item { display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 4px; }
-        .mod-icon { color: var(--color-gold-core); }
-        .mod-info p { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.05em; }
-        .mod-info span { font-size: 0.5rem; color: var(--text-dim); }
+        .modifier-item { display: flex; gap: 1rem; align-items: center; padding: 0.75rem; border-radius: 4px; }
 
-        .upcoming-threat { margin-top: 1.5rem; background: rgba(255, 60, 60, 0.05); border: 1px solid rgba(255, 60, 60, 0.2); }
+        .upcoming-threat { margin-top: 1.5rem; }
         .threat-card { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
-        .threat-image { width: 40px; height: 40px; background-size: cover; border-radius: 4px; border: 1px solid rgba(255, 60, 60, 0.3); }
-        .threat-info h5 { font-family: var(--font-display); font-size: 0.6rem; color: #ff3c3c; margin-bottom: 0.25rem; }
-        .threat-info p { font-size: 0.45rem; color: var(--text-dim); line-height: 1.4; }
-        .view-target-btn { width: 100%; margin-top: 1rem; background: none; border: 1px solid rgba(255, 60, 60, 0.5); color: #ff3c3c; font-family: var(--font-mono); font-size: 0.5rem; padding: 0.5rem; border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        .view-target-btn:hover { background: rgba(255, 60, 60, 0.1); }
+        .threat-image { width: 44px; height: 44px; background-size: cover; border-radius: 4px; }
+        .threat-info h5 { font-size: 0.65rem; margin-bottom: 0.25rem; }
+        .threat-info p { font-size: 0.48rem; line-height: 1.4; }
+        .view-target-btn { width: 100%; mt-3; font-family: var(--font-mono); font-size: 0.55rem; padding: 0.5rem; border-radius: 4px; }
 
         /* Tactical Node Intel Modal Styles */
         .node-intel-overlay {
@@ -752,18 +986,18 @@ export default function MapSection({ onTabChange }) {
           display: flex; align-items: center; justify-content: center; z-index: 2100; padding: 1rem;
         }
         .node-intel-modal {
-          max-width: 420px; width: 100%; border: 1px solid rgba(197, 160, 89, 0.25);
-          padding: 2.2rem; background: rgba(10, 10, 12, 0.95);
-          box-shadow: 0 0 35px rgba(197, 160, 89, 0.1), inset 0 0 20px rgba(0,0,0,0.8);
+          max-width: 420px; width: 100%;
           border-radius: 6px; display: flex; flex-direction: column; gap: 1.5rem;
+          position: relative;
         }
         .node-intel-modal .modal-header {
           display: flex; justify-content: space-between; align-items: center;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.8rem; margin: 0;
+          z-index: 10; position: relative;
         }
-        .intel-content { display: flex; flex-direction: column; gap: 1.25rem; }
+        .intel-content { display: flex; flex-direction: column; gap: 1.25rem; z-index: 10; position: relative; }
         .intel-header h3 {
-          font-family: var(--font-display); font-size: 1.3rem; color: #fff;
+          font-size: 1.3rem; color: #fff;
           letter-spacing: 0.15em; margin: 0.4rem 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         .node-badge {
@@ -775,7 +1009,7 @@ export default function MapSection({ onTabChange }) {
         .node-badge.locked { background: rgba(100, 116, 139, 0.08); border: 1px solid #64748b; color: #64748b; }
         .node-badge.boss-badge { background: rgba(239, 68, 68, 0.08); border: 1px solid #ef4444; color: #ef4444; }
         
-        .intel-desc { font-size: 0.75rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+        .intel-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
         .intel-stats {
           display: flex; flex-direction: column; gap: 0.6rem; background: rgba(255, 255, 255, 0.02);
           padding: 1.2rem; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.04);
@@ -784,124 +1018,19 @@ export default function MapSection({ onTabChange }) {
         .intel-action-btn {
           width: 100%; height: 44px; display: flex; align-items: center; justify-content: center;
           font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em;
-          border-radius: 4px; cursor: pointer; transition: all 0.2s ease;
+          border-radius: 4px;
         }
-        .intel-action-btn.btn-primary { background: var(--color-gold-core); border: 1px solid var(--color-gold-bright); color: #000; }
-        .intel-action-btn.btn-primary:hover { background: var(--color-gold-bright); transform: translateY(-1px); box-shadow: 0 0 15px var(--color-gold-glow); }
-        .intel-action-btn.btn-danger { background: #dc2626; border: 1px solid #ff4444; color: #fff; }
-        .intel-action-btn.btn-danger:hover { background: #b91c1c; transform: translateY(-1px); box-shadow: 0 0 15px rgba(220,38,38,0.4); }
+
+        .leyline-path {
+          stroke: #ff3c3c;
+          filter: drop-shadow(0 0 3px #ff3c3c) drop-shadow(0 0 6px rgba(255, 60, 60, 0.5));
+          animation: leyline-pulse 3s ease-in-out infinite alternate;
+        }
+        @keyframes leyline-pulse {
+          0% { stroke-width: 1.5px; opacity: 0.7; }
+          100% { stroke-width: 2.5px; opacity: 1; }
+        }
       `}</style>
-
-      {/* 🗺️ TACTICAL NODE INTEL MODAL */}
-      <AnimatePresence>
-        {selectedNode && (
-          <div className="node-intel-overlay" onClick={() => setSelectedNode(null)}>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              className="node-intel-modal"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <span className="panel-tag font-mono text-[9px] text-gold-core">TACTICAL NODE INTEL //</span>
-                <button className="text-gray-500 hover:text-white" onClick={() => setSelectedNode(null)}>
-                  <X size={16} />
-                </button>
-              </div>
-
-              {selectedNode === 'castle' && (
-                <div className="intel-content">
-                  <div className="intel-header">
-                    <span className="node-badge secured">SECURED</span>
-                    <h3>CASTLE BLACKVALE</h3>
-                  </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('castle')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
-                  <p className="intel-desc">The ancient fortress of Blackvale. Once a den of shadow reapers, now successfully secured under your operational command.</p>
-                  <div className="intel-stats font-mono">
-                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
-                    <div><span>XP HARVEST</span><span className="text-emerald-400">+300 XP</span></div>
-                  </div>
-                </div>
-              )}
-
-              {selectedNode === 'ashendale' && (
-                <div className="intel-content">
-                  <div className="intel-header">
-                    <span className="node-badge secured">SECURED</span>
-                    <h3>VILLAGE OF ASHENDALE</h3>
-                  </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('ashendale')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
-                  <p className="intel-desc">The primary valley outpost. Its trade routes and weapon foundries have been cleared of hostiles and stabilized.</p>
-                  <div className="intel-stats font-mono">
-                    <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
-                    <div><span>RESOURCES SECURED</span><span className="text-emerald-400">WOOD, STEEL</span></div>
-                  </div>
-                </div>
-              )}
-
-              {selectedNode === 'jail' && (
-                <div className="intel-content">
-                  <div className="intel-header">
-                    <span className="node-badge progress">IN PROGRESS</span>
-                    <h3>IRON JAIL</h3>
-                  </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('jail')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
-                  <p className="intel-desc">A heavily fortified prison sector holding tactical blueprints. Active strikes are currently being deployed to dismantle the resistance guards.</p>
-                  <div className="intel-stats font-mono">
-                    <div><span>THREAT LEVEL</span><span className="text-blue-400">MEDIUM</span></div>
-                    <div><span>OBJECTIVE</span><span className="text-blue-400">ACQUIRE BLUEPRINTS</span></div>
-                  </div>
-                  <button className="intel-action-btn btn-primary" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops'); }}>
-                    DEPLOY STRIKE PROTOCOL
-                  </button>
-                </div>
-              )}
-
-              {selectedNode === 'stone' && (
-                <div className="intel-content">
-                  <div className="intel-header">
-                    <span className="node-badge locked">LOCKED</span>
-                    <h3>STONEHOLLOW DEFILES</h3>
-                  </div>
-                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('stone')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
-                  <p className="intel-desc">A deep mountain gorge shrouded in thick miasma. The sector remains inaccessible until the Iron Jail blueprints are decrypted.</p>
-                  <div className="intel-stats font-mono">
-                    <div><span>SECTOR CODE</span><span className="text-gray-500">SH-04</span></div>
-                    <div><span>REQUIREMENT</span><span className="text-red-500">DECRYPT BLUEPRINTS</span></div>
-                  </div>
-                </div>
-              )}
-
-              {selectedNode === 'boss' && (
-                <div className="intel-content">
-                  <div className="intel-header">
-                    <span className="node-badge boss-badge">BOSS RAID</span>
-                    <h3>DRAGON'S NEST</h3>
-                  </div>
-                  <div className="threat-profile">
-                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
-                    <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
-                  </div>
-                  <div className="intel-stats font-mono mt-3">
-                    <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEGENDARY</span></div>
-                    <div><span>REWARD</span><span className="text-gold-bright">COSMIC SOVEREIGN UPGRADE</span></div>
-                  </div>
-                  <button 
-                    className="intel-action-btn btn-danger" 
-                    onClick={() => { 
-                      setSelectedNode(null); 
-                      onTabChange && onTabChange('ops', { openAddTask: true, defaultEffort: 'Boss' });
-                    }}
-                  >
-                    INITIATE BOSS RAID
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
