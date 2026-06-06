@@ -289,10 +289,7 @@ export default function MapSection({ onTabChange }) {
             <p className="text-gray-400">The world is vast. Conquer tasks. Expand your reach.</p>
           </div>
         </div>
-        <button className="btn-gothic-gold scout-report-btn">
-          <Info size={14} />
-          <span>SCOUT REPORT</span>
-        </button>
+
       </header>
 
       {/* 2. Main 3-Column Content */}
@@ -447,97 +444,111 @@ export default function MapSection({ onTabChange }) {
           </div>
         </main>
 
-        {/* RIGHT COLUMN: Region Intel */}
-        <aside className="campaign-aside right">
-          <div className="region-intel-panel elite-panel-ornate">
+        {/* RIGHT COLUMN: Campaign Status, Recovered Fragments, and Lore Quote */}
+        <aside className="campaign-aside right flex flex-col gap-4">
+          
+          {/* Dominant Top Card: Campaign Status & Threat */}
+          <div className="campaign-status-panel elite-panel-ornate flex flex-col">
             <div className="corner-ornament corner-tl" />
             <div className="corner-ornament corner-tr" />
             <div className="corner-ornament corner-bl" />
             <div className="corner-ornament corner-br" />
             <div className="elite-panel-inner-border" />
 
-            <div className="panel-header font-times">
-              <span className="panel-tag">REGION INTEL</span>
+            <div className="panel-header font-times flex justify-between items-center w-full mb-3">
+              <span className="panel-tag font-mono text-[9px] text-[#ecc880] tracking-widest uppercase">CAMPAIGN STATUS</span>
+              <button className="btn-gothic-gold scout-report-btn flex items-center gap-1.5 px-2 py-1 text-[8.5px] font-mono tracking-wider">
+                <Info size={10} />
+                <span>SCOUT REPORT</span>
+              </button>
             </div>
-            
-            <div className="region-branding font-times">
-              <h4 className="text-gold-gradient text-lg font-bold">{activeRegion.name} {activeRegion.icon}</h4>
-              <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
+
+            <div className="region-branding font-times mb-4">
+              <h4 className="text-gold-gradient text-md font-bold tracking-wider">{activeRegion.name.toUpperCase()} {activeRegion.icon}</h4>
+              <div className="region-banner-placeholder border border-white/5 rounded mt-2" style={{ 
                 backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
                 filter: `hue-rotate(${currentRegionTheme.hue}deg)`
               }} />
             </div>
 
-            <div className="region-completion font-times">
-               <span className="stat-label">REGION COMPLETION</span>
-               <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
-                  <span className="pct text-gold-gradient font-bold">{progressPct}%</span>
+            {/* Region Completion Progress Bar */}
+            <div className="region-completion-bar-container font-times mb-4 border border-[#ecc880]/15 bg-black/40 p-3 rounded">
+               <div className="flex justify-between items-center mb-1.5">
+                 <span className="text-[9px] font-mono text-[#ecc880]/80 tracking-widest uppercase">REGION SECURED</span>
+                 <span className="text-[10px] font-mono text-[#ecc880] font-bold">{progressPct}%</span>
                </div>
-               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
+               <div className="w-full h-2 bg-black/60 rounded overflow-hidden border border-white/5 relative">
+                 <div className="h-full bg-gradient-to-r from-[#b88a38] to-[#ecc880] shadow-[0_0_8px_rgba(236,200,128,0.5)] transition-all duration-500" style={{ width: `${progressPct}%` }} />
+               </div>
+               <p className="text-[8px] text-gray-500 font-mono tracking-widest mt-1.5 uppercase text-right">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
             </div>
 
-            <div className="active-modifiers font-times">
-              <span className="stat-label">TERRITORY LORE</span>
-              <div className="modifier-item border border-[#ecc880]/15 bg-black/40" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
-                <p className="text-[10px] font-mono text-[#ecc880]/85 leading-relaxed italic border-l-2 border-[#ecc880]/30 pl-2">
-                  "{activeRegion.desc}"
-                </p>
-              </div>
-            </div>
-
-            <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.04)' }}>
-              <div className="corner-ornament corner-tl" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-tr" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-bl" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-br" style={{ borderColor: '#ef4444' }} />
-              
-              <span className="stat-label font-times" style={{ marginTop: 0, color: '#ff5555' }}>UPCOMING THREAT</span>
-              <div className="threat-card font-times">
+            {/* Upcoming Threat Embedded Card */}
+            <div className="upcoming-threat-box border border-red-500/25 bg-red-500/[0.03] p-3 rounded font-times">
+              <span className="text-[9px] font-mono text-red-400 tracking-widest uppercase block mb-2 font-bold font-sans">▲ UPCOMING THREAT</span>
+              <div className="threat-card flex gap-3 items-center">
                 <div 
-                  className="threat-image border border-red-500/20" 
+                  className="threat-image w-12 h-12 rounded border border-red-500/20 bg-cover bg-center shrink-0" 
                   style={{ backgroundImage: `url('${getDragonAsset(level)}')` }} 
                 />
-                <div className="threat-info">
-                  <h5 className="text-red-500 font-bold">{getDragonName(level).toUpperCase()}</h5>
-                  <p className="text-gray-400">A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+                <div className="threat-info min-w-0 flex-1">
+                  <h5 className="text-red-400 font-bold text-[11px] tracking-wide truncate">{getDragonName(level).toUpperCase()}</h5>
+                  <p className="text-gray-400 text-[9px] font-mono leading-relaxed truncate">A colossal beast rules this territory.</p>
                 </div>
               </div>
-              <button className="btn-gothic-gold view-target-btn mt-3" style={{ borderColor: '#ef4444', color: '#ff4444' }} onClick={() => setSelectedNode('boss')}>
+              <button 
+                className="btn-gothic-gold w-full mt-2.5 py-1.5 text-[8.5px] font-mono tracking-widest uppercase flex items-center justify-center gap-1.5" 
+                style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#ff5555', background: 'linear-gradient(180deg, #1f1212 0%, #0c0606 100%)' }} 
+                onClick={() => setSelectedNode('boss')}
+              >
                 VIEW BOSS INTEL
               </button>
             </div>
-
-            <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem' }}>
-               <div className="corner-ornament corner-tl" />
-               <div className="corner-ornament corner-tr" />
-               <div className="corner-ornament corner-bl" />
-               <div className="corner-ornament corner-br" />
-               
-               <span className="stat-label font-times" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
-               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2 font-times">
-                 {currentLore.length === 0 ? (
-                   <p className="text-[9px] font-mono text-gray-500 text-center py-4 uppercase tracking-widest">
-                     No fragments recovered yet.<br/>Conquer operations to reveal the truth.
-                   </p>
-                 ) : (
-                   [...currentLore].reverse().map((fragment, idx) => (
-                     <div key={idx} className="flex gap-2 items-start p-2 rounded bg-black/40 border border-white/5">
-                        <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
-                        <p className="text-[9px] font-mono text-gray-300 leading-relaxed italic">"{fragment}"</p>
-                     </div>
-                   ))
-                 )}
-               </div>
-               
-               {/* Access Full Vault Button */}
-               <button 
-                 onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
-                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer font-times"
-               >
-                 <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
-               </button>
-            </div>
           </div>
+
+          {/* Secondary Card: Recovered Fragments */}
+          <div className="recovered-fragments-panel elite-panel-ornate flex flex-col">
+             <div className="corner-ornament corner-tl" />
+             <div className="corner-ornament corner-tr" />
+             <div className="corner-ornament corner-bl" />
+             <div className="corner-ornament corner-br" />
+             <div className="elite-panel-inner-border" />
+             
+             <div className="panel-header font-times mb-3">
+               <span className="panel-tag font-mono text-[9px] text-[#ecc880] tracking-widest uppercase">RECOVERED FRAGMENTS</span>
+             </div>
+             
+             <div className="flex flex-col gap-3 overflow-y-auto max-h-[120px] custom-scrollbar pr-2 font-times">
+               {currentLore.length === 0 ? (
+                 <p className="text-[9px] font-mono text-gray-500 text-center py-4 uppercase tracking-widest">
+                   No fragments recovered yet.<br/>Conquer operations to reveal the truth.
+                 </p>
+               ) : (
+                 [...currentLore].reverse().map((fragment, idx) => (
+                   <div key={idx} className="flex gap-2 items-start p-2 rounded bg-black/40 border border-white/5">
+                      <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
+                      <p className="text-[9px] font-mono text-gray-300 leading-relaxed italic">"{fragment}"</p>
+                   </div>
+                 ))
+               )}
+             </div>
+             
+             {/* Access Full Vault Button */}
+             <button 
+               onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
+               className="w-full mt-3 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer font-times"
+             >
+               <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
+             </button>
+          </div>
+
+          {/* Quiet Italicized Quote Block at the Bottom */}
+          <div className="territory-lore-quote-block font-times select-none mt-auto">
+            <p className="text-[10.5px] text-gray-400/80 leading-relaxed italic text-center border-t border-b border-white/5 py-3 px-2">
+              "{activeRegion.desc}"
+            </p>
+          </div>
+
         </aside>
 
       </div>
