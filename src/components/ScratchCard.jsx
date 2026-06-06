@@ -2,6 +2,48 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Scroll } from 'lucide-react';
 
+const getFoilPath = (rarity) => {
+  const foils = {
+    common: '/scratch/scratch-foil-common.png',
+    uncommon: '/scratch/scratch-foil-uncommon.png',
+    rare: '/scratch/scratch-foil-rare.png',
+    epic: '/scratch/scratch-foil-epic.png',
+    mythic: '/scratch/scratch-foil-mythic.png'
+  };
+  return foils[rarity.toLowerCase()] || foils.common;
+};
+
+const getArtifactImage = (name) => {
+  const mapping = {
+    'Iron Quill': 'scroll',
+    "Scout's Compass": 'compass',
+    'Wax Seal of Intent': 'rune',
+    'Cloak of Momentum': 'amulet',
+    'Whetstone of Focus': 'chain',
+    'Ink of Resolve': 'chalice',
+    'Blade of Persistence': 'blade',
+    'Shield of No Retreat': 'shield',
+    'Ring of Execution': 'ring',
+    'Helm of Clarity': 'helm',
+    'Staff of Deadlines': 'staff',
+    'Cloak of Iteration': 'amulet',
+    'Dragon Scale Armor': 'horn',
+    'Eye of the Strategist': 'eye',
+    "Void Walker's Boots": 'gem',
+    'Crown of Completion': 'crown',
+    "Warscythe's Gauntlet": 'gauntlet',
+    'The Finisher': 'blade',
+    'Throne Fragment': 'idol',
+    'Shard of Reality': 'mirror',
+    'Cosmic Reaper': 'skull',
+    'Sovereign Core': 'orb',
+    'Omega Catalyst': 'hourglass',
+    'Grip of the Void': 'gauntlet'
+  };
+  const baseName = mapping[name] || 'rune';
+  return `/artifacts/artifact-${baseName}.png`;
+};
+
 export default function ScratchCard({ data, onClose }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -17,23 +59,30 @@ export default function ScratchCard({ data, onClose }) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     
-    // Draw initial surface with a premium texture
-    const grad = ctx.createLinearGradient(0,0,w,h);
-    grad.addColorStop(0,'#1a1a20'); grad.addColorStop(0.5,'#2c2c35'); grad.addColorStop(1,'#1a1a20');
-    ctx.fillStyle = grad; 
-    ctx.fillRect(0,0,w,h);
+    // Load dynamic foil texture
+    const img = new Image();
+    img.src = getFoilPath(reward.rarity);
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, w, h);
 
-    // Grid pattern
-    ctx.strokeStyle = 'rgba(197, 160, 89, 0.05)';
-    ctx.lineWidth = 1;
-    for(let i=0;i<w;i+=20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
-    for(let j=0;j<h;j+=20) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(w,j); ctx.stroke(); }
+      // Grid pattern overlay
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.05)';
+      ctx.lineWidth = 1;
+      for(let i=0;i<w;i+=20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+      for(let j=0;j<h;j+=20) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(w,j); ctx.stroke(); }
 
-    // Surface text
-    ctx.fillStyle = 'rgba(197, 160, 89, 0.4)'; 
-    ctx.font = '900 10px var(--font-mono)';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('ENCRYPTED LOOT // SCRATCH TO DECRYPT', w/2, h/2);
+      // Surface text
+      ctx.font = '900 11px var(--font-mono)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      ctx.fillText('ENCRYPTED LOOT // SCRATCH TO DECRYPT', w/2 + 1, h/2 + 1);
+      
+      // Foreground text
+      ctx.fillStyle = 'rgba(197, 160, 89, 0.9)'; 
+      ctx.fillText('ENCRYPTED LOOT // SCRATCH TO DECRYPT', w/2, h/2);
+    };
 
     let drawing = false;
     const pixels = w * h;
@@ -106,12 +155,18 @@ export default function ScratchCard({ data, onClose }) {
           <div className={`loot-content ${isRevealed ? 'revealed' : ''}`}>
              <motion.div 
                className="loot-visual"
+               style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                animate={isRevealed ? { 
                  scale: [1, 1.1, 1],
                  rotate: [0, 5, -5, 0]
                } : {}}
              >
-                <span className="loot-icon-emoji">{reward.artifact.icon}</span>
+                <img 
+                  src={getArtifactImage(reward.artifact.name)} 
+                  className={`loot-artifact-img art-img-filter ${reward.rarity}`} 
+                  alt={reward.artifact.name} 
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
+                />
                 <div className={`rarity-glow ${reward.rarity}`} />
              </motion.div>
              
@@ -191,6 +246,20 @@ export default function ScratchCard({ data, onClose }) {
           margin: 1.5rem 0; border-radius: 12px; overflow: hidden;
           background: #050505; border: 1px solid var(--border);
         }
+        .scratch-container::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 32px;
+          height: 32px;
+          background: #111;
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          border-left: 1px solid rgba(255, 255, 255, 0.15);
+          clip-path: polygon(100% 0, 0 100%, 100% 100%);
+          z-index: 5;
+          pointer-events: none;
+        }
         .scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: crosshair; }
         
         .loot-content { 
@@ -210,6 +279,12 @@ export default function ScratchCard({ data, onClose }) {
         .rarity-glow.epic { background: var(--stage-finish); }
         .rarity-glow.mythic { background: #ff3d00; }
         
+        .art-img-filter.common { filter: grayscale(100%) brightness(0.8) drop-shadow(0 0 6px rgba(170, 170, 170, 0.3)); }
+        .art-img-filter.uncommon { filter: hue-rotate(90deg) saturate(1.5) drop-shadow(0 0 6px rgba(46, 204, 113, 0.35)); }
+        .art-img-filter.rare { filter: hue-rotate(15deg) saturate(2) brightness(1.1) drop-shadow(0 0 8px rgba(241, 196, 15, 0.45)); }
+        .art-img-filter.epic { filter: hue-rotate(-30deg) saturate(2) brightness(1) drop-shadow(0 0 10px rgba(231, 76, 60, 0.55)); }
+        .art-img-filter.mythic { filter: hue-rotate(240deg) saturate(2.5) brightness(1.1) drop-shadow(0 0 12px rgba(147, 51, 234, 0.65)); }
+
         .loot-details { display: flex; flex-direction: column; gap: 4px; }
         .loot-rarity-text { font-size: 0.5rem; font-weight: 900; letter-spacing: 0.2em; }
         .loot-rarity-text.common { color: var(--text-dark); }

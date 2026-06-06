@@ -4,6 +4,43 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Shield, Scroll, Award, Star } from 'lucide-react';
 import ScytheCenter from './ScytheCenter';
 
+const dragonTrophies = [
+  'wyrm', 'wyvern', 'frost', 'shadow', 'lava', 
+  'celestial', 'skeletal', 'storm', 'abyssal', 'ancient'
+];
+
+const getArtifactImage = (name) => {
+  const mapping = {
+    'Iron Quill': 'scroll',
+    "Scout's Compass": 'compass',
+    'Wax Seal of Intent': 'rune',
+    'Cloak of Momentum': 'amulet',
+    'Whetstone of Focus': 'chain',
+    'Ink of Resolve': 'chalice',
+    'Blade of Persistence': 'blade',
+    'Shield of No Retreat': 'shield',
+    'Ring of Execution': 'ring',
+    'Helm of Clarity': 'helm',
+    'Staff of Deadlines': 'staff',
+    'Cloak of Iteration': 'amulet',
+    'Dragon Scale Armor': 'horn',
+    'Eye of the Strategist': 'eye',
+    "Void Walker's Boots": 'gem',
+    'Crown of Completion': 'crown',
+    "Warscythe's Gauntlet": 'gauntlet',
+    'The Finisher': 'blade',
+    'Throne Fragment': 'idol',
+    'Shard of Reality': 'mirror',
+    'Cosmic Reaper': 'skull',
+    'Sovereign Core': 'orb',
+    'Omega Catalyst': 'hourglass',
+    'Grip of the Void': 'gauntlet'
+  };
+  const baseName = mapping[name] || 'rune';
+  return `/artifacts/artifact-${baseName}.png`;
+};
+
+
 export default function VaultModal({ onClose }) {
   const { collectedArtifacts, unlockedLore, currentTitle } = useWarscytheStore();
   const [selectedArtifact, setSelectedArtifact] = useState(null);
@@ -73,17 +110,23 @@ export default function VaultModal({ onClose }) {
                   <span>DRAGON HEAD TROPHIES</span>
                </div>
                <div className="dragon-grid">
-                  {Array.from({ length: useWarscytheStore.getState().bossKills }).map((_, i) => (
-                    <motion.div 
-                      key={i} 
-                      className="dragon-head"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', delay: i * 0.1 }}
-                    >
-                      🐲
-                    </motion.div>
-                  ))}
+                  {Array.from({ length: useWarscytheStore.getState().bossKills }).map((_, i) => {
+                    const type = dragonTrophies[i % dragonTrophies.length];
+                    const trophyPath = `/trophies/trophy-dragon-${type}.png`;
+                    return (
+                      <motion.div 
+                        key={i} 
+                        className="dragon-head flex items-center justify-center p-1 bg-black/40 border border-white/5 rounded-md hover:border-red-500/30 transition-colors"
+                        style={{ width: '48px', height: '48px', display: 'flex' }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', delay: i * 0.1 }}
+                        title={`${type.toUpperCase()} TROPHY`}
+                      >
+                        <img src={trophyPath} alt={`${type} Trophy`} className="w-full h-full object-contain" />
+                      </motion.div>
+                    );
+                  })}
                   {useWarscytheStore.getState().bossKills === 0 && <span className="empty-msg">NO DRAGONS SLAIN</span>}
                </div>
             </div>
@@ -103,7 +146,12 @@ export default function VaultModal({ onClose }) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <span className="art-card-icon">{art.icon}</span>
+                    <img 
+                      src={getArtifactImage(art.name)} 
+                      className={`art-card-icon-img art-img-filter ${art.rarity}`} 
+                      alt={art.name} 
+                      style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain', zIndex: 2 }}
+                    />
                     <div className="rarity-dot" />
                   </motion.div>
                 ))
@@ -122,7 +170,12 @@ export default function VaultModal({ onClose }) {
                   className="inspector-content"
                 >
                   <div className="inspector-visual">
-                    <span className="large-art-icon">{selectedArtifact.icon}</span>
+                    <img 
+                      src={getArtifactImage(selectedArtifact.name)} 
+                      className={`large-art-icon-img art-img-filter ${selectedArtifact.rarity}`} 
+                      alt={selectedArtifact.name} 
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
+                    />
                     <div className={`large-glow rarity-${selectedArtifact.rarity}`} />
                   </div>
                   
@@ -380,6 +433,12 @@ export default function VaultModal({ onClose }) {
         .empty-vault p { font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
         @media (min-width: 1024px) { .empty-vault p { font-size: 1rem; letter-spacing: 0.2em; margin-bottom: 1rem; } }
         .empty-vault span { font-family: var(--font-mono); font-size: 0.55rem; }
+
+        .art-img-filter.common { filter: grayscale(100%) brightness(0.8) drop-shadow(0 0 6px rgba(170, 170, 170, 0.3)); }
+        .art-img-filter.uncommon { filter: hue-rotate(90deg) saturate(1.5) drop-shadow(0 0 6px rgba(46, 204, 113, 0.35)); }
+        .art-img-filter.rare { filter: hue-rotate(15deg) saturate(2) brightness(1.1) drop-shadow(0 0 8px rgba(241, 196, 15, 0.45)); }
+        .art-img-filter.epic { filter: hue-rotate(-30deg) saturate(2) brightness(1) drop-shadow(0 0 10px rgba(231, 76, 60, 0.55)); }
+        .art-img-filter.mythic { filter: hue-rotate(240deg) saturate(2.5) brightness(1.1) drop-shadow(0 0 12px rgba(147, 51, 234, 0.65)); }
       `}</style>
     </div>
   );

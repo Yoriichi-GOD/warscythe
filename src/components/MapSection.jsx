@@ -1,6 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+
+const getDragonAsset = (lvl) => {
+  const dragonTypes = [
+    'wyrm', 'lava', 'frost', 'shadow', 'wyvern', 
+    'celestial', 'skeletal', 'storm', 'abyssal', 'ancient'
+  ];
+  const type = dragonTypes[(lvl - 1) % dragonTypes.length];
+  return `/dragons/dragon-${type}.png`;
+};
+
+const getDragonName = (lvl) => {
+  const dragonNames = [
+    'Malgrath the Dread', 'Stoneback Krul', 'Glacius the Eternal', 'Vreth the Unseen', 
+    'Ignarax the Burning', 'Sol-Varen the Radiant', 'Duskbone Revenant', 'Thundercoil Zarak', 
+    'Nyxara the Void', 'Gorvek the Ancient'
+  ];
+  return dragonNames[(lvl - 1) % dragonNames.length];
+};
+
+const getNodeBanner = (nodeId) => {
+  const banners = {
+    castle: '/nodes/node-blackvale.png',
+    ashendale: '/nodes/node-ashendale.png',
+    jail: '/nodes/node-ironjail.png',
+    stone: '/nodes/node-stonehollow.png',
+    boss: '/nodes/node-blackvale.png'
+  };
+  return banners[nodeId] || '/nodes/node-blackvale.png';
+};
 import { 
   Lock, 
   Map as MapIcon, 
@@ -24,6 +53,22 @@ export default function MapSection({ onTabChange }) {
     level, bossKills, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, triggerBossFlash 
   } = useWarscytheStore();
+  
+  const [showFog, setShowFog] = useState(false);
+  const prevLevelRef = useRef(level);
+
+  useEffect(() => {
+    if (level > prevLevelRef.current) {
+      setShowFog(true);
+      const timer = setTimeout(() => setShowFog(false), 2000);
+      prevLevelRef.current = level;
+      return () => clearTimeout(timer);
+    } else {
+      prevLevelRef.current = level;
+    }
+  }, [level]);
+
+  const mapIndex = ((level - 1) % 10) + 1;
   const [selectedNode, setSelectedNode] = useState(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -100,10 +145,10 @@ export default function MapSection({ onTabChange }) {
   const isStonehollowLocked = !isAshendaleLocked; // Locked on odd days
 
   const nodes = [
-    { id: 'castle', label: 'CASTLE BLACKVALE', top: '78%', left: '48%', status: 'SECURED', type: 'secured' },
-    { id: 'ashendale', label: 'ASHENDALE', top: '48%', left: '22%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
-    { id: 'jail', label: 'IRON JAIL', top: '45%', left: '50%', status: 'IN PROGRESS', type: 'active' },
-    { id: 'stone', label: 'STONEHOLLOW', top: '52%', left: '80%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
+    { id: 'castle', label: 'CASTLE BLACKVALE', top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
+    { id: 'ashendale', label: 'ASHENDALE', top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
+    { id: 'jail', label: 'IRON JAIL', top: '45%', left: '22%', status: 'IN PROGRESS', type: 'active' },
+    { id: 'stone', label: 'STONEHOLLOW', top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
     { id: 'boss', label: "DRAGON'S NEST", top: '15%', left: '50%', status: 'FINAL OBJECTIVE', type: 'boss' }
   ];
 
@@ -184,10 +229,30 @@ export default function MapSection({ onTabChange }) {
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
           <div className="isometric-map-wrapper">
+            <AnimatePresence>
+              {showFog && (
+                <motion.div
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
+                  className="map-fog-overlay-sheet"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: "url('/maps/map-fog-overlay.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    zIndex: 100,
+                    pointerEvents: 'none',
+                  }}
+                />
+              )}
+            </AnimatePresence>
             <div 
               className="map-image-layer" 
               style={{ 
-                backgroundImage: "url('/campaign-map.png')",
+                backgroundImage: `url('/maps/campaign-map-${mapIndex}.png')`,
                 filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia}) saturate(${currentRegionTheme.saturate})`
               }} 
             >
@@ -221,7 +286,7 @@ export default function MapSection({ onTabChange }) {
                   >
                     <div className={`node-glow ${node.type}`} />
                     {node.type === 'active' && <div className="current-ping" />}
-                    {node.type === 'locked' && <Lock size={12} className="lock-icon" />}
+                    {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon" alt="Locked" />}
                     {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
                     <span className="node-label">{node.label}</span>
                     <div className="node-status">{node.status}</div>
@@ -266,7 +331,7 @@ export default function MapSection({ onTabChange }) {
             <div className="region-branding">
               <h4>{activeRegion.name} {activeRegion.icon}</h4>
               <div className="region-banner-placeholder" style={{ 
-                backgroundImage: "url('/region-banner.png')",
+                backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
                 filter: `hue-rotate(${currentRegionTheme.hue}deg)`
               }} />
             </div>
@@ -289,8 +354,25 @@ export default function MapSection({ onTabChange }) {
             </div>
 
             <div className="upcoming-threat elite-panel" style={{ padding: '1rem' }}>
-               <span className="stat-label">RECOVERED FRAGMENTS</span>
-               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[550px] custom-scrollbar pr-2">
+              <span className="stat-label" style={{ marginTop: 0 }}>UPCOMING THREAT</span>
+              <div className="threat-card">
+                <div 
+                  className="threat-image" 
+                  style={{ backgroundImage: `url('${getDragonAsset(level)}')` }} 
+                />
+                <div className="threat-info">
+                  <h5>{getDragonName(level).toUpperCase()}</h5>
+                  <p>A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+                </div>
+              </div>
+              <button className="view-target-btn" onClick={() => setSelectedNode('boss')}>
+                VIEW BOSS INTEL
+              </button>
+            </div>
+
+            <div className="recovered-fragments elite-panel" style={{ padding: '1rem', marginTop: '1.5rem' }}>
+               <span className="stat-label" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
+               <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2">
                  {currentLore.length === 0 ? (
                    <p className="text-[9px] font-mono text-gray-600 text-center py-4 uppercase tracking-widest">
                      No fragments recovered yet.<br/>Conquer operations to reveal the truth.
@@ -502,18 +584,18 @@ export default function MapSection({ onTabChange }) {
           background: rgba(197, 160, 89, 0.65);
         }
         .isometric-map-wrapper {
-          flex: 1;
+          width: 100%;
+          aspect-ratio: 1 / 1;
           background: #000;
           border: 1px solid rgba(197, 160, 89, 0.1);
           border-radius: 8px;
           position: relative;
           overflow: hidden;
-          min-height: 600px;
         }
         .map-image-layer {
           position: absolute;
           inset: 0;
-          background-size: cover;
+          background-size: 100% 100%;
           background-position: center;
           opacity: 0.8;
         }
@@ -733,6 +815,7 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge secured">SECURED</span>
                     <h3>CASTLE BLACKVALE</h3>
                   </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('castle')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
                   <p className="intel-desc">The ancient fortress of Blackvale. Once a den of shadow reapers, now successfully secured under your operational command.</p>
                   <div className="intel-stats font-mono">
                     <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
@@ -747,6 +830,7 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge secured">SECURED</span>
                     <h3>VILLAGE OF ASHENDALE</h3>
                   </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('ashendale')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
                   <p className="intel-desc">The primary valley outpost. Its trade routes and weapon foundries have been cleared of hostiles and stabilized.</p>
                   <div className="intel-stats font-mono">
                     <div><span>CONTROL RATIO</span><span className="text-emerald-400">100%</span></div>
@@ -761,6 +845,7 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge progress">IN PROGRESS</span>
                     <h3>IRON JAIL</h3>
                   </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('jail')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
                   <p className="intel-desc">A heavily fortified prison sector holding tactical blueprints. Active strikes are currently being deployed to dismantle the resistance guards.</p>
                   <div className="intel-stats font-mono">
                     <div><span>THREAT LEVEL</span><span className="text-blue-400">MEDIUM</span></div>
@@ -778,6 +863,7 @@ export default function MapSection({ onTabChange }) {
                     <span className="node-badge locked">LOCKED</span>
                     <h3>STONEHOLLOW DEFILES</h3>
                   </div>
+                  <div className="modal-banner" style={{ width: '100%', height: '120px', backgroundImage: `url('${getNodeBanner('stone')}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
                   <p className="intel-desc">A deep mountain gorge shrouded in thick miasma. The sector remains inaccessible until the Iron Jail blueprints are decrypted.</p>
                   <div className="intel-stats font-mono">
                     <div><span>SECTOR CODE</span><span className="text-gray-500">SH-04</span></div>
@@ -793,8 +879,8 @@ export default function MapSection({ onTabChange }) {
                     <h3>DRAGON'S NEST</h3>
                   </div>
                   <div className="threat-profile">
-                    <div className="threat-avatar" style={{ backgroundImage: "url('/monster-wyrm.png')", height: '120px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
-                    <p className="intel-desc mt-3">An ancient Dread Wyrm has nested in the northern volcanic caldera. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
+                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, height: '120px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
+                    <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
                   </div>
                   <div className="intel-stats font-mono mt-3">
                     <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEGENDARY</span></div>

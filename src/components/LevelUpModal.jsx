@@ -10,6 +10,9 @@ export default function LevelUpModal({ data, onClose }) {
   const loreList = LORE_TEMPLATES[regionIdx] || LORE_TEMPLATES[0] || [];
   const loreTemplate = loreList[0] || "A new horizon awaits your command.";
 
+  const crestIndex = ((newLevel - 1) % 10) + 1;
+  const crestPath = `/crests/region-crest-${crestIndex}.png`;
+
   return (
     <div className="modal-backdrop levelup-backdrop">
       <motion.div 
@@ -50,7 +53,10 @@ export default function LevelUpModal({ data, onClose }) {
 
           <div className="region-reveal">
              <span className="region-label">NOW ENTERING</span>
-             <h3 className="new-region-name">{region.icon} {region.name}</h3>
+             <div className="crest-display-container">
+               <img src={crestPath} className="crest-image" alt="Region Crest" />
+             </div>
+             <h3 className="new-region-name">{region.name}</h3>
              <p className="region-desc">"{loreTemplate.replace('{title}', newTitle)}"</p>
           </div>
 
@@ -109,6 +115,49 @@ export default function LevelUpModal({ data, onClose }) {
         .new-region-name { font-family: var(--font-display); font-size: 1.4rem; color: var(--gold-core); margin-bottom: 0.5rem; }
         .region-desc { font-style: italic; font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
         
+        .crest-display-container {
+          position: relative;
+          width: 120px;
+          height: 120px;
+          margin: 0 auto 1.5rem auto;
+          background: rgba(0,0,0,0.4);
+          border: 1px solid rgba(212,175,55,0.15);
+          padding: 10px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .crest-image {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+          filter: drop-shadow(0 0 10px rgba(212,175,55,0.2));
+        }
+        .crest-display-container::before,
+        .crest-display-container::after {
+          content: '';
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          background: #111;
+          border: 1px solid rgba(255,255,255,0.1);
+          z-index: 5;
+        }
+        .crest-display-container::before {
+          top: -2px;
+          left: -2px;
+          clip-path: polygon(0 0, 100% 0, 0 100%);
+          border-top-left-radius: 8px;
+        }
+        .crest-display-container::after {
+          bottom: -2px;
+          right: -2px;
+          clip-path: polygon(100% 100%, 100% 0, 0 100%);
+          border-bottom-right-radius: 8px;
+        }
+
         .btn-primary.full-width { width: 100%; padding: 1rem; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.2em; }
       `}</style>
     </div>

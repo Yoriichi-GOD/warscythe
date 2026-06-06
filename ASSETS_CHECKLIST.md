@@ -21,16 +21,16 @@ One dragon per region archetype. 10 base assets cycled across 40 regions (every 
 
 | Status | Filename | Dragon Type | Color Theme | Regions |
 |---|---|---|---|---|
-| ☐ | `dragon-wyrm.png` | Dread Wyrm | Red / Fire | 1, 11, 21, 31 |
-| ☐ | `dragon-wyvern.png` | Stone Wyvern | Grey / Earth | 2, 12, 22, 32 |
-| ☐ | `dragon-frost.png` | Frost Drake | Blue / Ice | 3, 13, 23, 33 |
-| ☐ | `dragon-shadow.png` | Shadow Serpent | Purple / Dark | 4, 14, 24, 34 |
-| ☐ | `dragon-lava.png` | Lava Drake | Orange / Volcanic | 5, 15, 25, 35 |
-| ☐ | `dragon-celestial.png` | Celestial Wyrm | White / Gold | 6, 16, 26, 36 |
-| ☐ | `dragon-skeletal.png` | Skeletal Dragon | Bone / Undead | 7, 17, 27, 37 |
-| ☐ | `dragon-storm.png` | Storm Wyvern | Electric / Teal | 8, 18, 28, 38 |
-| ☐ | `dragon-abyssal.png` | Abyssal Leviathan | Black / Void | 9, 19, 29, 39 |
-| ☐ | `dragon-ancient.png` | Ancient Titan | Bronze / Golden | 10, 20, 30, 40 |
+| ✅ | `dragon-wyrm.png` | Dread Wyrm | Red / Fire | 1, 11, 21, 31 |
+| ✅ | `dragon-wyvern.png` | Stone Wyvern | Grey / Earth | 2, 12, 22, 32 |
+| ✅ | `dragon-frost.png` | Frost Drake | Blue / Ice | 3, 13, 23, 33 |
+| ✅ | `dragon-shadow.png` | Shadow Serpent | Purple / Dark | 4, 14, 24, 34 |
+| ✅ | `dragon-lava.png` | Lava Drake | Orange / Volcanic | 5, 15, 25, 35 |
+| ✅ | `dragon-celestial.png` | Celestial Wyrm | White / Gold | 6, 16, 26, 36 |
+| ✅ | `dragon-skeletal.png` | Skeletal Dragon | Bone / Undead | 7, 17, 27, 37 |
+| ✅ | `dragon-storm.png` | Storm Wyvern | Electric / Teal | 8, 18, 28, 38 |
+| ✅ | `dragon-abyssal.png` | Abyssal Leviathan | Black / Void | 9, 19, 29, 39 |
+| ✅ | `dragon-ancient.png` | Ancient Titan | Bronze / Golden | 10, 20, 30, 40 |
 
 **Total: 10 files**
 
@@ -58,30 +58,30 @@ One dragon per region archetype. 10 base assets cycled across 40 regions (every 
 | Status | Base Name | Full Filenames (5 variants each) | Description |
 |---|---|---|---|
 | ✅ | `skull` | `artifact-skull-common/uncommon/rare/epic/mythic.png` | Ancient skull relic |
-| ☐ | `crown` | `artifact-crown-[rarity].png` | Ancient war crown |
-| ☐ | `orb` | `artifact-orb-[rarity].png` | Glowing power orb |
-| ☐ | `blade` | `artifact-blade-[rarity].png` | Cursed blade shard |
-| ☐ | `tome` | `artifact-tome-[rarity].png` | Forbidden tome |
-| ☐ | `rune` | `artifact-rune-[rarity].png` | Runic stone |
-| ☐ | `ring` | `artifact-ring-[rarity].png` | Power ring |
-| ☐ | `scroll` | `artifact-scroll-[rarity].png` | Ancient scroll |
-| ☐ | `idol` | `artifact-idol-[rarity].png` | Stone idol |
-| ☐ | `gem` | `artifact-gem-[rarity].png` | Mystic gem |
-| ☐ | `amulet` | `artifact-amulet-[rarity].png` | Bone amulet |
-| ☐ | `chalice` | `artifact-chalice-[rarity].png` | Blood chalice |
-| ☐ | `gauntlet` | `artifact-gauntlet-[rarity].png` | Iron gauntlet |
-| ☐ | `helm` | `artifact-helm-[rarity].png` | War helm fragment |
-| ☐ | `shield` | `artifact-shield-[rarity].png` | Cracked shield |
-| ☐ | `horn` | `artifact-horn-[rarity].png` | Dragon horn |
-| ☐ | `eye` | `artifact-eye-[rarity].png` | Eye of the void |
-| ☐ | `chain` | `artifact-chain-[rarity].png` | Cursed chains |
-| ☐ | `staff` | `artifact-staff-[rarity].png` | Warlock staff |
-| ☐ | `map` | `artifact-map-[rarity].png` | Torn battle map |
-| ☐ | `compass` | `artifact-compass-[rarity].png` | Obsidian compass |
-| ☐ | `coin` | `artifact-coin-[rarity].png` | Ancient war coin |
-| ☐ | `hourglass` | `artifact-hourglass-[rarity].png` | Frozen hourglass |
-| ☐ | `mirror` | `artifact-mirror-[rarity].png` | Shattered mirror |
-| ☐ | `lantern` | `artifact-lantern-[rarity].png` | Soul lantern |
+| ✅ | `crown` | `artifact-crown-[rarity].png` | Ancient war crown |
+| ✅ | `orb` | `artifact-orb-[rarity].png` | Glowing power orb |
+| ✅ | `blade` | `artifact-blade-[rarity].png` | Cursed blade shard |
+| ✅ | `tome` | `artifact-tome-[rarity].png` | Forbidden tome |
+| ✅ | `rune` | `artifact-rune-[rarity].png` | Runic stone |
+| ✅ | `ring` | `artifact-ring-[rarity].png` | Power ring |
+| ✅ | `scroll` | `artifact-scroll-[rarity].png` | Ancient scroll |
+| ✅ | `idol` | `artifact-idol-[rarity].png` | Stone idol |
+| ✅ | `gem` | `artifact-gem-[rarity].png` | Mystic gem |
+| ✅ | `amulet` | `artifact-amulet-[rarity].png` | Bone amulet |
+| ✅ | `chalice` | `artifact-chalice-[rarity].png` | Blood chalice |
+| ✅ | `gauntlet` | `artifact-gauntlet-[rarity].png` | Iron gauntlet |
+| ✅ | `helm` | `artifact-helm-[rarity].png` | War helm fragment |
+| ✅ | `shield` | `artifact-shield-[rarity].png` | Cracked shield |
+| ✅ | `horn` | `artifact-horn-[rarity].png` | Dragon horn |
+| ✅ | `eye` | `artifact-eye-[rarity].png` | Eye of the void |
+| ✅ | `chain` | `artifact-chain-[rarity].png` | Cursed chains |
+| ✅ | `staff` | `artifact-staff-[rarity].png` | Warlock staff |
+| ✅ | `map` | `artifact-map-[rarity].png` | Torn battle map |
+| ✅ | `compass` | `artifact-compass-[rarity].png` | Obsidian compass |
+| ✅ | `coin` | `artifact-coin-[rarity].png` | Ancient war coin |
+| ✅ | `hourglass` | `artifact-hourglass-[rarity].png` | Frozen hourglass |
+| ✅ | `mirror` | `artifact-mirror-[rarity].png` | Shattered mirror |
+| ✅ | `lantern` | `artifact-lantern-[rarity].png` | Soul lantern |
 
 **Total: 125 files** (25 types × 5 rarities)
 
@@ -97,18 +97,20 @@ One dragon per region archetype. 10 base assets cycled across 40 regions (every 
 
 | Status | Filename | Description | Regions |
 |---|---|---|---|
-| ☐ | `campaign-map-1.png` | Starting grasslands / fortress gateway | 1, 11, 21, 31 |
-| ☐ | `campaign-map-2.png` | Volcanic rift / ashen canyons | 2, 12, 22, 32 |
-| ☐ | `campaign-map-3.png` | Frozen peaks / glacial valleys | 3, 13, 23, 33 |
-| ☐ | `campaign-map-4.png` | Shadow forest / ancient ruins | 4, 14, 24, 34 |
-| ☐ | `campaign-map-5.png` | Desert dunes / crystal oasis | 5, 15, 25, 35 |
-| ☐ | `campaign-map-6.png` | Floating skylands / celestial temples | 6, 16, 26, 36 |
-| ☐ | `campaign-map-7.png` | Sunken cavern / abyssal deeps | 7, 17, 27, 37 |
-| ☐ | `campaign-map-8.png` | Toxic swampland / glowing fungal groves | 8, 18, 28, 38 |
-| ☐ | `campaign-map-9.png` | Cosmic void / shattered gravity islands | 9, 19, 29, 39 |
-| ☐ | `campaign-map-10.png` | Ancient titan colosseum / golden citadel | 10, 20, 30, 40 |
+| ✅ | `campaign-map-1.png` | Starting grasslands / fortress gateway | 1, 11, 21, 31 |
+| ✅ | `campaign-map-2.png` | Volcanic rift / ashen canyons | 2, 12, 22, 32 |
+| ✅ | `campaign-map-3.png` | Frozen peaks / glacial valleys | 3, 13, 23, 33 |
+| ✅ | `campaign-map-4.png` | Shadow forest / ancient ruins | 4, 14, 24, 34 |
+| ✅ | `campaign-map-5.png` | Desert dunes / crystal oasis | 5, 15, 25, 35 |
+| ✅ | `campaign-map-6.png` | Floating skylands / celestial temples | 6, 16, 26, 36 |
+| ✅ | `campaign-map-7.png` | Sunken cavern / abyssal deeps | 7, 17, 27, 37 |
+| ✅ | `campaign-map-8.png` | Toxic swampland / glowing fungal groves | 8, 18, 28, 38 |
+| ✅ | `campaign-map-9.png` | Cosmic void / shattered gravity islands | 9, 19, 29, 39 |
+| ✅ | `campaign-map-10.png` | Ancient titan colosseum / golden citadel | 10, 20, 30, 40 |
+| ✅ | `map-lock-icon.png` | Gothic padlock overlay for locked regions | - |
+| ✅ | `map-fog-overlay.png` | Looping cloud/fog texture for sliding transitions | - |
 
-**Total: 10 files**
+**Total: 12 files**
 
 ---
 
@@ -118,11 +120,11 @@ Textures representing the scratchable foil card covers. The color/glow intensity
 
 | Status | Filename | Description |
 |---|---|---|
-| ☐ | `scratch-foil-common.png` | Slate metallic card cover |
-| ☐ | `scratch-foil-uncommon.png` | Verdigris copper metallic card cover |
-| ☐ | `scratch-foil-rare.png` | Gold leaf brushed metallic card cover |
-| ☐ | `scratch-foil-epic.png` | Crimson steel engraved card cover |
-| ☐ | `scratch-foil-mythic.png` | Cosmic obsidian glowing card cover |
+| ✅ | `scratch-foil-common.png` | Slate metallic card cover |
+| ✅ | `scratch-foil-uncommon.png` | Verdigris copper metallic card cover |
+| ✅ | `scratch-foil-rare.png` | Gold leaf brushed metallic card cover |
+| ✅ | `scratch-foil-epic.png` | Crimson steel engraved card cover |
+| ✅ | `scratch-foil-mythic.png` | Cosmic obsidian glowing card cover |
 
 **Total: 5 files**
 
@@ -134,16 +136,16 @@ Emblems to display on the Ascension / Level Up popup instead of basic emojis (e.
 
 | Status | Filename | Description | Archetype |
 |---|---|---|---|
-| ☐ | `region-crest-1.png` | Shield of the Gateway | Grasslands |
-| ☐ | `region-crest-2.png` | Crest of the Caldera | Volcanic |
-| ☐ | `region-crest-3.png` | Sigil of the Glacial Peaks | Frozen |
-| ☐ | `region-crest-4.png` | Mark of the Old Wood | Shadow Forest |
-| ☐ | `region-crest-5.png` | Seal of the Oasis | Desert |
-| ☐ | `region-crest-6.png` | Aegis of the Sun-Temple | Sky Temple |
-| ☐ | `region-crest-7.png` | Rune of the Abyss | Sunken Cavern |
-| ☐ | `region-crest-8.png` | Token of the Fungal Groves | Toxic Swamp |
-| ☐ | `region-crest-9.png` | Void-shard emblem | Cosmic Void |
-| ☐ | `region-crest-10.png` | Golden Citadel seal | Titan Rest |
+| ✅ | `region-crest-1.png` | Shield of the Gateway | Grasslands |
+| ✅ | `region-crest-2.png` | Crest of the Caldera | Volcanic |
+| ✅ | `region-crest-3.png` | Sigil of the Glacial Peaks | Frozen |
+| ✅ | `region-crest-4.png` | Mark of the Old Wood | Shadow Forest |
+| ✅ | `region-crest-5.png` | Seal of the Oasis | Desert |
+| ✅ | `region-crest-6.png` | Aegis of the Sun-Temple | Sky Temple |
+| ✅ | `region-crest-7.png` | Rune of the Abyss | Sunken Cavern |
+| ✅ | `region-crest-8.png` | Token of the Fungal Groves | Toxic Swamp |
+| ✅ | `region-crest-9.png` | Void-shard emblem | Cosmic Void |
+| ✅ | `region-crest-10.png` | Golden Citadel seal | Titan Rest |
 
 **Total: 10 files**
 
@@ -155,18 +157,33 @@ High-fantasy trophies showing the severed heads/remnants of the regional dragon 
 
 | Status | Filename | Slain Boss Target |
 |---|---|---|
-| ☐ | `trophy-dragon-wyrm.png` | Dread Wyrm Trophy |
-| ☐ | `trophy-dragon-wyvern.png` | Stone Wyvern Trophy |
-| ☐ | `trophy-dragon-frost.png` | Frost Drake Trophy |
-| ☐ | `trophy-dragon-shadow.png` | Shadow Serpent Trophy |
-| ☐ | `trophy-dragon-lava.png` | Lava Drake Trophy |
-| ☐ | `trophy-dragon-celestial.png` | Celestial Wyrm Trophy |
-| ☐ | `trophy-dragon-skeletal.png` | Skeletal Dragon Trophy |
-| ☐ | `trophy-dragon-storm.png` | Storm Wyvern Trophy |
-| ☐ | `trophy-dragon-abyssal.png` | Abyssal Leviathan Trophy |
-| ☐ | `trophy-dragon-ancient.png` | Ancient Titan Trophy |
+| ✅ | `trophy-dragon-wyrm.png` | Dread Wyrm Trophy |
+| ✅ | `trophy-dragon-wyvern.png` | Stone Wyvern Trophy |
+| ✅ | `trophy-dragon-frost.png` | Frost Drake Trophy |
+| ✅ | `trophy-dragon-shadow.png` | Shadow Serpent Trophy |
+| ✅ | `trophy-dragon-lava.png` | Lava Drake Trophy |
+| ✅ | `trophy-dragon-celestial.png` | Celestial Wyrm Trophy |
+| ✅ | `trophy-dragon-skeletal.png` | Skeletal Dragon Trophy |
+| ✅ | `trophy-dragon-storm.png` | Storm Wyvern Trophy |
+| ✅ | `trophy-dragon-abyssal.png` | Abyssal Leviathan Trophy |
+| ✅ | `trophy-dragon-ancient.png` | Ancient Titan Trophy |
 
 **Total: 10 files**
+
+---
+
+## 🏰 MAP NODE DETAIL ARTWORKS — `public/nodes/`
+
+Illustrations rendered inside the right-side Region Intel detail panels on the quest map, replacing generic placeholders and emojis.
+
+| Status | Filename | Node Target | Thematic Setting |
+|---|---|---|---|
+| ✅ | `node-stonehollow.png` | Stonehollow | Training grounds / Fitness logbook |
+| ✅ | `node-ashendale.png` | Ashendale | Runic shrine / Rituals & Habits |
+| ✅ | `node-blackvale.png` | Castle Blackvale | Gothic library / Ledger relic vault |
+| ✅ | `node-ironjail.png` | Iron Jail | Fortress keep / Active operations |
+
+**Total: 4 files**
 
 ---
 
@@ -177,11 +194,12 @@ High-fantasy trophies showing the severed heads/remnants of the regional dragon 
 | `public/boss-kill/` | 2 (desktop) + 2 (mobile) = 4 |
 | `public/dragons/` | 10 |
 | `public/artifacts/` | 125 |
-| `public/maps/` | 10 |
+| `public/maps/` | 12 |
 | `public/scratch/` | 5 |
 | `public/crests/` | 10 |
 | `public/trophies/` | 10 |
-| **TOTAL** | **174 assets** |
+| `public/nodes/` | 4 |
+| **TOTAL** | **180 assets** |
 
 ---
 
@@ -237,8 +255,12 @@ The contrast between the two images tells the complete story of the battle witho
 
 1. ✅ `boss-kill-screen.png` / `boss-kill-screen-mobile.png` — Done
 2. ✅ `boss-initiate-screen.png` / `boss-initiate-screen-mobile.png` — Done
-3. ☐ 10 Region Map PNGs (`campaign-map-1.png` to `campaign-map-10.png`)
-4. ☐ `dragon-wyrm.png` — First/default region boss
-5. ☐ Remaining 9 dragons
-6. ☐ Skull artifact (5 rarity variants — started)
-7. ☐ Remaining 24 artifact types (5 variants each)
+3. ✅ 10 Region Map PNGs (`campaign-map-1.png` to `campaign-map-10.png`) (Completed)
+4. ✅ `dragon-wyrm.png` — First/default region boss (Completed)
+5. ✅ Remaining 9 dragons (Completed)
+6. ⏳ Skull artifact (5 rarity variants — started)
+7. ⏳ Remaining 24 artifact types (5 variants each — base files completed)
+8. ✅ 10 Region Shield Crests (Completed)
+9. ✅ 5 Scratch Card Foil Textures (Completed)
+10. ✅ 10 Dragon Trophy Relics (Completed)
+11. ✅ 4 Map Node Detail Artworks (Completed)

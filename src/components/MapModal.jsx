@@ -4,6 +4,37 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
 import { X, Lock, Map as MapIcon, Scroll, Shield } from 'lucide-react';
 
+const getArtifactImage = (name) => {
+  const mapping = {
+    'Iron Quill': 'scroll',
+    "Scout's Compass": 'compass',
+    'Wax Seal of Intent': 'rune',
+    'Cloak of Momentum': 'amulet',
+    'Whetstone of Focus': 'chain',
+    'Ink of Resolve': 'chalice',
+    'Blade of Persistence': 'blade',
+    'Shield of No Retreat': 'shield',
+    'Ring of Execution': 'ring',
+    'Helm of Clarity': 'helm',
+    'Staff of Deadlines': 'staff',
+    'Cloak of Iteration': 'amulet',
+    'Dragon Scale Armor': 'horn',
+    'Eye of the Strategist': 'eye',
+    "Void Walker's Boots": 'gem',
+    'Crown of Completion': 'crown',
+    "Warscythe's Gauntlet": 'gauntlet',
+    'The Finisher': 'blade',
+    'Throne Fragment': 'idol',
+    'Shard of Reality': 'mirror',
+    'Cosmic Reaper': 'skull',
+    'Sovereign Core': 'orb',
+    'Omega Catalyst': 'hourglass',
+    'Grip of the Void': 'gauntlet'
+  };
+  const baseName = mapping[name] || 'rune';
+  return `/artifacts/artifact-${baseName}.png`;
+};
+
 export default function MapModal({ onClose }) {
   const { level, currentLevelProgress, unlockedLore, collectedArtifacts } = useWarscytheStore();
   
@@ -82,7 +113,12 @@ export default function MapModal({ onClose }) {
                 ) : (
                   collectedArtifacts.map((art, i) => (
                     <div key={i} className={`artifact-chip rarity-${art.rarity}`} title={art.lore}>
-                      <span>{art.icon}</span>
+                      <img 
+                        src={getArtifactImage(art.name)} 
+                        className={`artifact-chip-img art-img-filter ${art.rarity}`} 
+                        alt={art.name} 
+                        style={{ width: '20px', height: '20px', objectFit: 'contain', zIndex: 2 }}
+                      />
                       <label>{art.name}</label>
                     </div>
                   ))
@@ -138,7 +174,14 @@ export default function MapModal({ onClose }) {
           display: flex; align-items: center; gap: 6px; border: 1px solid var(--border);
         }
         .artifact-chip span { font-size: 1.2rem; }
+        .artifact-chip-img { display: inline-block; vertical-align: middle; }
         .artifact-chip label { font-size: 0.55rem; font-weight: 700; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .art-img-filter.common { filter: grayscale(100%) brightness(0.8) drop-shadow(0 0 6px rgba(170, 170, 170, 0.3)); }
+        .art-img-filter.uncommon { filter: hue-rotate(90deg) saturate(1.5) drop-shadow(0 0 6px rgba(46, 204, 113, 0.35)); }
+        .art-img-filter.rare { filter: hue-rotate(15deg) saturate(2) brightness(1.1) drop-shadow(0 0 8px rgba(241, 196, 15, 0.45)); }
+        .art-img-filter.epic { filter: hue-rotate(-30deg) saturate(2) brightness(1) drop-shadow(0 0 10px rgba(231, 76, 60, 0.55)); }
+        .art-img-filter.mythic { filter: hue-rotate(240deg) saturate(2.5) brightness(1.1) drop-shadow(0 0 12px rgba(147, 51, 234, 0.65)); }
         
         .rarity-rare { border-color: var(--stage-build); }
         .rarity-epic { border-color: var(--stage-finish); }
