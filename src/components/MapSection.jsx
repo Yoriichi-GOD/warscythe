@@ -461,10 +461,17 @@ export default function MapSection({ onTabChange }) {
             </div>
             
             <div className="region-branding font-times">
-              <h4 className="text-gold-gradient text-lg font-bold">{activeRegion.name} {activeRegion.icon}</h4>
+              <h4 className="text-gold-gradient text-lg font-bold flex items-center justify-center gap-2">
+                {activeRegion.name}
+                <img 
+                  src={`/crests/region-crest-${(regionIdx % 10) + 1}.png`} 
+                  alt={`${activeRegion.name} Crest`} 
+                  className="w-7 h-7 object-contain inline-block filter drop-shadow-[0_0_4px_rgba(236,200,128,0.3)]"
+                />
+              </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
                 backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
-                filter: `hue-rotate(${currentRegionTheme.hue}deg)`
+                filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia || 0}) saturate(${currentRegionTheme.saturate || 1})`
               }} />
             </div>
 
@@ -977,7 +984,7 @@ export default function MapSection({ onTabChange }) {
         /* Right Column Intel */
         .region-branding { margin-top: 1rem; text-align: center; }
         .region-branding h4 { font-size: 1.25rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
-        .region-banner-placeholder { width: 100%; height: 80px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.85; }
+        .region-banner-placeholder { width: 100%; height: 140px; background-size: cover; background-repeat: no-repeat; background-position: center; opacity: 1; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
 
         .stat-label { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 1.5rem; margin-bottom: 0.75rem; }
         
