@@ -1378,6 +1378,45 @@ export default function MapSection({ onTabChange }) {
           0% { stroke-width: 1.5px; opacity: 0.7; }
           100% { stroke-width: 2.5px; opacity: 1; }
         }
+
+        /* ── Boss Raid Card Ornaments ── */
+        .gothic-divider {
+          position: relative;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(236, 200, 128, 0.3) 50%, transparent);
+          margin: 1rem 0;
+        }
+        .gothic-divider::after {
+          content: "❖";
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          color: #ecc880;
+          background: #0a0a0c;
+          padding: 0 8px;
+          font-size: 9px;
+        }
+        .boss-intel-desc {
+          font-size: 0.82rem;
+          color: rgba(255, 255, 255, 0.72);
+          line-height: 1.85;
+          text-align: center;
+          font-family: var(--font-display, 'Times New Roman', serif);
+          margin: 0;
+        }
+        .intel-stats div {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.65rem;
+          letter-spacing: 0.1em;
+          color: var(--text-dark);
+        }
+        .intel-stats span.flex {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
       `}</style>
     </motion.div>
   );
