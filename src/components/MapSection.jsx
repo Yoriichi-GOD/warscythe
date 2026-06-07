@@ -16,7 +16,8 @@ import {
   ScrollText,
   ChevronLeft,
   ChevronRight,
-  Unlock
+  Unlock,
+  Trophy
 } from 'lucide-react';
 import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
 
@@ -927,12 +928,27 @@ export default function MapSection({ onTabChange }) {
                       <h3>{nodeInfo('boss').name.toUpperCase()}</h3>
                     </div>
                     <div className="threat-profile">
-                      <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
-                      <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(activeMapIndex)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
+                      <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')`, width: '100%', aspectRatio: '1.2 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.08)' }} />
+                      
+                      <div className="gothic-divider mt-4" />
+                      
+                      <p className="boss-intel-desc mt-3">
+                        The legendary dragon <span className="text-gold-core font-bold">{getDragonName(activeMapIndex)}</span> has nested in this region.<br />
+                        This colossal beast possesses unmatched raw power.<br />
+                        Only a coordinated Boss Raid operation can bring it down.
+                      </p>
+                      
+                      <div className="gothic-divider" />
                     </div>
                     <div className="intel-stats font-mono mt-3">
-                      <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEVEL {activeMapIndex} BOSS</span></div>
-                      <div><span>REWARD ELITE</span><span className="text-gold-bright font-bold">CREST OF {displayRegion.name.toUpperCase()}</span></div>
+                      <div>
+                        <span className="flex items-center text-white/50"><Skull size={12} className="text-red-500 mr-2" /> THREAT VALUE</span>
+                        <span className="text-red-500 font-bold">LEVEL {activeMapIndex} BOSS</span>
+                      </div>
+                      <div>
+                        <span className="flex items-center text-white/50"><Trophy size={12} className="text-gold-core mr-2" /> REWARD ELITE</span>
+                        <span className="text-gold-bright font-bold">CREST OF {displayRegion.name.toUpperCase()}</span>
+                      </div>
                     </div>
                     <button 
                       className="intel-action-btn btn-gothic-gold mt-3" 
