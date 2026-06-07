@@ -3,7 +3,10 @@ import { useWarscytheStore } from "../../store/useWarscytheStore";
 
 export default function DashboardLayout({ children, activeTab }) {
   const level = useWarscytheStore(state => state.level) || 1;
-  const regionIndex = ((level - 1) % 10) + 1;
+  const storeViewedRegionNumber = useWarscytheStore(state => state.viewedRegionNumber) || level;
+  
+  const viewedRegionNumber = activeTab === 'map' ? storeViewedRegionNumber : level;
+  const regionIndex = ((viewedRegionNumber - 1) % 10) + 1;
 
   const bgImage = activeTab === 'fitness' 
     ? '/olympus-bg.png' 
@@ -13,8 +16,8 @@ export default function DashboardLayout({ children, activeTab }) {
     ? 'Olympus Temple' 
     : `Region ${regionIndex} Background`;
 
-  const isRepetition = level > 10;
-  const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
+  const isRepetition = viewedRegionNumber > 10;
+  const cycleIndex = isRepetition ? Math.floor((viewedRegionNumber - 1) / 10) : 0;
 
   const regionThemes = [
     { hue: 20, sepia: 0.8, saturate: 1.5 },   // Cycle 1: Autumn Gold

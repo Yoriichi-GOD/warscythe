@@ -132,7 +132,8 @@ export default function MapSection({ onTabChange }) {
   const { 
     level, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
-    scytheLevel, coins, streakCount, rescuedFairies, user
+    scytheLevel, coins, streakCount, rescuedFairies, user,
+    setViewedRegionNumber
   } = useWarscytheStore();
 
   const activeTasksCount = tasks.filter(t => !t.completedAt).length;
@@ -246,6 +247,10 @@ export default function MapSection({ onTabChange }) {
     : (activeMapIndex <= currentLevelMapIndex 
         ? (completedCycles * 10 + activeMapIndex)
         : ((completedCycles - 1) * 10 + activeMapIndex));
+
+  useEffect(() => {
+    setViewedRegionNumber(viewedRegionNumber);
+  }, [viewedRegionNumber, setViewedRegionNumber]);
 
   const isRepetition = viewedRegionNumber > 10;
   const cycleIndex = isRepetition ? Math.floor((viewedRegionNumber - 1) / 10) : 0;

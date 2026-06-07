@@ -250,6 +250,7 @@ export const useWarscytheStore = create(
       rescuedFairies: {},
       pendingVictoryScreen: null,
       receivedProphecies: [],
+      viewedRegionNumber: 1,
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -1226,6 +1227,8 @@ export const useWarscytheStore = create(
           };
         });
       },
+
+      setViewedRegionNumber: (num) => set({ viewedRegionNumber: num }),
 
       getTotalTonnage: () => {
         const gymLog = get().gymLog || [];
