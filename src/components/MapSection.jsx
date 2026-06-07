@@ -239,14 +239,22 @@ export default function MapSection({ onTabChange }) {
     }])
   ];
 
-  const isRepetition = level > 10;
-  const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
+  const completedCycles = Math.floor((level - 1) / 10);
+  const currentLevelMapIndex = ((level - 1) % 10) + 1;
+  const viewedRegionNumber = completedCycles === 0
+    ? activeMapIndex
+    : (activeMapIndex <= currentLevelMapIndex 
+        ? (completedCycles * 10 + activeMapIndex)
+        : ((completedCycles - 1) * 10 + activeMapIndex));
+
+  const isRepetition = viewedRegionNumber > 10;
+  const cycleIndex = isRepetition ? Math.floor((viewedRegionNumber - 1) / 10) : 0;
 
   const regionThemes = [
-    { hue: 20, sepia: 0.8, saturate: 1.5 },   // Cycle 1: Autumn Gold
-    { hue: 200, sepia: 0.3, saturate: 0.8 },  // Cycle 2: Ice / Blue Shift
-    { hue: 100, sepia: 0.5, saturate: 1.2 },  // Cycle 3: Forest Green / Decay
-    { hue: 280, sepia: 0.6, saturate: 2 },    // Cycle 4: Purple Void Shift
+    { hue: 20, sepia: 0.8, saturate: 1.5 },   // Cycle 1: Autumn Gold (Region 11-20)
+    { hue: 200, sepia: 0.3, saturate: 0.8 },  // Cycle 2: Ice / Blue Shift (Region 21-30)
+    { hue: 100, sepia: 0.5, saturate: 1.2 },  // Cycle 3: Forest Green / Decay (Region 31-40)
+    { hue: 280, sepia: 0.6, saturate: 2 },    // Cycle 4: Purple Void Shift (Region 41-50)
   ];
 
   const currentTheme = isRepetition ? regionThemes[(cycleIndex - 1) % regionThemes.length] : null;

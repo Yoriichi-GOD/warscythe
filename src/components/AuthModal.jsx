@@ -144,7 +144,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
           position: fixed;
           inset: 0;
           background: rgba(0,0,0,0.6); 
-          backdrop-filter: blur(12px); 
+          backdrop-filter: blur(10px); 
           z-index: 3000; 
           display: flex;
           align-items: center;

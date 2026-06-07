@@ -60,11 +60,11 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
 
   const leftPanel = isVictory
     ? { src: `/fairies/empress-${mapIndex}-liberated.png`, label: 'LIBERATED', filter: 'none', glow: palette.glow }
-    : { src: `/dragons/dragon-${dragonType}.png`,          label: 'THREAT',    filter: 'none', glow: 'rgba(220,30,30,0.5)' };
+    : { src: `/dragons/dragon-${dragonType}.png`,          label: 'THREAT',    filter: 'none', glow: 'transparent' };
 
   const rightPanel = isVictory
     ? { src: `/dragons/dragon-${dragonType}.png`,       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
-    : { src: `/fairies/empress-${mapIndex}-caged.png`,  label: 'IMPRISONED', filter: 'none', glow: 'rgba(220,30,30,0.35)' };
+    : { src: `/fairies/empress-${mapIndex}-caged.png`,  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
 
   const accentColor = isVictory ? palette.hex : '#ff4444';
   const accentGlow  = isVictory ? palette.glow : 'rgba(220,30,30,0.5)';
