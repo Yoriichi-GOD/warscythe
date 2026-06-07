@@ -222,7 +222,7 @@ export default function MapSection({ onTabChange }) {
 
   const bannerStyle = (nodeId) => ({
     width: '100%',
-    height: '120px',
+    aspectRatio: '16 / 9',
     backgroundImage: `url('${getNodeBanner(nodeId)}')`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -991,7 +991,7 @@ export default function MapSection({ onTabChange }) {
         /* Right Column Intel */
         .region-branding { margin-top: 1rem; text-align: center; }
         .region-branding h4 { font-size: 1.25rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
-        .region-banner-placeholder { width: 100%; height: 140px; background-size: cover; background-repeat: no-repeat; background-position: center; opacity: 1; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .region-banner-placeholder { width: 100%; aspect-ratio: 16 / 9; height: auto; background-size: cover; background-repeat: no-repeat; background-position: center; opacity: 1; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
 
         .stat-label { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-top: 1.5rem; margin-bottom: 0.75rem; }
         
