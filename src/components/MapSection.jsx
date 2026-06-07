@@ -132,7 +132,7 @@ export default function MapSection({ onTabChange }) {
   const { 
     level, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
-    scytheLevel, coins, streakCount, rescuedFairies
+    scytheLevel, coins, streakCount, rescuedFairies, user
   } = useWarscytheStore();
 
   const activeTasksCount = tasks.filter(t => !t.completedAt).length;
@@ -268,8 +268,9 @@ export default function MapSection({ onTabChange }) {
   
   const displayRegionIdx = activeMapIndex - 1;
   const displayRegion = REGIONS[displayRegionIdx] || REGIONS[0];
-  const displayProgress = activeMapIndex < level ? TASKS_PER_LEVEL : activeMapIndex === level ? currentLevelProgress : 0;
-  const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
+  const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
+  const displayProgress = activeMapIndex < level ? tasksPerLevel : activeMapIndex === level ? currentLevelProgress : 0;
+  const progressPct = Math.round((displayProgress / tasksPerLevel) * 100);
   const displayLore = unlockedLore?.[displayRegionIdx] || [];
 
   const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx] || (activeMapIndex < level ? {
@@ -596,7 +597,7 @@ export default function MapSection({ onTabChange }) {
                <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
                   <span className="pct text-gold-gradient font-bold">{progressPct}%</span>
                </div>
-               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
+               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {tasksPerLevel} SECURED</p>
             </div>
  
             <div className="active-modifiers font-times">

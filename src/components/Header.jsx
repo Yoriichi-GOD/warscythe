@@ -8,8 +8,9 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
   const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress, syncStatus, forceSync } = useWarscytheStore();
   
   const xpForNext = level * 1000;
-  const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
-  const progress = (displayProgress / TASKS_PER_LEVEL) * 100;
+  const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
+  const displayProgress = Math.min(currentLevelProgress || 0, tasksPerLevel);
+  const progress = (displayProgress / tasksPerLevel) * 100;
 
   return (
     <header className="main-header glass-panel">
@@ -39,7 +40,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         <div className="progress-hub">
           <div className="progress-header">
             <span className="progress-label">REGION PROGRESS</span>
-            <span className="progress-value">{displayProgress}/{TASKS_PER_LEVEL}</span>
+            <span className="progress-value">{displayProgress}/{tasksPerLevel}</span>
           </div>
           <div className="progress-bar-container">
             <motion.div 
@@ -63,11 +64,11 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           {user && (
             <button 
               className={`nav-btn sync-btn status-${syncStatus}`} 
-              onClick={forceSync}
+              onClick={syncStatus === 'failed' ? () => onOpenAuth() : forceSync}
               title={
                 syncStatus === 'synced' ? 'All progress synced with command core' :
                 syncStatus === 'pending' ? 'Synchronizing with command core...' :
-                'Sync failure! Click to force strike sync.'
+                'Sync failure! Click to re-authenticate and resolve.'
               }
             >
               {syncStatus === 'synced' && <RefreshCw size={14} className="text-gold-core/60" />}
@@ -78,7 +79,15 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           
           <button 
             className={`nav-btn ${user ? 'active' : ''}`} 
-            onClick={user ? () => signOut() : () => onOpenAuth()}
+            onClick={user ? () => {
+              const hasUnsynced = syncStatus === 'failed' || useWarscytheStore.getState().hasPendingChanges;
+              if (hasUnsynced) {
+                if (!window.confirm("WARNING: You have unsynced offline progress. Logging out will discard these local changes. Are you sure you want to sign out?")) {
+                  return;
+                }
+              }
+              signOut();
+            } : () => onOpenAuth()}
             title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
           >
             {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}

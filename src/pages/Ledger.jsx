@@ -682,7 +682,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       </div>
 
                       {/* Liberation portrait thumbnail */}
-                      <div className="mt-4 w-full rounded overflow-hidden border border-white/5" style={{ aspectRatio: '1/1', maxHeight: 160 }}>
+                      <div className="mt-4 w-full rounded overflow-hidden border border-white/5" style={{ aspectRatio: '1/1' }}>
                         <img
                           src={`/fairies/empress-${selectedFairy.mapIndex}-liberated.png`}
                           alt={EMPRESS_NAMES[selectedFairy.mapIndex - 1]}

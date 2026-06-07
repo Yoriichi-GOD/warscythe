@@ -4,9 +4,10 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap } from 'lucide-react';
 
 export default function AuthModal({ onClose, isMandatory = false }) {
-  const [isLogin, setIsLogin] = useState(false); // Default to signup first
+  const user = useWarscytheStore(state => state.user);
+  const [isLogin, setIsLogin] = useState(!!user); // Default to login if user session exists (re-auth)
   const [registered, setRegistered] = useState(false); // Verification state
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -84,7 +85,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
             <div className="auth-header">
               <Fingerprint size={32} className="auth-icon" />
               <h2>WARSCYTHE LINK</h2>
-              <p>{isLogin ? 'SIGN IN TO YOUR PROFILE' : 'CREATE NEW OPERATIVE PROFILE'}</p>
+              <p>{user ? 'SESSION EXPIRED // RE-AUTHENTICATE PROFILE' : (isLogin ? 'SIGN IN TO YOUR PROFILE' : 'CREATE NEW OPERATIVE PROFILE')}</p>
             </div>
 
             {/* High-visibility toggle alert banner */}

@@ -592,13 +592,15 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
+        const user = get().user;
+        const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
         const newTotalCompletions = state.totalCompletions + 1;
-        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
-        const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
+        const newLevel = Math.floor(newTotalCompletions / tasksPerLevel) + 1;
+        const finalLevelProgress = newTotalCompletions % tasksPerLevel;
 
         const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
-        const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
-        const keyElement = keyElements[keyIndex];
+        const keyIndex = (newTotalCompletions - 1) % tasksPerLevel;
+        const keyElement = keyElements[keyIndex % keyElements.length];
 
         let level = state.level;
         let currentTitle = state.currentTitle;
@@ -607,7 +609,7 @@ export const useWarscytheStore = create(
         // Lore unlock
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
-        const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
+        const fragIdx = finalLevelProgress === 0 ? tasksPerLevel - 1 : finalLevelProgress - 1;
         const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
         const unlockedLore = { ...state.unlockedLore };
         if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
@@ -728,13 +730,15 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
+        const user = get().user;
+        const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
         const newTotalCompletions = state.totalCompletions + 1;
-        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
-        const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
+        const newLevel = Math.floor(newTotalCompletions / tasksPerLevel) + 1;
+        const finalLevelProgress = newTotalCompletions % tasksPerLevel;
 
         const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
-        const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
-        const keyElement = keyElements[keyIndex];
+        const keyIndex = (newTotalCompletions - 1) % tasksPerLevel;
+        const keyElement = keyElements[keyIndex % keyElements.length];
 
         let level = state.level;
         let currentTitle = state.currentTitle;
@@ -743,7 +747,7 @@ export const useWarscytheStore = create(
         // Lore unlock
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
-        const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
+        const fragIdx = finalLevelProgress === 0 ? tasksPerLevel - 1 : finalLevelProgress - 1;
         const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
         const unlockedLore = { ...state.unlockedLore };
         if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
@@ -1304,8 +1308,10 @@ export const useWarscytheStore = create(
           });
 
           const totalCompletions = (state.completedTasks || []).length;
-          const newLevel = Math.floor(totalCompletions / TASKS_PER_LEVEL) + 1;
-          const finalLevelProgress = totalCompletions % TASKS_PER_LEVEL;
+          const user = state.user;
+          const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
+          const newLevel = Math.floor(totalCompletions / tasksPerLevel) + 1;
+          const finalLevelProgress = totalCompletions % tasksPerLevel;
 
           let newScytheLevel = "DORMANT";
           if (state.dailyPoints >= 1000) newScytheLevel = "PLATINUM";

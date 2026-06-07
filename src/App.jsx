@@ -68,18 +68,20 @@ const getTaskCategoryType = (category = '') => {
 export default function App() {
   useEffect(() => {
     const state = useWarscytheStore.getState();
+    const user = state.user;
+    const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
     const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
     const tasksCompleted = (state.completedTasks || []).length;
     const trueTotalCompletions = tasksCompleted + ritualsCompleted;
     
-    const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
-    const trueProgress = trueTotalCompletions % TASKS_PER_LEVEL;
+    const trueLevel = Math.floor(trueTotalCompletions / tasksPerLevel) + 1;
+    const trueProgress = trueTotalCompletions % tasksPerLevel;
     
     // Retroactively rebuild unlocked lore based on true completions
     const reconstructedLore = {};
     for (let r = 0; r < trueLevel; r++) {
       const loreArr = getLore(r) || [];
-      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : TASKS_PER_LEVEL;
+      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : tasksPerLevel;
       reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
     }
     
@@ -97,7 +99,7 @@ export default function App() {
       unlockedScythes: cleanUnlocked,
       scytheMigrationDone: true
     });
-  }, []);
+  }, [user?.email]);
 
   const [activeTab, setActiveTab] = useState('ops');
   const [ledgerSubTab, setLedgerSubTab] = useState('history');
@@ -434,21 +436,6 @@ export default function App() {
           </div>
         )}
 
-        {pendingReward && !activeBossFlash && !pendingVictoryScreen && (
-          <ScratchCard 
-            data={pendingReward} 
-            onClose={clearPendingReward} 
-          />
-        )}
-
-        {activeBossFlash && !pendingVictoryScreen && (
-          <BossFlashScreen 
-            key="boss-flash-screen"
-            type={activeBossFlash} 
-            onClose={clearBossFlash} 
-          />
-        )}
-
         {/* STEP 1 — Victory liberation flash (fires first on level-up) */}
         {pendingVictoryScreen && (
           <RegionFlashScreen
@@ -475,12 +462,29 @@ export default function App() {
         )}
 
         {/* STEP 3 — Region entry screen (fires after level-up modal dismissed) */}
-        {pendingEntryScreen && !pendingLevelUp && (
+        {pendingEntryScreen && !pendingLevelUp && !pendingVictoryScreen && (
           <RegionFlashScreen
             key="entry-screen"
             type="entry"
             regionData={pendingEntryScreen}
             onClose={() => setPendingEntryScreen(null)}
+          />
+        )}
+
+        {/* STEP 4 — Boss flash screen (fires after entry screen / level transitions) */}
+        {activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
+          <BossFlashScreen 
+            key="boss-flash-screen"
+            type={activeBossFlash} 
+            onClose={clearBossFlash} 
+          />
+        )}
+
+        {/* STEP 5 — Reward scratch card (fires last) */}
+        {pendingReward && !activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
+          <ScratchCard 
+            data={pendingReward} 
+            onClose={clearPendingReward} 
           />
         )}
       </AnimatePresence>

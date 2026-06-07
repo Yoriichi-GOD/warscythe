@@ -161,8 +161,8 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
             {rightPanel.eliminated && (
               <motion.div
                 className="rfs-eliminated-stamp"
-                initial={{ opacity: 0, scale: 1.5, rotate: -12 }}
-                animate={{ opacity: 1, scale: 1, rotate: -12 }}
+                initial={{ opacity: 0, scale: 1.5, rotate: -12, x: '-50%', y: '-50%' }}
+                animate={{ opacity: 1, scale: 1, rotate: -12, x: '-50%', y: '-50%' }}
                 transition={{ duration: 0.4, delay: 0.8 }}
               >
                 ELIMINATED
