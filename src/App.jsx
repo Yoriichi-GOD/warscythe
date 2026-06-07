@@ -66,9 +66,10 @@ const getTaskCategoryType = (category = '') => {
 };
 
 export default function App() {
+  const user = useWarscytheStore(state => state.user);
+
   useEffect(() => {
     const state = useWarscytheStore.getState();
-    const user = state.user;
     const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
     const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
     const tasksCompleted = (state.completedTasks || []).length;
@@ -153,7 +154,7 @@ export default function App() {
     }
   };
   
-  const user = useWarscytheStore(state => state.user);
+
   
   const pendingReward = useWarscytheStore(state => state.pendingReward);
   const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
