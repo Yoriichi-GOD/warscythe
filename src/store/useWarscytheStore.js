@@ -249,6 +249,7 @@ export const useWarscytheStore = create(
       user: null,
       rescuedFairies: {},
       pendingVictoryScreen: null,
+      receivedProphecies: [],
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -324,6 +325,7 @@ export const useWarscytheStore = create(
           isMerging: false,
           rescuedFairies: {},
           pendingVictoryScreen: null,
+          receivedProphecies: [],
         });
         ph.capture('warscythe_sign_out');
       },
@@ -590,6 +592,10 @@ export const useWarscytheStore = create(
         const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
         const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
 
+        const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
+        const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
+        const keyElement = keyElements[keyIndex];
+
         let level = state.level;
         let currentTitle = state.currentTitle;
         let pendingLevelUp = null;
@@ -606,6 +612,16 @@ export const useWarscytheStore = create(
         }
 
         const rescuedFairies = { ...(state.rescuedFairies || {}) };
+        
+        // If it's a Boss task, liberate her instantly!
+        if (isBoss) {
+          rescuedFairies[state.level - 1] = {
+            date: new Date().toISOString(),
+            taskTitle: task.title,
+            taskCategory: task.category || 'Boss Raid'
+          };
+        }
+
         let pendingVictoryScreen = null;
         // Level up check
         if (newLevel > state.level) {
@@ -613,7 +629,7 @@ export const useWarscytheStore = create(
           level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
-            regionIdx: level - 2,
+            regionIdx: level - 1,
             newLevel: level,
             newTitle: currentTitle
           };
@@ -622,11 +638,13 @@ export const useWarscytheStore = create(
             mapIndex: oldMapIndex,
             taskTitle: task.title
           };
-          rescuedFairies[state.level - 1] = {
-            date: new Date().toISOString(),
-            taskTitle: task.title,
-            taskCategory: task.category || 'General'
-          };
+          if (!rescuedFairies[state.level - 1]) {
+            rescuedFairies[state.level - 1] = {
+              date: new Date().toISOString(),
+              taskTitle: task.title,
+              taskCategory: task.category || 'General'
+            };
+          }
         }
 
         set({
@@ -652,7 +670,7 @@ export const useWarscytheStore = create(
             effortContext: `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
           }],
           unlockedLore,
-          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title },
+          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title, keyElement },
           pendingLevelUp,
           pendingVictoryScreen,
           closerDismissed: false,
@@ -719,6 +737,10 @@ export const useWarscytheStore = create(
         const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
         const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
 
+        const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
+        const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
+        const keyElement = keyElements[keyIndex];
+
         let level = state.level;
         let currentTitle = state.currentTitle;
         let pendingLevelUp = null;
@@ -734,7 +756,18 @@ export const useWarscytheStore = create(
           unlockedLore[regionIdx].push(fragment);
         }
 
+        const isBoss = ritual.effort === 'Boss';
         const rescuedFairies = { ...(state.rescuedFairies || {}) };
+
+        // If it's a Boss ritual, liberate her instantly!
+        if (isBoss) {
+          rescuedFairies[state.level - 1] = {
+            date: new Date().toISOString(),
+            taskTitle: ritual.title,
+            taskCategory: 'Ritual Boss'
+          };
+        }
+
         let pendingVictoryScreen = null;
         // Level up check
         if (newLevel > state.level) {
@@ -751,11 +784,13 @@ export const useWarscytheStore = create(
             mapIndex: oldMapIndex,
             taskTitle: ritual.title
           };
-          rescuedFairies[state.level - 1] = {
-            date: new Date().toISOString(),
-            taskTitle: ritual.title,
-            taskCategory: 'Ritual'
-          };
+          if (!rescuedFairies[state.level - 1]) {
+            rescuedFairies[state.level - 1] = {
+              date: new Date().toISOString(),
+              taskTitle: ritual.title,
+              taskCategory: 'Ritual'
+            };
+          }
         }
 
         const updatedRituals = rituals.map(r => r.id === id ? ritual : r);
@@ -781,7 +816,7 @@ export const useWarscytheStore = create(
             effortContext: `Claimed during a Daily Ritual Strike.`
           }],
           unlockedLore,
-          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title },
+          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title, keyElement },
           pendingLevelUp,
           pendingVictoryScreen,
           closerDismissed: false,
@@ -888,6 +923,18 @@ export const useWarscytheStore = create(
       clearPendingReward: () => set({ pendingReward: null }),
       clearPendingLevelUp: () => set({ pendingLevelUp: null }),
       clearPendingVictoryScreen: () => set({ pendingVictoryScreen: null }),
+      addReceivedProphecy: (prophecy) => set(state => {
+        const alreadyReceived = (state.receivedProphecies || []).some(p => p.text === prophecy.text);
+        if (alreadyReceived) return {};
+        return {
+          receivedProphecies: [...(state.receivedProphecies || []), {
+            text: prophecy.text,
+            type: prophecy.type,
+            date: new Date().toISOString()
+          }],
+          hasPendingChanges: true
+        };
+      }),
       triggerBossFlash: (type) => set({ activeBossFlash: type }),
       clearBossFlash: () => set({ activeBossFlash: null }),
 

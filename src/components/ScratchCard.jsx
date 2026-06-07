@@ -50,7 +50,7 @@ export default function ScratchCard({ data, onClose }) {
   const [isRevealed, setIsRevealed] = useState(false);
   const isRevealedRef = useRef(false);
   
-  const { reward, basePts, totalPts, fragment, taskTitle } = data;
+  const { reward, basePts, totalPts, fragment, taskTitle, keyElement } = data;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -153,27 +153,56 @@ export default function ScratchCard({ data, onClose }) {
 
         <div className="scratch-container" ref={containerRef}>
           <div className={`loot-content ${isRevealed ? 'revealed' : ''}`}>
-             <motion.div 
-               className="loot-visual"
-               style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-               animate={isRevealed ? { 
-                 scale: [1, 1.1, 1],
-                 rotate: [0, 5, -5, 0]
-               } : {}}
-             >
-                <img 
-                  src={getArtifactImage(reward.artifact.name)} 
-                  className={`loot-artifact-img art-img-filter ${reward.rarity}`} 
-                  alt={reward.artifact.name} 
-                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
-                />
-                <div className={`rarity-glow ${reward.rarity}`} />
-             </motion.div>
+             <div className="flex items-center justify-center gap-6 z-10">
+               {/* Artifact Visual */}
+               <motion.div 
+                 className="loot-visual"
+                 style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                 animate={isRevealed ? { 
+                   scale: [1, 1.1, 1],
+                   rotate: [0, 5, -5, 0]
+                 } : {}}
+               >
+                  <img 
+                    src={getArtifactImage(reward.artifact.name)} 
+                    className={`loot-artifact-img art-img-filter ${reward.rarity}`} 
+                    alt={reward.artifact.name} 
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
+                  />
+                  <div className={`rarity-glow ${reward.rarity}`} />
+               </motion.div>
+
+               {/* Key Visual (shown beside the artifact) */}
+               {keyElement && (
+                 <motion.div 
+                   className="key-visual"
+                   style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+                   animate={isRevealed ? { 
+                     scale: [1, 1.15, 1],
+                     rotate: [0, -5, 5, 0]
+                   } : {}}
+                   transition={{ delay: 0.15 }}
+                 >
+                    <img 
+                      src={`/keys/key-${keyElement}.png`} 
+                      className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]" 
+                      alt={`${keyElement} Key`} 
+                      style={{ zIndex: 2 }}
+                    />
+                    <div className="rarity-glow rare" style={{ opacity: 0.5 }} />
+                 </motion.div>
+               )}
+             </div>
              
              <div className="loot-details">
                 <span className={`loot-rarity-text ${reward.rarity}`}>{reward.rarity.toUpperCase()} ARTIFACT</span>
                 <h3 className="loot-art-name">{reward.artifact.name}</h3>
                 <div className="loot-xp-badge">+{totalPts} XP</div>
+                {keyElement && (
+                  <div className="text-[10px] font-mono text-gold-core/85 tracking-widest mt-2 uppercase font-bold animate-pulse">
+                    + ACQUIRED {keyElement.toUpperCase()} KEY
+                  </div>
+                )}
              </div>
           </div>
           <canvas ref={canvasRef} width={360} height={220} className="scratch-canvas" />

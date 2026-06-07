@@ -132,6 +132,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   // History tab state & logic (from CompletionLog)
   const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
   const abandonedTasks = useWarscytheStore(state => state.abandonedTasks) || [];
+  const receivedProphecies = useWarscytheStore(state => state.receivedProphecies) || [];
   const [historyFilter, setHistoryFilter] = useState('ALL'); // ALL, CONQUERED, ABANDONED
 
   const allLogs = [
@@ -199,6 +200,16 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             onClick={() => handleSubTab('vault')}
           >
             Relics & Lore
+          </button>
+          <button 
+            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
+              subTab === 'prophecies' 
+                ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+            onClick={() => handleSubTab('prophecies')}
+          >
+            Guardian Chronicles
           </button>
         </div>
       </div>
@@ -294,6 +305,79 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                   })
                 )}
               </AnimatePresence>
+            </div>
+          </div>
+        ) : subTab === 'prophecies' ? (
+          <div className="flex flex-col gap-6">
+            <div className="elite-panel-ornate relative p-6 bg-black/40 border border-white/5 rounded-lg">
+              <div className="corner-ornament corner-tl" />
+              <div className="corner-ornament corner-tr" />
+              <div className="corner-ornament corner-bl" />
+              <div className="corner-ornament corner-br" />
+              <div className="elite-panel-inner-border" />
+              
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-xl font-display text-gold-core uppercase tracking-widest">GUARDIAN CHRONICLES</h3>
+                  <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase tracking-widest">
+                    Witnessing your neural peak velocity under pressure
+                  </p>
+                </div>
+                <div className="px-4 py-2 bg-gold-core/10 border border-gold-core/20 rounded text-center">
+                  <span className="text-[10px] font-mono text-gold-core block tracking-widest">MESSAGES RECORDED</span>
+                  <span className="text-2xl font-bold font-times text-white mt-1 block">
+                    {receivedProphecies?.length || 0}
+                  </span>
+                </div>
+              </div>
+
+              {receivedProphecies.length === 0 ? (
+                <div className="text-center py-16 border border-dashed border-white/10 rounded-lg flex flex-col items-center gap-3">
+                  <span className="text-gold-core/30 animate-pulse">
+                    <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                      <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
+                      <path d="M12 10c-3.33 0-6 2.67-6 6v6h12v-6c0-3.33-2.67-6-6-6z" />
+                      <path d="M5 16s-2 1.5-2 4v2" />
+                      <path d="M19 16s2 1.5 2 4v2" />
+                    </svg>
+                  </span>
+                  <p className="text-xs text-gray-400 font-mono tracking-widest uppercase">
+                    NO NEURAL CHRONICLES RECORDED YET
+                  </p>
+                  <p className="text-[9px] text-gray-500 font-mono uppercase tracking-wider">
+                    Deploy an operation and activate Focus Mode to awaken the Guardian presence.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[...receivedProphecies].reverse().map((p, idx) => (
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: idx * 0.05 }}
+                      className="flex gap-4 p-4 rounded bg-white/[0.01] border border-white/5 relative hover:border-gold-core/25 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.5)] group"
+                    >
+                      <div className="w-12 h-12 border border-gold-core/20 rounded bg-black/60 flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                        <img 
+                          src="/guardian-observer.png" 
+                          alt="Guardian Observer" 
+                          className="w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity" 
+                        />
+                        <div className="absolute inset-0 bg-yellow-950/15" />
+                      </div>
+                      <div className="flex flex-col gap-1.5 text-left min-w-0">
+                        <span className="text-[8px] font-mono text-gold-core tracking-widest uppercase font-bold">
+                          {p.type || 'prophecy'} // RECORDED ON {new Date(p.date).toLocaleDateString()}
+                        </span>
+                        <p className="text-[10.5px] font-mono text-gray-300 leading-relaxed italic">
+                          "{p.text}"
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (

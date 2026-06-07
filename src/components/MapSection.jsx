@@ -267,7 +267,11 @@ export default function MapSection({ onTabChange }) {
   const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
   const displayLore = unlockedLore?.[displayRegionIdx] || [];
 
-  const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx];
+  const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx] || (activeMapIndex < level ? {
+    date: new Date().toISOString(),
+    taskTitle: 'Regional Campaign',
+    taskCategory: 'General'
+  } : null);
   const isBossRescued = !!rescuedFairyInfo;
 
   const dayOfWeek = new Date().getDay();
@@ -841,24 +845,23 @@ export default function MapSection({ onTabChange }) {
                       <h3>EMPRESS' ABODE</h3>
                     </div>
                     
-                    <div className="flex flex-col items-center gap-4 my-2">
-                      <div className="w-48 h-48 rounded border border-gold-core/30 overflow-hidden relative shadow-[0_0_15px_rgba(236,200,128,0.25)]">
-                        <img 
-                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
-                          alt="Fairy Empress Liberated" 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-yellow-950/10" />
-                        <div className="absolute bottom-0 inset-x-0 bg-black/80 py-1 text-center border-t border-[#ecc880]/20">
-                          <span className="text-[8px] font-mono text-gold-core tracking-[0.2em] uppercase font-bold">RESTORATION STATE</span>
-                        </div>
-                      </div>
+                    <div className="threat-profile">
+                      <div 
+                        className="threat-avatar" 
+                        style={{ 
+                          backgroundImage: `url('/fairies/empress-${activeMapIndex}-liberated.png')`,
+                          width: '100%',
+                          aspectRatio: '1 / 1',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center top',
+                          borderRadius: '4px',
+                          border: '1px solid rgba(236, 200, 128, 0.25)',
+                          boxShadow: '0 0 15px rgba(236,200,128,0.2)'
+                        }} 
+                      />
                     </div>
                     
-                    <div className="fairy-profile-card border border-gold-core/20 p-3 bg-white/[0.01] rounded w-full flex flex-col items-center">
+                    <div className="fairy-profile-card border border-gold-core/20 p-3 bg-white/[0.01] rounded w-full flex flex-col items-center mt-3">
                       <span className="text-[9px] font-mono text-gold-core tracking-[0.25em] font-bold uppercase">
                         FAIRY CLASS // {activeMapIndex === 1 || activeMapIndex === 2 || activeMapIndex === 8 ? 'WARRIOR' : activeMapIndex === 4 || activeMapIndex === 7 ? 'RECOVERY' : activeMapIndex === 5 || activeMapIndex === 10 ? 'FITNESS' : 'SCHOLAR'}
                       </span>
@@ -866,7 +869,7 @@ export default function MapSection({ onTabChange }) {
                         "Liberated on {new Date(rescuedFairyInfo.date).toLocaleDateString()} by conquering Operation: {rescuedFairyInfo.taskTitle}"
                       </p>
                     </div>
-                    <div className="intel-stats font-mono mt-1">
+                    <div className="intel-stats font-mono mt-3">
                       <div><span>FAIRY STATUS</span><span className="text-emerald-400 font-bold">RESCUED & ACTIVE</span></div>
                       <div><span>REGION SECURED</span><span className="text-gold-core font-bold">{displayRegion.name.toUpperCase()}</span></div>
                     </div>
