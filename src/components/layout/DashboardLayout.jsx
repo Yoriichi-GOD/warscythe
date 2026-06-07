@@ -1,8 +1,17 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useWarscytheStore } from "../../store/useWarscytheStore";
 
 export default function DashboardLayout({ children, activeTab }) {
-  const bgImage = activeTab === 'fitness' ? '/olympus-bg.png' : '/castle-bg.png';
-  const bgAlt = activeTab === 'fitness' ? 'Olympus Temple' : 'Warscythe Castle';
+  const level = useWarscytheStore(state => state.level) || 1;
+  const regionIndex = ((level - 1) % 10) + 1;
+
+  const bgImage = activeTab === 'fitness' 
+    ? '/olympus-bg.png' 
+    : `/bg/bg-region-${regionIndex}.png`;
+
+  const bgAlt = activeTab === 'fitness' 
+    ? 'Olympus Temple' 
+    : `Region ${regionIndex} Background`;
 
   return (
     <div className="relative min-h-screen w-full bg-black text-white overflow-hidden">
