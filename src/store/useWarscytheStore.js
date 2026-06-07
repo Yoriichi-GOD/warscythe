@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
 import { triggerHaptics, scheduleStreakAlert } from '../utils/nativeTriggers';
 import {
-  REGIONS, TITLES, LORE_TEMPLATES, ARTIFACT_POOL,
+  REGIONS, TITLES, LORE_TEMPLATES, BASE_ARTIFACTS,
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
 } from './constants';
 
@@ -122,6 +122,14 @@ const mergeState = (local, saved) => {
     ? local.lastResetDate
     : saved.lastResetDate;
 
+  // Rescued Fairies
+  const rescuedFairies = { ...(local.rescuedFairies || {}) };
+  Object.entries(saved.rescuedFairies || {}).forEach(([region, data]) => {
+    if (!rescuedFairies[region]) {
+      rescuedFairies[region] = data;
+    }
+  });
+
   return {
     tasks,
     rituals,
@@ -147,7 +155,8 @@ const mergeState = (local, saved) => {
     scytheMigrationDone,
     hasCompletedTutorial,
     lastActiveDate,
-    lastResetDate
+    lastResetDate,
+    rescuedFairies
   };
 };
 
@@ -193,8 +202,8 @@ const rollReward = (isBoss = false) => {
     else if (r < 0.40) { rarity = 'uncommon'; bonusPts = 75 + Math.floor(Math.random() * 75); }
     else { rarity = 'common'; bonusPts = 25 + Math.floor(Math.random() * 50); }
   }
-  const pool = ARTIFACT_POOL[rarity];
-  const artifact = pool[Math.floor(Math.random() * pool.length)];
+  const baseArtifact = BASE_ARTIFACTS[Math.floor(Math.random() * BASE_ARTIFACTS.length)];
+  const artifact = { ...baseArtifact, rarity };
   return { rarity, artifact, bonusPts };
 };
 
@@ -238,6 +247,8 @@ export const useWarscytheStore = create(
       hasPendingChanges: false,
       isMerging: false,
       user: null,
+      rescuedFairies: {},
+      pendingVictoryScreen: null,
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -311,6 +322,8 @@ export const useWarscytheStore = create(
           syncStatus: 'synced',
           hasPendingChanges: false,
           isMerging: false,
+          rescuedFairies: {},
+          pendingVictoryScreen: null,
         });
         ph.capture('warscythe_sign_out');
       },
@@ -387,6 +400,7 @@ export const useWarscytheStore = create(
           hasCompletedTutorial: state.hasCompletedTutorial,
           dailyPoints: state.dailyPoints,
           lastResetDate: state.lastResetDate,
+          rescuedFairies: state.rescuedFairies,
         };
 
         try {
@@ -591,14 +605,27 @@ export const useWarscytheStore = create(
           unlockedLore[regionIdx].push(fragment);
         }
 
+        const rescuedFairies = { ...(state.rescuedFairies || {}) };
+        let pendingVictoryScreen = null;
         // Level up check
         if (newLevel > state.level) {
+          const oldMapIndex = ((state.level - 1) % 10) + 1;
           level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
-            regionIdx: level - 1,
+            regionIdx: level - 2,
             newLevel: level,
             newTitle: currentTitle
+          };
+          pendingVictoryScreen = {
+            regionIdx: state.level - 1,
+            mapIndex: oldMapIndex,
+            taskTitle: task.title
+          };
+          rescuedFairies[state.level - 1] = {
+            date: new Date().toISOString(),
+            taskTitle: task.title,
+            taskCategory: task.category || 'General'
           };
         }
 
@@ -627,9 +654,11 @@ export const useWarscytheStore = create(
           unlockedLore,
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title },
           pendingLevelUp,
+          pendingVictoryScreen,
           closerDismissed: false,
           lastActiveDate: today,
-          bossKills: state.bossKills + (isBoss ? 1 : 0)
+          bossKills: state.bossKills + (isBoss ? 1 : 0),
+          rescuedFairies
         });
 
         ph.capture('operation_conquered', {
@@ -705,14 +734,27 @@ export const useWarscytheStore = create(
           unlockedLore[regionIdx].push(fragment);
         }
 
+        const rescuedFairies = { ...(state.rescuedFairies || {}) };
+        let pendingVictoryScreen = null;
         // Level up check
         if (newLevel > state.level) {
+          const oldMapIndex = ((state.level - 1) % 10) + 1;
           level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
           pendingLevelUp = {
             regionIdx: level - 1,
             newLevel: level,
             newTitle: currentTitle
+          };
+          pendingVictoryScreen = {
+            regionIdx: state.level - 1,
+            mapIndex: oldMapIndex,
+            taskTitle: ritual.title
+          };
+          rescuedFairies[state.level - 1] = {
+            date: new Date().toISOString(),
+            taskTitle: ritual.title,
+            taskCategory: 'Ritual'
           };
         }
 
@@ -741,8 +783,10 @@ export const useWarscytheStore = create(
           unlockedLore,
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title },
           pendingLevelUp,
+          pendingVictoryScreen,
           closerDismissed: false,
-          lastActiveDate: today
+          lastActiveDate: today,
+          rescuedFairies
         });
 
         ph.capture('ritual_conquered', {
@@ -843,6 +887,7 @@ export const useWarscytheStore = create(
       dismissCloser: () => set({ closerDismissed: true }),
       clearPendingReward: () => set({ pendingReward: null }),
       clearPendingLevelUp: () => set({ pendingLevelUp: null }),
+      clearPendingVictoryScreen: () => set({ pendingVictoryScreen: null }),
       triggerBossFlash: (type) => set({ activeBossFlash: type }),
       clearBossFlash: () => set({ activeBossFlash: null }),
 

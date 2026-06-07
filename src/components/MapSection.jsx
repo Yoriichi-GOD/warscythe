@@ -13,7 +13,10 @@ import {
   RotateCcw,
   ArrowLeft,
   X,
-  ScrollText
+  ScrollText,
+  ChevronLeft,
+  ChevronRight,
+  Unlock
 } from 'lucide-react';
 import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
 
@@ -129,7 +132,7 @@ export default function MapSection({ onTabChange }) {
   const { 
     level, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
-    scytheLevel, coins, streakCount
+    scytheLevel, coins, streakCount, rescuedFairies
   } = useWarscytheStore();
 
   const activeTasksCount = tasks.filter(t => !t.completedAt).length;
@@ -137,6 +140,13 @@ export default function MapSection({ onTabChange }) {
   
   const [showFog, setShowFog] = useState(false);
   const prevLevelRef = useRef(level);
+
+  const mapIndex = ((level - 1) % 10) + 1;
+  const [activeMapIndex, setActiveMapIndex] = useState(mapIndex);
+
+  useEffect(() => {
+    setActiveMapIndex(((level - 1) % 10) + 1);
+  }, [level]);
 
   useEffect(() => {
     if (level > prevLevelRef.current) {
@@ -149,8 +159,28 @@ export default function MapSection({ onTabChange }) {
     }
   }, [level]);
 
-  const mapIndex = ((level - 1) % 10) + 1;
+  const handlePrevMap = () => {
+    if (activeMapIndex > 1) {
+      setShowFog(true);
+      setTimeout(() => {
+        setActiveMapIndex(prev => prev - 1);
+      }, 700);
+      setTimeout(() => setShowFog(false), 1800);
+    }
+  };
+
+  const handleNextMap = () => {
+    if (activeMapIndex < 10) {
+      setShowFog(true);
+      setTimeout(() => {
+        setActiveMapIndex(prev => prev + 1);
+      }, 700);
+      setTimeout(() => setShowFog(false), 1800);
+    }
+  };
+
   const [selectedNode, setSelectedNode] = useState(null);
+  const [jailImageFailed, setJailImageFailed] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
 
@@ -231,24 +261,37 @@ export default function MapSection({ onTabChange }) {
     filter: currentFilter
   });
   
-  const regionIdx = Math.min(level - 1, REGIONS.length - 1);
-  const activeRegion = REGIONS[regionIdx];
-  const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
+  const displayRegionIdx = activeMapIndex - 1;
+  const displayRegion = REGIONS[displayRegionIdx] || REGIONS[0];
+  const displayProgress = activeMapIndex < level ? TASKS_PER_LEVEL : activeMapIndex === level ? currentLevelProgress : 0;
   const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
-  const currentLore = unlockedLore?.[regionIdx] || [];
+  const displayLore = unlockedLore?.[displayRegionIdx] || [];
+
+  const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx];
+  const isBossRescued = !!rescuedFairyInfo;
 
   const dayOfWeek = new Date().getDay();
   const isAshendaleLocked = dayOfWeek % 2 === 0;
   const isStonehollowLocked = !isAshendaleLocked;
 
-  const nodeInfo = (nodeId) => getRegionNodeInfo(mapIndex, nodeId);
+  const nodeInfo = (nodeId) => getRegionNodeInfo(activeMapIndex, nodeId);
+
+  const getRegionBanner = () => {
+    if (isBossRescued) {
+      return `/fairies/empress-${activeMapIndex}-liberated.png`;
+    }
+    if (selectedNode === 'jail' || selectedNode === 'boss') {
+      return `/fairies/empress-${activeMapIndex}-caged.png`;
+    }
+    return getNodeBanner(selectedNode || 'jail');
+  };
 
   const nodes = [
     { id: 'stone', label: nodeInfo('stone').name.toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
     { id: 'ashendale', label: nodeInfo('ashendale').name.toUpperCase(), top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
     { id: 'castle', label: nodeInfo('castle').name.toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
-    { id: 'jail', label: nodeInfo('jail').name.toUpperCase(), top: '45%', left: '22%', status: 'IN PROGRESS', type: 'active' },
-    { id: 'boss', label: nodeInfo('boss').name.toUpperCase(), top: '15%', left: '50%', status: 'FINAL OBJECTIVE', type: 'boss' }
+    { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : nodeInfo('jail').name.toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'IN PROGRESS', type: isBossRescued ? 'secured' : 'active' },
+    { id: 'boss', label: isBossRescued ? "EMPRESS' ABODE" : nodeInfo('boss').name.toUpperCase(), top: '15%', left: '50%', status: isBossRescued ? 'SECURED' : 'FINAL OBJECTIVE', type: 'boss' }
   ];
 
   const connections = [
@@ -292,8 +335,32 @@ export default function MapSection({ onTabChange }) {
         <div className="header-left">
           <MapIcon size={20} className="gold-text drop-shadow-[0_0_8px_rgba(236,200,128,0.5)]" />
           <div className="header-titles">
-            <h2 className="text-gold-gradient">CAMPAIGN THEATER // LEVEL {level}</h2>
-            <p className="text-gray-400">The world is vast. Conquer tasks. Expand your reach.</p>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handlePrevMap} 
+                disabled={activeMapIndex <= 1}
+                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded transition-all disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
+                title="Previous Region"
+              >
+                <ChevronLeft size={16} className="text-gold-core" />
+              </button>
+              
+              <h2 className="text-gold-gradient tracking-widest uppercase font-bold">
+                CAMPAIGN THEATER // {activeMapIndex === level ? `LEVEL ${level}` : `REGION ${activeMapIndex}`}
+              </h2>
+              
+              <button 
+                onClick={handleNextMap} 
+                disabled={activeMapIndex >= 10}
+                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded transition-all disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
+                title="Next Region"
+              >
+                <ChevronRight size={16} className="text-gold-core" />
+              </button>
+            </div>
+            <p className="text-gray-400 mt-1">
+              {activeMapIndex === level ? "Active front. Secure operations to push deeper." : activeMapIndex < level ? "Secured sector. Peace restored to the realm." : "Locked sector. Complete previous regions to unlock."}
+            </p>
           </div>
         </div>
         <button className="btn-gothic-gold scout-report-btn">
@@ -380,48 +447,97 @@ export default function MapSection({ onTabChange }) {
             <div 
               className="map-image-layer" 
               style={{ 
-                backgroundImage: `url('/maps/campaign-map-${mapIndex}.png')`,
-                filter: currentFilter
+                backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
+                filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
               }} 
-            >
-            <div className="map-nodes-overlay">
-              {/* Tactical Connection Paths */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-                {connections.map((c, i) => {
-                  const fromPos = getNodePos(c.from);
-                  const toPos = getNodePos(c.to);
-                  return (
-                    <line 
-                      key={i}
-                      x1={fromPos.x} 
-                      y1={fromPos.y} 
-                      x2={toPos.x} 
-                      y2={toPos.y} 
-                      className="leyline-path"
-                      strokeWidth={c.thick ? "2.5" : "1.5"} 
-                    />
-                  );
-                })}
-              </svg>
-                
+            />
+            
+            {activeMapIndex > level ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
+                <motion.img 
+                  src="/maps/map-lock-icon.png" 
+                  alt="Locked Sector" 
+                  className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
+                  [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
+                </span>
+              </div>
+            ) : (
+              <div className="map-nodes-overlay">
+                {/* Tactical Connection Paths */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+                  {connections.map((c, i) => {
+                    const fromPos = getNodePos(c.from);
+                    const toPos = getNodePos(c.to);
+                    return (
+                      <line 
+                        key={i}
+                        x1={fromPos.x} 
+                        y1={fromPos.y} 
+                        x2={toPos.x} 
+                        y2={toPos.y} 
+                        className="leyline-path"
+                        strokeWidth={c.thick ? "2.5" : "1.5"} 
+                      />
+                    );
+                  })}
+                </svg>
+                  
                 {nodes.map(node => (
                   <motion.div 
                     key={node.id} 
-                    className={`map-node ${node.type}`} 
+                    className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
                     style={{ top: node.top, left: node.left }} 
                     onClick={() => setSelectedNode(node.id)}
                   >
-                    <div className={`node-glow ${node.type}`} />
-                    {node.type === 'active' && <div className="current-ping" />}
-                    {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
-                    {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                    {node.id === 'boss' && isBossRescued ? (
+                      <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
+                        <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
+                        <img 
+                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                          alt="Fairy Empress" 
+                          className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : node.id === 'jail' && isBossRescued ? (
+                      <div className="jail-node-opened-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
+                        <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-md animate-pulse" />
+                        {!jailImageFailed ? (
+                          <img 
+                            src="/nodes/node-jail-opened.png" 
+                            alt="Jail Opened" 
+                            className="w-10 h-10 object-contain relative z-10 animate-float"
+                            onError={() => setJailImageFailed(true)}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full border border-emerald-500/30 bg-black/60 flex items-center justify-center relative z-10">
+                            <Unlock size={18} className="text-emerald-400 animate-pulse" />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <div className={`node-glow ${node.type}`} />
+                        {node.type === 'active' && <div className="current-ping" />}
+                        {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
+                        {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                      </>
+                    )}
                     <span className="node-label font-times font-bold">{node.label}</span>
                     <div className="node-status font-times">{node.status}</div>
                   </motion.div>
                 ))}
-
               </div>
-            </div>
+            )}
           </div>
 
           <div className="quick-actions-panel elite-panel-ornate">
@@ -469,19 +585,19 @@ export default function MapSection({ onTabChange }) {
             
             <div className="region-branding font-times">
               <h4 className="text-gold-gradient text-lg font-bold flex items-center justify-center gap-2">
-                {activeRegion.name}
+                {displayRegion.name}
                 <img 
-                  src={`/crests/region-crest-${(regionIdx % 10) + 1}.png`} 
-                  alt={`${activeRegion.name} Crest`} 
+                  src={`/crests/region-crest-${(displayRegionIdx % 10) + 1}.png`} 
+                  alt={`${displayRegion.name} Crest`} 
                   className="w-7 h-7 object-contain inline-block filter drop-shadow-[0_0_4px_rgba(236,200,128,0.3)]"
                 />
               </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
-                backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
+                backgroundImage: `url('${getRegionBanner()}')`,
                 filter: currentFilter
               }} />
             </div>
-
+ 
             <div className="region-completion font-times">
                <span className="stat-label">REGION COMPLETION</span>
                <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
@@ -489,38 +605,64 @@ export default function MapSection({ onTabChange }) {
                </div>
                <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
             </div>
-
+ 
             <div className="active-modifiers font-times">
-              <span className="stat-label">TERRITORY LORE</span>
-              <div className="modifier-item border border-[#ecc880]/15 bg-black/40" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
-                <p className="text-[10px] font-mono text-[#ecc880]/85 leading-relaxed italic border-l-2 border-[#ecc880]/30 pl-2">
-                  "{activeRegion.desc}"
-                </p>
-              </div>
+               <span className="stat-label">TERRITORY LORE</span>
+               <div className="modifier-item border border-[#ecc880]/15 bg-black/40" style={{ flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+                 <p className="text-[10px] font-mono text-[#ecc880]/85 leading-relaxed italic border-l-2 border-[#ecc880]/30 pl-2">
+                   "{displayRegion.desc}"
+                 </p>
+               </div>
             </div>
-
-            <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.04)' }}>
-              <div className="corner-ornament corner-tl" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-tr" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-bl" style={{ borderColor: '#ef4444' }} />
-              <div className="corner-ornament corner-br" style={{ borderColor: '#ef4444' }} />
-              
-              <span className="stat-label font-times" style={{ marginTop: 0, color: '#ff5555' }}>UPCOMING THREAT</span>
-              <div className="threat-card font-times">
-                <div 
-                  className="threat-image border border-red-500/20" 
-                  style={{ backgroundImage: `url('${getDragonAsset(level)}')` }} 
-                />
-                <div className="threat-info">
-                  <h5 className="text-red-500 font-bold">{getDragonName(level).toUpperCase()}</h5>
-                  <p className="text-gray-400">A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+ 
+            {isBossRescued ? (
+              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(236, 200, 128, 0.25)', background: 'rgba(236, 200, 128, 0.04)' }}>
+                <div className="corner-ornament corner-tl" style={{ borderColor: '#ecc880' }} />
+                <div className="corner-ornament corner-tr" style={{ borderColor: '#ecc880' }} />
+                <div className="corner-ornament corner-bl" style={{ borderColor: '#ecc880' }} />
+                <div className="corner-ornament corner-br" style={{ borderColor: '#ecc880' }} />
+                
+                <span className="stat-label font-times" style={{ marginTop: 0, color: '#ecc880' }}>SECURED SOVEREIGN</span>
+                <div className="threat-card font-times">
+                  <img 
+                    src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                    alt="Fairy Empress" 
+                    className="w-11 h-11 object-cover rounded-full border border-[#ecc880]/40 bg-gold-core/5"
+                    style={{ filter: 'drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))' }}
+                  />
+                  <div className="threat-info">
+                    <h5 className="text-gold-core font-bold">EMPRESS OF {displayRegion.name.toUpperCase()}</h5>
+                    <p className="text-gray-400">Liberated via Operation: <strong>{rescuedFairyInfo.taskTitle}</strong></p>
+                  </div>
                 </div>
+                <button className="btn-gothic-gold view-target-btn mt-3" onClick={() => setSelectedNode('boss')}>
+                  VIEW LIBERATION INTEL
+                </button>
               </div>
-              <button className="btn-gothic-gold view-target-btn mt-3" style={{ borderColor: '#ef4444', color: '#ff4444' }} onClick={() => setSelectedNode('boss')}>
-                VIEW BOSS INTEL
-              </button>
-            </div>
-
+            ) : (
+              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.04)' }}>
+                <div className="corner-ornament corner-tl" style={{ borderColor: '#ef4444' }} />
+                <div className="corner-ornament corner-tr" style={{ borderColor: '#ef4444' }} />
+                <div className="corner-ornament corner-bl" style={{ borderColor: '#ef4444' }} />
+                <div className="corner-ornament corner-br" style={{ borderColor: '#ef4444' }} />
+                
+                <span className="stat-label font-times" style={{ marginTop: 0, color: '#ff5555' }}>UPCOMING THREAT</span>
+                <div className="threat-card font-times">
+                  <div 
+                    className="threat-image border border-red-500/20" 
+                    style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')` }} 
+                  />
+                  <div className="threat-info">
+                    <h5 className="text-red-500 font-bold">{getDragonName(activeMapIndex).toUpperCase()}</h5>
+                    <p className="text-gray-400">A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+                  </div>
+                </div>
+                <button className="btn-gothic-gold view-target-btn mt-3" style={{ borderColor: '#ef4444', color: '#ff4444' }} onClick={() => setSelectedNode('boss')}>
+                  VIEW BOSS INTEL
+                </button>
+              </div>
+            )}
+ 
             <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem' }}>
                <div className="corner-ornament corner-tl" />
                <div className="corner-ornament corner-tr" />
@@ -529,12 +671,12 @@ export default function MapSection({ onTabChange }) {
                
                <span className="stat-label font-times" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
                <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2 font-times">
-                 {currentLore.length === 0 ? (
+                 {displayLore.length === 0 ? (
                    <p className="text-[9px] font-mono text-gray-500 text-center py-4 uppercase tracking-widest">
                      No fragments recovered yet.<br/>Conquer operations to reveal the truth.
                    </p>
                  ) : (
-                   [...currentLore].reverse().map((fragment, idx) => (
+                   [...displayLore].reverse().map((fragment, idx) => (
                      <div key={idx} className="flex gap-2 items-start p-2 rounded bg-black/40 border border-white/5">
                         <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
                         <p className="text-[9px] font-mono text-gray-300 leading-relaxed italic">"{fragment}"</p>
@@ -613,21 +755,68 @@ export default function MapSection({ onTabChange }) {
               )}
 
               {selectedNode === 'jail' && (
-                <div className="intel-content font-times">
-                  <div className="intel-header">
-                    <span className="node-badge progress">IN PROGRESS</span>
-                    <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                isBossRescued ? (
+                  <div className="intel-content font-times">
+                    <div className="intel-header">
+                      <span className="node-badge secured" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #10b981', color: '#10b981' }}>JAIL DECRYPTED</span>
+                      <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                    </div>
+                    <div className="flex flex-col items-center gap-4 my-2">
+                      <div className="w-48 h-48 rounded border border-emerald-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(16,185,129,0.25)] flex items-center justify-center bg-black/40">
+                        {!jailImageFailed ? (
+                          <img 
+                            src="/nodes/node-jail-opened.png" 
+                            alt="Jail Opened" 
+                            className="w-full h-full object-contain p-2"
+                            onError={() => setJailImageFailed(true)}
+                          />
+                        ) : (
+                          <Unlock size={48} className="text-emerald-400 animate-pulse" />
+                        )}
+                      </div>
+                      <p className="intel-desc text-center text-emerald-400/90 font-medium leading-relaxed">
+                        The 5 key-seals have been shattered! The Fairy Empress has been liberated and returned to her palace.
+                      </p>
+                    </div>
+                    <div className="intel-stats font-mono">
+                      <div><span>JAIL STATUS</span><span className="text-emerald-400 font-bold">UNLOCKED & SECURED</span></div>
+                      <div><span>LIBERATED ON</span><span className="text-gold-core font-bold">{new Date(rescuedFairyInfo.date).toLocaleDateString()}</span></div>
+                    </div>
                   </div>
-                  <div className="modal-banner" style={bannerStyle('jail')} />
-                  <p className="intel-desc">{nodeInfo('jail').desc}</p>
-                  <div className="intel-stats font-mono">
-                    <div><span>ACTIVE OPERATIONS</span><span className="text-blue-400 font-bold">{activeTasksCount} ACTIVE</span></div>
-                    <div><span>LEVEL PROGRESS</span><span className="text-blue-400 font-bold">{displayProgress} / {TASKS_PER_LEVEL} SECURED</span></div>
+                ) : (
+                  <div className="intel-content font-times">
+                    <div className="intel-header">
+                      <span className="node-badge locked" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444' }}>IMPRISONED SOVEREIGN</span>
+                      <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                    </div>
+                    <div className="flex flex-col items-center gap-4 my-2">
+                      <div className="w-48 h-48 rounded border border-red-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(239,68,68,0.25)]">
+                        <img 
+                          src={`/fairies/empress-${activeMapIndex}-caged.png`} 
+                          alt="Caged Fairy" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-red-950/20" />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/80 py-1 text-center border-t border-red-500/20">
+                          <span className="text-[8px] font-mono text-red-400 tracking-[0.2em] uppercase font-bold">CAGED STATE</span>
+                        </div>
+                      </div>
+                      <p className="intel-desc text-center">
+                        The Empress of this region is sealed here. Defeat the regional dragon at the Dragon's Nest to unlock the cage.
+                      </p>
+                    </div>
+                    <div className="intel-stats font-mono">
+                      <div><span>JAIL STATUS</span><span className="text-red-500 font-bold">LOCKED BY BOSS</span></div>
+                      <div><span>ACTIVE OPERATIONS</span><span className="text-blue-400 font-bold">{activeTasksCount} ACTIVE</span></div>
+                    </div>
+                    <button className="intel-action-btn btn-gothic-gold" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops'); }}>
+                      DEPLOY STRIKE PROTOCOL
+                    </button>
                   </div>
-                  <button className="intel-action-btn btn-gothic-gold" onClick={() => { setSelectedNode(null); onTabChange && onTabChange('ops'); }}>
-                    DEPLOY STRIKE PROTOCOL
-                  </button>
-                </div>
+                )
               )}
 
               {selectedNode === 'stone' && (
@@ -646,30 +835,69 @@ export default function MapSection({ onTabChange }) {
               )}
 
               {selectedNode === 'boss' && (
-                <div className="intel-content font-times">
-                  <div className="intel-header">
-                    <span className="node-badge boss-badge">BOSS RAID</span>
-                    <h3>{nodeInfo('boss').name.toUpperCase()}</h3>
+                isBossRescued ? (
+                  <div className="intel-content font-times">
+                    <div className="intel-header">
+                      <span className="node-badge secured" style={{ background: 'rgba(236, 200, 128, 0.08)', border: '1px solid #ecc880', color: '#ecc880' }}>DECRYPTED INTEL</span>
+                      <h3>EMPRESS' ABODE</h3>
+                    </div>
+                    
+                    <div className="flex flex-col items-center gap-4 my-2">
+                      <div className="w-48 h-48 rounded border border-gold-core/30 overflow-hidden relative shadow-[0_0_15px_rgba(236,200,128,0.25)]">
+                        <img 
+                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                          alt="Fairy Empress Liberated" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-yellow-950/10" />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/80 py-1 text-center border-t border-[#ecc880]/20">
+                          <span className="text-[8px] font-mono text-gold-core tracking-[0.2em] uppercase font-bold">RESTORATION STATE</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="fairy-profile-card border border-gold-core/20 p-3 bg-white/[0.01] rounded w-full flex flex-col items-center">
+                      <span className="text-[9px] font-mono text-gold-core tracking-[0.25em] font-bold uppercase">
+                        FAIRY CLASS // {activeMapIndex === 1 || activeMapIndex === 2 || activeMapIndex === 8 ? 'WARRIOR' : activeMapIndex === 4 || activeMapIndex === 7 ? 'RECOVERY' : activeMapIndex === 5 || activeMapIndex === 10 ? 'FITNESS' : 'SCHOLAR'}
+                      </span>
+                      <p className="intel-desc mt-2 text-center text-white/90 italic leading-relaxed">
+                        "Liberated on {new Date(rescuedFairyInfo.date).toLocaleDateString()} by conquering Operation: {rescuedFairyInfo.taskTitle}"
+                      </p>
+                    </div>
+                    <div className="intel-stats font-mono mt-1">
+                      <div><span>FAIRY STATUS</span><span className="text-emerald-400 font-bold">RESCUED & ACTIVE</span></div>
+                      <div><span>REGION SECURED</span><span className="text-gold-core font-bold">{displayRegion.name.toUpperCase()}</span></div>
+                    </div>
                   </div>
-                  <div className="threat-profile">
-                    <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(level)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
-                    <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(level)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
+                ) : (
+                  <div className="intel-content font-times">
+                    <div className="intel-header">
+                      <span className="node-badge boss-badge">BOSS RAID</span>
+                      <h3>{nodeInfo('boss').name.toUpperCase()}</h3>
+                    </div>
+                    <div className="threat-profile">
+                      <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')`, width: '100%', aspectRatio: '1 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 60, 60, 0.2)' }} />
+                      <p className="intel-desc mt-3">The legendary dragon <strong>{getDragonName(activeMapIndex)}</strong> has nested in this region. This colossal beast possesses unmatched raw power. Only a coordinated Boss Raid operation can bring it down.</p>
+                    </div>
+                    <div className="intel-stats font-mono mt-3">
+                      <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEVEL {activeMapIndex} BOSS</span></div>
+                      <div><span>REWARD ELITE</span><span className="text-gold-bright font-bold">CREST OF {displayRegion.name.toUpperCase()}</span></div>
+                    </div>
+                    <button 
+                      className="intel-action-btn btn-gothic-gold mt-3" 
+                      style={{ borderColor: '#ef4444', color: '#ff4444' }}
+                      onClick={() => { 
+                        setSelectedNode(null); 
+                        onTabChange && onTabChange('ops', { openAddTask: true, defaultEffort: 'Boss' });
+                      }}
+                    >
+                      INITIATE BOSS RAID
+                    </button>
                   </div>
-                  <div className="intel-stats font-mono mt-3">
-                    <div><span>THREAT VALUE</span><span className="text-red-500 font-bold">LEVEL {level} BOSS</span></div>
-                    <div><span>REWARD ELITE</span><span className="text-gold-bright font-bold">CREST OF {activeRegion.name.toUpperCase()}</span></div>
-                  </div>
-                  <button 
-                    className="intel-action-btn btn-gothic-gold mt-3" 
-                    style={{ borderColor: '#ef4444', color: '#ff4444' }}
-                    onClick={() => { 
-                      setSelectedNode(null); 
-                      onTabChange && onTabChange('ops', { openAddTask: true, defaultEffort: 'Boss' });
-                    }}
-                  >
-                    INITIATE BOSS RAID
-                  </button>
-                </div>
+                )
               )}
             </motion.div>
           </div>

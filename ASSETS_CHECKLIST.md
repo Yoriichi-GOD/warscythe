@@ -182,8 +182,40 @@ Illustrations rendered inside the right-side Region Intel detail panels on the q
 | ✅ | `node-ashendale.png` | Ashendale | Runic shrine / Rituals & Habits |
 | ✅ | `node-blackvale.png` | Castle Blackvale | Gothic library / Ledger relic vault |
 | ✅ | `node-ironjail.png` | Iron Jail | Fortress keep / Active operations |
+| ⏳ | `node-empress-abode.png` | Empress' Abode | Ethereal sanctuary / Rescued Fairy details |
 
-**Total: 4 files**
+**Total: 5 files**
+
+---
+
+## 🧚 FAIRY EMPRESS PORTRAITS — `public/fairies/`
+
+Ethereal, neon translucent wings, dreamy halo. Each region has exactly 2 states (Caged vs Liberated) showing the transition from imprisonment to restoration in full-scene widescreen environment layouts (16:9).
+
+| Status | Filename | Theme / Class | State | Description / prompt keywords |
+|---|---|---|---|---|
+| ⏳ | `empress-1-caged.png` | Dryad (Warrior) | Caged | Wrapped tightly in thorny black briars in a dark, dead forest floor. |
+| ⏳ | `empress-1-liberated.png` | Dryad (Warrior) | Liberated | Sitting majestically on a glowing leaf-embroidered wooden throne in the restored sunlit emerald forest palace. |
+| ⏳ | `empress-2-caged.png` | Pyra (Warrior) | Caged | Bound in obsidian cuffs suspended over a molten volcanic magma chasm. |
+| ⏳ | `empress-2-liberated.png` | Pyra (Warrior) | Liberated | Sitting on an ornate crown throne of magma glass and fire in a restored crystal volcano citadel. |
+| ⏳ | `empress-3-caged.png` | Frost (Scholar) | Caged | Frozen inside a dark, jagged pillar of ice in a blizzard-swept cathedral ruin. |
+| ⏳ | `empress-3-liberated.png` | Frost (Scholar) | Liberated | Floating gracefully in a majestic icebound sanctuary, reading glowing runic books. |
+| ⏳ | `empress-4-caged.png` | Shadow (Recovery) | Caged | Bound by heavy, smoking black void chains inside a dark, bottomless cave. |
+| ⏳ | `empress-4-liberated.png` | Shadow (Recovery) | Liberated | Sitting in a glowing stardust garden, tending and healing tiny forest sprites. |
+| ⏳ | `empress-5-caged.png` | Jade (Fitness) | Caged | Trapped inside a shattered jade sarcophagus wrapped in red sealing talismans. |
+| ⏳ | `empress-5-liberated.png` | Jade (Fitness) | Liberated | Flying dynamically through massive golden arches and waterfalls of a lush oasis palace. |
+| ⏳ | `empress-6-caged.png` | Zephyr (Scholar) | Caged | Sealed inside a high-pressure glass cage floating over stormy cloudspire skies. |
+| ⏳ | `empress-6-liberated.png` | Zephyr (Scholar) | Liberated | Floating gracefully in a sun-drenched cloud library, holding a glowing astrolabe. |
+| ⏳ | `empress-7-caged.png` | Spectral (Recovery) | Caged | Imprisoned inside a cage of giant glowing green rib-bones in a dark dungeon. |
+| ⏳ | `empress-7-liberated.png` | Spectral (Recovery) | Liberated | Sitting in a glowing cavern garden, surrounded by light, healing cave fairies. |
+| ⏳ | `empress-8-caged.png` | Lightning (Warrior) | Caged | Locked inside a glowing electric prison dome crackling with blue shackles. |
+| ⏳ | `empress-8-liberated.png` | Lightning (Warrior) | Liberated | Sitting on a jagged teal throne of lightning glass inside a storm fortress. |
+| ⏳ | `empress-9-caged.png` | Cosmic (Scholar) | Caged | Suspended inside a dark gravity singularity / black-hole rift. |
+| ⏳ | `empress-9-liberated.png` | Cosmic (Scholar) | Liberated | Floating gracefully in a celestial space observatory, pointing to a swirling galaxy. |
+| ⏳ | `empress-10-caged.png` | Sol (Fitness) | Caged | Locked in an iron sun-cage that blocks all light in a dark colosseum. |
+| ⏳ | `empress-10-liberated.png` | Sol (Fitness) | Liberated | Soaring dynamically through a golden colosseum dome, trailing solar rays. |
+
+**Total: 20 files**
 
 ---
 
@@ -198,8 +230,9 @@ Illustrations rendered inside the right-side Region Intel detail panels on the q
 | `public/scratch/` | 5 |
 | `public/crests/` | 10 |
 | `public/trophies/` | 10 |
-| `public/nodes/` | 4 |
-| **TOTAL** | **180 assets** |
+| `public/nodes/` | 5 |
+| `public/fairies/` | 20 |
+| **TOTAL** | **201 assets** |
 
 ---
 

@@ -2,6 +2,37 @@ import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame, Award, Dumbbell } from 'lucide-react';
 
+const getArtifactImage = (name) => {
+  const mapping = {
+    'Iron Quill': 'scroll',
+    "Scout's Compass": 'compass',
+    'Wax Seal of Intent': 'rune',
+    'Cloak of Momentum': 'amulet',
+    'Whetstone of Focus': 'chain',
+    'Ink of Resolve': 'chalice',
+    'Blade of Persistence': 'blade',
+    'Shield of No Retreat': 'shield',
+    'Ring of Execution': 'ring',
+    'Helm of Clarity': 'helm',
+    'Staff of Deadlines': 'staff',
+    'Cloak of Iteration': 'amulet',
+    'Dragon Scale Armor': 'horn',
+    'Eye of the Strategist': 'eye',
+    "Void Walker's Boots": 'gem',
+    'Crown of Completion': 'crown',
+    "Warscythe's Gauntlet": 'gauntlet',
+    'The Finisher': 'blade',
+    'Throne Fragment': 'idol',
+    'Shard of Reality': 'mirror',
+    'Cosmic Reaper': 'skull',
+    'Sovereign Core': 'orb',
+    'Omega Catalyst': 'hourglass',
+    'Grip of the Void': 'gauntlet'
+  };
+  const baseName = mapping[name] || 'rune';
+  return `/artifacts/artifact-${baseName}.png`;
+};
+
 export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0, collectedArtifacts = [] } = useWarscytheStore();
 
@@ -166,21 +197,26 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             {collectedArtifacts.length === 0 ? (
               <span className="text-[8px] font-mono text-gray-600 tracking-widest uppercase">No artifacts recovered yet.</span>
             ) : (
-              [...collectedArtifacts].reverse().slice(0, 5).map((artifact, i) => (
-                <div key={i} className="group relative shrink-0">
-                   <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer">
-                     <span className="text-2xl opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all drop-shadow-md grayscale group-hover:grayscale-0">{artifact.icon || '💎'}</span>
-                   </div>
-                   {/* Hover Tooltip */}
-                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
-                     <span className={`text-[8px] font-mono tracking-widest uppercase font-bold mb-1 block ${
-                        artifact.rarity === 'Mythic' ? 'text-yellow-400' :
-                        artifact.rarity === 'Legendary' ? 'text-orange-400' :
-                        artifact.rarity === 'Epic' ? 'text-purple-400' :
-                        artifact.rarity === 'Rare' ? 'text-blue-400' :
-                        artifact.rarity === 'Uncommon' ? 'text-green-400' :
-                        'text-gray-400'
-                     }`}>{artifact.rarity}</span>
+              [...collectedArtifacts].reverse().slice(0, 5).map((artifact, i) => {
+                const rarityLower = (artifact.rarity || 'common').toLowerCase();
+                return (
+                  <div key={i} className="group relative shrink-0">
+                     <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer p-1">
+                       <img 
+                         src={getArtifactImage(artifact.name)} 
+                         className={`w-full h-full object-contain art-img-filter ${rarityLower}`} 
+                         alt={artifact.name} 
+                       />
+                     </div>
+                     {/* Hover Tooltip */}
+                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
+                       <span className={`text-[8px] font-mono tracking-widest uppercase font-bold mb-1 block ${
+                          rarityLower === 'mythic' ? 'text-red-500' :
+                          rarityLower === 'epic' ? 'text-red-400' :
+                          rarityLower === 'rare' ? 'text-yellow-500' :
+                          rarityLower === 'uncommon' ? 'text-green-500' :
+                          'text-gray-400'
+                       }`}>{artifact.rarity}</span>
                      <p className="text-[10px] font-display text-white tracking-widest uppercase mb-2 leading-tight">{artifact.name}</p>
                      <div className="h-[1px] w-full bg-white/10 mb-2" />
                      <p className="text-[9px] font-mono text-gold-core/90 italic leading-relaxed mb-3">"{artifact.hook || artifact.desc || artifact.lore}"</p>
@@ -201,8 +237,9 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
                         </p>
                      </div>
                    </div>
-                </div>
-              ))
+                 </div>
+               );
+             })
             )}
          </div>
 

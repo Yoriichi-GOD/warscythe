@@ -26,6 +26,8 @@ import { initNetworkMonitoring } from './utils/nativeTriggers';
 import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
+import RegionFlashScreen from './components/RegionFlashScreen';
+import { REGIONS } from './store/constants';
 
 export default function App() {
   useEffect(() => {
@@ -71,6 +73,7 @@ export default function App() {
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
+  const [pendingEntryScreen, setPendingEntryScreen] = useState(null);
   
   const user = useWarscytheStore(state => state.user);
   
@@ -83,6 +86,8 @@ export default function App() {
   const updateStreak = useWarscytheStore(state => state.updateStreak);
   const activeBossFlash = useWarscytheStore(state => state.activeBossFlash);
   const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
+  const pendingVictoryScreen = useWarscytheStore(state => state.pendingVictoryScreen);
+  const clearPendingVictoryScreen = useWarscytheStore(state => state.clearPendingVictoryScreen);
 
   const tasks = useWarscytheStore(state => state.tasks);
   const isFocusMode = useWarscytheStore(state => state.isFocusMode);
@@ -353,14 +358,14 @@ export default function App() {
           </div>
         )}
 
-        {pendingReward && !activeBossFlash && (
+        {pendingReward && !activeBossFlash && !pendingVictoryScreen && (
           <ScratchCard 
             data={pendingReward} 
             onClose={clearPendingReward} 
           />
         )}
 
-        {activeBossFlash && (
+        {activeBossFlash && !pendingVictoryScreen && (
           <BossFlashScreen 
             key="boss-flash-screen"
             type={activeBossFlash} 
@@ -368,10 +373,38 @@ export default function App() {
           />
         )}
 
-        {pendingLevelUp && (
+        {/* STEP 1 — Victory liberation flash (fires first on level-up) */}
+        {pendingVictoryScreen && (
+          <RegionFlashScreen
+            key="victory-screen"
+            type="victory"
+            regionData={pendingVictoryScreen}
+            onClose={clearPendingVictoryScreen}
+          />
+        )}
+
+        {/* STEP 2 — LevelUpModal (fires after victory screen dismissed) */}
+        {pendingLevelUp && !pendingVictoryScreen && (
           <LevelUpModal 
             data={pendingLevelUp} 
-            onClose={clearPendingLevelUp} 
+            onClose={() => {
+              const newMapIndex = ((pendingLevelUp.newLevel - 1) % 10) + 1;
+              setPendingEntryScreen({
+                mapIndex: newMapIndex,
+                regionName: REGIONS?.[pendingLevelUp.newLevel - 1]?.name || `Region ${newMapIndex}`,
+              });
+              clearPendingLevelUp();
+            }} 
+          />
+        )}
+
+        {/* STEP 3 — Region entry screen (fires after level-up modal dismissed) */}
+        {pendingEntryScreen && !pendingLevelUp && (
+          <RegionFlashScreen
+            key="entry-screen"
+            type="entry"
+            regionData={pendingEntryScreen}
+            onClose={() => setPendingEntryScreen(null)}
           />
         )}
       </AnimatePresence>

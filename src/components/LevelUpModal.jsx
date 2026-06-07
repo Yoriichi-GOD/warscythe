@@ -44,7 +44,7 @@ export default function LevelUpModal({ data, onClose }) {
         <div className="lvl-header font-times">
           <h2 className="text-gold-gradient">ASCENSION COMPLETE</h2>
           <div className="lvl-header-divider">
-            <span className="overline">YOU ARE EVOLVING</span>
+            <span className="overline">♦ YOU ARE EVOLVING ♦</span>
           </div>
         </div>
 
@@ -166,16 +166,7 @@ export default function LevelUpModal({ data, onClose }) {
           position: relative;
         }
 
-        .lvl-header-divider::before {
-          content: "♦";
-          color: #ecc880;
-          font-size: 0.6rem;
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          background: #000;
-          padding: 0 0.5rem;
-        }
+
 
         .overline {
           font-size: 0.75rem;
