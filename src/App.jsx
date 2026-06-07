@@ -70,19 +70,18 @@ export default function App() {
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
-    const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
     const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
     const tasksCompleted = (state.completedTasks || []).length;
     const trueTotalCompletions = tasksCompleted + ritualsCompleted;
     
-    const trueLevel = Math.floor(trueTotalCompletions / tasksPerLevel) + 1;
-    const trueProgress = trueTotalCompletions % tasksPerLevel;
+    const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
+    const trueProgress = trueTotalCompletions % TASKS_PER_LEVEL;
     
     // Retroactively rebuild unlocked lore based on true completions
     const reconstructedLore = {};
     for (let r = 0; r < trueLevel; r++) {
       const loreArr = getLore(r) || [];
-      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : tasksPerLevel;
+      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : TASKS_PER_LEVEL;
       reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
     }
     
@@ -502,7 +501,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* 🔮 GLOBAL GUARDIAN ANGEL (DRAGGABLE OVERLAY) */}
-      {user && (
+      {user && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
         <motion.div 
           drag
           dragMomentum={false}
@@ -518,7 +517,7 @@ export default function App() {
 
       {/* 🔮 GLOBAL PROPHECY CARD */}
       <AnimatePresence>
-        {showProphecyCard && activeProphecy && (
+        {showProphecyCard && activeProphecy && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
           <motion.div 
             initial={{ opacity: 0, x: 50, y: 0 }}
             animate={{ opacity: 1, x: 0, y: 0 }}

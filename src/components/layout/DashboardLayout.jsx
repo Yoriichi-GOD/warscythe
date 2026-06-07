@@ -25,7 +25,7 @@ export default function DashboardLayout({ children, activeTab }) {
 
   const currentTheme = isRepetition ? regionThemes[(cycleIndex - 1) % regionThemes.length] : null;
 
-  const bgFilterStyle = currentTheme 
+  const bgFilterStyle = (currentTheme && activeTab !== 'fitness') 
     ? `hue-rotate(${currentTheme.hue}deg) sepia(${currentTheme.sepia}) saturate(${currentTheme.saturate})`
     : 'none';
 

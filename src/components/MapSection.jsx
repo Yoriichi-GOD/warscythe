@@ -263,14 +263,13 @@ export default function MapSection({ onTabChange }) {
     backgroundPosition: 'center',
     borderRadius: '4px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
-    filter: currentFilter
+    filter: currentFilter || 'none'
   });
   
   const displayRegionIdx = activeMapIndex - 1;
   const displayRegion = REGIONS[displayRegionIdx] || REGIONS[0];
-  const tasksPerLevel = (user && user.email === 'nrgenosop@gmail.com') ? 1 : TASKS_PER_LEVEL;
-  const displayProgress = activeMapIndex < level ? tasksPerLevel : activeMapIndex === level ? currentLevelProgress : 0;
-  const progressPct = Math.round((displayProgress / tasksPerLevel) * 100);
+  const displayProgress = activeMapIndex < level ? TASKS_PER_LEVEL : activeMapIndex === level ? currentLevelProgress : 0;
+  const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
   const displayLore = unlockedLore?.[displayRegionIdx] || [];
 
   const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx] || (activeMapIndex < level ? {
@@ -513,6 +512,7 @@ export default function MapSection({ onTabChange }) {
                           src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
                           alt="Fairy Empress" 
                           className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
+                          style={{ filter: currentFilter || 'none' }}
                           onError={(e) => {
                             e.target.style.display = 'none';
                           }}
@@ -597,7 +597,7 @@ export default function MapSection({ onTabChange }) {
                <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
                   <span className="pct text-gold-gradient font-bold">{progressPct}%</span>
                </div>
-               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {tasksPerLevel} SECURED</p>
+               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
             </div>
  
             <div className="active-modifiers font-times">
@@ -622,7 +622,7 @@ export default function MapSection({ onTabChange }) {
                     src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
                     alt="Fairy Empress" 
                     className="w-11 h-11 object-cover rounded-full border border-[#ecc880]/40 bg-gold-core/5"
-                    style={{ filter: 'drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))' }}
+                    style={{ filter: `${currentFilter} drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))` }}
                   />
                   <div className="threat-info">
                     <h5 className="text-gold-core font-bold">EMPRESS OF {displayRegion.name.toUpperCase()}</h5>
@@ -848,7 +848,8 @@ export default function MapSection({ onTabChange }) {
                           backgroundPosition: 'center top',
                           borderRadius: '4px',
                           border: '1px solid rgba(239, 68, 68, 0.2)',
-                          boxShadow: '0 0 15px rgba(239,68,68,0.15)'
+                          boxShadow: '0 0 15px rgba(239,68,68,0.15)',
+                          filter: currentFilter || 'none'
                         }} 
                       />
                       <p className="intel-desc mt-3">
@@ -900,7 +901,8 @@ export default function MapSection({ onTabChange }) {
                           backgroundPosition: 'center top',
                           borderRadius: '4px',
                           border: '1px solid rgba(236, 200, 128, 0.25)',
-                          boxShadow: '0 0 15px rgba(236,200,128,0.2)'
+                          boxShadow: '0 0 15px rgba(236,200,128,0.2)',
+                          filter: currentFilter || 'none'
                         }} 
                       />
                     </div>
