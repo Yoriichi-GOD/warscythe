@@ -13,6 +13,22 @@ export default function DashboardLayout({ children, activeTab }) {
     ? 'Olympus Temple' 
     : `Region ${regionIndex} Background`;
 
+  const isRepetition = level > 10;
+  const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
+
+  const regionThemes = [
+    { hue: 20, sepia: 0.8, saturate: 1.5 },   // Cycle 1: Autumn Gold
+    { hue: 200, sepia: 0.3, saturate: 0.8 },  // Cycle 2: Ice / Blue Shift
+    { hue: 100, sepia: 0.5, saturate: 1.2 },  // Cycle 3: Forest Green / Decay
+    { hue: 280, sepia: 0.6, saturate: 2 },    // Cycle 4: Purple Void Shift
+  ];
+
+  const currentTheme = isRepetition ? regionThemes[(cycleIndex - 1) % regionThemes.length] : null;
+
+  const bgFilterStyle = currentTheme 
+    ? `hue-rotate(${currentTheme.hue}deg) sepia(${currentTheme.sepia}) saturate(${currentTheme.saturate})`
+    : 'none';
+
   return (
     <div className="relative min-h-screen w-full bg-black text-white overflow-hidden">
       
@@ -23,6 +39,7 @@ export default function DashboardLayout({ children, activeTab }) {
             key={bgImage}
             src={bgImage} 
             alt={bgAlt} 
+            style={{ filter: bgFilterStyle }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.7 }}
             exit={{ opacity: 0 }}

@@ -204,14 +204,21 @@ export default function MapSection({ onTabChange }) {
     }])
   ];
 
+  const isRepetition = level > 10;
+  const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
+
   const regionThemes = [
-    { hue: 0, sepia: 0.2, saturate: 1 },
-    { hue: 20, sepia: 0.8, saturate: 1.5 },
-    { hue: 200, sepia: 0.3, saturate: 0.8 },
-    { hue: 100, sepia: 0.5, saturate: 1.2 },
-    { hue: 280, sepia: 0.6, saturate: 2 },
+    { hue: 20, sepia: 0.8, saturate: 1.5 },   // Cycle 1: Autumn Gold
+    { hue: 200, sepia: 0.3, saturate: 0.8 },  // Cycle 2: Ice / Blue Shift
+    { hue: 100, sepia: 0.5, saturate: 1.2 },  // Cycle 3: Forest Green / Decay
+    { hue: 280, sepia: 0.6, saturate: 2 },    // Cycle 4: Purple Void Shift
   ];
-  const currentRegionTheme = regionThemes[(level - 1) % regionThemes.length];
+
+  const currentTheme = isRepetition ? regionThemes[(cycleIndex - 1) % regionThemes.length] : null;
+
+  const currentFilter = currentTheme 
+    ? `hue-rotate(${currentTheme.hue}deg) sepia(${currentTheme.sepia}) saturate(${currentTheme.saturate})`
+    : 'none';
 
   const bannerStyle = (nodeId) => ({
     width: '100%',
@@ -221,7 +228,7 @@ export default function MapSection({ onTabChange }) {
     backgroundPosition: 'center',
     borderRadius: '4px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
-    filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia}) saturate(${currentRegionTheme.saturate})`
+    filter: currentFilter
   });
   
   const regionIdx = Math.min(level - 1, REGIONS.length - 1);
@@ -374,7 +381,7 @@ export default function MapSection({ onTabChange }) {
               className="map-image-layer" 
               style={{ 
                 backgroundImage: `url('/maps/campaign-map-${mapIndex}.png')`,
-                filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia}) saturate(${currentRegionTheme.saturate})`
+                filter: currentFilter
               }} 
             >
             <div className="map-nodes-overlay">
@@ -471,7 +478,7 @@ export default function MapSection({ onTabChange }) {
               </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
                 backgroundImage: `url('${getNodeBanner(selectedNode || 'jail')}')`,
-                filter: `hue-rotate(${currentRegionTheme.hue}deg) sepia(${currentRegionTheme.sepia || 0}) saturate(${currentRegionTheme.saturate || 1})`
+                filter: currentFilter
               }} />
             </div>
 
