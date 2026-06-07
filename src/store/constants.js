@@ -161,40 +161,40 @@ export const LORE_TEMPLATES = [
 
 export const BASE_ARTIFACTS = [
   {
-    name: 'Iron Quill',
-    icon: '🖋️',
+    name: 'Tome of Iron Will',
+    icon: '📖',
     hook: 'You iterated. That made it better.',
     lore: 'Your brain doesn\'t lock in on version one. It rewrites, refines, sharpens. Most people call this inefficiency. You call it quality control. Write it down—each revision is proof you\'re getting closer to the weapon.'
   },
   {
-    name: 'Scout\'s Compass',
+    name: 'Compass of the Scout',
     icon: '🧭',
     hook: 'One target. One direction. Execute.',
     lore: 'Your mind generates options faster than most can think. The compass points to *one*. Not because you\'re limited—because you\'ve learned that focus multiplies force. Pick the target. The rest dissolves.'
   },
   {
-    name: 'Wax Seal of Intent',
+    name: 'Scroll of Intent',
     icon: '📜',
     hook: 'You started. The rest follows.',
-    lore: 'Starting is where ADHD stalls. The friction of initiating paralysis is real. You broke it. Five minutes became ten. Ten became an hour. The seal commemorates the moment you crossed the wall.'
+    lore: 'Starting is where ADHD stalls. The friction of initiating paralysis is real. You broke it. Five minutes became ten. Ten became an hour. The scroll commemorates the moment you crossed the wall.'
   },
   {
-    name: 'Cloak of Momentum',
-    icon: '🧥',
+    name: 'Scroll of Momentum',
+    icon: '📜',
     hook: 'Motion became velocity. You\'re accelerating.',
-    lore: 'You don\'t start fast. You start slow and accelerate into hyperfocus. By task completion, you\'re moving at speeds others can\'t sustain. The cloak is woven from that acceleration curve—evidence that your intensity compounds over time.'
+    lore: 'You don\'t start fast. You start slow and accelerate into hyperfocus. By task completion, you\'re moving at speeds others can\'t sustain. The scroll is inscribed with that acceleration curve—evidence that your intensity compounds over time.'
   },
   {
-    name: 'Whetstone of Focus',
+    name: 'Rune of Focus',
     icon: '🪨',
     hook: 'Singular. Relentless. Sharpened.',
-    lore: 'Your brain is a multi-threaded processor trying to run in single-threaded mode. When you *do* focus, you cut deeper than most ever will. The whetstone sharpens itself on that pressure.'
+    lore: 'Your brain is a multi-threaded processor trying to run in single-threaded mode. When you *do* focus, you cut deeper than most ever will. The rune is carved from that pressure.'
   },
   {
-    name: 'Ink of Resolve',
-    icon: '🫗',
+    name: 'Chalice of Resolve',
+    icon: '🏆',
     hook: 'You finished. Most don\'t.',
-    lore: 'Completion is where ADHD fails most people. You didn\'t. You saw the end and ran through it. The ink marks the work—not potential, not plans, not wishes. *Work*.'
+    lore: 'Completion is where ADHD fails most people. You didn\'t. You saw the end and ran through it. The chalice marks the work—not potential, not plans, not wishes. *Work*.'
   },
   {
     name: 'Blade of Persistence',
@@ -227,16 +227,16 @@ export const BASE_ARTIFACTS = [
     lore: 'Parkinson\'s Law isn\'t philosophy to ADHD brains—it\'s a lifeline. You set shorter deadlines because you know the ADHD multiplier: artificial constraint = hyper-focus activation. The staff measures not time, but the pressure that forces execution.'
   },
   {
-    name: 'Cloak of Iteration',
-    icon: '🧥',
+    name: 'Rune of Iteration',
+    icon: '🪨',
     hook: 'You remixed it. Every version sharper.',
-    lore: 'Most people lock in their approach and execute. Your ADHD brain can\'t—and doesn\'t need to. You iterate in real-time, learning as you move. Your "inefficiency" is actually a rapid-feedback loop most brains can\'t access. The cloak is woven from that adaptive speed.'
+    lore: 'Most people lock in their approach and execute. Your ADHD brain can\'t—and doesn\'t need to. You iterate in real-time, learning as you move. Your "inefficiency" is actually a rapid-feedback loop most brains can\'t access. The rune is etched from that adaptive speed.'
   },
   {
-    name: 'Dragon Scale Armor',
-    icon: '🐉',
+    name: 'Idol of the Dragon',
+    icon: '🗿',
     hook: 'Criticism used to break you. Now it sharpens you.',
-    lore: 'Shame and hypersensitivity to criticism are ADHD classics. You fought that wiring and won. External feedback no longer derails your focus—it inputs data. The scales are armor forged from feedback that would have broken you six months ago.'
+    lore: 'Shame and hypersensitivity to criticism are ADHD classics. You fought that wiring and won. External feedback no longer derails your focus—it inputs data. The idol is carved from feedback that would have broken you six months ago.'
   },
   {
     name: 'Eye of the Strategist',
@@ -245,10 +245,10 @@ export const BASE_ARTIFACTS = [
     lore: 'ADHD hyperfocus can be scattered or targeted. You learned to *target* it. You stopped context-switching and started *strategic depth*. The eye sees the full board, but commands only where your intensity will compound.'
   },
   {
-    name: 'Void Walker\'s Boots',
-    icon: '👢',
+    name: 'Chain of the Void Walker',
+    icon: '⛓️',
     hook: 'You acted before the plan was perfect.',
-    lore: 'Perfectionism isn\'t your weakness—impulsivity is. But impulsivity without direction is chaos. You flipped it: you *act fast without needing certainty*. That\'s not recklessness—that\'s the ADHD speed advantage, weaponized. You walk between worlds most people never see.'
+    lore: 'Perfectionism isn\'t your weakness—impulsivity is. But impulsivity without direction is chaos. You flipped it: you *act fast without needing certainty*. That\'s not recklessness—that\'s the ADHD speed advantage, weaponized. Each chain link is a step taken between worlds most people never see.'
   },
   {
     name: 'Crown of Completion',
@@ -257,58 +257,88 @@ export const BASE_ARTIFACTS = [
     lore: 'ADHD kills projects in the last 10%. Finishing is where you differ. You didn\'t abandon it at 95%—you ran through the wall to completion. The crown isn\'t for starting well. It\'s for finishing *despite* the ADHD resistance that peaks at the end.'
   },
   {
-    name: 'Warscythe\'s Gauntlet',
+    name: 'Gauntlet of the Warscythe',
     icon: '🧤',
     hook: 'Your hands are calloused. The friction is your language.',
     lore: 'You stopped trying to protect your hands from the work. Resistance, friction, pressure—these are no longer obstacles. They\'re the only language your ADHD brain trusts. The gauntlet marks the moment you stopped *managing* difficulty and started *weaponizing* it.'
   },
   {
-    name: 'The Finisher',
+    name: 'Blade of the Finisher',
     icon: '⚔️',
     hook: 'You finished what most people quit.',
     lore: 'The world doesn\'t measure potential. It measures finished work. ADHD is an expert at potential. You became the exception: the ADHD player who finishes. That\'s not normal. That\'s not evolution. That\'s transcendence.'
   },
   {
-    name: 'Throne Fragment',
-    icon: '🏛️',
+    name: 'Idol of the Throne',
+    icon: '🗿',
     hook: 'You own the chaos. You rule it now.',
     lore: 'Most ADHD players spend their lives fighting their wiring. You stopped fighting and started *commanding*. Your inconsistency, your restarts, your hyperfocus spirals—you own them completely. That ownership is sovereignty.'
   },
   {
-    name: 'Shard of Reality',
-    icon: '🔮',
+    name: 'Mirror of Reality',
+    icon: '🪞',
     hook: 'You measured yourself ruthlessly. You showed up anyway.',
     lore: 'ADHD hides in avoidance of metrics. You confronted them—daily completion rates, streak counts, velocity trends. And knowing you were failing in real-time, you executed anyway. That\'s not discipline. That\'s the final evolution: acceptance + action.'
   },
   {
-    name: 'Cosmic Reaper',
+    name: 'Skull of the Reaper',
     icon: '💀',
     hook: 'Your ADHD isn\'t a disability. It\'s your weapon.',
     lore: 'You stopped apologizing. Stopped managing. Stopped explaining. You execute at velocities neurotypical brains cannot sustain, see patterns most will never notice, and hyperfocus with intensity that looks like magic. You\'ve hacked your own neurology. You are not disabled. You are different. And different has won.'
   },
   {
-    name: 'Sovereign Core',
+    name: 'Orb of Sovereignty',
     icon: '🌌',
     hook: 'Reality bent. You didn\'t.',
     lore: 'The ultimate engine of execution. It doesn\'t measure output—it transforms intent directly into reality. Only forged under extreme cognitive pressure.'
   },
   {
-    name: 'Omega Catalyst',
-    icon: '🌀',
+    name: 'Hourglass of the Omega',
+    icon: '⏳',
     hook: 'The distraction died. The focus remains.',
-    lore: 'For those who have conquered the ADHD storm. The catalyst channels hyperfocus into a single laser-thin line that cuts through any obstacle.'
+    lore: 'For those who have conquered the ADHD storm. The hourglass channels hyperfocus into a single laser-thin line that cuts through any obstacle.'
   },
   {
-    name: 'Grip of the Void',
+    name: 'Gauntlet of the Void',
     icon: '🕳️',
     hook: 'Nothing else exists. Only this moment.',
-    lore: 'A glove woven from absolute stillness. When worn, all noise, doubts, and excuses dissolve. There is only you, and the work.'
+    lore: 'A gauntlet woven from absolute stillness. When worn, all noise, doubts, and excuses dissolve. There is only you, and the work.'
   },
   {
     name: 'Lantern of the Lost',
     icon: '🏮',
     hook: 'Your guide in the darkness.',
     lore: 'For those who walk the dark forest path alone. The lantern shows the next step when the road ahead is obscured by uncertainty.'
+  },
+  {
+    name: 'Amulet of the Relentless',
+    icon: '📿',
+    hook: 'You kept going when logic said stop.',
+    lore: 'The ADHD brain burns out faster than most. Dopamine crashes hard. And yet you came back. Again. The amulet is charged by each return—not by streaks, but by the refusal to quit permanently.'
+  },
+  {
+    name: 'Coin of the Conquered',
+    icon: '🪙',
+    hook: 'You traded excuses for output.',
+    lore: 'Every task completed is currency. Not for others—for your future self who needs proof that you can deliver. The coin doesn\'t represent wealth. It represents evidence. You have a record now. Use it.'
+  },
+  {
+    name: 'Gem of Rare Focus',
+    icon: '💎',
+    hook: 'You found the frequency. You locked in.',
+    lore: 'Hyperfocus is a weapon most neurotypes can\'t access. When it fires, you outperform everyone in the room. The gem is crystallized from those moments—rare, intense, and entirely yours. Guard them. Learn to summon them.'
+  },
+  {
+    name: 'Horn of the Siege',
+    icon: '📯',
+    hook: 'You called the charge. You led.',
+    lore: 'Leadership isn\'t about control. It\'s about decisiveness under chaos. Your ADHD makes chaos feel native—so when others freeze, you move. The horn was sounded at the moment you stopped waiting for permission and started.'
+  },
+  {
+    name: 'Map of the Uncharted',
+    icon: '🗺️',
+    hook: 'You went where there was no path.',
+    lore: 'No one handed you a manual. The ADHD brain doesn\'t follow maps—it draws them. You navigated uncertainty by moving through it, not around it. This map is the record of the territory you personally conquered.'
   }
 ];
 

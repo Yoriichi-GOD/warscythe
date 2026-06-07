@@ -10,34 +10,8 @@ const dragonTrophies = [
 ];
 
 const getArtifactImage = (name) => {
-  const mapping = {
-    'Iron Quill': 'scroll',
-    "Scout's Compass": 'compass',
-    'Wax Seal of Intent': 'rune',
-    'Cloak of Momentum': 'amulet',
-    'Whetstone of Focus': 'chain',
-    'Ink of Resolve': 'chalice',
-    'Blade of Persistence': 'blade',
-    'Shield of No Retreat': 'shield',
-    'Ring of Execution': 'ring',
-    'Helm of Clarity': 'helm',
-    'Staff of Deadlines': 'staff',
-    'Cloak of Iteration': 'amulet',
-    'Dragon Scale Armor': 'horn',
-    'Eye of the Strategist': 'eye',
-    "Void Walker's Boots": 'gem',
-    'Crown of Completion': 'crown',
-    "Warscythe's Gauntlet": 'gauntlet',
-    'The Finisher': 'blade',
-    'Throne Fragment': 'idol',
-    'Shard of Reality': 'mirror',
-    'Cosmic Reaper': 'skull',
-    'Sovereign Core': 'orb',
-    'Omega Catalyst': 'hourglass',
-    'Grip of the Void': 'gauntlet'
-  };
-  const baseName = mapping[name] || 'rune';
-  return `/artifacts/artifact-${baseName}.png`;
+  const type = (name || '').split(' ')[0].toLowerCase();
+  return `/artifacts/artifact-${type}.png`;
 };
 
 
