@@ -40,7 +40,7 @@ const getTaskCategoryType = (category = '') => {
   return 'operations';
 };
 
-export default function FocusOverlay() {
+export default function FocusOverlay({ onTriggerProphecy }) {
   const { isFocusMode, focusedTaskId, tasks, toggleFocus, generateMicroSteps, toggleMicroStep, updateProgress, addReceivedProphecy } = useWarscytheStore();
   const task = tasks.find(t => t.id === focusedTaskId);
   
@@ -58,10 +58,6 @@ export default function FocusOverlay() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [lastWaterWalkTime, setLastWaterWalkTime] = useState(0);
   const [triggeredQuarters, setTriggeredQuarters] = useState({ q1: false, q2: false, q3: false, q4: false });
-  
-  const [currentMessage, setCurrentMessage] = useState('');
-  const [messageType, setMessageType] = useState('');
-  const [showMessageCard, setShowMessageCard] = useState(false);
 
   useEffect(() => {
     let interval = null;
@@ -75,12 +71,8 @@ export default function FocusOverlay() {
       
       // Completion message
       const text = "Operational focus achieved. Your processor has successfully scaled. Return to Command base with updated velocity.";
-      setCurrentMessage(text);
-      setMessageType("prophecy");
-      setShowMessageCard(true);
-
-      if (addReceivedProphecy) {
-        addReceivedProphecy({ text, type: "prophecy" });
+      if (onTriggerProphecy) {
+        onTriggerProphecy(text, "prophecy");
       }
 
       // Exit focus mode after 8 seconds (fade off on its own)
@@ -90,18 +82,9 @@ export default function FocusOverlay() {
       return () => clearTimeout(timeout);
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, onTriggerProphecy, toggleFocus]);
 
-  useEffect(() => {
-    if (showMessageCard) {
-      const timer = setTimeout(() => {
-        setShowMessageCard(false);
-      }, 12000);
-      return () => clearTimeout(timer);
-    }
-  }, [showMessageCard]);
-
-  const pullProphecy = () => {
+  const triggerFocusProphecy = () => {
     const isTip = Math.random() < 0.4;
     let text = '';
     let type = 'prophecy';
@@ -116,12 +99,8 @@ export default function FocusOverlay() {
       type = 'prophecy';
     }
 
-    setCurrentMessage(text);
-    setMessageType(type);
-    setShowMessageCard(true);
-
-    if (addReceivedProphecy) {
-      addReceivedProphecy({ text, type });
+    if (onTriggerProphecy) {
+      onTriggerProphecy(text, type);
     }
   };
 
@@ -133,15 +112,15 @@ export default function FocusOverlay() {
     
     if (progress >= 0.25 && !triggeredQuarters.q1) {
       setTriggeredQuarters(prev => ({ ...prev, q1: true }));
-      pullProphecy();
+      triggerFocusProphecy();
     }
     if (progress >= 0.50 && !triggeredQuarters.q2) {
       setTriggeredQuarters(prev => ({ ...prev, q2: true }));
-      pullProphecy();
+      triggerFocusProphecy();
     }
     if (progress >= 0.75 && !triggeredQuarters.q3) {
       setTriggeredQuarters(prev => ({ ...prev, q3: true }));
-      pullProphecy();
+      triggerFocusProphecy();
     }
   }, [elapsedTime, totalDuration, triggeredQuarters, isActive]);
 
@@ -151,15 +130,11 @@ export default function FocusOverlay() {
       setLastWaterWalkTime(elapsedTime);
       
       const text = "You've been hyperfocused for 90 minutes. Your body needs water. Stand up. Come back in 3 minutes. Your flow will resume.";
-      setCurrentMessage(text);
-      setMessageType("guardian tip");
-      setShowMessageCard(true);
-
-      if (addReceivedProphecy) {
-        addReceivedProphecy({ text, type: "guardian tip" });
+      if (onTriggerProphecy) {
+        onTriggerProphecy(text, "guardian tip");
       }
     }
-  }, [elapsedTime, lastWaterWalkTime]);
+  }, [elapsedTime, lastWaterWalkTime, onTriggerProphecy]);
 
   const handleSelectPreset = (seconds) => {
     setTotalDuration(seconds);
@@ -282,21 +257,7 @@ export default function FocusOverlay() {
               </div>
             )}
           </div>
-          <div className="timer-progress-ring">
-            <svg viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" className="timer-ring-bg" />
-              <motion.circle 
-                cx="50" cy="50" r="45" 
-                className="timer-ring-fill"
-                style={{ 
-                  pathLength: timeLeft / totalDuration,
-                  rotate: -90,
-                  originX: "50%",
-                  originY: "50%"
-                }}
-              />
-            </svg>
-          </div>
+
         </div>
 
         <div className="focus-task-info">
@@ -354,50 +315,6 @@ export default function FocusOverlay() {
           </div>
         </div>
       </div>
-
-      {/* 🔮 GUARDIAN ANGEL TRIGGERS & PROPHECIES (DRAGGABLE OVERLAY) */}
-      <motion.div 
-        drag
-        dragMomentum={false}
-        className="guardian-trigger-container"
-        style={{ touchAction: 'none' }}
-      >
-        <button className="guardian-trigger-btn" onClick={pullProphecy} title="Drag me anywhere / Click for Prophecy">
-          <img src="/guardian-observer.png" className="guardian-observer-img" alt="Guardian Observer" />
-          <div className="guardian-trigger-glow" />
-        </button>
-      </motion.div>
-
-      <AnimatePresence>
-        {showMessageCard && (
-          <motion.div 
-            initial={{ opacity: 0, x: 50, y: 0 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: 50 }}
-            className="guardian-prophecy-card"
-          >
-            <button className="prophecy-close-btn" onClick={() => setShowMessageCard(false)}>
-              <X size={12} />
-            </button>
-            
-            <div className="prophecy-card-inner">
-              <div className="prophecy-header-row">
-                <div className="prophecy-avatar-mini">
-                  <img src="/guardian-observer.png" alt="Guardian" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="prophecy-title-type">{messageType}</span>
-                  <span className="prophecy-subtitle-sub">guardian presence</span>
-                </div>
-              </div>
-              
-              <p className="prophecy-text-body">
-                "{currentMessage}"
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style jsx>{`
         .focus-fullscreen-overlay {
@@ -553,15 +470,7 @@ export default function FocusOverlay() {
           box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
         }
 
-        .timer-progress-ring {
-          position: absolute;
-          width: 320px;
-          height: 320px;
-          z-index: 1;
-          pointer-events: none;
-        }
-        .timer-ring-bg { fill: none; stroke: rgba(255, 255, 255, 0.03); stroke-width: 1.5; }
-        .timer-ring-fill { fill: none; stroke: var(--gold-core); stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 3px var(--gold-glow)); }
+
 
         .focus-task-info { display: flex; flex-direction: column; gap: 3rem; }
         .task-focus-cat { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold-core); letter-spacing: 0.2em; text-transform: uppercase; }
@@ -606,128 +515,7 @@ export default function FocusOverlay() {
         .focus-progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
         .focus-progress-fill { height: 100%; background: var(--gold-core); box-shadow: 0 0 15px var(--gold-glow); }
 
-        .guardian-trigger-container {
-          position: absolute;
-          bottom: 2.5rem;
-          left: 2.5rem;
-          z-index: 1000;
-          cursor: grab;
-        }
-        .guardian-trigger-container:active {
-          cursor: grabbing;
-        }
-        .guardian-trigger-btn {
-          background: transparent;
-          border: none;
-          position: relative;
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          border: 2px solid rgba(197, 160, 89, 0.4);
-          background: rgba(10,10,12,0.9);
-          padding: 3px;
-          opacity: 0.6;
-          transition: border-color 0.3s, opacity 0.3s, transform 0.2s;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 10px rgba(197, 160, 89, 0.15);
-          cursor: inherit;
-        }
-        .guardian-trigger-btn:hover {
-          opacity: 1;
-          border-color: var(--gold-core);
-          transform: scale(1.05);
-          box-shadow: 0 0 20px rgba(197,160,89,0.4);
-        }
-        .guardian-observer-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 50%;
-          filter: brightness(0.85) contrast(1.1);
-        }
-        .guardian-trigger-glow {
-          position: absolute;
-          inset: -2px;
-          border-radius: 50%;
-          border: 1px solid var(--gold-core);
-          opacity: 0;
-          transition: 0.3s;
-        }
-        .guardian-trigger-btn:hover .guardian-trigger-glow {
-          opacity: 0.2;
-          animation: ping 2s infinite;
-        }
 
-        .guardian-prophecy-card {
-          position: absolute;
-          bottom: 2.5rem;
-          right: 2.5rem;
-          width: 320px;
-          background: rgba(10, 10, 12, 0.92);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(197, 160, 89, 0.3);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.95), 0 0 20px rgba(197, 160, 89, 0.08);
-          border-radius: 8px;
-          padding: 1.25rem;
-          z-index: 100;
-          color: #fff;
-          font-family: var(--font-mono);
-        }
-        .prophecy-close-btn {
-          position: absolute;
-          top: 0.6rem;
-          right: 0.6rem;
-          background: transparent;
-          border: none;
-          color: rgba(255,255,255,0.4);
-          cursor: pointer;
-          transition: 0.2s;
-        }
-        .prophecy-close-btn:hover {
-          color: #fff;
-        }
-        .prophecy-header-row {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 0.75rem;
-          border-bottom: 1px solid rgba(197, 160, 89, 0.15);
-          padding-bottom: 0.5rem;
-        }
-        .prophecy-avatar-mini {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: 1px solid var(--gold-core);
-          overflow: hidden;
-          background: #000;
-          flex-shrink: 0;
-        }
-        .prophecy-avatar-mini img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .prophecy-title-type {
-          font-size: 0.6rem;
-          font-weight: 950;
-          letter-spacing: 0.25em;
-          color: var(--gold-core);
-          text-transform: uppercase;
-        }
-        .prophecy-subtitle-sub {
-          font-size: 0.45rem;
-          color: var(--text-dark);
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          margin-top: 1px;
-        }
-        .prophecy-text-body {
-          font-size: 0.75rem;
-          color: rgba(255, 255, 255, 0.9);
-          line-height: 1.6;
-          font-style: italic;
-          text-align: left;
-        }
 
         @media (max-width: 1023px) {
           .focus-header {
@@ -741,10 +529,6 @@ export default function FocusOverlay() {
           }
           .timer-digits {
             font-size: 4rem;
-          }
-          .timer-progress-ring {
-            width: 220px;
-            height: 220px;
           }
           .task-focus-title {
             font-size: 1.8rem;
@@ -766,16 +550,6 @@ export default function FocusOverlay() {
           }
           .focus-progress-block {
             max-width: 100%;
-          }
-          .guardian-trigger-container {
-            bottom: 1.5rem;
-            left: 1.5rem;
-          }
-          .guardian-prophecy-card {
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: calc(100% - 3rem);
-            max-width: 320px;
           }
         }
       `}</style>

@@ -9,7 +9,7 @@ import TaskDetail from './components/TaskDetail';
 import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, X } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
@@ -28,6 +28,42 @@ import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
 import RegionFlashScreen from './components/RegionFlashScreen';
 import { REGIONS } from './store/constants';
+const PROPHECIES = [
+  "Your brain accelerates when stakes are high. The chaos you feel is your processor scaling. Trust it.",
+  "Fatigue is data, not failure.",
+  "You're hitting a wall. This is normal. Your neurochemistry needs recalibration. Take 3 minutes. Breathe. Return. Your velocity will resume.",
+  "Your mind is synthesizing. You just switched focus three times in 2 minutes. This isn't distraction. Your brain is making connections. Trust the process. One of those connections will reshape the work.",
+  "Pressure sharpens you. Your clock is accelerating. Most people panic. You sharpen. Your peak velocity is approaching. Ride it.",
+  "You are the type who finishes. You've started 47 tasks this month. You're completing this one. That's not luck. That's your architecture. Keep moving.",
+  "The final 1% costs 50% of effort. You're close. The remaining work feels impossible. It's not. It's just the final 1%. It always costs this much. You always pay it. Continue.",
+  "You've been hyperfocused for 90 minutes. Your body needs water. Stand up. Come back in 3 minutes. Your flow will resume."
+];
+
+const TIPS = {
+  gym: [
+    "Form degrades at fatigue. Check your mirror. Reset.",
+    "You're 2 sets away from new volume. Push into the discomfort."
+  ],
+  operations: [
+    "You're in flow. Don't break it. The chaos is coherence. Trust your fingers.",
+    "You've rewritten this section multiple times. Each version is sharper. One more pass."
+  ],
+  ritual: [
+    "Consistency compounds. This single rep builds the identity you want to become.",
+    "You're tired. You're still here. That's the definition of discipline."
+  ]
+};
+
+const getTaskCategoryType = (category = '') => {
+  const cat = category.toLowerCase();
+  if (cat.includes('gym') || cat.includes('fit') || cat.includes('train') || cat.includes('health') || cat.includes('workout')) {
+    return 'gym';
+  }
+  if (cat.includes('ritual') || cat.includes('habit') || cat.includes('daily') || cat.includes('routine')) {
+    return 'ritual';
+  }
+  return 'operations';
+};
 
 export default function App() {
   useEffect(() => {
@@ -74,6 +110,46 @@ export default function App() {
   const [isValidating, setIsValidating] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
   const [pendingEntryScreen, setPendingEntryScreen] = useState(null);
+  
+  // 🔮 Guardian Angel Global States & Logic
+  const [activeProphecy, setActiveProphecy] = useState(null);
+  const [showProphecyCard, setShowProphecyCard] = useState(false);
+
+  const addReceivedProphecy = useWarscytheStore(state => state.addReceivedProphecy);
+
+  useEffect(() => {
+    if (showProphecyCard) {
+      const timer = setTimeout(() => {
+        setShowProphecyCard(false);
+      }, 12000);
+      return () => clearTimeout(timer);
+    }
+  }, [showProphecyCard]);
+
+  const pullGlobalProphecy = () => {
+    const activeId = isFocusMode ? focusedTaskId : selectedTaskId;
+    const activeTask = (tasks || []).find(t => t.id === activeId);
+    const isTip = Math.random() < 0.4;
+    let text = '';
+    let type = 'prophecy';
+
+    if (isTip && activeTask?.category) {
+      const catType = getTaskCategoryType(activeTask.category);
+      const tipList = TIPS[catType] || TIPS.operations;
+      text = tipList[Math.floor(Math.random() * tipList.length)];
+      type = 'guardian tip';
+    } else {
+      text = PROPHECIES[Math.floor(Math.random() * PROPHECIES.length)];
+      type = 'prophecy';
+    }
+
+    setActiveProphecy({ text, type });
+    setShowProphecyCard(true);
+
+    if (addReceivedProphecy) {
+      addReceivedProphecy({ text, type });
+    }
+  };
   
   const user = useWarscytheStore(state => state.user);
   
@@ -410,7 +486,61 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {isFocusMode && <FocusOverlay />}
+        {isFocusMode && (
+          <FocusOverlay 
+            onTriggerProphecy={(text, type) => {
+              setActiveProphecy({ text, type });
+              setShowProphecyCard(true);
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* 🔮 GLOBAL GUARDIAN ANGEL (DRAGGABLE OVERLAY) */}
+      {user && (
+        <motion.div 
+          drag
+          dragMomentum={false}
+          className="guardian-trigger-container"
+          style={{ touchAction: 'none' }}
+        >
+          <button className="guardian-trigger-btn" onClick={pullGlobalProphecy} title="Drag me anywhere / Click for Prophecy">
+            <img src="/guardian-observer.png" className="guardian-observer-img" alt="Guardian Observer" />
+            <div className="guardian-trigger-glow" />
+          </button>
+        </motion.div>
+      )}
+
+      {/* 🔮 GLOBAL PROPHECY CARD */}
+      <AnimatePresence>
+        {showProphecyCard && activeProphecy && (
+          <motion.div 
+            initial={{ opacity: 0, x: 50, y: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            className="guardian-prophecy-card"
+          >
+            <button className="prophecy-close-btn" onClick={() => setShowProphecyCard(false)}>
+              <X size={12} />
+            </button>
+            
+            <div className="prophecy-card-inner">
+              <div className="prophecy-header-row">
+                <div className="prophecy-avatar-mini">
+                  <img src="/guardian-observer.png" alt="Guardian" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="prophecy-title-type">{activeProphecy.type}</span>
+                  <span className="prophecy-subtitle-sub">guardian presence</span>
+                </div>
+              </div>
+              
+              <p className="prophecy-text-body">
+                "{activeProphecy.text}"
+              </p>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <TutorialModal />
