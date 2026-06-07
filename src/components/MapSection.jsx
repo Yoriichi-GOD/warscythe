@@ -789,22 +789,21 @@ export default function MapSection({ onTabChange }) {
                       <span className="node-badge locked" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444' }}>IMPRISONED SOVEREIGN</span>
                       <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
                     </div>
-                    <div className="flex flex-col items-center gap-4 my-2">
-                      <div className="w-48 h-48 rounded border border-red-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(239,68,68,0.25)]">
-                        <img 
-                          src={`/fairies/empress-${activeMapIndex}-caged.png`} 
-                          alt="Caged Fairy" 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-red-950/20" />
-                        <div className="absolute bottom-0 inset-x-0 bg-black/80 py-1 text-center border-t border-red-500/20">
-                          <span className="text-[8px] font-mono text-red-400 tracking-[0.2em] uppercase font-bold">CAGED STATE</span>
-                        </div>
-                      </div>
-                      <p className="intel-desc text-center">
+                    <div className="threat-profile">
+                      <div 
+                        className="threat-avatar" 
+                        style={{ 
+                          backgroundImage: `url('/fairies/empress-${activeMapIndex}-caged.png')`,
+                          width: '100%',
+                          aspectRatio: '1 / 1',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center top',
+                          borderRadius: '4px',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          boxShadow: '0 0 15px rgba(239,68,68,0.15)'
+                        }} 
+                      />
+                      <p className="intel-desc mt-3">
                         The Empress of this region is sealed here. Defeat the regional dragon at the Dragon's Nest to unlock the cage.
                       </p>
                     </div>
