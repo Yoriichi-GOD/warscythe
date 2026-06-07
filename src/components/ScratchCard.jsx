@@ -107,8 +107,10 @@ export default function ScratchCard({ data, onClose }) {
     const handleMove = (e) => {
       if (!drawing) return;
       const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const x = ((clientX - rect.left) / rect.width) * canvas.width;
+      const y = ((clientY - rect.top) / rect.height) * canvas.height;
       doScratch(x, y);
     };
 
@@ -205,7 +207,7 @@ export default function ScratchCard({ data, onClose }) {
                 )}
              </div>
           </div>
-          <canvas ref={canvasRef} width={360} height={220} className="scratch-canvas" />
+          <canvas ref={canvasRef} width={360} height={360} className="scratch-canvas" />
         </div>
 
         {!isRevealed && (
@@ -271,7 +273,7 @@ export default function ScratchCard({ data, onClose }) {
         .loot-task-ref { font-size: 0.75rem; color: var(--text-dark); font-family: var(--font-mono); margin-top: 0.5rem; }
         
         .scratch-container { 
-          position: relative; width: 100%; height: 220px; 
+          position: relative; width: 100%; aspect-ratio: 1 / 1; 
           margin: 1.5rem 0; border-radius: 12px; overflow: hidden;
           background: #050505; border: 1px solid var(--border);
         }
@@ -289,7 +291,7 @@ export default function ScratchCard({ data, onClose }) {
           z-index: 5;
           pointer-events: none;
         }
-        .scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: crosshair; }
+        .scratch-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; cursor: crosshair; }
         
         .loot-content { 
           position: absolute; top: 0; left: 0; width: 100%; height: 100%; 

@@ -180,6 +180,11 @@ export default function MapSection({ onTabChange }) {
   };
 
   const [selectedNode, setSelectedNode] = useState(null);
+
+  useEffect(() => {
+    setSelectedNode(null);
+  }, [activeMapIndex]);
+
   const [jailImageFailed, setJailImageFailed] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -512,22 +517,6 @@ export default function MapSection({ onTabChange }) {
                           }}
                         />
                       </div>
-                    ) : node.id === 'jail' && isBossRescued ? (
-                      <div className="jail-node-opened-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
-                        <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-md animate-pulse" />
-                        {!jailImageFailed ? (
-                          <img 
-                            src="/nodes/node-jail-opened.png" 
-                            alt="Jail Opened" 
-                            className="w-10 h-10 object-contain relative z-10 animate-float"
-                            onError={() => setJailImageFailed(true)}
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full border border-emerald-500/30 bg-black/60 flex items-center justify-center relative z-10">
-                            <Unlock size={18} className="text-emerald-400 animate-pulse" />
-                          </div>
-                        )}
-                      </div>
                     ) : (
                       <>
                         <div className={`node-glow ${node.type}`} />
@@ -597,7 +586,7 @@ export default function MapSection({ onTabChange }) {
                 />
               </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
-                backgroundImage: `url('${getRegionBanner()}')`,
+                backgroundImage: `url('/bg/bg-region-${activeMapIndex}.png')`,
                 filter: currentFilter
               }} />
             </div>
@@ -644,25 +633,79 @@ export default function MapSection({ onTabChange }) {
                 </button>
               </div>
             ) : (
-              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.04)' }}>
-                <div className="corner-ornament corner-tl" style={{ borderColor: '#ef4444' }} />
-                <div className="corner-ornament corner-tr" style={{ borderColor: '#ef4444' }} />
-                <div className="corner-ornament corner-bl" style={{ borderColor: '#ef4444' }} />
-                <div className="corner-ornament corner-br" style={{ borderColor: '#ef4444' }} />
+              <div 
+                className="upcoming-threat elite-panel-ornate" 
+                style={{ 
+                  padding: '1.2rem', 
+                  marginTop: '1.5rem', 
+                  border: activeMapIndex > level ? '1px solid rgba(100, 116, 139, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)', 
+                  background: activeMapIndex > level ? 'rgba(100, 116, 139, 0.02)' : 'rgba(239, 68, 68, 0.04)' 
+                }}
+              >
+                <div className="corner-ornament corner-tl" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
+                <div className="corner-ornament corner-tr" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
+                <div className="corner-ornament corner-bl" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
+                <div className="corner-ornament corner-br" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
                 
-                <span className="stat-label font-times" style={{ marginTop: 0, color: '#ff5555' }}>UPCOMING THREAT</span>
+                <span className="stat-label font-times" style={{ marginTop: 0, color: activeMapIndex > level ? '#64748b' : '#ff5555' }}>
+                  {activeMapIndex > level ? 'LOCKED THREAT' : 'UPCOMING THREAT'}
+                </span>
                 <div className="threat-card font-times">
-                  <div 
-                    className="threat-image border border-red-500/20" 
-                    style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')` }} 
-                  />
+                  <div className="relative shrink-0 overflow-hidden rounded" style={{ width: '44px', height: '44px', border: activeMapIndex > level ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(239, 68, 68, 0.2)' }}>
+                    <div 
+                      className="threat-image w-full h-full" 
+                      style={{ 
+                        backgroundImage: `url('${getDragonAsset(activeMapIndex)}')`,
+                        filter: activeMapIndex > level ? 'blur(6px) grayscale(90%)' : 'none',
+                        width: '100%',
+                        height: '100%',
+                        backgroundSize: 'cover'
+                      }} 
+                    />
+                    {activeMapIndex > level && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                        <motion.img 
+                          src="/maps/map-lock-icon.png" 
+                          alt="Locked" 
+                          className="filter drop-shadow-[0_0_8px_rgba(239, 68, 68, 0.9)]"
+                          style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          animate={{ scale: [1, 1.15, 1] }}
+                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                   <div className="threat-info">
-                    <h5 className="text-red-500 font-bold">{getDragonName(activeMapIndex).toUpperCase()}</h5>
-                    <p className="text-gray-400">A menacing beast ruling over this territory. Secure all operations to challenge it.</p>
+                    <h5 className={activeMapIndex > level ? "text-gray-500 font-bold" : "text-red-500 font-bold"}>
+                      {activeMapIndex > level ? "THREAT LOCKED" : getDragonName(activeMapIndex).toUpperCase()}
+                    </h5>
+                    <p className="text-gray-400">
+                      {activeMapIndex > level 
+                        ? "Information about this dragon is locked. Complete previous regions to unlock intel."
+                        : "A menacing beast ruling over this territory. Secure all operations to challenge it."
+                      }
+                    </p>
                   </div>
                 </div>
-                <button className="btn-gothic-gold view-target-btn mt-3" style={{ borderColor: '#ef4444', color: '#ff4444' }} onClick={() => setSelectedNode('boss')}>
-                  VIEW BOSS INTEL
+                <button 
+                  className="btn-gothic-gold view-target-btn mt-3" 
+                  style={{ 
+                    borderColor: activeMapIndex > level ? 'rgba(255, 255, 255, 0.1)' : '#ef4444', 
+                    color: activeMapIndex > level ? 'rgba(255, 255, 255, 0.3)' : '#ff4444',
+                    cursor: activeMapIndex > level ? 'not-allowed' : 'pointer',
+                    background: activeMapIndex > level ? 'rgba(255, 255, 255, 0.02)' : 'transparent'
+                  }} 
+                  disabled={activeMapIndex > level}
+                  onClick={() => { 
+                    if (activeMapIndex <= level) {
+                      setSelectedNode('boss');
+                    }
+                  }}
+                >
+                  {activeMapIndex > level ? 'BOSS INTEL LOCKED' : 'VIEW BOSS INTEL'}
                 </button>
               </div>
             )}

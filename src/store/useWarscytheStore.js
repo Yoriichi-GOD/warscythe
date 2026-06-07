@@ -443,20 +443,24 @@ export const useWarscytheStore = create(
       // Actions
       addTask: (title, category, effort, deadline, priority = 'none', subTasks = []) => {
         if (deadline) {
-          const diffMs = new Date(deadline) - new Date();
-          const diffDays = diffMs / (1000 * 60 * 60 * 24);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const target = new Date(deadline);
+          target.setHours(0, 0, 0, 0);
+          const diffMs = target - today;
+          const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
           
-          if (effort === 'Low' && diffDays > 1.1) {
-            return "Low effort tasks are limited to 1 day.";
+          if (effort === 'Low' && diffDays < 1) {
+            return "Low effort tasks must have a minimum limit of 1 day.";
           }
-          if (effort === 'Medium' && diffDays > 3.1) {
-            return "Medium effort tasks are limited to 3 days.";
+          if (effort === 'Medium' && diffDays < 3) {
+            return "Medium effort tasks must have a minimum limit of 3 days.";
           }
-          if (effort === 'High' && diffDays > 7.1) {
-            return "High effort tasks are limited to 7 days.";
+          if (effort === 'High' && diffDays < 7) {
+            return "High effort tasks must have a minimum limit of 7 days.";
           }
-          if (effort === 'Boss' && diffDays < 13.9) {
-            return "Boss Raid tasks must be at least 2 weeks.";
+          if (effort === 'Boss' && diffDays < 14) {
+            return "Boss Raid tasks must have a minimum limit of 14 days (2 weeks).";
           }
         }
 
@@ -612,15 +616,6 @@ export const useWarscytheStore = create(
         }
 
         const rescuedFairies = { ...(state.rescuedFairies || {}) };
-        
-        // If it's a Boss task, liberate her instantly!
-        if (isBoss) {
-          rescuedFairies[state.level - 1] = {
-            date: new Date().toISOString(),
-            taskTitle: task.title,
-            taskCategory: task.category || 'Boss Raid'
-          };
-        }
 
         let pendingVictoryScreen = null;
         // Level up check
@@ -758,15 +753,6 @@ export const useWarscytheStore = create(
 
         const isBoss = ritual.effort === 'Boss';
         const rescuedFairies = { ...(state.rescuedFairies || {}) };
-
-        // If it's a Boss ritual, liberate her instantly!
-        if (isBoss) {
-          rescuedFairies[state.level - 1] = {
-            date: new Date().toISOString(),
-            taskTitle: ritual.title,
-            taskCategory: 'Ritual Boss'
-          };
-        }
 
         let pendingVictoryScreen = null;
         // Level up check

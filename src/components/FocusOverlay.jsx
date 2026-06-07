@@ -44,10 +44,20 @@ export default function FocusOverlay() {
   const { isFocusMode, focusedTaskId, tasks, toggleFocus, generateMicroSteps, toggleMicroStep, updateProgress, addReceivedProphecy } = useWarscytheStore();
   const task = tasks.find(t => t.id === focusedTaskId);
   
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes
-  const [isActive, setIsActive] = useState(true);
+  const PRESETS = [
+    { label: '15 MIN', value: 15 * 60 },
+    { label: '25 MIN', value: 25 * 60 },
+    { label: '45 MIN', value: 45 * 60 },
+    { label: '60 MIN', value: 60 * 60 },
+    { label: '90 MIN', value: 90 * 60 }
+  ];
+
+  const [totalDuration, setTotalDuration] = useState(15 * 60);
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [isActive, setIsActive] = useState(false); // Start paused so users can configure focus time
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [nextPushTime, setNextPushTime] = useState(60); // First push after 60s
+  const [lastWaterWalkTime, setLastWaterWalkTime] = useState(0);
+  const [triggeredQuarters, setTriggeredQuarters] = useState({ q1: false, q2: false, q3: false, q4: false });
   
   const [currentMessage, setCurrentMessage] = useState('');
   const [messageType, setMessageType] = useState('');
@@ -60,8 +70,24 @@ export default function FocusOverlay() {
         setTimeLeft(t => t - 1);
         setElapsedTime(prev => prev + 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
+      
+      // Completion message
+      const text = "Operational focus achieved. Your processor has successfully scaled. Return to Command base with updated velocity.";
+      setCurrentMessage(text);
+      setMessageType("prophecy");
+      setShowMessageCard(true);
+
+      if (addReceivedProphecy) {
+        addReceivedProphecy({ text, type: "prophecy" });
+      }
+
+      // Exit focus mode after 8 seconds (fade off on its own)
+      const timeout = setTimeout(() => {
+        toggleFocus();
+      }, 8000);
+      return () => clearTimeout(timeout);
     }
     return () => clearInterval(interval);
   }, [isActive, timeLeft]);
@@ -99,16 +125,56 @@ export default function FocusOverlay() {
     }
   };
 
+  // Quarterly Prophecy drop checking
   useEffect(() => {
-    if (elapsedTime > 0 && elapsedTime === nextPushTime) {
-      pullProphecy();
-      // Set next push time (random between 5 and 15 minutes = 300 to 900 seconds)
-      const interval = 300 + Math.floor(Math.random() * 600);
-      setNextPushTime(elapsedTime + interval);
-    }
-  }, [elapsedTime, nextPushTime]);
+    if (totalDuration <= 0 || !isActive) return;
 
-  if (!isFocusMode) return null;
+    const progress = elapsedTime / totalDuration;
+    
+    if (progress >= 0.25 && !triggeredQuarters.q1) {
+      setTriggeredQuarters(prev => ({ ...prev, q1: true }));
+      pullProphecy();
+    }
+    if (progress >= 0.50 && !triggeredQuarters.q2) {
+      setTriggeredQuarters(prev => ({ ...prev, q2: true }));
+      pullProphecy();
+    }
+    if (progress >= 0.75 && !triggeredQuarters.q3) {
+      setTriggeredQuarters(prev => ({ ...prev, q3: true }));
+      pullProphecy();
+    }
+  }, [elapsedTime, totalDuration, triggeredQuarters, isActive]);
+
+  // Water Walk alerts every 90 minutes
+  useEffect(() => {
+    if (elapsedTime > 0 && elapsedTime - lastWaterWalkTime >= 90 * 60) {
+      setLastWaterWalkTime(elapsedTime);
+      
+      const text = "You've been hyperfocused for 90 minutes. Your body needs water. Stand up. Come back in 3 minutes. Your flow will resume.";
+      setCurrentMessage(text);
+      setMessageType("guardian tip");
+      setShowMessageCard(true);
+
+      if (addReceivedProphecy) {
+        addReceivedProphecy({ text, type: "guardian tip" });
+      }
+    }
+  }, [elapsedTime, lastWaterWalkTime]);
+
+  const handleSelectPreset = (seconds) => {
+    setTotalDuration(seconds);
+    setTimeLeft(seconds);
+    setElapsedTime(0);
+    setLastWaterWalkTime(0);
+    setIsActive(false);
+    setTriggeredQuarters({ q1: false, q2: false, q3: false, q4: false });
+  };
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   if (!task) {
     return (
@@ -166,12 +232,6 @@ export default function FocusOverlay() {
     );
   }
 
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
-
   const progress = task.progress;
 
   return (
@@ -200,6 +260,27 @@ export default function FocusOverlay() {
           <div className="timer-display">
             <span className="timer-digits">{formatTime(timeLeft)}</span>
             <span className="timer-sub">REMAINING UNTIL RECALIBRATION</span>
+            
+            <button 
+              className={`timer-ctrl-btn ${isActive ? 'active' : ''}`}
+              onClick={() => setIsActive(!isActive)}
+            >
+              {timeLeft === 0 ? 'COMPLETED' : isActive ? 'PAUSE FOCUSLOCK' : 'COMMENCE FOCUSLOCK'}
+            </button>
+
+            {!isActive && timeLeft > 0 && (
+              <div className="timer-presets-row">
+                {PRESETS.map(preset => (
+                  <button 
+                    key={preset.value}
+                    className={`preset-btn ${totalDuration === preset.value ? 'selected' : ''}`}
+                    onClick={() => handleSelectPreset(preset.value)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="timer-progress-ring">
             <svg viewBox="0 0 100 100">
@@ -208,7 +289,7 @@ export default function FocusOverlay() {
                 cx="50" cy="50" r="45" 
                 className="timer-ring-fill"
                 style={{ 
-                  pathLength: timeLeft / (15 * 60),
+                  pathLength: timeLeft / totalDuration,
                   rotate: -90,
                   originX: "50%",
                   originY: "50%"
@@ -274,13 +355,18 @@ export default function FocusOverlay() {
         </div>
       </div>
 
-      {/* 🔮 GUARDIAN ANGEL TRIGGERS & PROPHECIES */}
-      <div className="guardian-trigger-container">
-        <button className="guardian-trigger-btn" onClick={pullProphecy} title="Request Guardian Prophecy">
+      {/* 🔮 GUARDIAN ANGEL TRIGGERS & PROPHECIES (DRAGGABLE OVERLAY) */}
+      <motion.div 
+        drag
+        dragMomentum={false}
+        className="guardian-trigger-container"
+        style={{ touchAction: 'none' }}
+      >
+        <button className="guardian-trigger-btn" onClick={pullProphecy} title="Drag me anywhere / Click for Prophecy">
           <img src="/guardian-observer.png" className="guardian-observer-img" alt="Guardian Observer" />
           <div className="guardian-trigger-glow" />
         </button>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {showMessageCard && (
@@ -402,15 +488,80 @@ export default function FocusOverlay() {
         .timer-digits { font-family: var(--font-mono); font-size: 6rem; font-weight: 900; line-height: 1; color: #fff; }
         .timer-sub { font-size: 0.6rem; color: var(--text-dark); letter-spacing: 0.2em; font-weight: 800; }
 
+        .timer-ctrl-btn {
+          margin-top: 1rem;
+          padding: 0.5rem 1rem;
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          border-radius: 4px;
+          border: 1px solid var(--gold-core);
+          background: rgba(197, 160, 89, 0.1);
+          color: var(--gold-core);
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          z-index: 10;
+        }
+        .timer-ctrl-btn:hover {
+          background: var(--gold-core);
+          color: #000;
+          box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+        }
+        .timer-ctrl-btn.active {
+          border-color: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.02);
+          color: rgba(255, 255, 255, 0.6);
+        }
+        .timer-ctrl-btn.active:hover {
+          border-color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .timer-presets-row {
+          display: flex;
+          gap: 0.4rem;
+          justify-content: center;
+          margin-top: 1.25rem;
+          z-index: 10;
+        }
+        .preset-btn {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.5);
+          font-family: var(--font-mono);
+          font-size: 0.55rem;
+          padding: 0.35rem 0.65rem;
+          border-radius: 3px;
+          cursor: pointer;
+          transition: all 0.2s;
+          letter-spacing: 0.05em;
+        }
+        .preset-btn:hover {
+          border-color: var(--gold-core);
+          color: var(--gold-core);
+          background: rgba(197, 160, 89, 0.05);
+        }
+        .preset-btn.selected {
+          border-color: var(--gold-core);
+          color: #000;
+          background: var(--gold-core);
+          font-weight: 800;
+          box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+
         .timer-progress-ring {
           position: absolute;
           width: 320px;
           height: 320px;
-          opacity: 0.1;
+          z-index: 1;
           pointer-events: none;
         }
-        .timer-ring-bg { fill: none; stroke: var(--border); stroke-width: 2; }
-        .timer-ring-fill { fill: none; stroke: var(--gold-core); stroke-width: 2; stroke-linecap: round; }
+        .timer-ring-bg { fill: none; stroke: rgba(255, 255, 255, 0.03); stroke-width: 1.5; }
+        .timer-ring-fill { fill: none; stroke: var(--gold-core); stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 3px var(--gold-glow)); }
 
         .focus-task-info { display: flex; flex-direction: column; gap: 3rem; }
         .task-focus-cat { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold-core); letter-spacing: 0.2em; text-transform: uppercase; }
@@ -459,28 +610,32 @@ export default function FocusOverlay() {
           position: absolute;
           bottom: 2.5rem;
           left: 2.5rem;
-          z-index: 50;
+          z-index: 1000;
+          cursor: grab;
+        }
+        .guardian-trigger-container:active {
+          cursor: grabbing;
         }
         .guardian-trigger-btn {
           background: transparent;
           border: none;
-          cursor: pointer;
           position: relative;
-          width: 48px;
-          height: 48px;
+          width: 64px;
+          height: 64px;
           border-radius: 50%;
-          border: 1.5px solid rgba(197, 160, 89, 0.2);
-          background: rgba(0,0,0,0.65);
-          padding: 2px;
-          opacity: 0.22;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 0 12px rgba(0,0,0,0.9);
+          border: 2px solid rgba(197, 160, 89, 0.4);
+          background: rgba(10,10,12,0.9);
+          padding: 3px;
+          opacity: 0.6;
+          transition: border-color 0.3s, opacity 0.3s, transform 0.2s;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 10px rgba(197, 160, 89, 0.15);
+          cursor: inherit;
         }
         .guardian-trigger-btn:hover {
-          opacity: 0.95;
+          opacity: 1;
           border-color: var(--gold-core);
-          transform: scale(1.08);
-          box-shadow: 0 0 18px rgba(197,160,89,0.3);
+          transform: scale(1.05);
+          box-shadow: 0 0 20px rgba(197,160,89,0.4);
         }
         .guardian-observer-img {
           width: 100%;

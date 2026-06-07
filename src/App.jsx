@@ -410,7 +410,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        <FocusOverlay />
+        {isFocusMode && <FocusOverlay />}
       </AnimatePresence>
 
       <TutorialModal />
