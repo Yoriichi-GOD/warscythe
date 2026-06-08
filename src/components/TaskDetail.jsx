@@ -17,11 +17,30 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   const deleteMicroStep = useWarscytheStore(state => state.deleteMicroStep);
 
   const [newSubText, setNewSubText] = useState('');
+  
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+
+  useEffect(() => {
+    if (tutorialStep === 'click_task') {
+      setTutorialStep('validate_execution');
+    }
+  }, [tutorialStep]);
 
   if (!task) return null;
 
   const handleComplete = () => {
+    if (tutorialStep === 'validate_execution') {
+      setTutorialStep('reality_check');
+    }
     onComplete();
+  };
+
+  const handleClose = () => {
+    if (tutorialStep === 'validate_execution') {
+      setTutorialStep('click_task');
+    }
+    onClose();
   };
 
   const handleAddSub = () => {
@@ -33,7 +52,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   const trackColor = 'var(--gold-core)';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={handleClose}>
       <motion.div 
         layoutId={taskId}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -56,7 +75,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
             </div>
             <h2 className="td-title">{task.title}</h2>
           </div>
-          <button className="td-close" onClick={onClose}><X size={20} /></button>
+          <button className="td-close" onClick={handleClose}><X size={20} /></button>
         </div>
 
         <div className="td-body custom-scrollbar">
@@ -167,12 +186,12 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
 
         {/* Action Bar */}
         <div className="td-footer">
-          <button className="td-btn-validate" onClick={handleComplete}>
+          <button className={`td-btn-validate ${tutorialStep === 'validate_execution' ? 'gold-glow-ring' : ''}`} onClick={handleComplete}>
             <CheckCircle size={18} /> 
             <span>VALIDATE EXECUTION</span>
           </button>
           
-          <button className="td-btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); onClose(); }}}>
+          <button className="td-btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); handleClose(); }}}>
             <Trash2 size={18} />
           </button>
         </div>

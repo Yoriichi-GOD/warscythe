@@ -94,9 +94,14 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             </div>
             
             <div className="flex flex-col gap-3">
-              {tasks.map(task => (
-                <MissionCard key={task.id} task={task} onOpen={onOpenTask} />
-              ))}
+              {tasks.map((task, idx) => {
+                const isTarget = tutorialStep === 'click_task' && idx === 0;
+                return (
+                  <div key={task.id} className={isTarget ? 'gold-glow-ring' : ''}>
+                    <MissionCard task={task} onOpen={onOpenTask} />
+                  </div>
+                );
+              })}
 
               <button
                 onClick={onAddTask}

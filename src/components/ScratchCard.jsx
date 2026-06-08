@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Scroll } from 'lucide-react';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 
 const getFoilPath = (rarity) => {
   const foils = {
@@ -54,6 +55,7 @@ export default function ScratchCard({ data, onClose }) {
   const isRevealedRef = useRef(false);
   
   const { reward, basePts, totalPts, fragment, taskTitle, keyElement } = data;
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -155,6 +157,12 @@ export default function ScratchCard({ data, onClose }) {
           <h2>REWARD ACQUIRED</h2>
           <p className="loot-task-ref">{taskTitle}</p>
         </div>
+
+        {tutorialStep === 'scratch_card' && !isRevealed && (
+          <div className="onboarding-scratch-hint">
+             <span>DRAG TO SCRATCH AND REVEAL REWARD</span>
+          </div>
+        )}
 
         <div className="scratch-container" ref={containerRef}>
           <div className={`loot-content ${isRevealed ? 'revealed' : ''}`}>
@@ -351,6 +359,23 @@ export default function ScratchCard({ data, onClose }) {
         }
         .loot-claim-btn:hover {
           background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
+        }
+
+        .onboarding-scratch-hint {
+          background: rgba(197, 160, 89, 0.15);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-bright);
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          margin-top: 0.5rem;
+          letter-spacing: 0.05em;
+          animation: scratchPulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes scratchPulseGlow {
+          0%, 100% { opacity: 0.8; box-shadow: 0 0 5px rgba(197, 160, 89, 0.2); }
+          50% { opacity: 1; box-shadow: 0 0 15px rgba(197, 160, 89, 0.4); }
         }
       `}</style>
     </div>

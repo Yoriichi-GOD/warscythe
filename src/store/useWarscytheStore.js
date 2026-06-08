@@ -114,8 +114,22 @@ const mergeState = (local, saved) => {
 
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
-  const hasCompletedTutorial = !!(local.hasCompletedTutorial || saved.hasCompletedTutorial);
-  const tutorialStep = local.tutorialStep || saved.tutorialStep || (hasCompletedTutorial ? 'completed' : 'not_started');
+  const isTestUser = (local.user?.email === 'nrgenosop@gmail.com') || (saved.user?.email === 'nrgenosop@gmail.com');
+  const hasCompletedTutorial = isTestUser
+    ? !!(local.hasCompletedTutorial || saved.hasCompletedTutorial)
+    : !!(
+        local.hasCompletedTutorial || 
+        saved.hasCompletedTutorial || 
+        (local.completedTasks && local.completedTasks.length > 0) || 
+        (saved.completedTasks && saved.completedTasks.length > 0) || 
+        (local.totalCompletions && local.totalCompletions > 0) || 
+        (saved.totalCompletions && saved.totalCompletions > 0) || 
+        (local.level && local.level > 1) || 
+        (saved.level && saved.level > 1) ||
+        local.firstTaskCompleted ||
+        saved.firstTaskCompleted
+      );
+  const tutorialStep = hasCompletedTutorial ? 'completed' : (local.tutorialStep || saved.tutorialStep || 'not_started');
   const firstTaskCompleted = !!(local.firstTaskCompleted || saved.firstTaskCompleted);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
     ? local.lastActiveDate
@@ -501,9 +515,8 @@ export const useWarscytheStore = create(
 
         set(state => {
           const updates = { tasks: [...state.tasks, newTask] };
-          if (state.tutorialStep === 'task_creation') {
-            updates.tutorialStep = 'completed';
-            updates.hasCompletedTutorial = true;
+          if (state.tutorialStep === 'task_modal_open' || state.tutorialStep === 'task_creation') {
+            updates.tutorialStep = 'click_task';
           }
           return updates;
         });

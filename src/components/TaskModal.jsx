@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
@@ -19,6 +19,21 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const addTask = useWarscytheStore(state => state.addTask);
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+
+  useEffect(() => {
+    if (tutorialStep === 'task_creation') {
+      setTutorialStep('task_modal_open');
+    }
+  }, [tutorialStep]);
+
+  const handleClose = () => {
+    if (tutorialStep === 'task_modal_open') {
+      setTutorialStep('task_creation');
+    }
+    onClose();
+  };
 
   const categoryOptions = [
     { value: 'Work', label: 'SYSTEMS // WORK' },
@@ -51,6 +66,9 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
     
     const success = addTask(title, category, effort, deadline, priority, subTasks);
     if (success === true) {
+      if (tutorialStep === 'task_modal_open') {
+        setTutorialStep('click_task');
+      }
       if (effort === 'Boss') {
         triggerBossFlash('initiate');
       }
@@ -61,7 +79,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={handleClose}>
       <motion.div 
         initial={{ opacity: 0, y: 50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -75,7 +93,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             <Crosshair size={18} className="text-gold" />
             <h2>NEW OPERATION</h2>
           </div>
-          <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
+          <button className="btn-close-circle" onClick={handleClose}><X size={16} /></button>
         </div>
 
         {error && (
@@ -113,6 +131,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               autoFocus
               required
             />
+            {tutorialStep === 'task_modal_open' && (
+              <div className="onboarding-pointer left-pointer">
+                <span className="pointer-tag">GUIDE</span>
+                <h4>Objective</h4>
+                <p>Define your strike target. Frame it as an action to force momentum.</p>
+              </div>
+            )}
           </div>
 
           <div className="form-grid">
@@ -141,6 +166,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
+              {tutorialStep === 'task_modal_open' && (
+                <div className="onboarding-pointer left-pointer select-pointer">
+                  <span className="pointer-tag">GUIDE</span>
+                  <h4>Intel Category</h4>
+                  <p>Classify your operation to align with your neural specialization.</p>
+                </div>
+              )}
             </div>
 
             <div className="form-group" style={{ position: 'relative' }}>
@@ -168,6 +200,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
+              {tutorialStep === 'task_modal_open' && (
+                <div className="onboarding-pointer right-pointer select-pointer">
+                  <span className="pointer-tag">GUIDE</span>
+                  <h4>Resistance Level</h4>
+                  <p>Choose the scale of effort. Boss raids award legendary drops.</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -181,6 +220,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                 required
               />
             </div>
+            {tutorialStep === 'task_modal_open' && (
+              <div className="onboarding-pointer left-pointer">
+                <span className="pointer-tag">GUIDE</span>
+                <h4>Target Deadline</h4>
+                <p>Set a boundary. Boundaries create urgency, forcing focus.</p>
+              </div>
+            )}
           </div>
 
           <div className="form-group full">
@@ -207,6 +253,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                 </button>
               ))}
             </div>
+            {tutorialStep === 'task_modal_open' && (
+              <div className="onboarding-pointer right-pointer">
+                <span className="pointer-tag">GUIDE</span>
+                <h4>Priority Beacon</h4>
+                <p>Focus your energy. High priority beacon colors the interface with warning heat.</p>
+              </div>
+            )}
           </div>
 
           <div className="form-group full">
@@ -233,6 +286,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+            {tutorialStep === 'task_modal_open' && (
+              <div className="onboarding-pointer right-pointer">
+                <span className="pointer-tag">GUIDE</span>
+                <h4>Tactical Sub-Tasks</h4>
+                <p>Decompose the objective into micro steps. Chop the wall down.</p>
               </div>
             )}
           </div>
@@ -507,6 +567,94 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         @keyframes warning-pulse-red {
           0%, 100% { transform: scale(1); opacity: 0.8; }
           50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* ═══════════════ ONBOARDING POINTERS ═══════════════ */
+        .onboarding-pointer {
+          background: #08080a;
+          border: 1px solid var(--gold-core);
+          padding: 0.8rem;
+          border-radius: 4px;
+          box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
+          z-index: 100;
+          pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          text-align: left;
+        }
+        .pointer-tag {
+          font-family: var(--font-mono);
+          font-size: 0.55rem;
+          font-weight: 900;
+          color: var(--gold-core);
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+        .onboarding-pointer h4 {
+          font-family: var(--font-display);
+          font-size: 0.65rem;
+          letter-spacing: 0.05em;
+          color: #fff;
+          margin: 0;
+          text-transform: uppercase;
+        }
+        .onboarding-pointer p {
+          font-size: 0.65rem;
+          color: var(--text-dim);
+          line-height: 1.4;
+          margin: 0;
+          text-transform: none;
+        }
+        
+        @media (min-width: 1024px) {
+          .onboarding-pointer {
+            position: absolute;
+            width: 190px;
+          }
+          .left-pointer {
+            right: calc(100% + 20px);
+            top: 50%;
+            transform: translateY(-50%);
+          }
+          .left-pointer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-left-color: var(--gold-core);
+          }
+          .right-pointer {
+            left: calc(100% + 20px);
+            top: 50%;
+            transform: translateY(-50%);
+          }
+          .right-pointer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: var(--gold-core);
+          }
+          /* Adjust for custom select triggers */
+          .select-pointer {
+            top: 20px !important;
+            transform: none !important;
+          }
+          .select-pointer::after {
+            top: 30px !important;
+          }
+        }
+        @media (max-width: 1023px) {
+          .onboarding-pointer {
+            margin-top: 0.5rem;
+            border-color: rgba(197, 160, 89, 0.3);
+            background: rgba(197, 160, 89, 0.03);
+          }
         }
       `}</style>
     </div>

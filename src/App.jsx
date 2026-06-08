@@ -90,6 +90,13 @@ export default function App() {
       ? (state.unlockedScythes || ['neophyte'])
       : ['neophyte'];
     
+    // Auto-detect legacy/normal user to bypass onboarding
+    const isTestUser = state.user?.email === 'nrgenosop@gmail.com';
+    const hasCompletedTutorial = isTestUser
+      ? state.hasCompletedTutorial
+      : !!(state.hasCompletedTutorial || trueTotalCompletions > 0 || trueLevel > 1 || state.firstTaskCompleted);
+    const tutorialStep = hasCompletedTutorial ? 'completed' : state.tutorialStep;
+
     // Unconditionally force sync to fix any corrupted state
     useWarscytheStore.setState({
       totalCompletions: trueTotalCompletions,
@@ -97,7 +104,9 @@ export default function App() {
       currentLevelProgress: trueProgress,
       unlockedLore: reconstructedLore,
       unlockedScythes: cleanUnlocked,
-      scytheMigrationDone: true
+      scytheMigrationDone: true,
+      hasCompletedTutorial,
+      tutorialStep
     });
   }, [user?.email]);
 
@@ -212,6 +221,10 @@ export default function App() {
     setIsValidating(true);
     setShowSlash(false);
     
+    if (tutorialStep === 'reality_check') {
+      useWarscytheStore.setState({ tutorialStep: 'scratch_card' });
+    }
+
     setTimeout(() => {
       setShowSlash(true);
       setTimeout(() => {
@@ -413,7 +426,7 @@ export default function App() {
                 <p className="reality-desc">Is this objective truly conquered, or are you escaping resistance?</p>
                 
                 <div className="reality-actions">
-                  <button className="confirm-btn" onClick={handleFinalize}>
+                  <button className={`confirm-btn ${tutorialStep === 'reality_check' ? 'gold-glow-ring' : ''}`} onClick={handleFinalize}>
                     <div className="btn-glitch-layer">FINISH IT</div>
                     <span>FINISH IT</span>
                   </button>
@@ -502,11 +515,15 @@ export default function App() {
           />
         )}
 
-        {/* STEP 5 — Reward scratch card (fires last) */}
         {pendingReward && !activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
           <ScratchCard 
             data={pendingReward} 
-            onClose={clearPendingReward} 
+            onClose={() => {
+              clearPendingReward();
+              if (tutorialStep === 'scratch_card') {
+                useWarscytheStore.setState({ tutorialStep: 'fairy_intro' });
+              }
+            }} 
           />
         )}
       </AnimatePresence>
