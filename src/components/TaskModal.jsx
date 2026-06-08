@@ -311,8 +311,9 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         .modal-backdrop {
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
           background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
-          display: flex; align-items: center; justify-content: center; z-index: 1000;
-          padding: 1rem;
+          display: flex; justify-content: center; align-items: flex-start; z-index: 1000;
+          padding: 2rem 1.5rem;
+          overflow-y: auto;
         }
         
         .tactical-modal { 
@@ -322,6 +323,8 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           border: 1px solid var(--border-bright);
           box-shadow: 0 0 50px rgba(0,0,0,0.8);
           background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
+          margin: auto;
+          position: relative;
         }
 
         @media (min-width: 640px) {
@@ -609,10 +612,17 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           text-transform: none;
         }
         
+        .modal-onboarding-open {
+          overflow: visible !important;
+          max-height: none !important;
+        }
+        .modal-onboarding-open .tactical-form {
+          gap: 2.2rem;
+        }
+        
         @media (min-width: 1024px) {
-          .modal-onboarding-open {
-            overflow: visible !important;
-            max-height: none !important;
+          .modal-onboarding-open .tactical-form {
+            gap: 2.8rem;
           }
           .onboarding-pointer {
             position: absolute;
@@ -646,20 +656,8 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             border: 6px solid transparent;
             border-right-color: var(--gold-core);
           }
-          /* Adjust for custom select triggers */
-          .select-pointer {
-            top: 20px !important;
-            transform: none !important;
-          }
-          .select-pointer::after {
-            top: 30px !important;
-          }
         }
         @media (max-width: 1023px) {
-          .modal-onboarding-open {
-            max-height: 90vh !important;
-            overflow-y: auto !important;
-          }
           .onboarding-pointer {
             margin-top: 0.5rem;
             border-color: rgba(197, 160, 89, 0.3);
