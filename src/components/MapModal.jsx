@@ -4,7 +4,17 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
 import { X, Lock, Map as MapIcon, Scroll, Shield } from 'lucide-react';
 
+const LEGACY_ARTIFACT_MAP = {
+  'Iron Quill': 'tome', "Scout's Compass": 'compass', 'Wax Seal of Intent': 'scroll',
+  'Cloak of Momentum': 'scroll', 'Whetstone of Focus': 'rune', 'Ink of Resolve': 'chalice',
+  'Cloak of Iteration': 'rune', 'Dragon Scale Armor': 'idol', 'Eye of the Strategist': 'eye',
+  "Void Walker's Boots": 'chain', "Warscythe's Gauntlet": 'gauntlet', 'The Finisher': 'blade',
+  'Throne Fragment': 'idol', 'Shard of Reality': 'mirror', 'Cosmic Reaper': 'skull',
+  'Sovereign Core': 'orb', 'Omega Catalyst': 'hourglass', 'Grip of the Void': 'gauntlet',
+  'Lantern of the Lost': 'lantern',
+};
 const getArtifactImage = (name) => {
+  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
   const type = (name || '').split(' ')[0].toLowerCase();
   return `/artifacts/artifact-${type}.png`;
 };
