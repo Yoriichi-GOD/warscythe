@@ -1466,11 +1466,27 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   const currentUser = state.user;
 
   if (session?.user) {
+    const isTestUser = session.user.email === 'nrgenosop@gmail.com';
+    const isNewSignIn = event === 'SIGNED_IN' && (!currentUser || currentUser.id !== session.user.id);
+
     // If a different user is logging in, wipe current client state first to prevent crossover
     if (currentUser && currentUser.id !== session.user.id) {
       state.clearClientState();
     }
-    useWarscytheStore.setState({ user: session.user });
+
+    if (isTestUser && isNewSignIn) {
+      // Force reset onboarding for the test user on new sign in
+      useWarscytheStore.setState({
+        hasCompletedTutorial: false,
+        tutorialStep: 'not_started',
+        firstTaskCompleted: false
+      });
+      useWarscytheStore.setState({ user: session.user });
+      await state.saveUserState(session.user.id);
+    } else {
+      useWarscytheStore.setState({ user: session.user });
+    }
+
     await useWarscytheStore.getState().fetchUserState(session.user.id);
   } else {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
