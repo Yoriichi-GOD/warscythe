@@ -15,6 +15,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -99,7 +100,11 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
 
               <button
                 onClick={onAddTask}
-                className="w-full py-10 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
+                className={`w-full py-10 border border-dashed rounded flex items-center justify-center transition-all ${
+                  tutorialStep === 'task_creation'
+                    ? 'border-gold-core text-gold-core gold-glow-ring'
+                    : 'border-white/20 text-white/40 hover:border-gold-core/40 hover:text-gold-core bg-white/[0.02]'
+                }`}
               >
                 <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
               </button>

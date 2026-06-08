@@ -115,6 +115,8 @@ const mergeState = (local, saved) => {
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
   const hasCompletedTutorial = !!(local.hasCompletedTutorial || saved.hasCompletedTutorial);
+  const tutorialStep = local.tutorialStep || saved.tutorialStep || 'not_started';
+  const firstTaskCompleted = !!(local.firstTaskCompleted || saved.firstTaskCompleted);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
     ? local.lastActiveDate
     : saved.lastActiveDate;
@@ -154,6 +156,8 @@ const mergeState = (local, saved) => {
     scytheLevel,
     scytheMigrationDone,
     hasCompletedTutorial,
+    tutorialStep,
+    firstTaskCompleted,
     lastActiveDate,
     lastResetDate,
     rescuedFairies
@@ -241,6 +245,8 @@ export const useWarscytheStore = create(
       gymLog: [],
       activeWorkout: null,
       hasCompletedTutorial: false,
+      tutorialStep: 'not_started',
+      firstTaskCompleted: false,
       dailyPoints: 0,
       lastResetDate: null,
       syncStatus: 'synced',
@@ -318,6 +324,8 @@ export const useWarscytheStore = create(
           gymLog: [],
           activeWorkout: null,
           hasCompletedTutorial: false,
+          tutorialStep: 'not_started',
+          firstTaskCompleted: false,
           dailyPoints: 0,
           lastResetDate: null,
           syncStatus: 'synced',
@@ -400,6 +408,8 @@ export const useWarscytheStore = create(
           gymLog: state.gymLog,
           activeWorkout: state.activeWorkout,
           hasCompletedTutorial: state.hasCompletedTutorial,
+          tutorialStep: state.tutorialStep,
+          firstTaskCompleted: state.firstTaskCompleted,
           dailyPoints: state.dailyPoints,
           lastResetDate: state.lastResetDate,
           rescuedFairies: state.rescuedFairies,
@@ -486,9 +496,14 @@ export const useWarscytheStore = create(
           lastProgressUpdate: new Date().toISOString()
         };
 
-        set(state => ({
-          tasks: [...state.tasks, newTask]
-        }));
+        set(state => {
+          const updates = { tasks: [...state.tasks, newTask] };
+          if (state.tutorialStep === 'task_creation') {
+            updates.tutorialStep = 'completed';
+            updates.hasCompletedTutorial = true;
+          }
+          return updates;
+        });
         return true;
       },
 
@@ -559,7 +574,17 @@ export const useWarscytheStore = create(
         const mult = EFFORT_MULT[task.effort] || 1;
         let basePts = Math.round(POINTS_BASE * mult);
         const isBoss = task.effort === 'Boss';
-        const reward = rollReward(isBoss);
+        let reward;
+        if (!state.firstTaskCompleted) {
+          const baseArtifact = BASE_ARTIFACTS.find(a => a.id === 'tome' || a.id === 'skull') || BASE_ARTIFACTS[0];
+          reward = {
+            rarity: 'epic',
+            artifact: { ...baseArtifact, rarity: 'epic' },
+            bonusPts: 300
+          };
+        } else {
+          reward = rollReward(isBoss);
+        }
 
         if (isFarming) {
           basePts = Math.floor(basePts / 4);
@@ -661,8 +686,12 @@ export const useWarscytheStore = create(
             ...reward.artifact,
             rarity: reward.rarity,
             date: new Date().toISOString(),
-            context: `Forged on Day ${state.streakCount} of the Quest.`,
-            effortContext: `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
+            context: !state.firstTaskCompleted 
+              ? "Forged during your Tactical Onboarding. Your journey has begun."
+              : `Forged on Day ${state.streakCount} of the Quest.`,
+            effortContext: !state.firstTaskCompleted
+              ? "Initial Command execution completed successfully."
+              : `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
           }],
           unlockedLore,
           pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title, keyElement },
@@ -671,7 +700,8 @@ export const useWarscytheStore = create(
           closerDismissed: false,
           lastActiveDate: today,
           bossKills: state.bossKills + (isBoss ? 1 : 0),
-          rescuedFairies
+          rescuedFairies,
+          firstTaskCompleted: true
         });
 
         ph.capture('operation_conquered', {
@@ -1286,8 +1316,15 @@ export const useWarscytheStore = create(
         };
       },
 
+      setTutorialStep: (step) => {
+        set({ tutorialStep: step });
+        if (step === 'completed') {
+          set({ hasCompletedTutorial: true });
+        }
+      },
+
       completeTutorial: () => {
-        set({ hasCompletedTutorial: true });
+        set({ hasCompletedTutorial: true, tutorialStep: 'completed' });
       },
 
       recalculateState: () => {

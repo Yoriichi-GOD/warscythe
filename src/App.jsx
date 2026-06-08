@@ -128,6 +128,24 @@ export default function App() {
     }
   }, [showProphecyCard]);
 
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+
+  useEffect(() => {
+    if (tutorialStep && tutorialStep !== 'completed') {
+      if (tutorialStep === 'map_guide') {
+        setActiveTab('ops');
+      } else if (tutorialStep === 'ops_guide') {
+        setActiveTab('map');
+      } else if (tutorialStep === 'ledger_guide') {
+        setActiveTab('ops');
+      } else if (tutorialStep === 'task_creation_prompt') {
+        setActiveTab('ledger');
+      } else if (tutorialStep === 'task_creation') {
+        setActiveTab('ops');
+      }
+    }
+  }, [tutorialStep]);
+
   const pullGlobalProphecy = () => {
     const activeId = isFocusMode ? focusedTaskId : selectedTaskId;
     const activeTask = (tasks || []).find(t => t.id === activeId);
@@ -275,14 +293,18 @@ export default function App() {
     );
   }
 
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+
   return (
     <DashboardLayout activeTab={activeTab}>
-      <Header 
-        onOpenMap={() => setActiveTab('map')} 
-        onOpenVault={() => setActiveTab('ledger')} 
-        onOpenAuth={() => setShowAuth(true)}
-        onOpenGymLog={() => setActiveTab('fitness')}
-      />
+      <div className={isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}>
+        <Header 
+          onOpenMap={() => setActiveTab('map')} 
+          onOpenVault={() => setActiveTab('ledger')} 
+          onOpenAuth={() => setShowAuth(true)}
+          onOpenGymLog={() => setActiveTab('fitness')}
+        />
+      </div>
       
       <main className="flex-1 w-full overflow-hidden relative">
         {/* Persistent Tab Pages for Smooth Mobile Switching */}

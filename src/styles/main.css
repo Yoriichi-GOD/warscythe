@@ -915,4 +915,25 @@
   }
 }
 
+/* ═══════════════ ONBOARDING TUTORIAL GLOW HIGHLIGHTS ═══════════════ */
+.gold-glow-ring {
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(236, 200, 128, 0.8), 0 0 15px rgba(236, 200, 128, 0.4);
+  animation: gold-pulse-anim 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+  border-color: rgba(236, 200, 128, 0.8) !important;
+  z-index: 2501;
+}
+
+@keyframes gold-pulse-anim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(236, 200, 128, 0.8), 0 0 15px rgba(236, 200, 128, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(236, 200, 128, 0), 0 0 15px rgba(236, 200, 128, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(236, 200, 128, 0), 0 0 15px rgba(236, 200, 128, 0.4);
+  }
+}
+
 
