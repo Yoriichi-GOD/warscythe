@@ -115,7 +115,7 @@ const mergeState = (local, saved) => {
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
   const hasCompletedTutorial = !!(local.hasCompletedTutorial || saved.hasCompletedTutorial);
-  const tutorialStep = local.tutorialStep || saved.tutorialStep || 'not_started';
+  const tutorialStep = local.tutorialStep || saved.tutorialStep || (hasCompletedTutorial ? 'completed' : 'not_started');
   const firstTaskCompleted = !!(local.firstTaskCompleted || saved.firstTaskCompleted);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
     ? local.lastActiveDate
@@ -288,9 +288,7 @@ export const useWarscytheStore = create(
         ph.capture('warscythe_sign_up');
       },
 
-      signOut: async () => {
-        await supabase.auth.signOut();
-        // Reset all client state to defaults on log out
+      clearClientState: () => {
         set({
           user: null,
           tasks: [],
@@ -335,6 +333,11 @@ export const useWarscytheStore = create(
           pendingVictoryScreen: null,
           receivedProphecies: [],
         });
+      },
+
+      signOut: async () => {
+        await supabase.auth.signOut();
+        get().clearClientState();
         ph.capture('warscythe_sign_out');
       },
 
@@ -1459,8 +1462,20 @@ useWarscytheStore.subscribe((state) => {
 
 // Listen to auth state changes to fetch latest user state on app initialization/refresh
 supabase.auth.onAuthStateChange(async (event, session) => {
+  const state = useWarscytheStore.getState();
+  const currentUser = state.user;
+
   if (session?.user) {
+    // If a different user is logging in, wipe current client state first to prevent crossover
+    if (currentUser && currentUser.id !== session.user.id) {
+      state.clearClientState();
+    }
     useWarscytheStore.setState({ user: session.user });
     await useWarscytheStore.getState().fetchUserState(session.user.id);
+  } else {
+    // If session is null, but we had a logged-in user, they signed out - wipe state to default template
+    if (currentUser) {
+      state.clearClientState();
+    }
   }
 });
