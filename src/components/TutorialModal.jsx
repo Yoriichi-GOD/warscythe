@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Compass, Scroll, Crosshair, Award, Sparkles, ShieldAlert, CheckCircle } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import RegionFlashScreen from './RegionFlashScreen';
 
 export default function TutorialModal() {
   const { 
@@ -42,12 +43,19 @@ export default function TutorialModal() {
               <div className="cinematic-footer">
                 <button 
                   className="tutorial-nav-btn primary continue-bottom-left" 
-                  onClick={completeTutorial}
+                  onClick={() => setIntroStage(3)}
                 >
                   CONTINUE
                 </button>
               </div>
             </motion.div>
+          ) : tutorialStep === 'fairy_intro' && introStage === 3 ? (
+            <RegionFlashScreen
+              key="region-flash-stage3"
+              type="entry"
+              regionData={{ mapIndex: 1 }}
+              onClose={completeTutorial}
+            />
           ) : (
             <motion.div 
               key="main-modal"

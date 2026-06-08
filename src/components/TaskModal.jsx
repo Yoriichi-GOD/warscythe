@@ -85,7 +85,9 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="modal-content glass-panel tactical-modal max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className={`modal-content glass-panel tactical-modal custom-scrollbar ${
+          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[90vh] overflow-y-auto'
+        }`}
         onClick={e => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -381,7 +383,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         @media (min-width: 640px) {
           .form-grid { grid-template-columns: 1fr 1fr; }
         }
-        .form-group { display: flex; flex-direction: column; gap: 0.75rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
         
         label { 
           display: flex; align-items: center; gap: 0.5rem;
@@ -608,6 +610,10 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         }
         
         @media (min-width: 1024px) {
+          .modal-onboarding-open {
+            overflow: visible !important;
+            max-height: none !important;
+          }
           .onboarding-pointer {
             position: absolute;
             width: 190px;
@@ -650,6 +656,10 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           }
         }
         @media (max-width: 1023px) {
+          .modal-onboarding-open {
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+          }
           .onboarding-pointer {
             margin-top: 0.5rem;
             border-color: rgba(197, 160, 89, 0.3);

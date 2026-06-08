@@ -510,7 +510,8 @@ export const useWarscytheStore = create(
           stalledAt: null,
           notes: '',
           microSteps,
-          lastProgressUpdate: new Date().toISOString()
+          lastProgressUpdate: new Date().toISOString(),
+          isTutorialTask: !get().firstTaskCompleted
         };
 
         set(state => {
@@ -633,13 +634,15 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const newTotalCompletions = state.totalCompletions + 1;
+        const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
+        task.isTutorialTask = isTutorialTask;
+        const newTotalCompletions = isTutorialTask ? state.totalCompletions : state.totalCompletions + 1;
         const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
         const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
 
         const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
         const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
-        const keyElement = keyElements[keyIndex % keyElements.length];
+        const keyElement = isTutorialTask ? null : keyElements[keyIndex % keyElements.length];
 
         let level = state.level;
         let currentTitle = state.currentTitle;
@@ -649,18 +652,23 @@ export const useWarscytheStore = create(
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
         const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
-        const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
+        const fragment = isTutorialTask 
+          ? "Tactical tutorial completed successfully. Ashwood gateway threat evaluated."
+          : loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
+
         const unlockedLore = { ...state.unlockedLore };
-        if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
-        if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
-          unlockedLore[regionIdx].push(fragment);
+        if (!isTutorialTask) {
+          if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
+          if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
+            unlockedLore[regionIdx].push(fragment);
+          }
         }
 
         const rescuedFairies = { ...(state.rescuedFairies || {}) };
 
         let pendingVictoryScreen = null;
         // Level up check
-        if (newLevel > state.level) {
+        if (!isTutorialTask && newLevel > state.level) {
           const oldMapIndex = ((state.level - 1) % 10) + 1;
           level = newLevel;
           currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
@@ -694,7 +702,7 @@ export const useWarscytheStore = create(
           coins: newCoins,
           scytheLevel: newScytheLevel,
           totalCompletions: newTotalCompletions,
-          currentLevelProgress: finalLevelProgress,
+          currentLevelProgress: isTutorialTask ? state.currentLevelProgress : finalLevelProgress,
           level,
           currentTitle,
           consecutiveLow,
@@ -702,10 +710,10 @@ export const useWarscytheStore = create(
             ...reward.artifact,
             rarity: reward.rarity,
             date: new Date().toISOString(),
-            context: !state.firstTaskCompleted 
+            context: isTutorialTask 
               ? "Forged during your Tactical Onboarding. Your journey has begun."
               : `Forged on Day ${state.streakCount} of the Quest.`,
-            effortContext: !state.firstTaskCompleted
+            effortContext: isTutorialTask
               ? "Initial Command execution completed successfully."
               : `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
           }],
@@ -1356,7 +1364,7 @@ export const useWarscytheStore = create(
             newXP += (basePts + bonus);
           });
 
-          const totalCompletions = (state.completedTasks || []).length;
+          const totalCompletions = (state.completedTasks || []).filter(t => !t.isTutorialTask).length;
           const newLevel = Math.floor(totalCompletions / TASKS_PER_LEVEL) + 1;
           const finalLevelProgress = totalCompletions % TASKS_PER_LEVEL;
 

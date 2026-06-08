@@ -71,7 +71,7 @@ export default function App() {
   useEffect(() => {
     const state = useWarscytheStore.getState();
     const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
-    const tasksCompleted = (state.completedTasks || []).length;
+    const tasksCompleted = (state.completedTasks || []).filter(t => !t.isTutorialTask).length;
     const trueTotalCompletions = tasksCompleted + ritualsCompleted;
     
     const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
