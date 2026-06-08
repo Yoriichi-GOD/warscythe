@@ -616,13 +616,15 @@ export const useWarscytheStore = create(
         const newXP = state.xp + totalPts;
 
         // Daily Points and Daily-based Scythe Level Reset
-        const dailyPoints = state.dailyPoints + totalPts;
+        const dailyPoints = isTutorialTask ? state.dailyPoints : state.dailyPoints + totalPts;
         let newScytheLevel = "DORMANT";
-        if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
-        else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
-        else if (dailyPoints >= 400) newScytheLevel = "REFINED";
-        else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
-        else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
+        if (!isTutorialTask) {
+          if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
+          else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
+          else if (dailyPoints >= 400) newScytheLevel = "REFINED";
+          else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
+          else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
+        }
 
         // Digital Coins Award
         const coinReward = Math.round(basePts * 0.1) + Math.round(reward.bonusPts * 0.1);
