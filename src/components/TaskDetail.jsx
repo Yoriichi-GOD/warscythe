@@ -185,11 +185,19 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
         </div>
 
         {/* Action Bar */}
-        <div className="td-footer">
+        <div className="td-footer" style={{ position: 'relative' }}>
           <button className={`td-btn-validate ${tutorialStep === 'validate_execution' ? 'gold-glow-ring' : ''}`} onClick={handleComplete}>
             <CheckCircle size={18} /> 
             <span>VALIDATE EXECUTION</span>
           </button>
+
+          {tutorialStep === 'validate_execution' && (
+            <div className="onboarding-pointer" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '1rem', width: '250px' }}>
+              <span className="pointer-tag">GUIDE</span>
+              <h4>Validate Execution</h4>
+              <p>Once you complete the work in real life, you must validate your execution. Click 'VALIDATE EXECUTION'.</p>
+            </div>
+          )}
           
           <button className="td-btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); handleClose(); }}}>
             <Trash2 size={18} />

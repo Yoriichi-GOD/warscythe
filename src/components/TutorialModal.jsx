@@ -292,6 +292,14 @@ export default function TutorialModal() {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.25); }
           }
+          .region-bg-circle-mini {
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 1px solid var(--gold-core);
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+            background: #000;
+            animation: circlePulse 3s infinite ease-in-out;
+          }
           @keyframes glowPulse {
             0%, 100% { opacity: 0.8; text-shadow: 0 0 10px rgba(197, 160, 89, 0.4), 0 0 20px rgba(197, 160, 89, 0.2); }
             50% { opacity: 1; text-shadow: 0 0 20px rgba(197, 160, 89, 0.8), 0 0 40px rgba(197, 160, 89, 0.4); }
@@ -312,7 +320,11 @@ export default function TutorialModal() {
       stepTitle = "THE THEATER OF WAR";
       stepText = "The Quest Map displays the active regional battlefield. Here you can inspect local keeps and the caged Empress.";
       stepInstruction = "Click QUEST MAP in the navigation bar to inspect the battleground.";
-      stepIcon = <Compass size={18} className="text-gold-core animate-spin" style={{ animationDuration: '6s' }} />;
+      stepIcon = (
+        <div className="region-bg-circle-mini shrink-0">
+          <img src="/bg/bg-region-1.png" alt="Region" className="region-bg-img" />
+        </div>
+      );
       break;
     case 'ops_guide':
       stepTitle = "REGIONAL INTELLIGENCE";
@@ -339,31 +351,11 @@ export default function TutorialModal() {
       stepIcon = <Crosshair size={18} className="text-gold-core animate-pulse" />;
       break;
     case 'task_modal_open':
-      return null; // pointers are shown inline in TaskModal.jsx
     case 'click_task':
-      stepTitle = "TARGET ACQUIRED";
-      stepText = "Your strike operation is ready on the command board. Click the mission card to inspect details and begin execution.";
-      stepInstruction = "Click on the newly created Mission Card.";
-      stepIcon = <Crosshair size={18} className="text-gold-core animate-pulse" />;
-      break;
     case 'validate_execution':
-      stepTitle = "VALIDATE EXECUTION";
-      stepText = "Once you complete the work in real life, you must validate your execution. Drag your progress to 100% or click 'Validate Execution' directly.";
-      stepInstruction = "Click 'VALIDATE EXECUTION' at the bottom of the panel.";
-      stepIcon = <CheckCircle size={18} className="text-gold-core" />;
-      break;
     case 'reality_check':
-      stepTitle = "REALITY CHECK";
-      stepText = "Be honest with yourself. Did you truly conquer the objective, or are you escaping resistance?";
-      stepInstruction = "Click 'FINISH IT' to log your triumph.";
-      stepIcon = <ShieldAlert size={18} className="text-red-500 animate-bounce" />;
-      break;
     case 'scratch_card':
-      stepTitle = "DECRYPT REWARD";
-      stepText = "Scratch the card in the center of the screen to decrypt your guaranteed Epic Artifact loot!";
-      stepInstruction = "Scratch the card to claim your reward!";
-      stepIcon = <Sparkles size={18} className="text-gold-core animate-pulse" />;
-      break;
+      return null; // pointers are shown inline in their respective components
     default:
       return null;
   }

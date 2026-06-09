@@ -59,9 +59,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     'PLATINUM': '100'
   };
 
-  const activeDisplayLevel = preview.level || (currentTier ? currentTier.name : scytheLevel);
-  const activeDisplayType = preview.type || (currentTier ? 'ultimate' : 'standard');
-  const activeDisplayPwr = preview.pwr || (currentTier ? (100 + streakTiers.indexOf(currentTier) * 50).toString() : (standardPwrs[scytheLevel.toUpperCase()] || '10'));
+  const isTutorialActive = tutorialStep !== 'completed';
+  const activeDisplayLevel = preview.level || (isTutorialActive ? 'DORMANT' : (currentTier ? currentTier.name : scytheLevel));
+  const activeDisplayType = preview.type || (isTutorialActive ? 'standard' : (currentTier ? 'ultimate' : 'standard'));
+  const activeDisplayPwr = preview.pwr || (isTutorialActive ? '10' : (currentTier ? (100 + streakTiers.indexOf(currentTier) * 50).toString() : (standardPwrs[scytheLevel.toUpperCase()] || '10')));
 
   const evolutionStages = [
     { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },
@@ -99,6 +100,13 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                 return (
                   <div key={task.id} className={isTarget ? 'gold-glow-ring' : ''}>
                     <MissionCard task={task} onOpen={onOpenTask} />
+                    {isTarget && (
+                      <div className="onboarding-pointer">
+                        <span className="pointer-tag">GUIDE</span>
+                        <h4>Target Acquired</h4>
+                        <p>Your strike operation is ready on the command board. Click the mission card to inspect details and begin execution.</p>
+                      </div>
+                    )}
                   </div>
                 );
               })}

@@ -131,10 +131,13 @@ const getRegionNodeInfo = (mapIdx, nodeId) => {
 
 export default function MapSection({ onTabChange }) {
   const { 
-    level, dailyLog, tasks, generateMicroSteps, 
+    level: storeLevel, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
-    scytheLevel, coins, streakCount, rescuedFairies, user
+    scytheLevel, coins, streakCount, rescuedFairies, user, tutorialStep
   } = useWarscytheStore();
+
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+  const level = isTutorialActive ? 0 : storeLevel;
 
   const activeTasksCount = tasks.filter(t => !t.completedAt).length;
   const artifactsCount = collectedArtifacts?.length || 0;

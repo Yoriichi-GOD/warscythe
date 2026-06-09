@@ -159,8 +159,13 @@ export default function ScratchCard({ data, onClose }) {
         </div>
 
         {tutorialStep === 'scratch_card' && !isRevealed && (
-          <div className="onboarding-scratch-hint">
+          <div className="onboarding-scratch-hint" style={{ position: 'relative' }}>
              <span>DRAG TO SCRATCH AND REVEAL REWARD</span>
+             <div className="onboarding-pointer" style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '1rem', width: '250px' }}>
+                <span className="pointer-tag">GUIDE</span>
+                <h4>Decrypt Reward</h4>
+                <p>Scratch the card in the center of the screen to decrypt your guaranteed Epic Artifact loot! Scratch the card to claim your reward!</p>
+             </div>
           </div>
         )}
 

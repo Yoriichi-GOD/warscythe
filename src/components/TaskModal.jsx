@@ -617,52 +617,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           max-height: none !important;
         }
         .modal-onboarding-open .tactical-form {
-          gap: 2.2rem;
+          gap: 1.5rem;
         }
         
-        @media (min-width: 1024px) {
-          .modal-onboarding-open .tactical-form {
-            gap: 2.8rem;
-          }
-          .onboarding-pointer {
-            position: absolute;
-            width: 190px;
-          }
-          .left-pointer {
-            right: calc(100% + 20px);
-            top: 50%;
-            transform: translateY(-50%);
-          }
-          .left-pointer::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            border: 6px solid transparent;
-            border-left-color: var(--gold-core);
-          }
-          .right-pointer {
-            left: calc(100% + 20px);
-            top: 50%;
-            transform: translateY(-50%);
-          }
-          .right-pointer::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: 100%;
-            transform: translateY(-50%);
-            border: 6px solid transparent;
-            border-right-color: var(--gold-core);
-          }
-        }
-        @media (max-width: 1023px) {
-          .onboarding-pointer {
-            margin-top: 0.5rem;
-            border-color: rgba(197, 160, 89, 0.3);
-            background: rgba(197, 160, 89, 0.03);
-          }
+        .onboarding-pointer {
+          margin-top: 0.5rem;
+          border-color: rgba(197, 160, 89, 0.3);
+          background: rgba(197, 160, 89, 0.03);
         }
       `}</style>
     </div>

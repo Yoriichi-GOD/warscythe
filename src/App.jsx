@@ -425,11 +425,20 @@ export default function App() {
                 <h2 className="reality-title">REALITY CHECK</h2>
                 <p className="reality-desc">Is this objective truly conquered, or are you escaping resistance?</p>
                 
-                <div className="reality-actions">
+                <div className="reality-actions" style={{ position: 'relative' }}>
                   <button className={`confirm-btn ${tutorialStep === 'reality_check' ? 'gold-glow-ring' : ''}`} onClick={handleFinalize}>
                     <div className="btn-glitch-layer">FINISH IT</div>
                     <span>FINISH IT</span>
                   </button>
+
+                  {tutorialStep === 'reality_check' && (
+                    <div className="onboarding-pointer" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '1rem', width: '250px' }}>
+                      <span className="pointer-tag">GUIDE</span>
+                      <h4>Reality Check</h4>
+                      <p>Be honest with yourself. Did you truly conquer the objective, or are you escaping resistance? Click 'FINISH IT' to log your triumph.</p>
+                    </div>
+                  )}
+
                   <button className="return-btn" onClick={handleReturn}>
                     <span>RETURN TO BATTLE</span>
                   </button>
