@@ -362,7 +362,7 @@ export default function App() {
         
         <div 
           style={{ display: activeTab === 'map' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-hidden"
+          className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar"
         >
           <QuestMap onTabChange={(tab, options) => {
             setActiveTab(tab);

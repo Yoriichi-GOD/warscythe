@@ -973,12 +973,12 @@ export default function MapSection({ onTabChange }) {
       <style jsx>{`
         .campaign-theater {
           width: 100%;
-          height: 100%;
+          height: auto;
+          min-height: 100%;
           display: flex;
           flex-direction: column;
           padding: 1rem;
           color: #fff;
-          overflow-y: auto;
           position: relative;
         }
 

@@ -123,14 +123,14 @@
   grid-template-columns: repeat(6, 1fr);
   gap: 0.4rem;
 }
-.cc-header { grid-column: span 6; }
-.cc-daily-completions { grid-column: span 2; }
-.cc-execution-ratio { grid-column: span 2; }
-.cc-fitness-log { grid-column: span 2; }
-.cc-ultimate-artifact { grid-column: span 3; }
-.cc-completion-log { grid-column: span 3; }
-.cc-streak-descent { grid-column: span 6; }
-.cc-arsenal { grid-column: span 6; }
+.cc-header { grid-column: span 6; grid-row: 1; }
+.cc-daily-completions { grid-column: span 2; grid-row: 2; }
+.cc-execution-ratio { grid-column: span 2; grid-row: 2; }
+.cc-fitness-log { grid-column: span 2; grid-row: 2; }
+.cc-ultimate-artifact { grid-column: span 3; grid-row: 3; }
+.cc-completion-log { grid-column: span 3; grid-row: 3; }
+.cc-streak-descent { grid-column: span 6; grid-row: 4; }
+.cc-arsenal { grid-column: span 6; grid-row: 5; }
 
 @media (min-width: 1024px) {
   .command-center-grid {
@@ -145,6 +145,17 @@
   .cc-streak-descent { grid-column: span 2; }
   .cc-arsenal { grid-column: span 2; }
   .cc-completion-log { grid-column: span 2; }
+  
+  .cc-header,
+  .cc-daily-completions,
+  .cc-execution-ratio,
+  .cc-fitness-log,
+  .cc-ultimate-artifact,
+  .cc-streak-descent,
+  .cc-arsenal,
+  .cc-completion-log {
+    grid-row: auto !important;
+  }
 }
 
 @media (max-width: 1023px) {

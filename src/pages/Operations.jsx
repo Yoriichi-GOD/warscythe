@@ -145,10 +145,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </button>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row lg:!h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
+      <section className="elite-panel !p-0 flex flex-row h-[360px] lg:h-[calc(100vh-160px)] overflow-hidden">
         
         {/* WEAPON EVOLUTION SIDEBAR */}
-        <div className="w-[45%] lg:w-64 shrink-0 border-r border-white/5 flex flex-col py-3 lg:py-10 px-3 lg:px-8 bg-black/20">
+        <div className="w-[45%] lg:w-64 shrink-0 border-r border-white/5 flex flex-col py-3 lg:py-10 px-3 lg:px-8 bg-black/20 overflow-y-auto custom-scrollbar">
           <div className="mb-6 lg:mb-10">
             <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
             <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
@@ -205,7 +205,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </div>
 
         {/* SCYTHE DISPLAY AREA */}
-        <div className="w-[55%] lg:flex-1 relative h-auto min-h-[200px] lg:h-full bg-gradient-to-b from-transparent to-black/40">
+        <div className="w-[55%] lg:flex-1 relative h-full bg-gradient-to-b from-transparent to-black/40">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}
