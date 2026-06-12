@@ -1054,8 +1054,19 @@ export default function MapSection({ onTabChange }) {
           .isometric-map-wrapper {
             grid-row: 1 !important;
             grid-column: span 2 !important;
-            height: 35vh !important;
-            aspect-ratio: 16 / 10 !important;
+            height: 320px !important;
+            width: 100% !important;
+            overflow: auto !important;
+            position: relative !important;
+            border-radius: 8px !important;
+            aspect-ratio: auto !important;
+          }
+          .isometric-map-wrapper > div {
+            width: 520px !important;
+            height: 520px !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
           }
 
           /* 2. Expansion Log -> Row 2, Left */
