@@ -145,7 +145,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </button>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row h-[500px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
+      <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">

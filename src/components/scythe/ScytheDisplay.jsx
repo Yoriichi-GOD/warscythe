@@ -175,6 +175,13 @@ export default function ScytheDisplay({
           z-index: 10;
         }
 
+        @media (max-width: 1023px) {
+          .scythe-image-wrapper {
+            padding-top: 4.5rem;
+            padding-bottom: 7.5rem;
+          }
+        }
+
         .scythe-hero-img {
           max-width: 100%;
           max-height: 100%;
