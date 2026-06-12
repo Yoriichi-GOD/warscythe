@@ -184,9 +184,61 @@ export default function MapSection({ onTabChange }) {
   };
 
   const [selectedNode, setSelectedNode] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const containerRef = useRef(null);
+
+  const handleMapClick = (e) => {
+    if (activeMapIndex > level) return; // Map is locked
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+    const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+    const getPercentageVal = (str) => parseFloat(str.replace('%', ''));
+
+    let minDistance = Infinity;
+    let closestNode = null;
+
+    nodes.forEach(node => {
+      const nodeX = getPercentageVal(node.left);
+      const nodeY = getPercentageVal(node.top);
+      const dist = Math.sqrt(Math.pow(clickX - nodeX, 2) + Math.pow(clickY - nodeY, 2));
+
+      // Bounding check: touch must land within 15% of node relative distance
+      const threshold = 15;
+      if (dist < threshold && dist < minDistance) {
+        minDistance = dist;
+        closestNode = node;
+      }
+    });
+
+    if (closestNode) {
+      // Overlap Priority Resolve rules: active > secured > locked
+      const duplicates = nodes.filter(n => {
+        const nX = getPercentageVal(n.left);
+        const nY = getPercentageVal(n.top);
+        const d = Math.sqrt(Math.pow(clickX - nX, 2) + Math.pow(clickY - nY, 2));
+        return d < 15;
+      });
+
+      if (duplicates.length > 1) {
+        // Resolve tie using priority logic
+        const getPriorityScore = (n) => {
+          if (n.type === 'active') return 3;
+          if (n.type === 'secured' || n.type === 'boss') return 2;
+          return 1;
+        };
+        duplicates.sort((a, b) => getPriorityScore(b) - getPriorityScore(a));
+        closestNode = duplicates[0];
+      }
+
+      setSelectedNode(closestNode.id);
+    }
+  };
 
   useEffect(() => {
     setSelectedNode(null);
+    setZoomLevel(1); // Reset zoom level on map change
   }, [activeMapIndex]);
 
   const [jailImageFailed, setJailImageFailed] = useState(false);
@@ -436,104 +488,149 @@ export default function MapSection({ onTabChange }) {
 
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
-          <div className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-            <AnimatePresence>
-              {showFog && (
-                <motion.div
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '100%' }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
-                  className="map-fog-overlay-sheet"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundImage: "url('/maps/map-fog-overlay.png')",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    zIndex: 100,
-                    pointerEvents: 'none',
-                  }}
-                />
-              )}
-            </AnimatePresence>
-            <div 
-              className="map-image-layer" 
-              style={{ 
-                backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
-                filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
-              }} 
-            />
-            
-            {activeMapIndex > level ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
-                <motion.img 
-                  src="/maps/map-lock-icon.png" 
-                  alt="Locked Sector" 
-                  className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
-                  animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-                <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
-                  [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
-                </span>
-              </div>
-            ) : (
-              <div className="map-nodes-overlay">
-                {/* Tactical Connection Paths */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-                  {connections.map((c, i) => {
-                    const fromPos = getNodePos(c.from);
-                    const toPos = getNodePos(c.to);
-                    return (
-                      <line 
-                        key={i}
-                        x1={fromPos.x} 
-                        y1={fromPos.y} 
-                        x2={toPos.x} 
-                        y2={toPos.y} 
-                        className="leyline-path"
-                        strokeWidth={c.thick ? "2.5" : "1.5"} 
-                      />
-                    );
-                  })}
-                </svg>
-                  
-                {nodes.map(node => (
-                  <motion.div 
-                    key={node.id} 
-                    className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
-                    style={{ top: node.top, left: node.left }} 
-                    onClick={() => setSelectedNode(node.id)}
-                  >
-                    {node.id === 'boss' && isBossRescued ? (
-                      <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
-                        <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
-                        <img 
-                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
-                          alt="Fairy Empress" 
-                          className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
-                          style={{ filter: currentFilter || 'none' }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
+          <div 
+            ref={containerRef}
+            className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)] relative overflow-hidden"
+            onClick={handleMapClick}
+          >
+            <motion.div
+              drag={zoomLevel > 1}
+              dragConstraints={containerRef}
+              dragElastic={0.05}
+              animate={{ scale: zoomLevel }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
+                transformOrigin: 'center center'
+              }}
+            >
+              <AnimatePresence>
+                {showFog && (
+                  <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '100%' }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 2, ease: "easeInOut" }}
+                    className="map-fog-overlay-sheet"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundImage: "url('/maps/map-fog-overlay.png')",
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      zIndex: 100,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+              <div 
+                className="map-image-layer" 
+                style={{ 
+                  backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
+                  filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
+                }} 
+              />
+              
+              {activeMapIndex > level ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
+                  <motion.img 
+                    src="/maps/map-lock-icon.png" 
+                    alt="Locked Sector" 
+                    className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
+                    animate={{ scale: [1, 1.08, 1] }}
+                    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
+                    [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
+                  </span>
+                </div>
+              ) : (
+                <div className="map-nodes-overlay">
+                  {/* Tactical Connection Paths */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+                    {connections.map((c, i) => {
+                      const fromPos = getNodePos(c.from);
+                      const toPos = getNodePos(c.to);
+                      return (
+                        <line 
+                          key={i}
+                          x1={fromPos.x} 
+                          y1={fromPos.y} 
+                          x2={toPos.x} 
+                          y2={toPos.y} 
+                          className="leyline-path"
+                          strokeWidth={c.thick ? "2.5" : "1.5"} 
                         />
-                      </div>
-                    ) : (
-                      <>
-                        <div className={`node-glow ${node.type}`} />
-                        {node.type === 'active' && <div className="current-ping" />}
-                        {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
-                        {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
-                      </>
-                    )}
-                    <span className="node-label font-times font-bold">{node.label}</span>
-                    <div className="node-status font-times">{node.status}</div>
-                  </motion.div>
-                ))}
+                      );
+                    })}
+                  </svg>
+                    
+                  {nodes.map(node => (
+                    <motion.div 
+                      key={node.id} 
+                      className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
+                      style={{ top: node.top, left: node.left }} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedNode(node.id);
+                      }}
+                    >
+                      {node.id === 'boss' && isBossRescued ? (
+                        <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
+                          <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
+                          <img 
+                            src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                            alt="Fairy Empress" 
+                            className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
+                            style={{ filter: currentFilter || 'none' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div className={`node-glow ${node.type}`} />
+                          {node.type === 'active' && <div className="current-ping" />}
+                          {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
+                          {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                        </>
+                      )}
+                      <span className="node-label font-times font-bold">{node.label}</span>
+                      <div className="node-status font-times">{node.status}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+ 
+            {/* Mobile zoom controls */}
+            {activeMapIndex <= level && (
+              <div className="absolute bottom-4 right-4 flex gap-2 z-50 lg:hidden select-none">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setZoomLevel(1.6);
+                  }}
+                  className={`zoom-ctrl-btn ${zoomLevel === 1.6 ? 'active' : ''}`}
+                >
+                  +
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setZoomLevel(1);
+                  }}
+                  className={`zoom-ctrl-btn ${zoomLevel === 1 ? 'active' : ''}`}
+                >
+                  -
+                </button>
               </div>
             )}
           </div>
@@ -1311,12 +1408,29 @@ export default function MapSection({ onTabChange }) {
           position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
           display: flex; align-items: flex-start; justify-content: center; z-index: 2100; padding: 2rem 1rem;
           overflow-y: auto;
+          transition: all 0.3s;
         }
         .node-intel-modal {
           max-width: 420px; width: 100%;
           border-radius: 6px; display: flex; flex-direction: column; gap: 1.5rem;
           position: relative;
           margin: auto 0;
+        }
+        @media (max-width: 1023px) {
+          .node-intel-overlay {
+            align-items: flex-end;
+            padding: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+          }
+          .node-intel-modal {
+            max-width: 100%;
+            margin: 0;
+            border-radius: 12px 12px 0 0;
+            padding: 1.8rem 1.5rem 2.5rem 1.5rem;
+            border-bottom: none;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.8);
+          }
         }
         .node-intel-close-btn {
           position: absolute;

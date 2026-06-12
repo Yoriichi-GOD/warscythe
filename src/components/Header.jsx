@@ -16,7 +16,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
       <div className="header-left">
         <div className="logo-section">
           <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden' }}>
-            <img src="/command-core.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src="/icon.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div className="logo-text">
             <h1>WARSCYTHE</h1>
@@ -91,13 +91,13 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           >
             {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
           </button>
-          <button className="nav-btn" onClick={onOpenGymLog} title="Gym & Fitness Log">
+          <button className="nav-btn desktop-only" onClick={onOpenGymLog} title="Gym & Fitness Log">
             <Dumbbell size={18} />
           </button>
-          <button className="nav-btn" onClick={() => onOpenVault()} title="Artifact Vault">
+          <button className="nav-btn desktop-only" onClick={() => onOpenVault()} title="Artifact Vault">
             <Award size={18} />
           </button>
-          <button className="nav-btn" onClick={onOpenMap} title="Tactical Map">
+          <button className="nav-btn desktop-only" onClick={onOpenMap} title="Tactical Map">
             <MapIcon size={18} />
           </button>
           <button 
@@ -187,6 +187,22 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
 
         .rank-badge { display: none; align-items: center; gap: 0.75rem; }
         @media (min-width: 640px) { .rank-badge { display: flex; } }
+        @media (max-width: 639px) and (min-width: 480px) {
+          .rank-badge {
+            display: flex;
+            align-items: center;
+          }
+          .rank-label {
+            display: none;
+          }
+          .rank-title {
+            font-size: 0.65rem;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(197, 160, 89, 0.05);
+          }
+        }
 
         .rank-icon { color: var(--gold-core); opacity: 0.8; }
         .rank-info { display: flex; flex-direction: column; }
@@ -212,12 +228,32 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
 
         .xp-counter { display: none; text-align: right; }
         @media (min-width: 768px) { .xp-counter { display: block; } }
-
-        .xp-label { display: block; font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; }
-        .xp-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--gold-core); }
+        @media (max-width: 767px) {
+          .xp-counter {
+            display: block;
+            text-align: left;
+          }
+          .xp-label {
+            display: none;
+          }
+          .xp-value {
+            font-size: 0.75rem;
+          }
+          .xp-value::before {
+            content: "XP: ";
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            font-weight: normal;
+          }
+        }
 
         .action-buttons { display: flex; gap: 0.5rem; }
         @media (min-width: 1024px) { .action-buttons { gap: 0.75rem; } }
+        @media (max-width: 639px) {
+          .nav-btn.desktop-only {
+            display: none !important;
+          }
+        }
 
         .nav-btn {
           width: 32px;

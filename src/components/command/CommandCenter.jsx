@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
-import { Swords, History, Flame, Award, Dumbbell } from 'lucide-react';
+import { Swords, History, Flame, Award, Dumbbell, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LEGACY_ARTIFACT_MAP = {
   'Iron Quill': 'tome', "Scout's Compass": 'compass', 'Wax Seal of Intent': 'scroll',
@@ -20,6 +21,7 @@ const getArtifactImage = (name) => {
 
 export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0, collectedArtifacts = [] } = useWarscytheStore();
+  const [selectedTrophy, setSelectedTrophy] = React.useState(null);
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
@@ -186,15 +188,18 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
                 const rarityLower = (artifact.rarity || 'common').toLowerCase();
                 return (
                   <div key={i} className="group relative shrink-0">
-                     <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer p-1">
+                     <div 
+                       onClick={() => setSelectedTrophy(artifact)}
+                       className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer p-1"
+                     >
                        <img 
                          src={getArtifactImage(artifact.name)} 
                          className={`w-full h-full object-contain art-img-filter ${rarityLower}`} 
                          alt={artifact.name} 
                        />
                      </div>
-                     {/* Hover Tooltip */}
-                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
+                     {/* Hover Tooltip (Desktop Only) */}
+                     <div className="desktop-only-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
                        <span className={`text-[8px] font-mono tracking-widest uppercase font-bold mb-1 block ${
                           rarityLower === 'mythic' ? 'text-red-500' :
                           rarityLower === 'epic' ? 'text-red-400' :
@@ -273,6 +278,68 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             )}
          </div>
       </div>
+ 
+      {/* Mobile Trophy Info Bottom Sheet Drawer */}
+      <AnimatePresence>
+        {selectedTrophy && (
+          <div className="mobile-drawer-backdrop lg:hidden" onClick={() => setSelectedTrophy(null)}>
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="mobile-drawer-content"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="corner-ornament corner-tl" />
+              <div className="corner-ornament corner-tr" />
+              <div className="corner-ornament corner-bl" />
+              <div className="corner-ornament corner-br" />
+              <div className="elite-panel-inner-border" />
+              
+              <button className="mobile-drawer-close" onClick={() => setSelectedTrophy(null)}>
+                <X size={16} />
+              </button>
+              
+              <div className="drawer-header">
+                <span className={`text-[8.5px] font-mono tracking-widest uppercase font-bold block mb-1 ${
+                   selectedTrophy.rarity?.toLowerCase() === 'mythic' ? 'text-red-500' :
+                   selectedTrophy.rarity?.toLowerCase() === 'epic' ? 'text-red-400' :
+                   selectedTrophy.rarity?.toLowerCase() === 'rare' ? 'text-yellow-500' :
+                   selectedTrophy.rarity?.toLowerCase() === 'uncommon' ? 'text-green-500' :
+                   'text-gray-400'
+                }`}>{selectedTrophy.rarity}</span>
+                <h3 className="text-white font-display text-base tracking-widest uppercase mb-2 leading-tight">{selectedTrophy.name}</h3>
+              </div>
+              
+              <div className="h-[1px] w-full bg-white/10 mb-4" />
+              
+              <div className="drawer-body flex flex-col gap-3 font-times">
+                <p className="text-[11px] font-mono text-gold-core italic leading-relaxed">
+                  "{selectedTrophy.hook || selectedTrophy.desc || selectedTrophy.lore}"
+                </p>
+                
+                <div className="flex flex-col gap-1.5 mt-2">
+                   {selectedTrophy.context && (
+                     <p className="text-[9px] font-mono text-gray-400 uppercase font-bold tracking-[0.2em] border-l border-gray-600 pl-2">
+                       {selectedTrophy.context}
+                     </p>
+                   )}
+                   {selectedTrophy.effortContext && (
+                     <p className="text-[8.5px] font-mono text-gray-500 uppercase tracking-widest pl-2">
+                       {selectedTrophy.effortContext}
+                     </p>
+                   )}
+                   <p className="text-[8.5px] font-mono text-gold-core/40 uppercase mt-2 tracking-widest pl-2">
+                     FORGED: {new Date(selectedTrophy.date || Date.now()).toLocaleDateString()}
+                   </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+ 
     </div>
   );
 }
