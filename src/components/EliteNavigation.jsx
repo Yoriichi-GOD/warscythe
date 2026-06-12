@@ -103,7 +103,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
             <div className="compass-ring-1" />
             <div className="compass-core bg-transparent border-none shadow-none">
                <motion.img 
-                 src="/icon.png" 
+                 src="/command-core.png" 
                  alt="Command Core"
                  className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(197,160,89,0.55)]"
                  animate={{ rotate: 360 }}

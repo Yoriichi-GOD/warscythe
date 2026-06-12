@@ -19,27 +19,6 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
-  
-  // Mobile Sub-Tab Navigation State
-  const [activeSubTab, setActiveSubTab] = useState('strikes');
-  const tabOrder = ['strikes', 'scythe', 'command'];
-
-  const handleDragEnd = (event, info) => {
-    const swipeThreshold = 80;
-    const velocityThreshold = 200;
-    const { offset, velocity } = info;
-
-    if (Math.abs(offset.x) > swipeThreshold || Math.abs(velocity.x) > velocityThreshold) {
-      const currentIndex = tabOrder.indexOf(activeSubTab);
-      if (offset.x < 0 && currentIndex < tabOrder.length - 1) {
-        // Swiped left -> Go next (right tab)
-        setActiveSubTab(tabOrder[currentIndex + 1]);
-      } else if (offset.x > 0 && currentIndex > 0) {
-        // Swiped right -> Go prev (left tab)
-        setActiveSubTab(tabOrder[currentIndex - 1]);
-      }
-    }
-  };
 
   const handleRecalculate = () => {
     if (tasks.length === 0) {
@@ -51,7 +30,6 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     setTimeout(() => {
       tasks.forEach(task => generateMicroSteps(task.id));
       setIsRecalculating(false);
-      setActiveSubTab('strikes'); // Ensure strikes are visible to show success
       setRecalcSuccess(true);
       setTimeout(() => setRecalcSuccess(false), 2000);
     }, 1200);
@@ -96,35 +74,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   ];
 
   return (
-    <div className="operations-page-container">
-      {/* Mobile Sub-Tab Navigation Bar */}
-      <div className="mobile-sub-tabs-bar lg:hidden select-none">
-        {tabOrder.map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveSubTab(tab)}
-            className={`sub-tab-btn ${activeSubTab === tab ? 'active' : ''}`}
-          >
-            <span>
-              {tab === 'strikes' ? 'STRIKES' : tab === 'scythe' ? 'FORGE' : 'COMMAND'}
-            </span>
-            {activeSubTab === tab && (
-              <motion.div layoutId="activeSubTabGlow" className="active-sub-tab-glow" />
-            )}
-          </button>
-        ))}
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.15}
-        onDragEnd={handleDragEnd}
-        className="elite-grid-container mobile-swipe-container"
-      >
-        
-        {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
-        <section className={`elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36 mobile-panel ${activeSubTab === 'strikes' ? 'active' : ''}`}>
+    <div className="elite-grid-container">
+      
+      {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
+      <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
         <div className="flex items-center gap-3 mb-8">
           <Zap size={14} className="text-gold-core" />
           <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
@@ -191,8 +144,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
           </p>
         </button>
       </section>
- 
-      <section className={`elite-panel !p-0 flex !flex-col lg:!flex-row lg:!h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden mobile-panel ${activeSubTab === 'scythe' ? 'active' : ''}`}>
+
+      <section className="elite-panel !p-0 flex !flex-col lg:!flex-row lg:!h-[calc(100vh-160px)] h-auto overflow-visible lg:overflow-hidden">
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="w-full lg:w-64 shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col py-6 lg:py-10 px-6 lg:px-8 bg-black/20">
@@ -206,7 +159,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
               const isUnlocked = idx <= currentStageIndex;
               const isActive = activeDisplayLevel.toUpperCase() === stage.id;
               const isActualLevel = scytheLevel.toUpperCase() === stage.id;
- 
+
               return (
                 <div 
                   key={stage.id} 
@@ -250,7 +203,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             })}
           </div>
         </div>
- 
+
         {/* SCYTHE DISPLAY AREA */}
         <div className="flex-1 relative h-[400px] lg:!h-[calc(100vh-160px)] min-h-0 bg-gradient-to-b from-transparent to-black/40">
            <ScytheDisplay 
@@ -268,16 +221,15 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
            )}
         </div>
       </section>
- 
+
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
-      <aside className={`operations-sidebar custom-scrollbar mobile-panel ${activeSubTab === 'command' ? 'active' : ''}`}>
+      <aside className="operations-sidebar custom-scrollbar">
         <CommandCenter 
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
           onOpenGymLog={onOpenGymLog}
         />
       </aside>
- 
-      </motion.div>
+
     </div>
   );
 }
