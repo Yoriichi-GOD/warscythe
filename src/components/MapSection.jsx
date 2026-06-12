@@ -437,107 +437,105 @@ export default function MapSection({ onTabChange }) {
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
           <div className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-            <div className="map-scroll-content">
-              <AnimatePresence>
-                {showFog && (
-                  <motion.div
-                    initial={{ x: '-100%' }}
-                    animate={{ x: '100%' }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 2, ease: "easeInOut" }}
-                    className="map-fog-overlay-sheet"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      backgroundImage: "url('/maps/map-fog-overlay.png')",
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      zIndex: 100,
-                      pointerEvents: 'none',
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-              <div 
-                className="map-image-layer" 
-                style={{ 
-                  backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
-                  filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
-                }} 
-              />
-              
-              {activeMapIndex > level ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
-                  <motion.img 
-                    src="/maps/map-lock-icon.png" 
-                    alt="Locked Sector" 
-                    className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
-                    animate={{ scale: [1, 1.08, 1] }}
-                    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
-                    [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
-                  </span>
-                </div>
-              ) : (
-                <div className="map-nodes-overlay">
-                  {/* Tactical Connection Paths */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-                    {connections.map((c, i) => {
-                      const fromPos = getNodePos(c.from);
-                      const toPos = getNodePos(c.to);
-                      return (
-                        <line 
-                          key={i}
-                          x1={fromPos.x} 
-                          y1={fromPos.y} 
-                          x2={toPos.x} 
-                          y2={toPos.y} 
-                          className="leyline-path"
-                          strokeWidth={c.thick ? "2.5" : "1.5"} 
-                        />
-                      );
-                    })}
-                  </svg>
-                    
-                  {nodes.map(node => (
-                    <motion.div 
-                      key={node.id} 
-                      className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
-                      style={{ top: node.top, left: node.left }} 
-                      onClick={() => setSelectedNode(node.id)}
-                    >
-                      {node.id === 'boss' && isBossRescued ? (
-                        <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
-                          <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
-                          <img 
-                            src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
-                            alt="Fairy Empress" 
-                            className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
-                            style={{ filter: currentFilter || 'none' }}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <div className={`node-glow ${node.type}`} />
-                          {node.type === 'active' && <div className="current-ping" />}
-                          {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
-                          {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
-                        </>
-                      )}
-                      <span className="node-label font-times font-bold">{node.label}</span>
-                      <div className="node-status font-times">{node.status}</div>
-                    </motion.div>
-                  ))}
-                </div>
+            <AnimatePresence>
+              {showFog && (
+                <motion.div
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
+                  className="map-fog-overlay-sheet"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: "url('/maps/map-fog-overlay.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    zIndex: 100,
+                    pointerEvents: 'none',
+                  }}
+                />
               )}
-            </div>
+            </AnimatePresence>
+            <div 
+              className="map-image-layer" 
+              style={{ 
+                backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
+                filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
+              }} 
+            />
+            
+            {activeMapIndex > level ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
+                <motion.img 
+                  src="/maps/map-lock-icon.png" 
+                  alt="Locked Sector" 
+                  className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
+                  [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
+                </span>
+              </div>
+            ) : (
+              <div className="map-nodes-overlay">
+                {/* Tactical Connection Paths */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+                  {connections.map((c, i) => {
+                    const fromPos = getNodePos(c.from);
+                    const toPos = getNodePos(c.to);
+                    return (
+                      <line 
+                        key={i}
+                        x1={fromPos.x} 
+                        y1={fromPos.y} 
+                        x2={toPos.x} 
+                        y2={toPos.y} 
+                        className="leyline-path"
+                        strokeWidth={c.thick ? "2.5" : "1.5"} 
+                      />
+                    );
+                  })}
+                </svg>
+                  
+                {nodes.map(node => (
+                  <motion.div 
+                    key={node.id} 
+                    className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
+                    style={{ top: node.top, left: node.left }} 
+                    onClick={() => setSelectedNode(node.id)}
+                  >
+                    {node.id === 'boss' && isBossRescued ? (
+                      <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
+                        <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
+                        <img 
+                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                          alt="Fairy Empress" 
+                          className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
+                          style={{ filter: currentFilter || 'none' }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className={`node-glow ${node.type}`} />
+                        {node.type === 'active' && <div className="current-ping" />}
+                        {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
+                        {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                      </>
+                    )}
+                    <span className="node-label font-times font-bold">{node.label}</span>
+                    <div className="node-status font-times">{node.status}</div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="quick-actions-panel elite-panel-ornate">
@@ -1237,11 +1235,6 @@ export default function MapSection({ onTabChange }) {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(197, 160, 89, 0.65);
-        }
-        .map-scroll-content {
-          width: 100%;
-          height: 100%;
-          position: relative;
         }
         .isometric-map-wrapper {
           width: 100%;

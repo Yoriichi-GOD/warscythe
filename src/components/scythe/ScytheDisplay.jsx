@@ -78,7 +78,7 @@ export default function ScytheDisplay({ level = "DORMANT", type = "standard", pw
           object-fit: contain;
           filter: drop-shadow(0 20px 80px rgba(0,0,0,1));
           animation: float-scythe 5s infinite ease-in-out;
-          opacity: 1;
+          opacity: 0;
           transition: opacity 0.5s ease-in-out;
         }
 
@@ -90,6 +90,11 @@ export default function ScytheDisplay({ level = "DORMANT", type = "standard", pw
           50% {
             transform: translateY(-16px) scale(1.025);
           }
+        }
+
+        /* Show image once loaded */
+        .scythe-hero-img[src] {
+          opacity: 1;
         }
 
         .scythe-info-footer {

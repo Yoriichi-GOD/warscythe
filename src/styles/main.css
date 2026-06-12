@@ -98,13 +98,12 @@
 }
 
 @media (max-width: 1023px) {
-  .elite-grid-container {
-    grid-template-columns: 1fr !important;
-  }
   .elite-grid-container > :nth-child(1),
-  .elite-grid-container > :nth-child(2),
+  .elite-grid-container > :nth-child(2) {
+    grid-column: span 2 !important;
+  }
   .elite-grid-container > :nth-child(3) {
-    grid-column: span 1 !important;
+    grid-column: span 2 !important;
   }
 }
 
