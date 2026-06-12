@@ -205,7 +205,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </div>
 
         {/* SCYTHE DISPLAY AREA */}
-        <div className="relative w-full lg:flex-1 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
+        <div className="relative w-full lg:w-auto lg:flex-1 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}

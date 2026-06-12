@@ -90,10 +90,10 @@ export default function Rituals({ onAddTask }) {
         </div>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row h-[360px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
+      <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
         
-        {/* WEAPON EVOLUTION SIDEBAR */}
-        <div className="w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
+        {/* WEAPON EVOLUTION SIDEBAR — Desktop only */}
+        <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
           <div className="mb-6 lg:mb-10">
             <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
             <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
@@ -150,16 +150,22 @@ export default function Rituals({ onAddTask }) {
         </div>
 
         {/* SCYTHE DISPLAY AREA */}
-        <div className="absolute lg:relative inset-0 lg:inset-auto w-full lg:w-auto lg:flex-1 h-full z-0 lg:z-10 pointer-events-none lg:pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-40 lg:opacity-100">
+        <div className="relative w-full lg:w-auto lg:flex-1 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}
              pwr={activeDisplayPwr}
+             evolutionStages={evolutionStages}
+             currentStageIndex={currentStageIndex}
+             scytheLevel={scytheLevel}
+             onSelectStage={(stageId, stagePwr) => setPreview({ level: stageId, type: 'standard', pwr: stagePwr })}
+             onReturnToActive={() => setPreview({ level: null, type: 'standard', pwr: '10' })}
+             previewLevel={preview.level}
            />
            {preview.level && (
              <button 
                onClick={() => setPreview({ level: null, type: 'standard', pwr: '10' })}
-               className="absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30 pointer-events-auto"
+               className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30 pointer-events-auto"
              >
                Return to Active
              </button>
