@@ -8,7 +8,7 @@ export default function ObjectiveRitual({ onClick }) {
         <p className="text-[9px] font-mono text-white tracking-[0.3em] uppercase italic opacity-100">Every task is a strike. Every strike shapes your legend.</p>
       </div>
       
-      <div className="relative flex flex-col items-center justify-center w-full max-w-[400px] mt-[-30px]">
+      <div className="relative flex flex-col items-center justify-center w-full max-w-[400px] mt-[-30px] ritual-platform-container">
         {/* THE RITUAL PLATFORM ASSET */}
         <div className="relative w-full aspect-video flex items-center justify-center">
           <img 
@@ -46,7 +46,7 @@ export default function ObjectiveRitual({ onClick }) {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={onClick}
-          className="mt-[-45px] z-20 cursor-pointer group"
+          className="mt-[-45px] z-20 cursor-pointer group ritual-initiate-btn"
         >
           <div className="bg-black/80 backdrop-blur-xl border border-gold-core/30 px-10 py-2.5 rounded-full group-hover:bg-gold-core transition-all shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-3">
              <div className="w-1 h-1 rounded-full bg-gold-core group-hover:bg-black" />

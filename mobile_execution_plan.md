@@ -1,75 +1,115 @@
-# Refined Mobile Execution Plan: Warscythe Responsive Cockpit
+# Refined Mobile Execution Plan: High-Density Side-by-Side Viewport
 
-This plan outlines the detailed UI/UX adaptations required to translate the high-fidelity desktop dashboard layout into a premium, responsive mobile application for iOS and Android viewports (360px - 480px width) without compromising visual style, map accessibility, or gesture integrity.
+This refined plan outlines how we will execute the **exact visual compositions** from the screenshots directly onto mobile screen sizes (portrait viewports). We will avoid sub-tabs and vertical column-stacking (which causes "dead scrolls") by building a high-density, viewport-proportional grid layout.
 
 ---
 
-## 🧭 1. Header Collapse Specification (Viewports < 640px)
+## 📐 Layout Engine: Viewport-Relative Scaling & High Density
 
-To fit narrow mobile viewports down to `320px` without line wraps or icon crowding, the header layout will collapse using the following strict priorities:
+To fit the complete multi-column compositions onto a single mobile screen without requiring scrolling, we will apply a tight spacing and responsive scaling system:
 
-### Header Button Rules
-- **Hide Redundant Navigation Buttons**: The following header buttons duplicate features already persistently available on the bottom tab bar and will be hidden (`display: none`):
-  - **Tactical Map** (handled by `QUEST MAP` tab)
-  - **Gym log** (handled by `FITNESS` tab)
-  - **Artifact Vault** (handled by `LEDGER` tab)
-- **Keep Critical Core Actions**: Keep only the following three buttons which control global application states:
-  - **Sync status** (`sync-btn` with `RefreshCw`/`AlertCircle`) — Essential for offline-sync diagnostics.
-  - **Account/Auth** (`ShieldCheck`/`Fingerprint`) — Allows authentication check and logout.
-  - **Neural Focus** (`Brain` icon) — Activates full-screen focus overlay from any tab.
+1. **High-Density Spacing & Gaps**:
+   - Reduce default layout gaps on mobile from `gap-8` or `1.5rem` to `gap-2` or `0.5rem`.
+   - Reduce panel paddings from `p-6` or `1.2rem` to `p-2` or `p-3`.
+2. **Proportional Typography**:
+   - Use `clamp()` and relative sizes (`em` / `rem`) for headers and stats so text dynamically shrinks on narrow widths.
+   - Shrunk panel tag headings to `8px` and body text to `9px`.
+3. **Viewport-Height Restrictions**:
+   - Constrain components to max-height percentages of the viewport (`vh`) so they never push content off the bottom of the screen.
 
-### Header Layout Structure (Mobile)
+---
+
+## 📱 Component 1: Operations Tab (Dashboard)
+
+We will preserve the exact desktop layout structure on mobile by creating a compact side-by-side grid of 2-column and 3-column rows:
+
 ```
-+-------------------------------------------------------------+
-| [Core Logo] WARSCYTHE      XP: 2,641     [Sync] [Auth] [Brain] |
-+-------------------------------------------------------------+
++------------------------------------------+
+| WARSCYTHE (Logo & Stats Bar)             |
+| Region Progress [==========]         1/5 |
++------------------------------------------+
+| [ ACTIVE OPERATIONS ] | [ REAPER'S SCY ] | <--- Row 1 (50% / 50% split)
+| - Magic circle        | - Stage list     |
+| - "+ Objective"       | - Scythe display |
++------------------------------------------+
+|            COMMAND CENTER                |
+| [Completions]  [Ratio]  [Fitness Log]    | <--- Row 2 (3-column split)
++------------------------------------------+
+| [ ULTIMATE ART ]  | [ COMPLETION LOG ]   | <--- Row 3 (45% / 55% split)
+| - Cosmic Reaper   | - Strike list        |
++------------------------------------------+
+| Streak Descent [==========]     0/5 DAYS | <--- Row 4 (Full-width bar)
++------------------------------------------+
+|      [OPERATIONS] [FITNESS] [MAP]        | <--- Bottom Sticky Nav
++------------------------------------------+
 ```
-- **Operative Status (Tactician)**: Hidden on viewports `< 480px` to protect horizontal spacing.
-- **XP value**: Shown in a smaller font, positioned next to the logo.
+
+### 1. Row 1: Active Operations & Reaper's Scythe (Side-by-Side)
+- **Active Operations (Left Column)**:
+  - Shrink the glowing magic circle graphic from `350px` to a compact `120px` max-width/height.
+  - Scale down the text and padding of the "+ INITIATE OBJECTIVE" button.
+  - Set the missions list to display in a tight list with maximum height.
+- **Weapon Evolution / Reaper's Scythe (Right Column)**:
+  - Display the animated Scythe alongside the evolution stages inside a single panel.
+  - Hide the stage description text on small screens, showing only the compact title, badge, and locked/unlocked state in a thin list.
+  - Position the active Scythe display as a backdrop overlay behind the stages or as a small centered graphic (max-height `180px`).
+
+### 2. Row 2: Command Center (3-Column Row)
+- **Stats & Fitness Grid**:
+  - Keep the three widgets side-by-side: **Daily Completions** | **Execution Ratio** | **Fitness Logbook**.
+  - Shrink the execution ratio radial dial to `32px` diameter.
+  - Shrink typography for stat values (`6` and `100%`) so they do not overlap.
+  - Convert the Fitness Logbook widget to a compact icon button with minimal padding.
+
+### 3. Row 3: Ultimate Artifact & Completion Log (Side-by-Side)
+- **Ultimate Artifact (Left)**:
+  - Display the Cosmic Reaper image centered inside its card, constrained to a maximum height of `120px`.
+  - Place labels ("Ultimate Artifact", "Cosmic Reaper") in a small font at the top.
+- **Completion Log (Right)**:
+  - Display active strikes in a compact list.
+  - Reduce line item padding, showing only the strike title, percentage, and time remaining in a single-line format.
 
 ---
 
-## 🔀 2. Gesture Resolution: Swipe vs. Tab Navigation
+## 🗺️ Component 2: Quest Map Tab (Campaign Theater)
 
-To prevent gesture collision between horizontal swipe-to-navigate patterns on different hierarchy levels:
+We will adapt the Quest Map screen to a high-density, double-row configuration on mobile viewports:
 
-### Resolution Strategy
-1. **Main Navigation (Bottom Bar)**: Swiping at the bottom nav page-level is **disabled**. Switching between major tabs (Operations, Fitness, Map, Forge...) remains strictly **tap-only**.
-2. **Operations Sub-Tabs (Strikes ↔ Scythe ↔ Stats)**: Horizontal swipe gesture is **exclusively enabled** and bounded within the sub-tab content zone.
+```
++------------------------------------------+
+| CAMPAIGN THEATER // LEVEL 2              |
++------------------------------------------+
+|                                          |
+|          ISOMETRIC MAP VIEWPORT          | <--- Top 40vh (Full-width map)
+|                                          |
++------------------------------------------+
+| [ EXPANSION LOG ]   | [ LEGEND ]         | <--- Row 1 (50% / 50% split)
++------------------------------------------+
+| [ REGION INTEL ]    | [ UPCOMING THREAT] | <--- Row 2 (50% / 50% split)
++------------------------------------------+
+| [ RECOVERED FRAGS ] | [ QUICK ACTIONS ]  | <--- Row 3 (50% / 50% split)
++------------------------------------------+
+```
 
-### Visual & Swipe Affordances
-- **Sub-Tab Pill Bar**: A sliding segmented control is visible at the top of the Operations tab. A gold indicator block slides behind the pills to reflect the swipe progress.
-- **Swipe Zone Bounds**: Uses `framer-motion`'s `<motion.div>` with `drag="x"`. Drag constraints are set to `0` with high drag-resistance (`dragElastic={0.1}`).
-- **Threshold Change**: A swipe triggers a sub-tab transition if the drag distance exceeds `100px` and drag velocity exceeds `200px/s`. If the gesture is released before these limits, the tab snaps back to the active view.
-- **Edge Fades**: A thin, semi-transparent gold gradient overlay (2% opacity) is rendered at the left and right margins of the viewport to hint that further content is swipeable.
+### 1. Map Viewport (Top half)
+- The isometric map layer will occupy the top `40vh` of the screen.
+- Scale nodes and leylines appropriately:
+  - Node hitboxes expanded to `44px` for touch safety.
+  - The node icons (Skull, Lock, and custom avatars) scaled down to fit nicely.
+
+### 2. Details and Logs (Bottom half)
+- **Row 1: Expansion Log & Legend (Side-by-Side)**:
+  - The Legend is rendered in a compact 2-column or 3-column micro grid.
+  - The Expansion Log displays logs in a tight font size (`8px` - `9px`).
+- **Row 2: Region Intel & Upcoming Threat (Side-by-Side)**:
+  - Region Completion dial shrunk to `36px` diameter.
+  - Threat card re-arranged to fit the right column: small dragon thumbnail (`28px` square) next to threat name and threat level details.
+- **Row 3: Recovered Fragments & Quick Actions (Side-by-Side)**:
+  - Recovered fragments box is limited to `80px` height with a tiny scrollbar.
+  - Quick actions (Recalculate Protocol, Deploy Strike Team, Return) rendered as three thin, stacked buttons in the right column.
 
 ---
 
-## 🗺️ 3. Quest Map (Campaign Theater) Mobile Resolution
-
-The isometric map uses a fixed 2D backdrop render with close-together interactive nodes. To ensure perfect usability on a 390px portrait viewport:
-
-### 1. Map Viewport Pan & Zoom
-- **Drag-to-Pan**: Wrap the `isometric-map-wrapper` inside a larger bounding box that supports drag-to-pan (`drag` on both X/Y axes in `framer-motion`) when zoomed.
-- **Zoom Controls**: Position compact gold-bordered `[ + ]` and `[ - ]` toggle buttons in the bottom-right corner of the map viewport. 
-  - Tapping `[ + ]` scales the map scale to `1.6x` using smooth spring animations.
-  - Tapping `[ - ]` snaps the viewport back to fit the mobile screen width (`1x`).
-
-### 2. Tap Disambiguation & Overlap Resolution
-When bounding boxes overlap or multiple nodes sit close to each other (e.g. Basalt Keep ↔ Citadel of Ash ↔ center medallion path):
-- **Euclidean Distance Match**: On a touch event, calculate the exact Euclidean distance from the touch coordinate (`e.clientX`, `e.clientY`) to the absolute center of all rendering nodes on screen. The closest node is selected.
-- **Node Priority Rules**: If the distance calculation results in a tie (equidistant tap), resolve targets by the following priority hierarchy:
-  1. **Active / In-Progress Node** (e.g., node containing active strikes)
-  2. **Unlocked / Secured Node**
-  3. **Locked Node** (lowest priority)
-- **Node Scale-Up**: On mobile devices, double the hit-test radius of the central glowing circles from `8px`/`12px` to `18px` (while keeping the visual circle small), wrapped in a `44px` transparent clickable container.
-
-### 3. Bottom Sheet Drawer
-- Clicking a resolved node triggers a **slide-up bottom sheet** that covers the lower 40% of the viewport. This keeps the active node visible in the top 60% of the map view for navigation context.
-
----
-
-## 🛠️ Verification & Testing
-- Test layouts on simulated portrait widths: iPhone SE (375px), iPhone 13 Pro (390px), and Galaxy S20 (360px).
-- Verify gesture boundaries to ensure dragging inside scroll lists (e.g., Completion log) does not trigger horizontal sub-tab changes.
-- Ensure the map panning bounding constraints prevent the user from dragging the map off-screen.
+## 🧭 Navigation & Safe Areas
+- Keep the bottom tab navigation sticky, using `pb-[safe-area-bottom]` to clear phone bezels.
+- Shrink the center winged medallion core to `56px` diameter to allow enough horizontal space for the surrounding tab labels.

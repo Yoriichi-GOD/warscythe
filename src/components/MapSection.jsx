@@ -612,9 +612,10 @@ export default function MapSection({ onTabChange }) {
                  </p>
                </div>
             </div>
- 
-            {isBossRescued ? (
-              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem', border: '1px solid rgba(236, 200, 128, 0.25)', background: 'rgba(236, 200, 128, 0.04)' }}>
+          </div>
+
+          {isBossRescued ? (
+              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', border: '1px solid rgba(236, 200, 128, 0.25)', background: 'rgba(236, 200, 128, 0.04)' }}>
                 <div className="corner-ornament corner-tl" style={{ borderColor: '#ecc880' }} />
                 <div className="corner-ornament corner-tr" style={{ borderColor: '#ecc880' }} />
                 <div className="corner-ornament corner-bl" style={{ borderColor: '#ecc880' }} />
@@ -642,7 +643,6 @@ export default function MapSection({ onTabChange }) {
                 className="upcoming-threat elite-panel-ornate" 
                 style={{ 
                   padding: '1.2rem', 
-                  marginTop: '1.5rem', 
                   border: activeMapIndex > level ? '1px solid rgba(100, 116, 139, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)', 
                   background: activeMapIndex > level ? 'rgba(100, 116, 139, 0.02)' : 'rgba(239, 68, 68, 0.04)' 
                 }}
@@ -715,7 +715,7 @@ export default function MapSection({ onTabChange }) {
               </div>
             )}
  
-            <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem', marginTop: '1.5rem' }}>
+            <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem' }}>
                <div className="corner-ornament corner-tl" />
                <div className="corner-ornament corner-tr" />
                <div className="corner-ornament corner-bl" />
@@ -745,7 +745,6 @@ export default function MapSection({ onTabChange }) {
                  <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
                </button>
             </div>
-          </div>
         </aside>
 
       </div>
@@ -1035,6 +1034,77 @@ export default function MapSection({ onTabChange }) {
           margin-bottom: 100px;
           z-index: 10;
           position: relative;
+        }
+
+        @media (max-width: 1023px) {
+          .campaign-aside.left,
+          .map-viewport-container,
+          .campaign-aside.right {
+            display: contents !important;
+          }
+
+          .campaign-content {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.4rem !important;
+            margin-bottom: 90px !important;
+          }
+
+          /* 1. Map Viewport -> Row 1, Full Width */
+          .isometric-map-wrapper {
+            grid-row: 1 !important;
+            grid-column: span 2 !important;
+            height: 35vh !important;
+            aspect-ratio: 16 / 10 !important;
+          }
+
+          /* 2. Expansion Log -> Row 2, Left */
+          .expansion-log-panel {
+            grid-row: 2 !important;
+            grid-column: 1 !important;
+          }
+
+          /* 3. Legend -> Row 2, Right */
+          .legend-panel {
+            grid-row: 2 !important;
+            grid-column: 2 !important;
+          }
+
+          /* 4. Region Intel Panel -> Row 3, Left */
+          .region-intel-panel {
+            grid-row: 3 !important;
+            grid-column: 1 !important;
+          }
+
+          /* 5. Upcoming Threat Panel -> Row 3, Right */
+          .upcoming-threat {
+            grid-row: 3 !important;
+            grid-column: 2 !important;
+          }
+
+          /* 6. Recovered Fragments Panel -> Row 4, Left */
+          .recovered-fragments {
+            grid-row: 4 !important;
+            grid-column: 1 !important;
+          }
+
+          /* 7. Quick Actions Panel -> Row 4, Right */
+          .quick-actions-panel {
+            grid-row: 4 !important;
+            grid-column: 2 !important;
+          }
+        }
+
+        .upcoming-threat,
+        .recovered-fragments {
+          margin-top: 1.5rem;
+        }
+
+        @media (max-width: 1023px) {
+          .upcoming-threat,
+          .recovered-fragments {
+            margin-top: 0 !important;
+          }
         }
 
         @media (min-width: 1024px) {
