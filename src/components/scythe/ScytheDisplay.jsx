@@ -76,7 +76,7 @@ export default function ScytheDisplay({
       </div>
 
       {/* 🗡️ HEARTBEAT LEVITATION (HERO SCALING) */}
-      <div className="scythe-image-wrapper flex-1">
+      <div className="scythe-image-wrapper">
         <img
           key={`${type}-${safeLevel}`}
           src={imagePath}
@@ -179,6 +179,8 @@ export default function ScytheDisplay({
           .scythe-image-wrapper {
             padding-top: 4.5rem;
             padding-bottom: 7.5rem;
+            height: auto;
+            flex: 1;
           }
         }
 
