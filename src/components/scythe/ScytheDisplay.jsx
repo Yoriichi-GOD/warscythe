@@ -139,13 +139,12 @@ export default function ScytheDisplay({
 
       <style jsx>{`
         .scythe-display-container {
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          inset: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          position: relative;
           overflow: hidden;
         }
 
