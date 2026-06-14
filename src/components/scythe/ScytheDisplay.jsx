@@ -173,6 +173,8 @@ export default function ScytheDisplay({
           justify-content: center;
           padding: 1.5rem;
           z-index: 10;
+          flex: 1;
+          min-height: 0;
         }
 
         @media (max-width: 1023px) {
