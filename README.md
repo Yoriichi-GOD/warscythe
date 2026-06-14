@@ -31,3 +31,9 @@ VITE_SUPABASE_ANON_KEY=...
 VITE_POSTHOG_KEY=...
 VITE_POSTHOG_HOST=https://app.posthog.com
 ```
+
+## 📐 Layout Coupling & Magic Numbers
+
+To prevent layout collapse arising from indefinite CSS Grid/Flexbox height calculations on desktop browsers, the Scythe display area utilizes absolute positioning on desktop viewports. This creates a specific layout coupling:
+
+* **Sidebar Width & Offset Coupling**: In both [Operations.jsx](file:///c:/Users/saart/.gemini/antigravity-ide/scratch/warlord/src/pages/Operations.jsx) and [Rituals.jsx](file:///c:/Users/saart/.gemini/antigravity-ide/scratch/warlord/src/pages/Rituals.jsx), the Scythe display area wrapper is styled with the class `lg:left-64`. This offsets the container by exactly `256px` from the left edge of the page, matching the width of the Weapon Evolution sidebar, which is styled with `lg:w-64` (`256px`). If the sidebar's width is ever altered, this absolute offset class must be updated to match.
