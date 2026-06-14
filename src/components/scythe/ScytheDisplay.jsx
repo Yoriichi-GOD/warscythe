@@ -25,7 +25,20 @@ export default function ScytheDisplay({
   const isActualLevel = scytheLevel.toUpperCase() === safeLevel;
 
   return (
-    <div className="scythe-display-container">
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
       {/* GOLDEN AMBIENT AURA */}
       <div className="scythe-aura" />
 
@@ -76,12 +89,30 @@ export default function ScytheDisplay({
       </div>
 
       {/* 🗡️ HEARTBEAT LEVITATION (HERO SCALING) */}
-      <div className="scythe-image-wrapper">
+      <div
+        style={{
+          flex: 1,
+          width: '100%',
+          minHeight: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem',
+          zIndex: 10,
+        }}
+        className="scythe-image-wrapper-mobile"
+      >
         <img
           key={`${type}-${safeLevel}`}
           src={imagePath}
           alt={`${safeLevel} Scythe`}
           className="scythe-hero-img"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 20px 80px rgba(0,0,0,1))',
+          }}
           onError={(e) => { 
             e.target.onerror = null; // Prevent infinite loop
             e.target.src = '/scythe/DORMANT.png'; 
@@ -138,16 +169,6 @@ export default function ScytheDisplay({
       </div>
 
       <style jsx>{`
-        .scythe-display-container {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-        }
-
         .scythe-aura {
           position: absolute;
           width: 24rem;
@@ -164,34 +185,8 @@ export default function ScytheDisplay({
           50% { transform: scale(1.2); opacity: 0.9; }
         }
 
-        .scythe-image-wrapper {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1.5rem;
-          z-index: 10;
-          flex: 1;
-          min-height: 0;
-        }
-
-        @media (max-width: 1023px) {
-          .scythe-image-wrapper {
-            padding-top: 4.5rem;
-            padding-bottom: 7.5rem;
-            height: auto;
-            flex: 1;
-          }
-        }
-
         .scythe-hero-img {
-          max-width: 100%;
-          max-height: 100%;
-          object-fit: contain;
-          filter: drop-shadow(0 20px 80px rgba(0,0,0,1));
           animation: float-scythe 5s infinite ease-in-out;
-          opacity: 1;
         }
 
         /* Float animation */
@@ -201,6 +196,14 @@ export default function ScytheDisplay({
           }
           50% {
             transform: translateY(-16px) scale(1.025);
+          }
+        }
+
+        /* Mobile padding adjustments */
+        @media (max-width: 1023px) {
+          .scythe-image-wrapper-mobile {
+            padding-top: 4.5rem !important;
+            padding-bottom: 7.5rem !important;
           }
         }
 
