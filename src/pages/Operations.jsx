@@ -207,7 +207,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         {/* SCYTHE DISPLAY AREA */}
         {/* NOTE: lg:left-64 is coupled to the Weapon Evolution Sidebar's width (lg:w-64 = 256px). */}
         {/* If the sidebar width changes, this offset MUST be adjusted to match. */}
-        <div className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
+        <div className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}
