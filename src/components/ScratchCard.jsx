@@ -122,14 +122,20 @@ export default function ScratchCard({ data, onClose }) {
       doScratch(x, y);
     };
 
+    const handleTouchMove = (e) => { e.preventDefault(); handleMove(e); };
+
     canvas.addEventListener('mousedown', handleStart);
     canvas.addEventListener('touchstart', handleStart);
     window.addEventListener('mouseup', handleEnd);
     window.addEventListener('touchend', handleEnd);
     canvas.addEventListener('mousemove', handleMove);
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
+      canvas.removeEventListener('mousedown', handleStart);
+      canvas.removeEventListener('touchstart', handleStart);
+      canvas.removeEventListener('mousemove', handleMove);
+      canvas.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchend', handleEnd);
     };

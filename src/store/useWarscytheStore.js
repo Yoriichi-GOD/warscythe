@@ -675,10 +675,12 @@ export const useWarscytheStore = create(
         if (taskIdx === -1) return;
 
         const task = { ...state.tasks[taskIdx] };
+        // Capture stall state BEFORE setting progress to 100
+        const wasStalled = task.progress >= 80 && task.progress < 95 && !!task.stalledAt;
         task.progress = 100;
         task.completedAt = new Date().toISOString();
 
-        const isStalled = task.progress >= 80 && task.progress < 95 && task.stalledAt;
+        const isStalled = wasStalled;
         const consecutiveLow = task.effort === 'Low' ? state.consecutiveLow + 1 : 0;
         const isFarming = consecutiveLow >= 3;
 

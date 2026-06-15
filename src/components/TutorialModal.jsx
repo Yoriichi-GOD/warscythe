@@ -5,12 +5,10 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import RegionFlashScreen from './RegionFlashScreen';
 
 export default function TutorialModal() {
-  const { 
-    hasCompletedTutorial, 
-    tutorialStep, 
-    setTutorialStep, 
-    completeTutorial 
-  } = useWarscytheStore();
+  const hasCompletedTutorial = useWarscytheStore(state => state.hasCompletedTutorial);
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+  const completeTutorial = useWarscytheStore(state => state.completeTutorial);
 
   const [introStage, setIntroStage] = useState(1);
 
