@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
 import { triggerHaptics, scheduleStreakAlert } from '../utils/nativeTriggers';
+import { Capacitor } from '@capacitor/core';
 import {
   REGIONS, TITLES, LORE_TEMPLATES, BASE_ARTIFACTS,
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
@@ -10,6 +11,13 @@ import {
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const todayKey = () => new Date().toISOString().slice(0, 10);
+
+const getRedirectUrl = () => {
+  if (Capacitor.isNativePlatform()) {
+    return 'warscythe://login-callback';
+  }
+  return window.location.origin;
+};
 
 let isSyncingFromServer = false;
 let lastState = null;
@@ -289,7 +297,7 @@ export const useWarscytheStore = create(
           email, 
           password,
           options: {
-            emailRedirectTo: window.location.origin
+            emailRedirectTo: getRedirectUrl()
           }
         });
         if (error) throw error;
@@ -305,7 +313,7 @@ export const useWarscytheStore = create(
 
       sendPasswordResetEmail: async (email) => {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin
+          redirectTo: getRedirectUrl()
         });
         if (error) throw error;
       },
@@ -343,7 +351,7 @@ export const useWarscytheStore = create(
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: window.location.origin
+            redirectTo: getRedirectUrl()
           }
         });
         if (error) throw error;

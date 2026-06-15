@@ -1,34 +1,28 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap, Phone, ArrowLeft, AlertCircle } from 'lucide-react';
+import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function AuthModal({ onClose, isMandatory = false }) {
   const user = useWarscytheStore(state => state.user);
   
-  // States: 'options', 'email_login', 'email_signup', 'forgot_password', 'phone_auth', 'phone_verify'
+  // States: 'options', 'email_login', 'email_signup', 'forgot_password'
   const [activeScreen, setActiveScreen] = useState('options');
   const [registered, setRegistered] = useState(false); // Email verification state
   
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otpToken, setOtpToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
   const signIn = useWarscytheStore(state => state.signIn);
   const signUp = useWarscytheStore(state => state.signUp);
   const sendPasswordResetEmail = useWarscytheStore(state => state.sendPasswordResetEmail);
-  const sendPhoneOtp = useWarscytheStore(state => state.sendPhoneOtp);
-  const verifyPhoneOtp = useWarscytheStore(state => state.verifyPhoneOtp);
   const signInWithProvider = useWarscytheStore(state => state.signInWithProvider);
 
   const handleBack = () => {
     setError(null);
-    if (activeScreen === 'phone_verify') {
-      setActiveScreen('phone_auth');
-    } else if (activeScreen === 'forgot_password') {
+    if (activeScreen === 'forgot_password') {
       setActiveScreen('email_login');
     } else {
       setActiveScreen('options');
@@ -78,34 +72,6 @@ export default function AuthModal({ onClose, isMandatory = false }) {
     }
   };
 
-  const handlePhoneAuthSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      await sendPhoneOtp(phone);
-      setActiveScreen('phone_verify');
-    } catch (err) {
-      setError(err.message || 'Failed to dispatch OTP code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePhoneVerifySubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      await verifyPhoneOtp(phone, otpToken);
-      if (onClose) onClose();
-    } catch (err) {
-      setError(err.message || 'OTP Verification Failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleOAuthLogin = async (provider) => {
     setLoading(true);
     setError(null);
@@ -125,10 +91,6 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         return { title: 'CREATE PROFILE', sub: 'REGISTER NEW OPERATIVE ID' };
       case 'forgot_password':
         return { title: 'RECOVER IDENTITY', sub: 'REQUEST PASSWORD RESET LINK' };
-      case 'phone_auth':
-        return { title: 'PHONE ENTRY', sub: 'VERIFY SECURE OTP ACCESS' };
-      case 'phone_verify':
-        return { title: 'CONFIRM CODE', sub: 'ENTER THE PASSCODE SENT TO DEVICE' };
       default:
         return { title: 'WARSCYTHE LINK', sub: user ? 'RE-AUTHENTICATE OPERATIVE PROFILE' : 'CHOOSE YOUR PATH OF ENTRY' };
     }
@@ -232,16 +194,6 @@ export default function AuthModal({ onClose, isMandatory = false }) {
                     <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 3.1 9.94 6.78 6.44c1.78-1.7 3.75-1.58 4.88-.95 1.48.82 2.16.8 3.18 0 1.04-.82 2.85-.92 4.36.48 3.32 2.76 2.5 8.7-2.15 14.31zm-1.87-16.1c.42-.48.66-1.12.56-1.76-.56.02-1.24.34-1.68.84-.4.46-.66 1.1-.56 1.74.62.06 1.26-.26 1.68-.82z"/>
                   </svg>
                   <span>Continue with Apple</span>
-                </button>
-
-                {/* Phone Button */}
-                <button 
-                  className="auth-option-btn phone"
-                  onClick={() => setActiveScreen('phone_auth')}
-                  disabled={loading}
-                >
-                  <Phone size={16} className="auth-btn-icon" />
-                  <span>Continue with Phone</span>
                 </button>
 
                 {/* Email Button */}
@@ -378,54 +330,6 @@ export default function AuthModal({ onClose, isMandatory = false }) {
                 </button>
               </form>
             )}
-
-            {activeScreen === 'phone_auth' && (
-              <form onSubmit={handlePhoneAuthSubmit} className="auth-form">
-                <p className="auth-instruction-text">
-                  Enter your phone number (with country code, e.g., +15550199) to receive a secure OTP code.
-                </p>
-
-                <div className="auth-input-group">
-                  <Phone size={16} />
-                  <input 
-                    type="tel" 
-                    placeholder="Phone number (e.g. +1234567890)" 
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    required 
-                    disabled={loading}
-                  />
-                </div>
-
-                <button type="submit" className="auth-submit-btn" disabled={loading}>
-                  {loading ? 'DISPATCHING...' : 'SEND PASSCODE'}
-                </button>
-              </form>
-            )}
-
-            {activeScreen === 'phone_verify' && (
-              <form onSubmit={handlePhoneVerifySubmit} className="auth-form">
-                <p className="auth-instruction-text">
-                  A verification passcode has been dispatched to <strong>{phone}</strong>. Enter it below to unlock entry.
-                </p>
-
-                <div className="auth-input-group">
-                  <ShieldCheck size={16} />
-                  <input 
-                    type="text" 
-                    placeholder="Enter 6-digit OTP" 
-                    value={otpToken}
-                    onChange={e => setOtpToken(e.target.value)}
-                    required 
-                    disabled={loading}
-                  />
-                </div>
-
-                <button type="submit" className="auth-submit-btn" disabled={loading}>
-                  {loading ? 'VERIFYING...' : 'VERIFY & ENTER'}
-                </button>
-              </form>
-            )}
           </>
         )}
 
@@ -434,6 +338,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
           <span>ENCRYPTED BY WARSCYTHE-X64</span>
         </div>
       </motion.div>
+
 
       <style jsx>{`
         .auth-backdrop { 
