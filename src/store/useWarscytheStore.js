@@ -709,6 +709,10 @@ export const useWarscytheStore = create(
         const totalPts = basePts + reward.bonusPts;
         const newXP = state.xp + totalPts;
 
+        // Determine if this is a tutorial task BEFORE using it below
+        const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
+        task.isTutorialTask = isTutorialTask;
+
         // Daily Points and Daily-based Scythe Level Reset
         const dailyPoints = isTutorialTask ? state.dailyPoints : state.dailyPoints + totalPts;
         let newScytheLevel = "DORMANT";
@@ -730,8 +734,6 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
-        task.isTutorialTask = isTutorialTask;
         const newTotalCompletions = isTutorialTask ? state.totalCompletions : state.totalCompletions + 1;
         const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
         const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
