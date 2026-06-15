@@ -9,6 +9,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
   // States: 'options', 'email_login', 'email_signup', 'forgot_password', 'reset_password'
   const [activeScreen, setActiveScreen] = useState(initialScreen);
   const [registered, setRegistered] = useState(false); // Email verification state
+  const [termsAccepted, setTermsAccepted] = useState(false); // Compliance agreement check
   
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
@@ -176,7 +177,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                 <button 
                   className="auth-option-btn google"
                   onClick={() => handleOAuthLogin('google')}
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                 >
                   <svg className="auth-btn-icon" viewBox="0 0 24 24" width="16" height="16">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -191,7 +192,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                 <button 
                   className="auth-option-btn apple"
                   onClick={() => handleOAuthLogin('apple')}
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                 >
                   <svg className="auth-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                     <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 3.1 9.94 6.78 6.44c1.78-1.7 3.75-1.58 4.88-.95 1.48.82 2.16.8 3.18 0 1.04-.82 2.85-.92 4.36.48 3.32 2.76 2.5 8.7-2.15 14.31zm-1.87-16.1c.42-.48.66-1.12.56-1.76-.56.02-1.24.34-1.68.84-.4.46-.66 1.1-.56 1.74.62.06 1.26-.26 1.68-.82z"/>
@@ -203,25 +204,35 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                 <button 
                   className="auth-option-btn email"
                   onClick={() => setActiveScreen('email_login')}
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                 >
                   <Mail size={16} className="auth-btn-icon" />
                   <span>Continue with Email</span>
                 </button>
 
-                <div className="auth-disclaimer">
-                  By continuing, you agree to our{' '}
-                  <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-                  {' '}and{' '}
-                  <a 
-                    href="#" 
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); 
-                    }}
-                  >
-                    Terms & Conditions
-                  </a>.
+                <div className="auth-disclaimer-container">
+                  <label className="auth-disclaimer-label">
+                    <input 
+                      type="checkbox" 
+                      checked={termsAccepted} 
+                      onChange={e => setTermsAccepted(e.target.checked)}
+                      className="auth-terms-checkbox"
+                    />
+                    <span className="auth-disclaimer-text">
+                      By continuing, you agree to our{' '}
+                      <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                      {' '}and{' '}
+                      <a 
+                        href="#" 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); 
+                        }}
+                      >
+                        Terms & Conditions
+                      </a>.
+                    </span>
+                  </label>
                 </div>
               </div>
             )}
@@ -664,6 +675,59 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           letter-spacing: 0.15em;
           font-family: 'JetBrains Mono', monospace;
           text-transform: uppercase;
+        }
+
+        .auth-option-btn:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          transform: none !important;
+          box-shadow: none !important;
+          border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-disclaimer-container {
+          margin-top: 1.5rem;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          text-align: left;
+        }
+
+        .auth-disclaimer-label {
+          display: flex;
+          gap: 0.65rem;
+          align-items: flex-start;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .auth-terms-checkbox {
+          accent-color: #c5a059;
+          margin-top: 0.15rem;
+          cursor: pointer;
+          width: 14px;
+          height: 14px;
+          border: 1px solid rgba(197, 160, 89, 0.35);
+          background: rgba(0, 0, 0, 0.5);
+          flex-shrink: 0;
+        }
+
+        .auth-disclaimer-text {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.6rem;
+          color: #6b7280;
+          line-height: 1.4;
+          letter-spacing: 0.02em;
+        }
+
+        .auth-disclaimer-text a {
+          color: #9ca3af;
+          text-decoration: underline;
+          transition: color 0.2s;
+        }
+
+        .auth-disclaimer-text a:hover {
+          color: #c5a059;
         }
       `}</style>
     </div>
