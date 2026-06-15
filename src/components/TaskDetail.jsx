@@ -69,7 +69,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
               <span className="td-category">{task.category}</span>
               {task.priority && task.priority !== 'none' && (
                 <span className={`priority-badge priority-${task.priority}`}>
-                  {task.priority.toUpperCase()} PRIORITY
+                  {(task.priority || '').toUpperCase()} PRIORITY
                 </span>
               )}
             </div>

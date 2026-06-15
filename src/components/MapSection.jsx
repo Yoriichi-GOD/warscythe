@@ -100,7 +100,8 @@ const getDragonAsset = (lvl) => {
     'wyrm', 'lava', 'frost', 'shadow', 'wyvern', 
     'celestial', 'skeletal', 'storm', 'abyssal', 'ancient'
   ];
-  const type = dragonTypes[(lvl - 1) % dragonTypes.length];
+  const idx = Math.max(0, lvl - 1) % dragonTypes.length;
+  const type = dragonTypes[idx];
   return `/dragons/dragon-${type}.png`;
 };
 
@@ -110,7 +111,8 @@ const getDragonName = (lvl) => {
     'Ignarax the Burning', 'Sol-Varen the Radiant', 'Duskbone Revenant', 'Thundercoil Zarak', 
     'Nyxara the Void', 'Gorvek the Ancient'
   ];
-  return dragonNames[(lvl - 1) % dragonNames.length];
+  const idx = Math.max(0, lvl - 1) % dragonNames.length;
+  return dragonNames[idx];
 };
 
 const getNodeBanner = (nodeId) => {
@@ -221,19 +223,19 @@ export default function MapSection({ onTabChange }) {
     { 
       id: 1, 
       type: 'scout', 
-      text: `SCOUTED SECTOR: ${nextRegion ? nextRegion.name.toUpperCase() : 'UNKNOWN REACH'}`, 
+      text: `SCOUTED SECTOR: ${nextRegion ? (nextRegion.name || '').toUpperCase() : 'UNKNOWN REACH'}`, 
       time: 'Locked' 
     },
     { 
       id: 2, 
       type: 'secure', 
-      text: `CURRENT AREA: ${currentRegion ? currentRegion.name.toUpperCase() : 'THE THRESHOLD'} (STRIKE ACTIVE)`, 
+      text: `CURRENT AREA: ${currentRegion ? (currentRegion.name || '').toUpperCase() : 'THE THRESHOLD'} (STRIKE ACTIVE)`, 
       time: 'In Progress' 
     },
     ...(lastRegion ? [{ 
       id: 3, 
       type: 'intel', 
-      text: `SECURED CAMPAIGN: ${lastRegion.name.toUpperCase()}`, 
+      text: `SECURED CAMPAIGN: ${(lastRegion.name || '').toUpperCase()}`, 
       time: 'Secured' 
     }] : [{
       id: 3,
@@ -300,11 +302,11 @@ export default function MapSection({ onTabChange }) {
   };
 
   const nodes = [
-    { id: 'stone', label: nodeInfo('stone').name.toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
-    { id: 'ashendale', label: nodeInfo('ashendale').name.toUpperCase(), top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
-    { id: 'castle', label: nodeInfo('castle').name.toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
-    { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : nodeInfo('jail').name.toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'IN PROGRESS', type: isBossRescued ? 'secured' : 'active' },
-    { id: 'boss', label: isBossRescued ? "EMPRESS' ABODE" : nodeInfo('boss').name.toUpperCase(), top: '15%', left: '50%', status: isBossRescued ? 'SECURED' : 'FINAL OBJECTIVE', type: 'boss' }
+    { id: 'stone', label: (nodeInfo('stone')?.name || '').toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
+    { id: 'ashendale', label: (nodeInfo('ashendale')?.name || '').toUpperCase(), top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
+    { id: 'castle', label: (nodeInfo('castle')?.name || '').toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
+    { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : (nodeInfo('jail')?.name || '').toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'IN PROGRESS', type: isBossRescued ? 'secured' : 'active' },
+    { id: 'boss', label: isBossRescued ? "EMPRESS' ABODE" : (nodeInfo('boss')?.name || '').toUpperCase(), top: '15%', left: '50%', status: isBossRescued ? 'SECURED' : 'FINAL OBJECTIVE', type: 'boss' }
   ];
 
   const connections = [
@@ -630,7 +632,7 @@ export default function MapSection({ onTabChange }) {
                     style={{ filter: `${currentFilter} drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))` }}
                   />
                   <div className="threat-info">
-                    <h5 className="text-gold-core font-bold">EMPRESS OF {displayRegion.name.toUpperCase()}</h5>
+                    <h5 className="text-gold-core font-bold">EMPRESS OF {(displayRegion?.name || '').toUpperCase()}</h5>
                     <p className="text-gray-400">Liberated via Operation: <strong>{rescuedFairyInfo.taskTitle}</strong></p>
                   </div>
                 </div>
@@ -685,7 +687,7 @@ export default function MapSection({ onTabChange }) {
                   </div>
                   <div className="threat-info">
                     <h5 className={activeMapIndex > level ? "text-gray-500 font-bold" : "text-red-500 font-bold"}>
-                      {activeMapIndex > level ? "THREAT LOCKED" : getDragonName(activeMapIndex).toUpperCase()}
+                      {activeMapIndex > level ? "THREAT LOCKED" : (getDragonName(activeMapIndex) || '').toUpperCase()}
                     </h5>
                     <p className="text-gray-400">
                       {activeMapIndex > level 
@@ -779,7 +781,7 @@ export default function MapSection({ onTabChange }) {
                 <div className="intel-content font-times">
                   <div className="intel-header">
                     <span className="node-badge secured">SECURED</span>
-                    <h3>{nodeInfo('castle').name.toUpperCase()}</h3>
+                    <h3>{(nodeInfo('castle')?.name || '').toUpperCase()}</h3>
                   </div>
                   <div className="modal-banner" style={bannerStyle('castle')} />
                   <p className="intel-desc">{nodeInfo('castle').desc}</p>
@@ -794,7 +796,7 @@ export default function MapSection({ onTabChange }) {
                 <div className="intel-content font-times">
                   <div className="intel-header">
                     <span className="node-badge secured">SECURED</span>
-                    <h3>{nodeInfo('ashendale').name.toUpperCase()}</h3>
+                    <h3>{(nodeInfo('ashendale')?.name || '').toUpperCase()}</h3>
                   </div>
                   <div className="modal-banner" style={bannerStyle('ashendale')} />
                   <p className="intel-desc">{nodeInfo('ashendale').desc}</p>
@@ -810,7 +812,7 @@ export default function MapSection({ onTabChange }) {
                   <div className="intel-content font-times">
                     <div className="intel-header">
                       <span className="node-badge secured" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #10b981', color: '#10b981' }}>JAIL DECRYPTED</span>
-                      <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                      <h3>{(nodeInfo('jail')?.name || '').toUpperCase()}</h3>
                     </div>
                     <div className="flex flex-col items-center gap-4 my-2">
                       <div className="w-48 h-48 rounded border border-emerald-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(16,185,129,0.25)] flex items-center justify-center bg-black/40">
@@ -838,7 +840,7 @@ export default function MapSection({ onTabChange }) {
                   <div className="intel-content font-times">
                     <div className="intel-header">
                       <span className="node-badge locked" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444' }}>IMPRISONED SOVEREIGN</span>
-                      <h3>{nodeInfo('jail').name.toUpperCase()}</h3>
+                      <h3>{(nodeInfo('jail')?.name || '').toUpperCase()}</h3>
                     </div>
                     <div className="threat-profile">
                       <div 
@@ -874,7 +876,7 @@ export default function MapSection({ onTabChange }) {
                 <div className="intel-content font-times">
                   <div className="intel-header">
                     <span className="node-badge locked">LOCKED</span>
-                    <h3>{nodeInfo('stone').name.toUpperCase()}</h3>
+                    <h3>{(nodeInfo('stone')?.name || '').toUpperCase()}</h3>
                   </div>
                   <div className="modal-banner" style={bannerStyle('stone')} />
                   <p className="intel-desc">{nodeInfo('stone').desc}</p>
@@ -920,14 +922,14 @@ export default function MapSection({ onTabChange }) {
                     </div>
                     <div className="intel-stats font-mono mt-3">
                       <div><span>FAIRY STATUS</span><span className="text-emerald-400 font-bold">RESCUED & ACTIVE</span></div>
-                      <div><span>REGION SECURED</span><span className="text-gold-core font-bold">{displayRegion.name.toUpperCase()}</span></div>
+                      <div><span>REGION SECURED</span><span className="text-gold-core font-bold">{(displayRegion?.name || '').toUpperCase()}</span></div>
                     </div>
                   </div>
                 ) : (
                   <div className="intel-content font-times">
                     <div className="intel-header">
                       <span className="node-badge boss-badge">BOSS RAID</span>
-                      <h3>{nodeInfo('boss').name.toUpperCase()}</h3>
+                      <h3>{(nodeInfo('boss')?.name || '').toUpperCase()}</h3>
                     </div>
                     <div className="threat-profile">
                       <div className="threat-avatar" style={{ backgroundImage: `url('${getDragonAsset(activeMapIndex)}')`, width: '100%', aspectRatio: '1.2 / 1', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.08)' }} />
@@ -949,7 +951,7 @@ export default function MapSection({ onTabChange }) {
                       </div>
                       <div>
                         <span className="flex items-center text-white/50"><Trophy size={12} className="text-gold-core mr-2" /> REWARD ELITE</span>
-                        <span className="text-gold-bright font-bold">CREST OF {displayRegion.name.toUpperCase()}</span>
+                        <span className="text-gold-bright font-bold">CREST OF {(displayRegion?.name || '').toUpperCase()}</span>
                       </div>
                     </div>
                     <button 

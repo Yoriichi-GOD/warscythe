@@ -42,11 +42,12 @@ const DRAGON_NAMES = [
 
 export default function RegionFlashScreen({ type, regionData, onClose }) {
   const { mapIndex = 1, taskTitle = '' } = regionData || {};
-  const regionName = REGIONS?.[mapIndex - 1]?.name || `Region ${mapIndex}`;
-  const palette = REGION_COLORS[mapIndex] || REGION_COLORS[1];
-  const dragonType = DRAGON_TYPES[(mapIndex - 1) % DRAGON_TYPES.length];
-  const dragonName = DRAGON_NAMES[(mapIndex - 1) % DRAGON_NAMES.length];
-  const empressName = EMPRESS_NAMES[mapIndex] || `Empress of ${regionName}`;
+  const safeMapIndex = Math.max(1, mapIndex);
+  const regionName = REGIONS?.[safeMapIndex - 1]?.name || `Region ${safeMapIndex}`;
+  const palette = REGION_COLORS[safeMapIndex] || REGION_COLORS[1];
+  const dragonType = DRAGON_TYPES[(safeMapIndex - 1) % DRAGON_TYPES.length];
+  const dragonName = DRAGON_NAMES[(safeMapIndex - 1) % DRAGON_NAMES.length];
+  const empressName = EMPRESS_NAMES[safeMapIndex] || `Empress of ${regionName}`;
 
   const isVictory = type === 'victory';
 
@@ -59,23 +60,23 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
   // Mobile:  [DRAGON]  top  /  [CAGED FAIRY]  bottom
 
   const leftPanel = isVictory
-    ? { src: `/fairies/empress-${mapIndex}-liberated.png`, label: 'LIBERATED', filter: 'none', glow: palette.glow }
+    ? { src: `/fairies/empress-${safeMapIndex}-liberated.png`, label: 'LIBERATED', filter: 'none', glow: palette.glow }
     : { src: `/dragons/dragon-${dragonType}.png`,          label: 'THREAT',    filter: 'none', glow: 'transparent' };
 
   const rightPanel = isVictory
     ? { src: `/dragons/dragon-${dragonType}.png`,       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
-    : { src: `/fairies/empress-${mapIndex}-caged.png`,  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
+    : { src: `/fairies/empress-${safeMapIndex}-caged.png`,  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
 
   const accentColor = isVictory ? palette.hex : '#ff4444';
   const accentGlow  = isVictory ? palette.glow : 'rgba(220,30,30,0.5)';
 
   const title    = isVictory
     ? 'SOVEREIGNTY RESTORED'
-    : `NEW REGION — ${regionName.toUpperCase()}`;
+    : `NEW REGION — ${(regionName || '').toUpperCase()}`;
 
   const subtitle = isVictory
-    ? `THE EMPRESS OF ${regionName.toUpperCase()} IS FREE`
-    : `${dragonName.toUpperCase()} RULES THIS TERRITORY`;
+    ? `THE EMPRESS OF ${(regionName || '').toUpperCase()} IS FREE`
+    : `${(dragonName || '').toUpperCase()} RULES THIS TERRITORY`;
 
   const desc = isVictory
     ? `The dragon has fallen. Order is restored to ${regionName}. Claim your tribute, Commander — ${empressName} is liberated.`

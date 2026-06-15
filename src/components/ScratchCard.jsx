@@ -54,7 +54,10 @@ export default function ScratchCard({ data, onClose }) {
   const [isRevealed, setIsRevealed] = useState(false);
   const isRevealedRef = useRef(false);
   
-  const { reward, basePts, totalPts, fragment, taskTitle, keyElement } = data;
+  const { reward = {}, basePts, totalPts, fragment, taskTitle, keyElement } = data || {};
+  const rarity = reward.rarity || 'common';
+  const artifactName = reward.artifact?.name || 'Tome of Iron Will';
+  
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export default function ScratchCard({ data, onClose }) {
     
     // Load dynamic foil texture
     const img = new Image();
-    img.src = getFoilPath(reward.rarity);
+    img.src = getFoilPath(rarity);
     img.onload = () => {
       ctx.drawImage(img, 0, 0, w, h);
 
@@ -130,7 +133,7 @@ export default function ScratchCard({ data, onClose }) {
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchend', handleEnd);
     };
-  }, []);
+  }, [rarity]);
 
   const revealAll = () => {
     setIsRevealed(true);
@@ -182,12 +185,12 @@ export default function ScratchCard({ data, onClose }) {
                  } : {}}
                >
                   <img 
-                    src={getArtifactImage(reward.artifact.name)} 
-                    className={`loot-artifact-img art-img-filter ${reward.rarity}`} 
-                    alt={reward.artifact.name} 
+                    src={getArtifactImage(artifactName)} 
+                    className={`loot-artifact-img art-img-filter ${rarity}`} 
+                    alt={artifactName} 
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
                   />
-                  <div className={`rarity-glow ${reward.rarity}`} />
+                  <div className={`rarity-glow ${rarity}`} />
                </motion.div>
 
                {/* Key Visual (shown beside the artifact) */}
@@ -213,12 +216,12 @@ export default function ScratchCard({ data, onClose }) {
              </div>
              
              <div className="loot-details">
-                <span className={`loot-rarity-text ${reward.rarity}`}>{reward.rarity.toUpperCase()} ARTIFACT</span>
-                <h3 className="loot-art-name">{reward.artifact.name}</h3>
+                <span className={`loot-rarity-text ${rarity}`}>{(rarity || '').toUpperCase()} ARTIFACT</span>
+                <h3 className="loot-art-name">{artifactName}</h3>
                 <div className="loot-xp-badge">+{totalPts} XP</div>
                 {keyElement && (
                   <div className="text-[10px] font-mono text-gold-core/85 tracking-widest mt-2 uppercase font-bold animate-pulse">
-                    + ACQUIRED {keyElement.toUpperCase()} KEY
+                    + ACQUIRED {(keyElement || '').toUpperCase()} KEY
                   </div>
                 )}
              </div>
