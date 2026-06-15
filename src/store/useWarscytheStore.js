@@ -93,16 +93,20 @@ const mergeState = (local, saved) => {
 
   // Unlocked Lore
   const unlockedLore = { ...(local.unlockedLore || {}) };
-  Object.entries(saved.unlockedLore || {}).forEach(([region, serverFrags]) => {
-    const localFrags = unlockedLore[region] || [];
-    if (serverFrags.length > localFrags.length) {
-      unlockedLore[region] = serverFrags;
-    }
-  });
+  if (saved.unlockedLore && typeof saved.unlockedLore === 'object') {
+    Object.entries(saved.unlockedLore).forEach(([region, serverFrags]) => {
+      const localFrags = unlockedLore[region] || [];
+      if (serverFrags && typeof serverFrags.length === 'number') {
+        if (serverFrags.length > localFrags.length) {
+          unlockedLore[region] = serverFrags;
+        }
+      }
+    });
+  }
 
   // Active Workout
   let activeWorkout = local.activeWorkout;
-  if (saved.activeWorkout) {
+  if (saved.activeWorkout && typeof saved.activeWorkout === 'object') {
     if (!activeWorkout) {
       activeWorkout = saved.activeWorkout;
     } else {
