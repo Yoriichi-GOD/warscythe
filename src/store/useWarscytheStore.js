@@ -361,10 +361,19 @@ export const useWarscytheStore = create(
         const u = get().user?.id;
         if (!u) return;
         
-        const { error } = await supabase.rpc('delete_user_account');
-        if (error) throw error;
+        try {
+          const { error } = await supabase.rpc('delete_user_account');
+          if (error) console.error('RPC delete account failed:', error.message);
+        } catch (err) {
+          console.error('RPC delete account exception:', err);
+        }
         
-        await supabase.auth.signOut();
+        try {
+          await supabase.auth.signOut();
+        } catch (err) {
+          console.warn('Supabase signOut failed during account deletion:', err);
+        }
+        
         get().clearClientState();
         ph.capture('warscythe_delete_account');
       },
@@ -417,7 +426,11 @@ export const useWarscytheStore = create(
       },
 
       signOut: async () => {
-        await supabase.auth.signOut();
+        try {
+          await supabase.auth.signOut();
+        } catch (err) {
+          console.warn('Supabase signOut failed, clearing local state anyway:', err);
+        }
         get().clearClientState();
         ph.capture('warscythe_sign_out');
       },
