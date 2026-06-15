@@ -9,7 +9,7 @@ import TaskDetail from './components/TaskDetail';
 import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
-import { ShieldAlert, X } from 'lucide-react';
+import { ShieldAlert, X, Lock } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
@@ -22,6 +22,8 @@ import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
+import { App as CapacitorApp } from '@capacitor/app';
+import { supabase } from './lib/supabase';
 
 import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
@@ -198,6 +200,8 @@ export default function App() {
   const isFocusMode = useWarscytheStore(state => state.isFocusMode);
   const focusedTaskId = useWarscytheStore(state => state.focusedTaskId);
   const scytheLevel = useWarscytheStore(state => state.scytheLevel);
+  const showResetPasswordModal = useWarscytheStore(state => state.showResetPasswordModal);
+  const updatePassword = useWarscytheStore(state => state.updatePassword);
 
   // Sync priority body class
   useEffect(() => {
@@ -278,6 +282,39 @@ export default function App() {
       setLedgerSubTab('vault');
     };
 
+    let appUrlListener;
+    const setupDeepLinking = async () => {
+      try {
+        appUrlListener = await CapacitorApp.addListener('appUrlOpen', async (event) => {
+          console.log('App opened with URL:', event.url);
+          // Standard verify URL: https://warscythe.xyz/#access_token=...&refresh_token=...&type=recovery
+          const urlStr = event.url.replace('#', '?');
+          const urlObj = new URL(urlStr);
+          const accessToken = urlObj.searchParams.get('access_token');
+          const refreshToken = urlObj.searchParams.get('refresh_token');
+          const type = urlObj.searchParams.get('type');
+
+          if (accessToken && refreshToken) {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            if (error) {
+              console.error('Failed to set deep link session:', error.message);
+            } else {
+              console.log('Deep link login successful, type:', type);
+              if (type === 'recovery') {
+                useWarscytheStore.setState({ showResetPasswordModal: true });
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.warn('Capacitor App listener not active (running in browser environment):', err);
+      }
+    };
+    setupDeepLinking();
+
     window.addEventListener('keydown', handleEsc);
     window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -288,6 +325,9 @@ export default function App() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('navToLedgerVault', handleNavToLedgerVault);
+      if (appUrlListener) {
+        appUrlListener.remove();
+      }
     };
   }, []);
 
@@ -410,6 +450,50 @@ export default function App() {
 
         {showAuth && (
           <AuthModal onClose={() => setShowAuth(false)} />
+        )}
+
+        {showResetPasswordModal && (
+          <div className="modal-backdrop auth-backdrop" style={{ zIndex: 3100 }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="auth-modal glass-panel"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="auth-header">
+                <h2>RESET PASSWORD</h2>
+                <p>SECURE YOUR OPERATIVE PROFILE</p>
+              </div>
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const pass = e.target.newPassword.value;
+                  try {
+                    await updatePassword(pass);
+                    useWarscytheStore.setState({ showResetPasswordModal: false });
+                    alert("Password updated successfully!");
+                  } catch (err) {
+                    alert("Reset failed: " + err.message);
+                  }
+                }}
+                className="auth-form"
+              >
+                <div className="auth-input-group">
+                  <Lock size={16} />
+                  <input 
+                    name="newPassword"
+                    type="password" 
+                    placeholder="Enter New Password" 
+                    required 
+                  />
+                </div>
+                <button type="submit" className="auth-submit-btn">
+                  UPDATE PASSWORD
+                </button>
+              </form>
+            </motion.div>
+          </div>
         )}
 
         {showRealityLock && (

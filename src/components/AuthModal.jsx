@@ -1,32 +1,47 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap } from 'lucide-react';
+import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap, Phone, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function AuthModal({ onClose, isMandatory = false }) {
   const user = useWarscytheStore(state => state.user);
-  const [isLogin, setIsLogin] = useState(!!user); // Default to login if user session exists (re-auth)
-  const [registered, setRegistered] = useState(false); // Verification state
+  
+  // States: 'options', 'email_login', 'email_signup', 'forgot_password', 'phone_auth', 'phone_verify'
+  const [activeScreen, setActiveScreen] = useState('options');
+  const [registered, setRegistered] = useState(false); // Email verification state
+  
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [otpToken, setOtpToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
   const signIn = useWarscytheStore(state => state.signIn);
   const signUp = useWarscytheStore(state => state.signUp);
+  const sendPasswordResetEmail = useWarscytheStore(state => state.sendPasswordResetEmail);
+  const sendPhoneOtp = useWarscytheStore(state => state.sendPhoneOtp);
+  const verifyPhoneOtp = useWarscytheStore(state => state.verifyPhoneOtp);
+  const signInWithProvider = useWarscytheStore(state => state.signInWithProvider);
 
-  const handleSubmit = async (e) => {
+  const handleBack = () => {
+    setError(null);
+    if (activeScreen === 'phone_verify') {
+      setActiveScreen('phone_auth');
+    } else if (activeScreen === 'forgot_password') {
+      setActiveScreen('email_login');
+    } else {
+      setActiveScreen('options');
+    }
+  };
+
+  const handleEmailLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      if (isLogin) {
-        await signIn(email, password);
-        if (onClose) onClose();
-      } else {
-        await signUp(email, password);
-        setRegistered(true); // Show spam validation check instructions
-      }
+      await signIn(email, password);
+      if (onClose) onClose();
     } catch (err) {
       setError(err.message || 'Authentication Failed');
     } finally {
@@ -34,8 +49,95 @@ export default function AuthModal({ onClose, isMandatory = false }) {
     }
   };
 
+  const handleEmailSignupSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await signUp(email, password);
+      setRegistered(true);
+    } catch (err) {
+      setError(err.message || 'Registration Failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await sendPasswordResetEmail(email);
+      alert("Password reset link sent! Please check your inbox and spam folders.");
+      setActiveScreen('email_login');
+    } catch (err) {
+      setError(err.message || 'Failed to send recovery link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePhoneAuthSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await sendPhoneOtp(phone);
+      setActiveScreen('phone_verify');
+    } catch (err) {
+      setError(err.message || 'Failed to dispatch OTP code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePhoneVerifySubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await verifyPhoneOtp(phone, otpToken);
+      if (onClose) onClose();
+    } catch (err) {
+      setError(err.message || 'OTP Verification Failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthLogin = async (provider) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInWithProvider(provider);
+    } catch (err) {
+      setError(err.message || `OAuth initialization failed`);
+      setLoading(false);
+    }
+  };
+
+  const getScreenTitle = () => {
+    switch (activeScreen) {
+      case 'email_login':
+        return { title: 'EMAIL ENTRY', sub: 'SIGN IN TO YOUR OPERATIVE PROFILE' };
+      case 'email_signup':
+        return { title: 'CREATE PROFILE', sub: 'REGISTER NEW OPERATIVE ID' };
+      case 'forgot_password':
+        return { title: 'RECOVER IDENTITY', sub: 'REQUEST PASSWORD RESET LINK' };
+      case 'phone_auth':
+        return { title: 'PHONE ENTRY', sub: 'VERIFY SECURE OTP ACCESS' };
+      case 'phone_verify':
+        return { title: 'CONFIRM CODE', sub: 'ENTER THE PASSCODE SENT TO DEVICE' };
+      default:
+        return { title: 'WARSCYTHE LINK', sub: user ? 'RE-AUTHENTICATE OPERATIVE PROFILE' : 'CHOOSE YOUR PATH OF ENTRY' };
+    }
+  };
+
+  const { title, sub } = getScreenTitle();
+
   return (
-    <div className="modal-backdrop auth-backdrop" onClick={onClose}>
+    <div className="modal-backdrop auth-backdrop" onClick={!isMandatory ? onClose : undefined}>
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -43,6 +145,19 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         className="auth-modal glass-panel"
         onClick={e => e.stopPropagation()}
       >
+        {/* Back Button */}
+        {activeScreen !== 'options' && !registered && (
+          <button className="auth-back-btn" onClick={handleBack} title="Back to Options">
+            <ArrowLeft size={16} />
+            <span>BACK</span>
+          </button>
+        )}
+
+        {/* Close Button */}
+        {!isMandatory && (
+          <button className="auth-close" onClick={onClose} title="Close Portal"><X size={20} /></button>
+        )}
+
         {registered ? (
           <div className="auth-confirm-container">
             <div className="auth-confirm-header">
@@ -66,14 +181,14 @@ export default function AuthModal({ onClose, isMandatory = false }) {
               </div>
               <div className="step-item">
                 <span className="step-num">4</span>
-                <span className="step-text">After verifying, return here and log in below.</span>
+                <span className="step-text">After verifying, return here and log in.</span>
               </div>
             </div>
 
             <button 
               onClick={() => {
                 setRegistered(false);
-                setIsLogin(true);
+                setActiveScreen('email_login');
               }}
               className="auth-submit-btn confirm-btn"
             >
@@ -84,55 +199,236 @@ export default function AuthModal({ onClose, isMandatory = false }) {
           <>
             <div className="auth-header">
               <Fingerprint size={32} className="auth-icon" />
-              <h2>WARSCYTHE LINK</h2>
-              <p>{user ? 'SESSION EXPIRED // RE-AUTHENTICATE PROFILE' : (isLogin ? 'SIGN IN TO YOUR PROFILE' : 'CREATE NEW OPERATIVE PROFILE')}</p>
+              <h2>{title}</h2>
+              <p>{sub}</p>
             </div>
 
-            {/* High-visibility toggle alert banner */}
-            <div className="auth-alert-toggle" onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? (
-                <span>New to Warscythe? <strong className="toggle-link">Click here to register</strong></span>
-              ) : (
-                <span>Already registered? <strong className="toggle-link">Click here to sign in</strong></span>
-              )}
-            </div>
+            {error && <div className="auth-error"><AlertCircle size={14} /> {error}</div>}
 
-            <form onSubmit={handleSubmit} className="auth-form">
-              {error && <div className="auth-error"><Zap size={14} /> {error}</div>}
-              
-              <div className="auth-input-group">
-                <Mail size={16} />
-                <input 
-                  type="email" 
-                  placeholder={isLogin ? "Enter Email" : "Enter Email (e.g. name@gmail.com)"} 
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required 
-                />
+            {activeScreen === 'options' && (
+              <div className="auth-options-list">
+                {/* Google Button */}
+                <button 
+                  className="auth-option-btn google"
+                  onClick={() => handleOAuthLogin('google')}
+                  disabled={loading}
+                >
+                  <svg className="auth-btn-icon" viewBox="0 0 24 24" width="16" height="16">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.43-.28-.79-.63-1.07-1.07V7.06z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Continue with Google</span>
+                </button>
+
+                {/* Apple Button */}
+                <button 
+                  className="auth-option-btn apple"
+                  onClick={() => handleOAuthLogin('apple')}
+                  disabled={loading}
+                >
+                  <svg className="auth-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 3.1 9.94 6.78 6.44c1.78-1.7 3.75-1.58 4.88-.95 1.48.82 2.16.8 3.18 0 1.04-.82 2.85-.92 4.36.48 3.32 2.76 2.5 8.7-2.15 14.31zm-1.87-16.1c.42-.48.66-1.12.56-1.76-.56.02-1.24.34-1.68.84-.4.46-.66 1.1-.56 1.74.62.06 1.26-.26 1.68-.82z"/>
+                  </svg>
+                  <span>Continue with Apple</span>
+                </button>
+
+                {/* Phone Button */}
+                <button 
+                  className="auth-option-btn phone"
+                  onClick={() => setActiveScreen('phone_auth')}
+                  disabled={loading}
+                >
+                  <Phone size={16} className="auth-btn-icon" />
+                  <span>Continue with Phone</span>
+                </button>
+
+                {/* Email Button */}
+                <button 
+                  className="auth-option-btn email"
+                  onClick={() => setActiveScreen('email_login')}
+                  disabled={loading}
+                >
+                  <Mail size={16} className="auth-btn-icon" />
+                  <span>Continue with Email</span>
+                </button>
+
+                <div className="auth-disclaimer">
+                  By continuing, you agree to our{' '}
+                  <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                  {' '}and{' '}
+                  <a 
+                    href="#" 
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); 
+                    }}
+                  >
+                    Terms & Conditions
+                  </a>.
+                </div>
               </div>
+            )}
 
-              <div className="auth-input-group">
-                <Lock size={16} />
-                <input 
-                  type="password" 
-                  placeholder={isLogin ? "Enter Password" : "Create Password"} 
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required 
-                />
-              </div>
+            {activeScreen === 'email_login' && (
+              <form onSubmit={handleEmailLoginSubmit} className="auth-form">
+                <div className="auth-input-group">
+                  <Mail size={16} />
+                  <input 
+                    type="email" 
+                    placeholder="Enter Email" 
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
 
-              <button type="submit" className="auth-submit-btn" disabled={loading}>
-                {loading ? 'PROCESSING...' : (isLogin ? 'SIGN IN' : 'CREATE ACCOUNT')}
-              </button>
-            </form>
+                <div className="auth-input-group">
+                  <Lock size={16} />
+                  <input 
+                    type="password" 
+                    placeholder="Enter Password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="auth-forgot-link">
+                  <a href="#" onClick={(e) => { e.preventDefault(); setActiveScreen('forgot_password'); }}>
+                    Forgot Password?
+                  </a>
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'PROCESSING...' : 'SIGN IN'}
+                </button>
+
+                <div className="auth-footer-links">
+                  <span>New Operative?</span>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setActiveScreen('email_signup'); }}>
+                    Register Here
+                  </a>
+                </div>
+              </form>
+            )}
+
+            {activeScreen === 'email_signup' && (
+              <form onSubmit={handleEmailSignupSubmit} className="auth-form">
+                <div className="auth-input-group">
+                  <Mail size={16} />
+                  <input 
+                    type="email" 
+                    placeholder="Enter Email (e.g. name@gmail.com)" 
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="auth-input-group">
+                  <Lock size={16} />
+                  <input 
+                    type="password" 
+                    placeholder="Create Password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'CREATING...' : 'CREATE ACCOUNT'}
+                </button>
+
+                <div className="auth-footer-links">
+                  <span>Already Registered?</span>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setActiveScreen('email_login'); }}>
+                    Sign In
+                  </a>
+                </div>
+              </form>
+            )}
+
+            {activeScreen === 'forgot_password' && (
+              <form onSubmit={handleForgotPasswordSubmit} className="auth-form">
+                <p className="auth-instruction-text">
+                  Enter your email address below, and we will dispatch a magic link to recover your credentials.
+                </p>
+                
+                <div className="auth-input-group">
+                  <Mail size={16} />
+                  <input 
+                    type="email" 
+                    placeholder="Enter Email" 
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'SENDING...' : 'SEND RECOVERY LINK'}
+                </button>
+              </form>
+            )}
+
+            {activeScreen === 'phone_auth' && (
+              <form onSubmit={handlePhoneAuthSubmit} className="auth-form">
+                <p className="auth-instruction-text">
+                  Enter your phone number (with country code, e.g., +15550199) to receive a secure OTP code.
+                </p>
+
+                <div className="auth-input-group">
+                  <Phone size={16} />
+                  <input 
+                    type="tel" 
+                    placeholder="Phone number (e.g. +1234567890)" 
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'DISPATCHING...' : 'SEND PASSCODE'}
+                </button>
+              </form>
+            )}
+
+            {activeScreen === 'phone_verify' && (
+              <form onSubmit={handlePhoneVerifySubmit} className="auth-form">
+                <p className="auth-instruction-text">
+                  A verification passcode has been dispatched to <strong>{phone}</strong>. Enter it below to unlock entry.
+                </p>
+
+                <div className="auth-input-group">
+                  <ShieldCheck size={16} />
+                  <input 
+                    type="text" 
+                    placeholder="Enter 6-digit OTP" 
+                    value={otpToken}
+                    onChange={e => setOtpToken(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'VERIFYING...' : 'VERIFY & ENTER'}
+                </button>
+              </form>
+            )}
           </>
         )}
 
-        {!isMandatory && (
-          <button className="auth-close" onClick={onClose}><X size={20} /></button>
-        )}
-        
         <div className="auth-security-tag">
           <ShieldCheck size={12} />
           <span>ENCRYPTED BY WARSCYTHE-X64</span>
@@ -153,7 +449,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         }
         .auth-modal {
           width: 100%;
-          max-width: 420px;
+          max-width: 440px;
           padding: 2rem;
           text-align: center;
           position: relative;
@@ -164,81 +460,193 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         }
 
         @media (min-width: 640px) {
-          .auth-modal { padding: 3.5rem; }
+          .auth-modal { padding: 3rem 2.5rem; }
         }
 
-        .auth-icon { color: #c5a059; margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(197,160,89,0.4)); }
-        .auth-header h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fff; letter-spacing: 0.25em; margin-bottom: 0.5rem; }
-        .auth-header p { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #6b7280; letter-spacing: 0.15em; }
+        .auth-back-btn {
+          position: absolute;
+          top: 1.5rem;
+          left: 1.5rem;
+          background: none;
+          border: none;
+          color: #9ca3af;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          cursor: pointer;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          letter-spacing: 0.1em;
+          transition: color 0.2s;
+        }
+        .auth-back-btn:hover {
+          color: #c5a059;
+        }
 
-        .auth-form { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .auth-error { background: rgba(255, 60, 60, 0.1); border: 1px solid #ff3c3c; color: #ff3c3c; padding: 0.75rem; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; }
+        .auth-icon { color: #c5a059; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(197,160,89,0.4)); }
+        .auth-header h2 { font-family: 'Cinzel', serif; font-size: 1.4rem; color: #fff; letter-spacing: 0.2em; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .auth-header p { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #6b7280; letter-spacing: 0.15em; line-height: 1.4; }
+
+        .auth-instruction-text {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.7rem;
+          color: #9ca3af;
+          line-height: 1.5;
+          margin-top: 1.5rem;
+          text-align: left;
+        }
+
+        .auth-options-list {
+          margin-top: 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .auth-option-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          width: 100%;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 4px;
+          padding: 0.85rem;
+          color: #d1d5db;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.75rem;
+          font-weight: 500;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+        }
+
+        .auth-option-btn :global(.auth-btn-icon) {
+          flex-shrink: 0;
+        }
+
+        .auth-option-btn:hover {
+          background: rgba(197, 160, 89, 0.05);
+          border-color: #c5a059;
+          color: #fff;
+          box-shadow: 0 0 15px rgba(197,160,89,0.1);
+          transform: translateY(-1px);
+        }
+
+        .auth-option-btn.google:hover {
+          background: rgba(66, 133, 244, 0.05);
+          border-color: rgba(66, 133, 244, 0.5);
+          box-shadow: 0 0 15px rgba(66, 133, 244, 0.1);
+        }
+
+        .auth-option-btn.apple:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-disclaimer {
+          margin-top: 1.5rem;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.55rem;
+          color: #4b5563;
+          line-height: 1.5;
+          letter-spacing: 0.02em;
+        }
+
+        .auth-disclaimer a {
+          color: #6b7280;
+          text-decoration: underline;
+          transition: color 0.2s;
+        }
+
+        .auth-disclaimer a:hover {
+          color: #c5a059;
+        }
+
+        .auth-form { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 1rem; }
+        .auth-error { background: rgba(255, 60, 60, 0.08); border: 1px solid #ff3c3c; color: #ff3c3c; padding: 0.65rem; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; text-align: left; }
         
         .auth-input-group { position: relative; display: flex; align-items: center; }
         .auth-input-group :global(svg) { position: absolute; left: 1rem; color: #4a4a4a; pointer-events: none; }
         .auth-input-group input {
           width: 100%;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          padding: 1rem 1rem 1rem 3rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          padding: 0.85rem 1rem 0.85rem 2.75rem;
           color: #fff;
           font-family: 'JetBrains Mono', monospace;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           border-radius: 4px;
-          transition: 0.3s;
+          transition: 0.2s;
           letter-spacing: 0.05em;
         }
         .auth-input-group input::placeholder { color: #4a4a4a; }
         .auth-input-group input:focus { 
           border-color: #c5a059; 
-          background: rgba(197, 160, 89, 0.05); 
+          background: rgba(197, 160, 89, 0.04); 
           outline: none;
-          box-shadow: 0 0 15px rgba(197,160,89,0.1);
+          box-shadow: 0 0 12px rgba(197,160,89,0.1);
+        }
+
+        .auth-forgot-link {
+          text-align: right;
+          margin-top: -0.25rem;
+        }
+
+        .auth-forgot-link a {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          color: #6b7280;
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+
+        .auth-forgot-link a:hover {
+          color: #c5a059;
         }
 
         .auth-submit-btn {
           background: #c5a059;
           color: #000;
           border: none;
-          padding: 1.25rem;
+          padding: 1rem;
           font-family: 'Cinzel', serif;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           font-weight: 900;
-          letter-spacing: 0.2em;
+          letter-spacing: 0.15em;
           border-radius: 4px;
           cursor: pointer;
-          box-shadow: 0 0 25px rgba(197,160,89,0.3);
-          transition: 0.3s;
+          box-shadow: 0 0 20px rgba(197,160,89,0.2);
+          transition: 0.2s;
           text-transform: uppercase;
         }
         .auth-submit-btn:hover { 
-          transform: translateY(-2px); 
+          transform: translateY(-1px); 
           background: #e8d0a0;
-          box-shadow: 0 0 40px rgba(197,160,89,0.5); 
+          box-shadow: 0 0 30px rgba(197,160,89,0.4); 
         }
         .auth-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .auth-alert-toggle {
-          background: rgba(197, 160, 89, 0.04);
-          border: 1px dashed rgba(197, 160, 89, 0.25);
-          color: #9ca3af;
-          font-size: 0.65rem;
+        .auth-footer-links {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
           font-family: 'JetBrains Mono', monospace;
-          padding: 0.6rem 1rem;
-          margin-top: 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: 0.2s;
+          font-size: 0.65rem;
+          color: #6b7280;
         }
-        .auth-alert-toggle:hover {
-          background: rgba(197, 160, 89, 0.08);
-          border-color: #c5a059;
-          color: #fff;
-        }
-        .toggle-link {
+
+        .auth-footer-links a {
           color: #c5a059;
           text-decoration: underline;
-          margin-left: 0.25rem;
+        }
+
+        .auth-footer-links a:hover {
+          color: #e8d0a0;
         }
 
         .auth-confirm-container {
@@ -299,12 +707,12 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         .auth-close:hover { color: #fff; transform: rotate(90deg); }
 
         .auth-security-tag { 
-          margin-top: 2.5rem; 
+          margin-top: 2rem; 
           display: flex; 
           align-items: center; 
           justify-content: center; 
           gap: 0.5rem; 
-          color: rgba(255,255,255,0.15); 
+          color: rgba(255,255,255,0.12); 
           font-size: 0.5rem; 
           font-weight: 900; 
           letter-spacing: 0.15em;

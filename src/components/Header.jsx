@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, isFocusMode, currentLevelProgress, syncStatus, forceSync } = useWarscytheStore();
+  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync } = useWarscytheStore();
+  const [showDropdown, setShowDropdown] = React.useState(false);
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
@@ -76,21 +77,56 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             </button>
           )}
           
-          <button 
-            className={`nav-btn ${user ? 'active' : ''}`} 
-            onClick={user ? () => {
-              const hasUnsynced = syncStatus === 'failed' || useWarscytheStore.getState().hasPendingChanges;
-              if (hasUnsynced) {
-                if (!window.confirm("WARNING: You have unsynced offline progress. Logging out will discard these local changes. Are you sure you want to sign out?")) {
-                  return;
-                }
-              }
-              signOut();
-            } : () => onOpenAuth()}
-            title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
-          >
-            {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button 
+              className={`nav-btn ${user ? 'active' : ''}`} 
+              onClick={user ? () => setShowDropdown(!showDropdown) : () => onOpenAuth()}
+              title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
+            >
+              {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
+            </button>
+            
+            {showDropdown && user && (
+              <div className="header-dropdown-menu">
+                <button onClick={() => { setShowDropdown(false); window.open('/privacy.html', '_blank'); }}>
+                  PRIVACY POLICY
+                </button>
+                <button onClick={() => { setShowDropdown(false); alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); }}>
+                  TERMS & CONDITIONS
+                </button>
+                <button onClick={() => {
+                  setShowDropdown(false);
+                  const hasUnsynced = syncStatus === 'failed' || useWarscytheStore.getState().hasPendingChanges;
+                  if (hasUnsynced) {
+                    if (!window.confirm("WARNING: You have unsynced offline progress. Logging out will discard these local changes. Are you sure you want to sign out?")) {
+                      return;
+                    }
+                  }
+                  signOut();
+                }}>
+                  LOG OUT
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={async () => {
+                    setShowDropdown(false);
+                    if (window.confirm("WARNING: This will permanently delete your account, scythe progress, and active operations. This action CANNOT be undone.\n\nAre you sure you want to delete your account?")) {
+                      if (window.confirm("FINAL CONFIRMATION: Type 'DELETE' to confirm account deletion.")) {
+                        try {
+                          await deleteAccount();
+                          alert("Account deleted successfully.");
+                        } catch (err) {
+                          alert("Failed to delete account: " + err.message);
+                        }
+                      }
+                    }
+                  }}
+                >
+                  DELETE ACCOUNT
+                </button>
+              </div>
+            )}
+          </div>
           <button className="nav-btn" onClick={onOpenGymLog} title="Gym & Fitness Log">
             <Dumbbell size={18} />
           </button>
@@ -251,6 +287,49 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         }
         .sync-btn.status-pending {
           border-color: rgba(236, 200, 128, 0.3);
+        }
+
+        .header-dropdown-menu {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 0.5rem;
+          background: rgba(10, 10, 15, 0.95);
+          border: 1px solid rgba(197, 160, 89, 0.35);
+          border-radius: 4px;
+          display: flex;
+          flex-direction: column;
+          min-width: 160px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(197,160,89,0.05);
+          z-index: 100;
+          overflow: hidden;
+        }
+        .header-dropdown-menu button {
+          background: transparent;
+          border: none;
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+          color: #9ca3af;
+          padding: 0.75rem 1rem;
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
+          letter-spacing: 0.1em;
+          text-align: left;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+        .header-dropdown-menu button:last-child {
+          border-bottom: none;
+        }
+        .header-dropdown-menu button:hover {
+          background: rgba(197, 160, 89, 0.08);
+          color: #fff;
+        }
+        .header-dropdown-menu button.delete-btn {
+          color: #ef4444;
+        }
+        .header-dropdown-menu button.delete-btn:hover {
+          background: rgba(239, 68, 68, 0.1);
+          color: #fca5a5;
         }
       `}</style>
     </header>

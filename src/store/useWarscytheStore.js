@@ -267,6 +267,7 @@ export const useWarscytheStore = create(
       hasPendingChanges: false,
       isMerging: false,
       user: null,
+      showResetPasswordModal: false,
       rescuedFairies: {},
       pendingVictoryScreen: null,
       receivedProphecies: [],
@@ -300,6 +301,64 @@ export const useWarscytheStore = create(
           ph.identify(data.user.id, { email });
         }
         ph.capture('warscythe_sign_up');
+      },
+
+      sendPasswordResetEmail: async (email) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin
+        });
+        if (error) throw error;
+      },
+
+      updatePassword: async (newPassword) => {
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword
+        });
+        if (error) throw error;
+      },
+
+      sendPhoneOtp: async (phone) => {
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: phone
+        });
+        if (error) throw error;
+      },
+
+      verifyPhoneOtp: async (phone, token) => {
+        const { data, error } = await supabase.auth.verifyOtp({
+          phone: phone,
+          token: token,
+          type: 'sms'
+        });
+        if (error) throw error;
+        if (data.user) {
+          set({ user: data.user });
+          ph.identify(data.user.id, { phone });
+          ph.capture('warscythe_otp_sign_in');
+          await get().fetchUserState(data.user.id);
+        }
+      },
+
+      signInWithProvider: async (provider) => {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: window.location.origin
+          }
+        });
+        if (error) throw error;
+      },
+
+      deleteAccount: async () => {
+        const u = get().user?.id;
+        if (!u) return;
+        
+        const { error } = await supabase.rpc('delete_user_account');
+        if (error) throw error;
+        
+        await supabase.auth.signOut();
+        get().clearClientState();
+        ph.capture('warscythe_delete_account');
       },
 
       clearClientState: () => {
@@ -1487,6 +1546,10 @@ useWarscytheStore.subscribe((state) => {
 supabase.auth.onAuthStateChange(async (event, session) => {
   const state = useWarscytheStore.getState();
   const currentUser = state.user;
+
+  if (event === 'PASSWORD_RECOVERY') {
+    useWarscytheStore.setState({ showResetPasswordModal: true });
+  }
 
   if (session?.user) {
     const isTestUser = session.user.email === 'nrgenosop@gmail.com';
