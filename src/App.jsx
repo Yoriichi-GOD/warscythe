@@ -350,14 +350,12 @@ export default function App() {
 
   return (
     <DashboardLayout activeTab={activeTab}>
-      <div className={isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}>
-        <Header 
-          onOpenMap={() => setActiveTab('map')} 
-          onOpenVault={() => setActiveTab('ledger')} 
-          onOpenAuth={() => setShowAuth(true)}
-          onOpenGymLog={() => setActiveTab('fitness')}
-        />
-      </div>
+      <Header 
+        onOpenMap={() => setActiveTab('map')} 
+        onOpenVault={() => setActiveTab('ledger')} 
+        onOpenAuth={() => setShowAuth(true)}
+        onOpenGymLog={() => setActiveTab('fitness')}
+      />
       
       <main className="flex-1 w-full overflow-hidden relative">
         {/* Persistent Tab Pages for Smooth Mobile Switching */}

@@ -5,16 +5,18 @@ import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync } = useWarscytheStore();
+  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
   const progress = (displayProgress / TASKS_PER_LEVEL) * 100;
 
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+
   return (
     <header className="main-header glass-panel">
-      <div className="header-left">
+      <div className={`header-left ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
         <div className="logo-section">
           <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden' }}>
             <img src="/command-core.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -36,7 +38,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         </div>
       </div>
 
-      <div className="header-center">
+      <div className={`header-center ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
         <div className="progress-hub">
           <div className="progress-header">
             <span className="progress-label">REGION PROGRESS</span>
@@ -55,7 +57,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
       </div>
 
       <div className="header-right">
-        <div className="xp-counter">
+        <div className={`xp-counter ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
           <span className="xp-label">TOTAL XP</span>
           <span className="xp-value">{xp.toLocaleString()}</span>
         </div>
@@ -63,7 +65,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         <div className="action-buttons">
           {user && (
             <button 
-              className={`nav-btn sync-btn status-${syncStatus}`} 
+              className={`nav-btn sync-btn status-${syncStatus} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
               onClick={syncStatus === 'failed' ? () => onOpenAuth() : forceSync}
               title={
                 syncStatus === 'synced' ? 'All progress synced with command core' :
@@ -127,17 +129,17 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               </div>
             )}
           </div>
-          <button className="nav-btn" onClick={onOpenGymLog} title="Gym & Fitness Log">
+          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={onOpenGymLog} title="Gym & Fitness Log">
             <Dumbbell size={18} />
           </button>
-          <button className="nav-btn" onClick={() => onOpenVault()} title="Artifact Vault">
+          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={() => onOpenVault()} title="Artifact Vault">
             <Award size={18} />
           </button>
-          <button className="nav-btn" onClick={onOpenMap} title="Tactical Map">
+          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={onOpenMap} title="Tactical Map">
             <MapIcon size={18} />
           </button>
           <button 
-            className={`nav-btn ${isFocusMode ? 'active' : ''}`} 
+            className={`nav-btn ${isFocusMode ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
             onClick={() => useWarscytheStore.getState().toggleFocus()} 
             title="Neural Focus"
           >
