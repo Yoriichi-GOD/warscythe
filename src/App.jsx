@@ -92,11 +92,8 @@ export default function App() {
       ? (state.unlockedScythes || ['neophyte'])
       : ['neophyte'];
     
-    // Auto-detect legacy/normal user to bypass onboarding
-    const isTestUser = state.user?.email === 'nrgenosop@gmail.com';
-    const hasCompletedTutorial = isTestUser
-      ? state.hasCompletedTutorial
-      : !!(state.hasCompletedTutorial || trueTotalCompletions > 0 || trueLevel > 1 || state.firstTaskCompleted);
+    // Auto-detect legacy users to bypass onboarding if they already have progress
+    const hasCompletedTutorial = !!(state.hasCompletedTutorial || trueTotalCompletions > 0 || trueLevel > 1 || state.firstTaskCompleted);
     const tutorialStep = hasCompletedTutorial ? 'completed' : state.tutorialStep;
 
     // Unconditionally force sync to fix any corrupted state

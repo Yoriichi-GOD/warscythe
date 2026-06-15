@@ -87,8 +87,21 @@ const mergeState = (local, saved) => {
 
   // Daily Log
   const dailyLog = { ...(local.dailyLog || {}) };
-  Object.entries(saved.dailyLog || {}).forEach(([date, score]) => {
-    dailyLog[date] = Math.max(dailyLog[date] || 0, score || 0);
+  Object.entries(saved.dailyLog || {}).forEach(([date, savedVal]) => {
+    const localVal = dailyLog[date];
+    // Handle both legacy number format and current object format
+    if (savedVal && typeof savedVal === 'object') {
+      if (!localVal || typeof localVal !== 'object') {
+        dailyLog[date] = savedVal;
+      } else {
+        dailyLog[date] = {
+          completed: Math.max(localVal.completed || 0, savedVal.completed || 0),
+          weight: Math.max(localVal.weight || 0, savedVal.weight || 0)
+        };
+      }
+    } else if (typeof savedVal === 'number') {
+      if (!localVal) dailyLog[date] = savedVal;
+    }
   });
 
   // Unlocked Lore
@@ -126,21 +139,18 @@ const mergeState = (local, saved) => {
 
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
-  const isTestUser = (local.user?.email === 'nrgenosop@gmail.com') || (saved.user?.email === 'nrgenosop@gmail.com');
-  const hasCompletedTutorial = isTestUser
-    ? !!(local.hasCompletedTutorial || saved.hasCompletedTutorial)
-    : !!(
-        local.hasCompletedTutorial || 
-        saved.hasCompletedTutorial || 
-        (local.completedTasks && local.completedTasks.length > 0) || 
-        (saved.completedTasks && saved.completedTasks.length > 0) || 
-        (local.totalCompletions && local.totalCompletions > 0) || 
-        (saved.totalCompletions && saved.totalCompletions > 0) || 
-        (local.level && local.level > 1) || 
-        (saved.level && saved.level > 1) ||
-        local.firstTaskCompleted ||
-        saved.firstTaskCompleted
-      );
+  const hasCompletedTutorial = !!(
+    local.hasCompletedTutorial ||
+    saved.hasCompletedTutorial ||
+    (local.completedTasks && local.completedTasks.length > 0) ||
+    (saved.completedTasks && saved.completedTasks.length > 0) ||
+    (local.totalCompletions && local.totalCompletions > 0) ||
+    (saved.totalCompletions && saved.totalCompletions > 0) ||
+    (local.level && local.level > 1) ||
+    (saved.level && saved.level > 1) ||
+    local.firstTaskCompleted ||
+    saved.firstTaskCompleted
+  );
   const tutorialStep = hasCompletedTutorial ? 'completed' : (local.tutorialStep || saved.tutorialStep || 'not_started');
   const firstTaskCompleted = !!(local.firstTaskCompleted || saved.firstTaskCompleted);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
@@ -1577,7 +1587,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
 
   if (session?.user) {
-    const isTestUser = session.user.email === 'nrgenosop@gmail.com';
     const isNewSignIn = event === 'SIGNED_IN' && (!currentUser || currentUser.id !== session.user.id);
 
     // If a different user is logging in, wipe current client state first to prevent crossover
@@ -1585,18 +1594,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       state.clearClientState();
     }
 
-    if (isTestUser && isNewSignIn) {
-      // Force reset onboarding for the test user on new sign in
-      useWarscytheStore.setState({
-        hasCompletedTutorial: false,
-        tutorialStep: 'not_started',
-        firstTaskCompleted: false
-      });
-      useWarscytheStore.setState({ user: session.user });
-      await state.saveUserState(session.user.id);
-    } else {
-      useWarscytheStore.setState({ user: session.user });
-    }
+    useWarscytheStore.setState({ user: session.user });
 
     // Only fetch user state from the server on new sign-in or initial app load.
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
