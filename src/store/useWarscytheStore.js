@@ -1594,7 +1594,12 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       useWarscytheStore.setState({ user: session.user });
     }
 
-    await useWarscytheStore.getState().fetchUserState(session.user.id);
+    // Only fetch user state from the server on new sign-in or initial app load.
+    // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
+    const isInitialLoad = !currentUser;
+    if (isNewSignIn || isInitialLoad) {
+      await useWarscytheStore.getState().fetchUserState(session.user.id);
+    }
   } else {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
     if (currentUser) {
