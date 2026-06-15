@@ -453,47 +453,11 @@ export default function App() {
         )}
 
         {showResetPasswordModal && (
-          <div className="modal-backdrop auth-backdrop" style={{ zIndex: 3100 }}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="auth-modal glass-panel"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="auth-header">
-                <h2>RESET PASSWORD</h2>
-                <p>SECURE YOUR OPERATIVE PROFILE</p>
-              </div>
-              <form 
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const pass = e.target.newPassword.value;
-                  try {
-                    await updatePassword(pass);
-                    useWarscytheStore.setState({ showResetPasswordModal: false });
-                    alert("Password updated successfully!");
-                  } catch (err) {
-                    alert("Reset failed: " + err.message);
-                  }
-                }}
-                className="auth-form"
-              >
-                <div className="auth-input-group">
-                  <Lock size={16} />
-                  <input 
-                    name="newPassword"
-                    type="password" 
-                    placeholder="Enter New Password" 
-                    required 
-                  />
-                </div>
-                <button type="submit" className="auth-submit-btn">
-                  UPDATE PASSWORD
-                </button>
-              </form>
-            </motion.div>
-          </div>
+          <AuthModal 
+            initialScreen="reset_password" 
+            onClose={() => useWarscytheStore.setState({ showResetPasswordModal: false })} 
+            isMandatory={true} 
+          />
         )}
 
         {showRealityLock && (

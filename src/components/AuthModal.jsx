@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Fingerprint, Mail, Lock, ShieldCheck, Zap, ArrowLeft, AlertCircle } from 'lucide-react';
 
-export default function AuthModal({ onClose, isMandatory = false }) {
+export default function AuthModal({ onClose, isMandatory = false, initialScreen = 'options' }) {
   const user = useWarscytheStore(state => state.user);
   
-  // States: 'options', 'email_login', 'email_signup', 'forgot_password'
-  const [activeScreen, setActiveScreen] = useState('options');
+  // States: 'options', 'email_login', 'email_signup', 'forgot_password', 'reset_password'
+  const [activeScreen, setActiveScreen] = useState(initialScreen);
   const [registered, setRegistered] = useState(false); // Email verification state
   
   const [email, setEmail] = useState(user?.email || '');
@@ -18,6 +18,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
   const signIn = useWarscytheStore(state => state.signIn);
   const signUp = useWarscytheStore(state => state.signUp);
   const sendPasswordResetEmail = useWarscytheStore(state => state.sendPasswordResetEmail);
+  const updatePassword = useWarscytheStore(state => state.updatePassword);
   const signInWithProvider = useWarscytheStore(state => state.signInWithProvider);
 
   const handleBack = () => {
@@ -91,6 +92,8 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         return { title: 'CREATE PROFILE', sub: 'REGISTER NEW OPERATIVE ID' };
       case 'forgot_password':
         return { title: 'RECOVER IDENTITY', sub: 'REQUEST PASSWORD RESET LINK' };
+      case 'reset_password':
+        return { title: 'RESET PASSWORD', sub: 'SECURE YOUR OPERATIVE PROFILE' };
       default:
         return { title: 'WARSCYTHE LINK', sub: user ? 'RE-AUTHENTICATE OPERATIVE PROFILE' : 'CHOOSE YOUR PATH OF ENTRY' };
     }
@@ -108,7 +111,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
         onClick={e => e.stopPropagation()}
       >
         {/* Back Button */}
-        {activeScreen !== 'options' && !registered && (
+        {activeScreen !== 'options' && activeScreen !== 'reset_password' && !registered && (
           <button className="auth-back-btn" onClick={handleBack} title="Back to Options">
             <ArrowLeft size={16} />
             <span>BACK</span>
@@ -330,6 +333,43 @@ export default function AuthModal({ onClose, isMandatory = false }) {
                 </button>
               </form>
             )}
+
+            {activeScreen === 'reset_password' && (
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setLoading(true);
+                  setError(null);
+                  try {
+                    await updatePassword(password);
+                    useWarscytheStore.setState({ showResetPasswordModal: false });
+                    alert("Password updated successfully!");
+                    if (onClose) onClose();
+                  } catch (err) {
+                    setError(err.message || 'Failed to update password');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="auth-form"
+              >
+                <div className="auth-input-group">
+                  <Lock size={16} />
+                  <input 
+                    type="password" 
+                    placeholder="Enter New Password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'PROCESSING...' : 'UPDATE PASSWORD'}
+                </button>
+              </form>
+            )}
           </>
         )}
 
@@ -338,6 +378,7 @@ export default function AuthModal({ onClose, isMandatory = false }) {
           <span>ENCRYPTED BY WARSCYTHE-X64</span>
         </div>
       </motion.div>
+
 
 
       <style jsx>{`
