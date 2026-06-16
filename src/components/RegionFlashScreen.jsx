@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { REGIONS } from '../store/constants';
+import { getAssetUrl } from '../utils/assetResolver';
 
 // Region-specific accent color palette
 const REGION_COLORS = {
@@ -60,12 +61,12 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
   // Mobile:  [DRAGON]  top  /  [CAGED FAIRY]  bottom
 
   const leftPanel = isVictory
-    ? { src: `/fairies/empress-${safeMapIndex}-liberated.png`, label: 'LIBERATED', filter: 'none', glow: palette.glow }
-    : { src: `/dragons/dragon-${dragonType}.png`,          label: 'THREAT',    filter: 'none', glow: 'transparent' };
+    ? { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-liberated.png`), label: 'LIBERATED', filter: 'none', glow: palette.glow }
+    : { src: getAssetUrl(`/dragons/dragon-${dragonType}.png`),          label: 'THREAT',    filter: 'none', glow: 'transparent' };
 
   const rightPanel = isVictory
-    ? { src: `/dragons/dragon-${dragonType}.png`,       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
-    : { src: `/fairies/empress-${safeMapIndex}-caged.png`,  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
+    ? { src: getAssetUrl(`/dragons/dragon-${dragonType}.png`),       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
+    : { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-caged.png`),  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
 
   const accentColor = isVictory ? palette.hex : '#ff4444';
   const accentGlow  = isVictory ? palette.glow : 'rgba(220,30,30,0.5)';

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Shield, Scroll, Award, Star } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetResolver';
 import ScytheCenter from './ScytheCenter';
 
 const dragonTrophies = [
@@ -112,7 +113,7 @@ export default function VaultModal({ onClose }) {
                <div className="dragon-grid">
                   {Array.from({ length: useWarscytheStore.getState().bossKills }).map((_, i) => {
                     const type = dragonTrophies[i % dragonTrophies.length];
-                    const trophyPath = `/trophies/trophy-dragon-${type}.png`;
+                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.png`);
                     return (
                       <motion.div 
                         key={i} 

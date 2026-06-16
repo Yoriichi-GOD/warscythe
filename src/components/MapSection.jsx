@@ -20,6 +20,7 @@ import {
   Trophy
 } from 'lucide-react';
 import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
+import { getAssetUrl } from '../utils/assetResolver';
 
 // Dynamic Region Node Themes Dictionary (10 Archetypes)
 const REGION_ARCHETYPES = {
@@ -102,7 +103,7 @@ const getDragonAsset = (lvl) => {
   ];
   const idx = Math.max(0, lvl - 1) % dragonTypes.length;
   const type = dragonTypes[idx];
-  return `/dragons/dragon-${type}.png`;
+  return getAssetUrl(`/dragons/dragon-${type}.png`);
 };
 
 const getDragonName = (lvl) => {
@@ -135,7 +136,8 @@ export default function MapSection({ onTabChange }) {
   const { 
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
-    scytheLevel, coins, streakCount, rescuedFairies, user, tutorialStep
+    scytheLevel, coins, streakCount, rescuedFairies, user, tutorialStep,
+    downloadedRegions, downloadRegionBundle
   } = useWarscytheStore();
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
@@ -293,10 +295,10 @@ export default function MapSection({ onTabChange }) {
 
   const getRegionBanner = () => {
     if (isBossRescued) {
-      return `/fairies/empress-${activeMapIndex}-liberated.png`;
+      return getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`);
     }
     if (selectedNode === 'jail' || selectedNode === 'boss') {
-      return `/fairies/empress-${activeMapIndex}-caged.png`;
+      return getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.png`);
     }
     return getNodeBanner(selectedNode || 'jail');
   };
@@ -462,7 +464,7 @@ export default function MapSection({ onTabChange }) {
             <div 
               className="map-image-layer" 
               style={{ 
-                backgroundImage: `url('/maps/campaign-map-${activeMapIndex}.png')`,
+                backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${activeMapIndex}.png`)}')`,
                 filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
               }} 
             />
@@ -482,6 +484,32 @@ export default function MapSection({ onTabChange }) {
                 <span className="text-red-500 font-mono text-[10px] tracking-[0.3em] font-extrabold uppercase bg-black/60 px-4 py-2 border border-red-500/20 rounded shadow-lg">
                   [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
                 </span>
+              </div>
+            ) : (activeMapIndex >= 2 && !downloadedRegions?.includes(activeMapIndex)) ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-10 font-times select-none p-6 text-center">
+                <motion.div
+                  className="w-16 h-16 mb-4 flex items-center justify-center rounded-full border-2 border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(236,200,128,0.2)]"
+                  animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                >
+                  <Lock size={28} className="text-gold-core" />
+                </motion.div>
+                <h3 className="text-gold-gradient text-sm font-bold tracking-[0.2em] uppercase mb-1">REGION DATA ENCRYPTED</h3>
+                <p className="text-[10px] text-gray-400 font-mono tracking-wider max-w-sm mb-4 uppercase">
+                  Region {activeMapIndex} assets are hosted on the Supabase CDN to minimize initial app size. Download the region data to proceed.
+                </p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      await downloadRegionBundle(activeMapIndex);
+                    } catch (err) {
+                      alert("Error downloading region bundle: " + err.message);
+                    }
+                  }}
+                  className="btn-gothic-gold px-6 py-2 text-[10px] font-mono tracking-[0.2em] uppercase font-bold"
+                >
+                  DE-ENCRYPT REGION DATA
+                </button>
               </div>
             ) : (
               <div className="map-nodes-overlay">
@@ -515,7 +543,7 @@ export default function MapSection({ onTabChange }) {
                       <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
                         <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
                         <img 
-                          src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                          src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
                           alt="Fairy Empress" 
                           className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
                           style={{ filter: currentFilter || 'none' }}
@@ -587,13 +615,13 @@ export default function MapSection({ onTabChange }) {
               <h4 className="text-gold-gradient text-lg font-bold flex items-center justify-center gap-2">
                 {displayRegion.name}
                 <img 
-                  src={`/crests/region-crest-${(displayRegionIdx % 10) + 1}.png`} 
+                  src={getAssetUrl(`/crests/region-crest-${(displayRegionIdx % 10) + 1}.png`)} 
                   alt={`${displayRegion.name} Crest`} 
                   className="w-7 h-7 object-contain inline-block filter drop-shadow-[0_0_4px_rgba(236,200,128,0.3)]"
                 />
               </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
-                backgroundImage: `url('/bg/bg-region-${activeMapIndex}.png')`,
+                backgroundImage: `url('${getAssetUrl(`/bg/bg-region-${activeMapIndex}.png`)}')`,
                 filter: currentFilter
               }} />
             </div>
@@ -626,7 +654,7 @@ export default function MapSection({ onTabChange }) {
                 <span className="stat-label font-times" style={{ marginTop: 0, color: '#ecc880' }}>SECURED SOVEREIGN</span>
                 <div className="threat-card font-times">
                   <img 
-                    src={`/fairies/empress-${activeMapIndex}-liberated.png`} 
+                    src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
                     alt="Fairy Empress" 
                     className="w-11 h-11 object-cover rounded-full border border-[#ecc880]/40 bg-gold-core/5"
                     style={{ filter: `${currentFilter} drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))` }}
@@ -846,7 +874,7 @@ export default function MapSection({ onTabChange }) {
                       <div 
                         className="threat-avatar" 
                         style={{ 
-                          backgroundImage: `url('/fairies/empress-${activeMapIndex}-caged.png')`,
+                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.png`)}')`,
                           width: '100%',
                           aspectRatio: '1 / 1',
                           backgroundSize: 'cover',
@@ -899,7 +927,7 @@ export default function MapSection({ onTabChange }) {
                       <div 
                         className="threat-avatar" 
                         style={{ 
-                          backgroundImage: `url('/fairies/empress-${activeMapIndex}-liberated.png')`,
+                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)}')`,
                           width: '100%',
                           aspectRatio: '1 / 1',
                           backgroundSize: 'cover',

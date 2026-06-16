@@ -2,7 +2,7 @@ const SUPABASE_CDN_BASE = 'https://yrxchjontmgkjaazrybh.supabase.co/storage/v1/o
 
 export const BUNDLE_CONFIG = {
   2: {
-    name: 'Caldera Core',
+    name: 'Ashwood Frontier',
     size: '8.4 MB',
     files: [
       'crests/region-crest-2.png',
@@ -11,7 +11,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   3: {
-    name: 'Frostborn Reach',
+    name: 'The Crucible',
     size: '14.2 MB',
     files: [
       'crests/region-crest-3.png',
@@ -23,7 +23,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   4: {
-    name: 'Shadowfen Spires',
+    name: 'Ironveil Fortress',
     size: '14.0 MB',
     files: [
       'crests/region-crest-4.png',
@@ -35,7 +35,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   5: {
-    name: 'Caldera Heights',
+    name: 'The Obsidian March',
     size: '14.5 MB',
     files: [
       'crests/region-crest-5.png',
@@ -47,7 +47,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   6: {
-    name: 'Cloudspire Dominions',
+    name: 'Dreadspire Academy',
     size: '14.1 MB',
     files: [
       'crests/region-crest-6.png',
@@ -59,7 +59,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   7: {
-    name: 'Spectral Caverns',
+    name: 'The Forge Eternal',
     size: '14.8 MB',
     files: [
       'crests/region-crest-7.png',
@@ -71,7 +71,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   8: {
-    name: 'Mirewood Wilderness',
+    name: 'Shadowmere Depths',
     size: '14.3 MB',
     files: [
       'crests/region-crest-8.png',
@@ -83,7 +83,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   9: {
-    name: 'Void Reach',
+    name: 'Crimson Summit',
     size: '13.9 MB',
     files: [
       'crests/region-crest-9.png',
@@ -95,7 +95,7 @@ export const BUNDLE_CONFIG = {
     ]
   },
   10: {
-    name: 'Citadel of Olympus',
+    name: 'The War Council',
     size: '14.7 MB',
     files: [
       'crests/region-crest-10.png',
@@ -132,8 +132,8 @@ export const getAssetUrl = (localPath) => {
     // Region 2 crest, map, and trophies are NOT bundled
     if (path.includes('region-crest-2.png') || path.includes('maps/campaign-map-2.png') || path.includes('trophies/trophy-dragon-lava.png')) return false;
 
-    // Day-1 fitness (Hermes) and all deities avatars/statues are bundled (since user said: "we will give them the deities, the scythes... all artifacts")
-    if (path.includes('deity/') || path.includes('ultimate/') || path.includes('scythe/')) {
+    // Day-1 fitness (Hermes), artifacts and all deities avatars/statues are bundled (since user said: "we will give them the deities, the scythes... all artifacts")
+    if (path.includes('deity/') || path.includes('ultimate/') || path.includes('scythe/') || path.includes('artifacts/')) {
       return true;
     }
 

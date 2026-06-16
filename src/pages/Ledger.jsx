@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetResolver';
 
 const EMPRESS_NAMES = [
   'Empress Dryad of Ashwood',
@@ -422,7 +423,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                           title={EMPRESS_NAMES[mapIndex - 1]}
                         >
                           <img
-                            src={`/crests/region-crest-${mapIndex}.png`}
+                            src={getAssetUrl(`/crests/region-crest-${mapIndex}.png`)}
                             alt={`Region ${mapIndex} Crest`}
                             className="w-full h-full object-contain p-0.5"
                             style={{ filter: `drop-shadow(0 0 4px ${accentColor}80)` }}
@@ -447,7 +448,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 <div className="dragon-grid flex flex-wrap gap-3 mt-3">
                   {Array.from({ length: bossKills }).map((_, i) => {
                     const type = dragonTrophies[i % dragonTrophies.length];
-                    const trophyPath = `/trophies/trophy-dragon-${type}.png`;
+                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.png`);
                     const bossTask = bossTasks[i];
                     return (
                       <motion.div 
@@ -576,7 +577,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                   >
                     <div className="inspector-visual">
                       <img 
-                        src={`/trophies/trophy-dragon-${selectedTrophy.type}.png`} 
+                        src={getAssetUrl(`/trophies/trophy-dragon-${selectedTrophy.type}.png`)} 
                         className="large-art-icon-img" 
                         alt={selectedTrophy.type} 
                         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2, filter: 'drop-shadow(0 0 12px rgba(239, 68, 68, 0.45))' }}
@@ -624,7 +625,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     {/* Crest as visual */}
                     <div className="inspector-visual" style={{ width: 120, height: 120 }}>
                       <img
-                        src={`/crests/region-crest-${selectedFairy.mapIndex}.png`}
+                        src={getAssetUrl(`/crests/region-crest-${selectedFairy.mapIndex}.png`)}
                         alt="Region Crest"
                         style={{
                           maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2, position: 'relative',
@@ -683,7 +684,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       {/* Liberation portrait thumbnail */}
                       <div className="mt-4 w-full rounded overflow-hidden border border-white/5" style={{ aspectRatio: '1/1' }}>
                         <img
-                          src={`/fairies/empress-${selectedFairy.mapIndex}-liberated.png`}
+                          src={getAssetUrl(`/fairies/empress-${selectedFairy.mapIndex}-liberated.png`)}
                           alt={EMPRESS_NAMES[selectedFairy.mapIndex - 1]}
                           className="w-full h-full object-cover object-top"
                           style={{ filter: `${currentFilter} drop-shadow(0 0 8px ${REGION_COLORS[selectedFairy.mapIndex] || '#ecc880'}50)` }}
