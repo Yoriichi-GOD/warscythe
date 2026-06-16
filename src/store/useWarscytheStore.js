@@ -491,26 +491,15 @@ export const useWarscytheStore = create(
         }
 
         // 1. Call edge function to create subscription
-        const sessionRes = await supabase.auth.getSession();
-        const session = sessionRes.data.session;
-        if (!session) {
-          throw new Error('Session expired. Please sign in again.');
-        }
-
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-subscription`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          }
+        const { data, error } = await supabase.functions.invoke('create-subscription', {
+          method: 'POST'
         });
 
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || 'Failed to initiate premium upgrade.');
+        if (error) {
+          throw new Error(error.message || 'Failed to initiate premium upgrade.');
         }
 
-        const { subscription_id } = await response.json();
+        const subscription_id = data?.subscription_id;
         if (!subscription_id) {
           throw new Error('Invalid response from upgrade service.');
         }
