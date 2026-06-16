@@ -9,6 +9,7 @@ import TaskDetail from './components/TaskDetail';
 import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
+import PremiumModal from './components/PremiumModal';
 import { ShieldAlert, X, Lock } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -115,6 +116,7 @@ export default function App() {
   const [taskModalInitialEffort, setTaskModalInitialEffort] = useState('Medium');
   const [showRitualModal, setShowRitualModal] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -352,6 +354,7 @@ export default function App() {
         onOpenVault={() => setActiveTab('ledger')} 
         onOpenAuth={() => setShowAuth(true)}
         onOpenGymLog={() => setActiveTab('fitness')}
+        onOpenPremium={() => setShowPremiumModal(true)}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -635,6 +638,15 @@ export default function App() {
               </p>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPremiumModal && (
+          <PremiumModal 
+            onClose={() => setShowPremiumModal(false)} 
+            onOpenAuth={() => setShowAuth(true)} 
+          />
         )}
       </AnimatePresence>
 

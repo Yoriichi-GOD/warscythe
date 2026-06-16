@@ -247,6 +247,20 @@ const rollReward = (isBoss = false) => {
   return { rarity, artifact, bonusPts };
 };
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export const useWarscytheStore = create(
   persist(
     (set, get) => ({
@@ -289,6 +303,7 @@ export const useWarscytheStore = create(
       hasPendingChanges: false,
       isMerging: false,
       user: null,
+      isAdFree: false,
       showResetPasswordModal: false,
       rescuedFairies: {},
       pendingVictoryScreen: null,
@@ -395,6 +410,7 @@ export const useWarscytheStore = create(
       clearClientState: () => {
         set({
           user: null,
+          isAdFree: false,
           tasks: [],
           rituals: [],
           completedTasks: [],
@@ -449,6 +465,93 @@ export const useWarscytheStore = create(
         ph.capture('warscythe_sign_out');
       },
 
+      checkEntitlement: async () => {
+        const u = get().user?.id;
+        if (!u) return;
+        try {
+          const { data, error } = await supabase
+            .from('user_entitlements')
+            .select('is_ad_free')
+            .eq('user_id', u)
+            .maybeSingle();
+          if (!error && data) {
+            set({ isAdFree: !!data.is_ad_free });
+          } else {
+            set({ isAdFree: false });
+          }
+        } catch (err) {
+          console.warn('checkEntitlement failed:', err);
+        }
+      },
+
+      initiateSubscription: async () => {
+        const u = get().user;
+        if (!u) {
+          throw new Error('Please sign in or link your operative profile to continue.');
+        }
+
+        // 1. Call edge function to create subscription
+        const sessionRes = await supabase.auth.getSession();
+        const session = sessionRes.data.session;
+        if (!session) {
+          throw new Error('Session expired. Please sign in again.');
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-subscription`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'Failed to initiate premium upgrade.');
+        }
+
+        const { subscription_id } = await response.json();
+        if (!subscription_id) {
+          throw new Error('Invalid response from upgrade service.');
+        }
+
+        // 2. Load Razorpay script
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          throw new Error('Failed to load payment portal script. Please check your internet connection.');
+        }
+
+        // 3. Open Razorpay checkout
+        return new Promise((resolve, reject) => {
+          const options = {
+            key: 'rzp_live_SXn65yEl8EFyrc',
+            subscription_id: subscription_id,
+            name: 'Warscythe',
+            description: 'Warscythe Ad-Free Subscription',
+            image: '/command-core.png',
+            theme: {
+              color: '#ecc880'
+            },
+            prefill: {
+              email: u.email || ''
+            },
+            handler: async function (res) {
+              console.log('Payment Successful:', res);
+              await get().checkEntitlement();
+              resolve(res);
+            },
+            modal: {
+              ondismiss: function () {
+                reject(new Error('Payment window closed.'));
+              }
+            }
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+        });
+      },
+
       fetchUserState: async (userId) => {
         if (get().isMerging) return;
         set({ isMerging: true });
@@ -476,6 +579,21 @@ export const useWarscytheStore = create(
               syncStatus: 'synced',
               hasPendingChanges: false
             });
+            // Fetch entitlements to update isAdFree
+            try {
+              const { data: entData, error: entError } = await supabase
+                .from('user_entitlements')
+                .select('is_ad_free')
+                .eq('user_id', userId)
+                .maybeSingle();
+              if (!entError && entData) {
+                set({ isAdFree: !!entData.is_ad_free });
+              } else {
+                set({ isAdFree: false });
+              }
+            } catch (entErr) {
+              console.warn('Failed to fetch user entitlements:', entErr);
+            }
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
           }

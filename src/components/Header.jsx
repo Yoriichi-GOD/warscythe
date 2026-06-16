@@ -4,8 +4,8 @@ import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint,
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep } = useWarscytheStore();
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium }) {
+  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   
   const xpForNext = level * 1000;
@@ -61,6 +61,26 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           <span className="xp-label">TOTAL XP</span>
           <span className="xp-value">{xp.toLocaleString()}</span>
         </div>
+
+        {user && (
+          <div className={`flex items-center ml-2 ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
+            {isAdFree ? (
+              <div 
+                className="elite-badge flex items-center justify-center font-mono font-bold tracking-widest text-[8px] border border-gold-core/40 text-gold-core bg-gold-core/5 rounded px-2.5 py-1.5 shadow-[0_0_12px_rgba(236,200,128,0.25)] animate-pulse" 
+                title="Elite Operative Status Active"
+              >
+                ELITE STATUS
+              </div>
+            ) : (
+              <button 
+                className="upgrade-elite-badge font-mono font-black tracking-widest text-[8px] bg-gold-core text-black rounded px-2.5 py-1.5 shadow-[0_0_15px_rgba(236,200,128,0.4)] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] cursor-pointer transition-all duration-300"
+                onClick={onOpenPremium}
+              >
+                UPGRADE TO ELITE
+              </button>
+            )}
+          </div>
+        )}
         
         <div className="action-buttons">
           {user && (
