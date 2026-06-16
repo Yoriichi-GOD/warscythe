@@ -11,6 +11,7 @@ import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
 import PremiumModal from './components/PremiumModal';
 import ShopModal from './components/ShopModal';
+import AssetDownloaderModal from './components/AssetDownloaderModal';
 import { ShieldAlert, X, Lock } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -119,6 +120,7 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
+  const [showDownloaderModal, setShowDownloaderModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -371,6 +373,7 @@ export default function App() {
         onOpenGymLog={() => setActiveTab('fitness')}
         onOpenPremium={() => setShowPremiumModal(true)}
         onOpenShop={() => setShowShopModal(true)}
+        onOpenDownloader={() => setShowDownloaderModal(true)}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -668,6 +671,11 @@ export default function App() {
           <ShopModal 
             onClose={() => setShowShopModal(false)} 
             onOpenAuth={() => setShowAuth(true)} 
+          />
+        )}
+        {showDownloaderModal && (
+          <AssetDownloaderModal 
+            onClose={() => setShowDownloaderModal(false)} 
           />
         )}
       </AnimatePresence>

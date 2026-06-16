@@ -40,7 +40,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
   const themes = [
     {
       id: 'shiva',
-      name: 'Shiva Theme',
+      name: 'Kailash Ascension',
       desc: 'Mount Himalayas backdrop. Electric blue design, custom Nandi card, and glowing Om insignia.',
       price: '₹200',
       type: 'theme',
@@ -89,16 +89,16 @@ export default function ShopModal({ onClose, onOpenAuth }) {
   return (
     <div className="modal-backdrop shop-backdrop" onClick={() => { resetThemePreview(); onClose(); }}>
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
         className="shop-modal-content"
         onClick={e => e.stopPropagation()}
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url("/shop-bg.png")',
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7)), url("/shop-bg.png")',
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          borderColor: 'var(--border-bright)'
+          backgroundPosition: 'center'
         }}
       >
         {/* Header */}
@@ -256,23 +256,24 @@ export default function ShopModal({ onClose, onOpenAuth }) {
 
         <style jsx>{`
           .shop-backdrop {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            padding: 0 !important;
             z-index: 2200;
           }
 
           .shop-modal-content {
-            width: 95vw;
-            height: 90vh;
-            max-width: 800px;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
             background-color: #08080a;
-            border: 1px solid var(--border-bright);
-            border-radius: 12px;
+            border: none;
+            border-radius: 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 100px rgba(0,0,0,0.9);
-            padding: 1.5rem;
+            box-shadow: none;
+            padding: 2rem 1.5rem;
           }
 
           .shop-header {

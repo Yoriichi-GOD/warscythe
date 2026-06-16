@@ -1041,7 +1041,7 @@
 
 /* ═══════════════ THEME ACCENT OVERRIDES ═══════════════ */
 
-/* Shiva Theme (Himalayan electric blue) */
+/* Kailash Ascension (Himalayan electric blue) */
 body.theme-shiva {
   --color-gold-core: #5dade2;
   --color-gold-glow: rgba(93, 173, 226, 0.25);
@@ -1052,7 +1052,10 @@ body.theme-shiva {
   --gold-bright: #d6efff;
   
   background-color: #030a16 !important;
-  background-image: linear-gradient(135deg, #030a16 0%, #010307 100%) !important;
+  background-image: linear-gradient(rgba(3, 10, 22, 0.75), rgba(1, 3, 7, 0.85)), url("/themes/shiva.png") !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center !important;
 }
 
 body.theme-shiva .elite-panel {
@@ -1084,7 +1087,10 @@ body.theme-lava {
   --gold-bright: #ffbdaf;
   
   background-color: #0f0402 !important;
-  background-image: linear-gradient(135deg, #0f0402 0%, #030000 100%) !important;
+  background-image: linear-gradient(rgba(15, 4, 2, 0.75), rgba(3, 0, 0, 0.85)), url("/themes/lava.png") !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center !important;
 }
 
 body.theme-lava .elite-panel {

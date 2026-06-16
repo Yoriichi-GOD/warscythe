@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
 import { triggerHaptics, scheduleStreakAlert } from '../utils/nativeTriggers';
 import { Capacitor } from '@capacitor/core';
+import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 import {
   REGIONS, TITLES, LORE_TEMPLATES, BASE_ARTIFACTS,
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
@@ -93,6 +94,11 @@ const mergeState = (local, saved) => {
 
   const activeScytheSkin = local.activeScytheSkin || saved.activeScytheSkin || 'default';
   const activeTheme = local.activeTheme || saved.activeTheme || 'default';
+
+  const downloadedRegions = Array.from(new Set([
+    ...(local.downloadedRegions || []),
+    ...(saved.downloadedRegions || [])
+  ]));
 
   // Daily Log
   const dailyLog = { ...(local.dailyLog || {}) };
@@ -198,6 +204,7 @@ const mergeState = (local, saved) => {
     unlockedThemes,
     activeScytheSkin,
     activeTheme,
+    downloadedRegions,
     dailyLog,
     unlockedLore,
     activeWorkout,
@@ -305,6 +312,7 @@ export const useWarscytheStore = create(
       unlockedThemes: ['default'],
       activeScytheSkin: 'default',
       activeTheme: 'default',
+      downloadedRegions: [],
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
@@ -455,6 +463,7 @@ export const useWarscytheStore = create(
           unlockedThemes: ['default'],
           activeScytheSkin: 'default',
           activeTheme: 'default',
+          downloadedRegions: [],
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
@@ -663,6 +672,7 @@ export const useWarscytheStore = create(
           unlockedThemes: state.unlockedThemes,
           activeScytheSkin: state.activeScytheSkin,
           activeTheme: state.activeTheme,
+          downloadedRegions: state.downloadedRegions,
           scytheMigrationDone: state.scytheMigrationDone,
           coins: state.coins,
           gymLog: state.gymLog,
@@ -1439,6 +1449,74 @@ export const useWarscytheStore = create(
         });
       },
 
+      downloadRegionBundle: async (regionId) => {
+        const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
+        const config = BUNDLE_CONFIG[regionId];
+        if (!config) return;
+
+        try {
+          const cache = await caches.open('warscythe-region-assets');
+          
+          // Get the CDN URLs for all files in the bundle
+          const urls = config.files.map(file => getAssetUrl(`/${file}`));
+          
+          // Download and cache
+          await cache.addAll(urls);
+
+          // Update store state
+          set(state => {
+            const downloaded = Array.from(new Set([...(state.downloadedRegions || []), Number(regionId)]));
+            return {
+              downloadedRegions: downloaded,
+              hasPendingChanges: true
+            };
+          });
+
+          // Save user state
+          const u = get().user?.id;
+          if (u) {
+            get().saveUserState(u);
+          }
+        } catch (err) {
+          console.error(`Failed to download bundle for region ${regionId}:`, err);
+          throw err;
+        }
+      },
+
+      deleteRegionBundle: async (regionId) => {
+        const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
+        const config = BUNDLE_CONFIG[regionId];
+        if (!config) return;
+
+        try {
+          const cache = await caches.open('warscythe-region-assets');
+          
+          // Delete from cache
+          const urls = config.files.map(file => getAssetUrl(`/${file}`));
+          for (const url of urls) {
+            await cache.delete(url);
+          }
+
+          // Update store state
+          set(state => {
+            const downloaded = (state.downloadedRegions || []).filter(id => Number(id) !== Number(regionId));
+            return {
+              downloadedRegions: downloaded,
+              hasPendingChanges: true
+            };
+          });
+
+          // Save user state
+          const u = get().user?.id;
+          if (u) {
+            get().saveUserState(u);
+          }
+        } catch (err) {
+          console.error(`Failed to delete bundle for region ${regionId}:`, err);
+          throw err;
+        }
+      },
+
       startWorkout: (split) => {
         set({
           activeWorkout: {
@@ -1678,6 +1756,59 @@ export const useWarscytheStore = create(
 
       completeTutorial: () => {
         set({ hasCompletedTutorial: true, tutorialStep: 'completed' });
+      },
+
+      downloadRegionBundle: async (regionId) => {
+        const config = BUNDLE_CONFIG[regionId];
+        if (!config) return;
+
+        try {
+          const cache = await caches.open('warscythe-region-assets');
+          const urlsToCache = config.files.map(file => getAssetUrl(file));
+          
+          await Promise.all(
+            urlsToCache.map(async (url) => {
+              const response = await fetch(url);
+              if (!response.ok) {
+                throw new Error(`Failed to fetch asset: ${url}`);
+              }
+              await cache.put(url, response);
+            })
+          );
+
+          set(state => {
+            const downloaded = [...(state.downloadedRegions || [])];
+            if (!downloaded.includes(regionId)) {
+              downloaded.push(regionId);
+            }
+            return { downloadedRegions: downloaded, hasPendingChanges: true };
+          });
+        } catch (error) {
+          console.error(`Error downloading region ${regionId} bundle:`, error);
+          throw error;
+        }
+      },
+
+      deleteRegionBundle: async (regionId) => {
+        const config = BUNDLE_CONFIG[regionId];
+        if (!config) return;
+
+        try {
+          const cache = await caches.open('warscythe-region-assets');
+          const urlsToDelete = config.files.map(file => getAssetUrl(file));
+          
+          await Promise.all(
+            urlsToDelete.map(url => cache.delete(url))
+          );
+
+          set(state => {
+            const downloaded = (state.downloadedRegions || []).filter(id => id !== regionId);
+            return { downloadedRegions: downloaded, hasPendingChanges: true };
+          });
+        } catch (error) {
+          console.error(`Error deleting region ${regionId} bundle:`, error);
+          throw error;
+        }
       },
 
       recalculateState: () => {

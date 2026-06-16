@@ -1,10 +1,10 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop }) {
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader }) {
   const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showAtlasDropdown, setShowAtlasDropdown] = React.useState(false);
@@ -170,6 +170,15 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
           >
             <ShoppingBag size={18} className="text-gold-core animate-pulse" />
+          </button>
+
+          <button 
+            className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+            onClick={onOpenDownloader} 
+            title="Tactical Cache Manager"
+            style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
+          >
+            <CloudDownload size={18} className="text-gold-core" />
           </button>
 
           <div style={{ position: 'relative' }}>
