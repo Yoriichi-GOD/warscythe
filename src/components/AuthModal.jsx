@@ -188,17 +188,6 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                   <span>Continue with Google</span>
                 </button>
 
-                {/* Apple Button */}
-                <button 
-                  className="auth-option-btn apple"
-                  onClick={() => handleOAuthLogin('apple')}
-                  disabled={loading || !termsAccepted}
-                >
-                  <svg className="auth-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 3.1 9.94 6.78 6.44c1.78-1.7 3.75-1.58 4.88-.95 1.48.82 2.16.8 3.18 0 1.04-.82 2.85-.92 4.36.48 3.32 2.76 2.5 8.7-2.15 14.31zm-1.87-16.1c.42-.48.66-1.12.56-1.76-.56.02-1.24.34-1.68.84-.4.46-.66 1.1-.56 1.74.62.06 1.26-.26 1.68-.82z"/>
-                  </svg>
-                  <span>Continue with Apple</span>
-                </button>
 
                 {/* Email Button */}
                 <button 
