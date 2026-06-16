@@ -518,13 +518,30 @@ export const useWarscytheStore = create(
         }
 
         // 1. Call edge function to create subscription
-        const { data, error } = await supabase.functions.invoke('create-subscription', {
-          method: 'POST'
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const session = (await supabase.auth.getSession()).data.session;
+        const jwt = session?.access_token;
+        if (!jwt) {
+          throw new Error('Please sign in or link your operative profile to continue.');
+        }
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/create-subscription`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`,
+            'apikey': supabaseAnonKey
+          }
         });
 
-        if (error) {
-          throw new Error(error.message || 'Failed to initiate premium upgrade.');
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Premium upgrade failed with status ${response.status}`);
         }
+
+        const data = await response.json();
 
         const subscription_id = data?.subscription_id;
         if (!subscription_id) {
@@ -1396,13 +1413,31 @@ export const useWarscytheStore = create(
         }
 
         // 1. Call edge function to create order
-        const { data, error } = await supabase.functions.invoke('create-order', {
-          body: { item_id: itemId, item_type: itemType }
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const session = (await supabase.auth.getSession()).data.session;
+        const jwt = session?.access_token;
+        if (!jwt) {
+          throw new Error('Please sign in or link your operative profile to continue.');
+        }
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/create-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`,
+            'apikey': supabaseAnonKey
+          },
+          body: JSON.stringify({ item_id: itemId, item_type: itemType })
         });
 
-        if (error) {
-          throw new Error(error.message || 'Failed to initiate cosmetic purchase.');
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Purchase creation failed with status ${response.status}`);
         }
+
+        const data = await response.json();
 
         const order_id = data?.order_id;
         const amount = data?.amount;
