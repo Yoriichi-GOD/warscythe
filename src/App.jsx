@@ -10,6 +10,7 @@ import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
 import EliteNavigation from './components/EliteNavigation';
 import PremiumModal from './components/PremiumModal';
+import ShopModal from './components/ShopModal';
 import { ShieldAlert, X, Lock } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -117,6 +118,7 @@ export default function App() {
   const [showRitualModal, setShowRitualModal] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showRealityLock, setShowRealityLock] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -201,6 +203,7 @@ export default function App() {
   const scytheLevel = useWarscytheStore(state => state.scytheLevel);
   const showResetPasswordModal = useWarscytheStore(state => state.showResetPasswordModal);
   const updatePassword = useWarscytheStore(state => state.updatePassword);
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
 
   // Sync priority body class
   useEffect(() => {
@@ -218,6 +221,18 @@ export default function App() {
       document.body.classList.add('priority-high');
     }
   }, [isFocusMode, focusedTaskId, selectedTaskId, tasks, user]);
+
+  // Sync active theme body class
+  useEffect(() => {
+    Array.from(document.body.classList).forEach(cls => {
+      if (cls.startsWith('theme-')) {
+        document.body.classList.remove(cls);
+      }
+    });
+    if (activeTheme && activeTheme !== 'default') {
+      document.body.classList.add(`theme-${activeTheme}`);
+    }
+  }, [activeTheme]);
 
   const handleFinalize = () => {
     setShowRealityLock(false);
@@ -355,6 +370,7 @@ export default function App() {
         onOpenAuth={() => setShowAuth(true)}
         onOpenGymLog={() => setActiveTab('fitness')}
         onOpenPremium={() => setShowPremiumModal(true)}
+        onOpenShop={() => setShowShopModal(true)}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -645,6 +661,12 @@ export default function App() {
         {showPremiumModal && (
           <PremiumModal 
             onClose={() => setShowPremiumModal(false)} 
+            onOpenAuth={() => setShowAuth(true)} 
+          />
+        )}
+        {showShopModal && (
+          <ShopModal 
+            onClose={() => setShowShopModal(false)} 
             onOpenAuth={() => setShowAuth(true)} 
           />
         )}

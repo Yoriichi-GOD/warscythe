@@ -85,6 +85,15 @@ const mergeState = (local, saved) => {
     ...(saved.unlockedScythes || ['neophyte'])
   ]));
 
+  // Unlocked Themes (Union)
+  const unlockedThemes = Array.from(new Set([
+    ...(local.unlockedThemes || ['default']),
+    ...(saved.unlockedThemes || ['default'])
+  ]));
+
+  const activeScytheSkin = local.activeScytheSkin || saved.activeScytheSkin || 'default';
+  const activeTheme = local.activeTheme || saved.activeTheme || 'default';
+
   // Daily Log
   const dailyLog = { ...(local.dailyLog || {}) };
   Object.entries(saved.dailyLog || {}).forEach(([date, savedVal]) => {
@@ -186,6 +195,9 @@ const mergeState = (local, saved) => {
     currentLevelProgress,
     notes,
     unlockedScythes,
+    unlockedThemes,
+    activeScytheSkin,
+    activeTheme,
     dailyLog,
     unlockedLore,
     activeWorkout,
@@ -290,6 +302,9 @@ export const useWarscytheStore = create(
       lastActiveDate: null,
       bossKills: 0,
       unlockedScythes: ['neophyte'],
+      unlockedThemes: ['default'],
+      activeScytheSkin: 'default',
+      activeTheme: 'default',
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
@@ -437,6 +452,9 @@ export const useWarscytheStore = create(
           lastActiveDate: null,
           bossKills: 0,
           unlockedScythes: ['neophyte'],
+          unlockedThemes: ['default'],
+          activeScytheSkin: 'default',
+          activeTheme: 'default',
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
@@ -583,6 +601,27 @@ export const useWarscytheStore = create(
             } catch (entErr) {
               console.warn('Failed to fetch user entitlements:', entErr);
             }
+
+            // Fetch unlocks from user_unlocks
+            try {
+              const { data: unlocksData, error: unlocksError } = await supabase
+                .from('user_unlocks')
+                .select('item_id, item_type')
+                .eq('user_id', userId);
+              
+              if (!unlocksError && unlocksData) {
+                const dbScythes = unlocksData.filter(u => u.item_type === 'scythe').map(u => u.item_id);
+                const dbThemes = unlocksData.filter(u => u.item_type === 'theme').map(u => u.item_id);
+                
+                set(state => ({
+                  unlockedScythes: Array.from(new Set([...(state.unlockedScythes || ['neophyte']), ...dbScythes])),
+                  unlockedThemes: Array.from(new Set([...(state.unlockedThemes || ['default']), ...dbThemes]))
+                }));
+              }
+            } catch (unlocksErr) {
+              console.warn('Failed to fetch user unlocks:', unlocksErr);
+            }
+
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
           }
@@ -621,6 +660,9 @@ export const useWarscytheStore = create(
           lastActiveDate: state.lastActiveDate,
           bossKills: state.bossKills,
           unlockedScythes: state.unlockedScythes,
+          unlockedThemes: state.unlockedThemes,
+          activeScytheSkin: state.activeScytheSkin,
+          activeTheme: state.activeTheme,
           scytheMigrationDone: state.scytheMigrationDone,
           coins: state.coins,
           gymLog: state.gymLog,
@@ -1315,6 +1357,86 @@ export const useWarscytheStore = create(
           return true;
         }
         return false;
+      },
+
+      equipScythe: (scytheId) => {
+        set({ activeScytheSkin: scytheId });
+        const u = get().user?.id;
+        if (u) {
+          get().saveUserState(u);
+        }
+      },
+
+      applyTheme: (themeId) => {
+        set({ activeTheme: themeId });
+        document.body.className = '';
+        if (themeId && themeId !== 'default') {
+          document.body.classList.add(`theme-${themeId}`);
+        }
+        const u = get().user?.id;
+        if (u) {
+          get().saveUserState(u);
+        }
+      },
+
+      buyCosmetic: async (itemId, itemType) => {
+        const u = get().user;
+        if (!u) {
+          throw new Error('Please sign in or link your operative profile to continue.');
+        }
+
+        // 1. Call edge function to create order
+        const { data, error } = await supabase.functions.invoke('create-order', {
+          body: { item_id: itemId, item_type: itemType }
+        });
+
+        if (error) {
+          throw new Error(error.message || 'Failed to initiate cosmetic purchase.');
+        }
+
+        const order_id = data?.order_id;
+        const amount = data?.amount;
+        if (!order_id) {
+          throw new Error('Invalid response from payment creation service.');
+        }
+
+        // 2. Load Razorpay script
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          throw new Error('Failed to load payment portal script. Please check your internet connection.');
+        }
+
+        // 3. Open Razorpay checkout
+        return new Promise((resolve, reject) => {
+          const options = {
+            key: 'rzp_live_SXn65yEl8EFyrc',
+            amount: amount,
+            currency: 'INR',
+            order_id: order_id,
+            name: 'Warscythe',
+            description: `Acquire ${itemId} ${itemType}`,
+            image: '/command-core.png',
+            theme: {
+              color: '#ecc880'
+            },
+            prefill: {
+              email: u.email || ''
+            },
+            handler: async function (res) {
+              console.log('Cosmetic Payment Successful:', res);
+              await get().fetchUserState(u.id);
+              resolve(res);
+            },
+            modal: {
+              ondismiss: function () {
+                reject(new Error('Payment window closed.'));
+              }
+            }
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+        });
       },
 
       startWorkout: (split) => {

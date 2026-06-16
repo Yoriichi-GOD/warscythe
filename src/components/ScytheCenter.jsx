@@ -4,7 +4,7 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock } from 'lucide-react';
 
 export default function ScytheCenter() {
-  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel } = useWarscytheStore();
+  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel, activeScytheSkin } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
   const [viewedStageIndex, setViewedStageIndex] = useState(null);
 
@@ -70,8 +70,18 @@ export default function ScytheCenter() {
     neophyte: 'rgba(255,255,255,0.3)', acolyte: 'rgba(100,149,237,0.4)', reaper: 'rgba(75,0,130,0.5)', executioner: 'rgba(220,20,60,0.5)',
     sovereign: 'rgba(197,160,89,0.6)', 'void-walker': 'rgba(138,43,226,0.6)', eternal: 'rgba(255,60,60,0.7)', 'death-lord': 'rgba(30,30,30,0.8)'
   };
-  const auraColor = auraColors[material] || 'rgba(255,255,255,0.05)';
-  const fullName = material === 'dormant' ? 'Dormant Scythe' : `${materialName} Reaper`;
+  const auraColor = activeScytheSkin === 'cosmic_harvester'
+    ? 'rgba(52, 152, 219, 0.75)'
+    : activeScytheSkin === 'hellfire_reaper'
+    ? 'rgba(231, 76, 60, 0.75)'
+    : (auraColors[material] || 'rgba(255,255,255,0.05)');
+  const fullName = activeScytheSkin === 'cosmic_harvester'
+    ? 'Cosmic Harvester (Premium)'
+    : activeScytheSkin === 'hellfire_reaper'
+    ? 'Hellfire Reaper (Premium)'
+    : material === 'dormant' 
+    ? 'Dormant Scythe' 
+    : `${materialName} Reaper`;
 
   return (
     <section className="scythe-center-section">
@@ -118,7 +128,7 @@ export default function ScytheCenter() {
               <div className="w-32 h-64 flex items-center justify-center">
                 <img 
                   src={activeStage.type === 'streak' ? `/ultimate/${material}.png` : `/scythe/${activeStage.name}.png`} 
-                  className="w-full h-full object-contain" 
+                  className={`w-full h-full object-contain scythe-img ${activeScytheSkin && activeScytheSkin !== 'default' ? `skin-${activeScytheSkin}` : ''}`} 
                   onError={(e) => {
                     e.target.src = '/scythe/DORMANT.png';
                   }} 

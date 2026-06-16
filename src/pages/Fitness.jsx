@@ -33,7 +33,8 @@ export default function Fitness() {
     logWorkout,
     getTotalTonnage,
     getDeityProgress,
-    updateActiveWorkoutNotes
+    updateActiveWorkoutNotes,
+    activeTheme
   } = useWarscytheStore();
 
   const deityState = getDeityProgress();
@@ -761,7 +762,16 @@ export default function Fitness() {
               </div>
 
               {/* Deity Statue Visualizer (Expanded h-[420px], no inner gray box, golden halo) */}
-              <div className="relative w-full h-[420px] bg-black/40 rounded flex items-end justify-center overflow-hidden mb-4 border border-white/5">
+              <div 
+                className="relative w-full h-[420px] bg-black/40 rounded flex items-end justify-center overflow-hidden mb-4 border border-white/5"
+                style={{
+                  background: activeTheme === 'shiva'
+                    ? 'linear-gradient(to top, rgba(9, 26, 47, 0.95), rgba(27, 53, 90, 0.45)), repeating-linear-gradient(45deg, rgba(93, 173, 226, 0.03) 0px, rgba(93, 173, 226, 0.03) 2px, transparent 2px, transparent 10px)'
+                    : activeTheme === 'lava'
+                    ? 'linear-gradient(to top, rgba(32, 7, 0, 0.95), rgba(90, 20, 0, 0.45)), repeating-linear-gradient(45deg, rgba(255, 61, 0, 0.03) 0px, rgba(255, 61, 0, 0.03) 2px, transparent 2px, transparent 10px)'
+                    : 'none'
+                }}
+              >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.18)_0%,transparent_65%)] pointer-events-none" />
                 
                 <motion.div 
@@ -829,6 +839,48 @@ export default function Fitness() {
                   </span>
                 </div>
               </div>
+
+              {activeTheme === 'shiva' && (
+                <div className="w-full bg-[#0d2238]/60 border border-[#5dade2]/30 rounded p-3 flex flex-col gap-1.5 text-left relative overflow-hidden mt-3 shadow-[0_0_15px_rgba(93,173,226,0.15)]">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-[radial-gradient(circle,rgba(93,173,226,0.1)_0%,transparent_70%)] pointer-events-none" />
+                  <div className="flex justify-between items-center text-[7.5px] font-mono text-[#5dade2] uppercase tracking-widest font-black">
+                    <span>NANDI'S SACRED BLESSING</span>
+                    <span>ACTIVE CARD</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xl shrink-0 filter drop-shadow-[0_0_5px_rgba(93,173,226,0.5)]">🐂</span>
+                    <div className="flex flex-col">
+                      <span className="font-display text-xs text-white tracking-widest font-extrabold uppercase leading-none mb-1">
+                        Devotion of Nandi
+                      </span>
+                      <p className="text-[8px] font-mono text-gray-400 leading-normal uppercase">
+                        Active cosmetic modifier. Increases spiritual energy during lifting. Fortitude matches the mountain peaks.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTheme === 'lava' && (
+                <div className="w-full bg-[#200700]/60 border border-[#ff3d00]/30 rounded p-3 flex flex-col gap-1.5 text-left relative overflow-hidden mt-3 shadow-[0_0_15px_rgba(255,61,0,0.15)]">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-[radial-gradient(circle,rgba(255,61,0,0.1)_0%,transparent_70%)] pointer-events-none" />
+                  <div className="flex justify-between items-center text-[7.5px] font-mono text-[#ff3d00] uppercase tracking-widest font-black">
+                    <span>MAGMA CORE RITUAL</span>
+                    <span>ACTIVE CARD</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xl shrink-0 filter drop-shadow-[0_0_5px_rgba(255,61,0,0.5)]">🌋</span>
+                    <div className="flex flex-col">
+                      <span className="font-display text-xs text-white tracking-widest font-extrabold uppercase leading-none mb-1">
+                        Volcanic Forge
+                      </span>
+                      <p className="text-[8px] font-mono text-gray-400 leading-normal uppercase">
+                        Magma flow powers your core muscles. Heat increases stamina in high reps. Overcomes maximum inertia.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
           </OrnatePanel>

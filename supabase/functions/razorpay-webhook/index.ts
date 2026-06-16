@@ -79,6 +79,8 @@ serve(async (req) => {
 
     // Try to find the user_id from subscription notes or payment notes
     userId = subscription?.notes?.user_id || payment?.notes?.user_id || null
+    const itemId = subscription?.notes?.item_id || payment?.notes?.item_id || null
+    const itemType = subscription?.notes?.item_type || payment?.notes?.item_type || null
 
     if (eventType === 'subscription.charged' || eventType === 'subscription.activated') {
       isAdFree = true
@@ -87,12 +89,17 @@ serve(async (req) => {
       isAdFree = false
       shouldUpdate = true
     } else if (eventType === 'payment.captured') {
-      // Direct payment captured (as a fallback or for non-subscription payments)
-      isAdFree = true
-      shouldUpdate = true
+      if (itemId && itemType) {
+        // This is a shop/cosmetic order purchase!
+        shouldUpdate = false
+      } else {
+        // Fallback for ad-free raw payments
+        isAdFree = true
+        shouldUpdate = true
+      }
     }
 
-    if (shouldUpdate && userId) {
+    if (userId && (shouldUpdate || (eventType === 'payment.captured' && itemId && itemType))) {
       // 4. Initialize Supabase Client with service role to bypass RLS
       const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
       const supabaseServiceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -107,28 +114,48 @@ serve(async (req) => {
 
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRole)
 
-      // 5. Update user entitlements in database
-      const { error: upsertError } = await supabaseAdmin
-        .from('user_entitlements')
-        .upsert({
-          user_id: userId,
-          is_ad_free: isAdFree,
-          updated_at: new Date().toISOString()
-        })
+      if (eventType === 'payment.captured' && itemId && itemType) {
+        // 5A. Insert into user_unlocks
+        const { error: unlockError } = await supabaseAdmin
+          .from('user_unlocks')
+          .upsert({
+            user_id: userId,
+            item_id: itemId,
+            item_type: itemType,
+            purchased_at: new Date().toISOString()
+          }, { onConflict: 'user_id,item_id' })
 
-      if (upsertError) {
-        console.error(`Database Error updating entitlement for user ${userId}:`, upsertError.message)
-        return new Response(JSON.stringify({ error: 'Database update failed' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+        if (unlockError) {
+          console.error(`Database Error inserting unlock for user ${userId}:`, unlockError.message)
+          return new Response(JSON.stringify({ error: 'Database update failed' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          })
+        }
+        console.log(`Success: Unlocked ${itemType} '${itemId}' for user ${userId}`)
+      } else if (shouldUpdate) {
+        // 5B. Update user entitlements in database
+        const { error: upsertError } = await supabaseAdmin
+          .from('user_entitlements')
+          .upsert({
+            user_id: userId,
+            is_ad_free: isAdFree,
+            updated_at: new Date().toISOString()
+          })
+
+        if (upsertError) {
+          console.error(`Database Error updating entitlement for user ${userId}:`, upsertError.message)
+          return new Response(JSON.stringify({ error: 'Database update failed' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          })
+        }
+        console.log(`Success: Entitlement set is_ad_free = ${isAdFree} for user ${userId}`)
       }
-
-      console.log(`Success: Entitlement set is_ad_free = ${isAdFree} for user ${userId}`)
-    } else if (!userId && shouldUpdate) {
+    } else if (!userId && (shouldUpdate || (eventType === 'payment.captured' && itemId && itemType))) {
       console.warn(`User ID not found in Razorpay payload for event ${eventType}`)
     } else {
-      console.log(`Event ${eventType} received but no entitlement change required`)
+      console.log(`Event ${eventType} received but no action required`)
     }
 
     return new Response(JSON.stringify({ received: true }), {

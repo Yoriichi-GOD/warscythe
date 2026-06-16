@@ -1,12 +1,13 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree } = useWarscytheStore();
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop }) {
+  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
+  const [showAtlasDropdown, setShowAtlasDropdown] = React.useState(false);
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
@@ -18,8 +19,21 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
     <header className="main-header glass-panel">
       <div className={`header-left ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
         <div className="logo-section">
-          <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden' }}>
-            <img src="/command-core.png" alt="Warscythe" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {activeTheme === 'shiva' ? (
+              <div className="text-2xl font-bold text-[#5dade2] drop-shadow-[0_0_8px_rgba(93,173,226,0.85)] font-sans select-none" style={{ lineHeight: 1 }}>ॐ</div>
+            ) : (
+              <img 
+                src="/command-core.png" 
+                alt="Warscythe" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'contain',
+                  filter: activeTheme === 'lava' ? 'hue-rotate(340deg) drop-shadow(0 0 8px #ff3d00)' : 'none'
+                }} 
+              />
+            )}
           </div>
           <div className="logo-text">
             <h1>WARSCYTHE</h1>
@@ -102,7 +116,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           <div style={{ position: 'relative' }}>
             <button 
               className={`nav-btn ${user ? 'active' : ''}`} 
-              onClick={user ? () => setShowDropdown(!showDropdown) : () => onOpenAuth()}
+              onClick={user ? () => { setShowDropdown(!showDropdown); setShowAtlasDropdown(false); } : () => onOpenAuth()}
               title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
             >
               {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
@@ -149,15 +163,41 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               </div>
             )}
           </div>
-          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={onOpenGymLog} title="Gym & Fitness Log">
-            <Dumbbell size={18} />
+          <button 
+            className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+            onClick={onOpenShop} 
+            title="Dread Armory (Shop)"
+            style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
+          >
+            <ShoppingBag size={18} className="text-gold-core animate-pulse" />
           </button>
-          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={() => onOpenVault()} title="Artifact Vault">
-            <Award size={18} />
-          </button>
-          <button className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} onClick={onOpenMap} title="Tactical Map">
-            <MapIcon size={18} />
-          </button>
+
+          <div style={{ position: 'relative' }}>
+            <button 
+              className={`nav-btn ${showAtlasDropdown ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+              onClick={() => {
+                setShowAtlasDropdown(!showAtlasDropdown);
+                setShowDropdown(false);
+              }}
+              title="Atlas Records"
+            >
+              <BookOpen size={18} />
+            </button>
+            {showAtlasDropdown && (
+              <div className="header-dropdown-menu">
+                <button onClick={() => { setShowAtlasDropdown(false); onOpenGymLog(); }}>
+                  FITNESS LOG
+                </button>
+                <button onClick={() => { setShowAtlasDropdown(false); onOpenVault(); }}>
+                  ARTIFACT VAULT
+                </button>
+                <button onClick={() => { setShowAtlasDropdown(false); onOpenMap(); }}>
+                  TACTICAL MAP
+                </button>
+              </div>
+            )}
+          </div>
+
           <button 
             className={`nav-btn ${isFocusMode ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
             onClick={() => useWarscytheStore.getState().toggleFocus()} 
