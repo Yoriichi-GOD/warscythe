@@ -1,4 +1,6 @@
 import React from 'react';
+import { useWarscytheStore } from '../../store/useWarscytheStore';
+import { getAssetUrl } from '../../utils/assetResolver';
 
 export default function ScytheDisplay({ 
   level = "DORMANT", 
@@ -11,10 +13,20 @@ export default function ScytheDisplay({
   onReturnToActive = () => {},
   previewLevel = null
 }) {
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
   const safeLevel = level ? level.toUpperCase() : "DORMANT";
-  const imagePath = type === "ultimate" 
+  
+  let imagePath = type === "ultimate" 
     ? `/ultimate/${level.toLowerCase()}.png`
     : `/scythe/${safeLevel}.png`;
+
+  if (type !== "ultimate" && activeTheme && activeTheme !== "default") {
+    if (activeTheme === "shiva") {
+      imagePath = getAssetUrl(`/themes/kailash/scythe-${safeLevel.toLowerCase()}.png`);
+    } else if (activeTheme === "lava") {
+      imagePath = getAssetUrl(`/themes/lava/scythe-${safeLevel.toLowerCase()}.png`);
+    }
+  }
 
   // Find the description of the selected stage
   const selectedStage = evolutionStages?.find(s => s.id === safeLevel);

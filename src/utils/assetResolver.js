@@ -138,10 +138,10 @@ export const getAssetUrl = (localPath) => {
     }
 
     // Themes (Kailash Ascension / Lava) are on CDN
-    if (path.includes('themes/shiva.png') || path.includes('themes/lava.png')) return false;
+    if (path.includes('themes/')) return false;
 
     // Critical UI icons
-    if (path.includes('command-core.png') || path.includes('guardian-observer.png') || path.includes('favicon.svg') || path.includes('icons.svg') || path.includes('manifest.webmanifest')) return true;
+    if (path.includes('command-core.png') || path.includes('guardian-observer.png') || path.includes('favicon.svg') || path.includes('icons.svg') || path.includes('manifest.webmanifest') || path.includes('ritual-platform.png') || path.includes('shop-bg.png')) return true;
 
     // Default folders, if it's region 1 crest or region 1 campaign map
     if (path.includes('campaign-map-1.png') || path.includes('region-crest-1.png')) return true;

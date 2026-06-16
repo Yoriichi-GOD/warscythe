@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetResolver';
 
 export default function ScytheCenter() {
-  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel, activeScytheSkin } = useWarscytheStore();
+  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel, activeScytheSkin, activeTheme } = useWarscytheStore();
   const [isSlashing, setIsSlashing] = useState(false);
   const [viewedStageIndex, setViewedStageIndex] = useState(null);
 
@@ -127,7 +128,19 @@ export default function ScytheCenter() {
               </AnimatePresence>
               <div className="w-32 h-64 flex items-center justify-center">
                 <img 
-                  src={activeStage.type === 'streak' ? `/ultimate/${material}.png` : `/scythe/${activeStage.name}.png`} 
+                  src={(() => {
+                    if (activeStage.type === 'streak') {
+                      return `/ultimate/${material}.png`;
+                    }
+                    if (activeTheme && activeTheme !== 'default') {
+                      if (activeTheme === 'shiva') {
+                        return getAssetUrl(`/themes/kailash/scythe-${activeStage.name.toLowerCase()}.png`);
+                      } else if (activeTheme === 'lava') {
+                        return getAssetUrl(`/themes/lava/scythe-${activeStage.name.toLowerCase()}.png`);
+                      }
+                    }
+                    return `/scythe/${activeStage.name}.png`;
+                  })()}
                   className={`w-full h-full object-contain scythe-img ${activeScytheSkin && activeScytheSkin !== 'default' ? `skin-${activeScytheSkin}` : ''}`} 
                   onError={(e) => {
                     e.target.src = '/scythe/DORMANT.png';

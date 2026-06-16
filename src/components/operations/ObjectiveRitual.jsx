@@ -1,6 +1,17 @@
 import { motion } from "framer-motion";
+import { useWarscytheStore } from "../../store/useWarscytheStore";
+import { getAssetUrl } from "../../utils/assetResolver";
 
 export default function ObjectiveRitual({ onClick }) {
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
+  
+  let platformSrc = "/ritual-platform.png";
+  if (activeTheme === 'shiva') {
+    platformSrc = getAssetUrl('/themes/kailash/ritual-platform.png');
+  } else if (activeTheme === 'lava') {
+    platformSrc = getAssetUrl('/themes/lava/ritual-platform.png');
+  }
+
   return (
     <div className="flex flex-col items-center gap-2 py-0">
       <div className="flex flex-col items-center gap-1 mb-0 text-center relative z-20">
@@ -12,7 +23,7 @@ export default function ObjectiveRitual({ onClick }) {
         {/* THE RITUAL PLATFORM ASSET */}
         <div className="relative w-full aspect-video flex items-center justify-center">
           <img 
-            src="/ritual-platform.png" 
+            src={platformSrc} 
             alt="Ritual Platform" 
             className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(197,160,89,0.3)]"
           />

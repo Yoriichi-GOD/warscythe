@@ -1,17 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useWarscytheStore } from "../../store/useWarscytheStore";
+import { getAssetUrl } from "../../utils/assetResolver";
 
 export default function DashboardLayout({ children, activeTab }) {
   const level = useWarscytheStore(state => state.level) || 1;
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
   const regionIndex = ((level - 1) % 10) + 1;
 
-  const bgImage = activeTab === 'fitness' 
+  let bgImage = activeTab === 'fitness' 
     ? '/olympus-bg.png' 
     : `/bg/bg-region-${regionIndex}.png`;
 
-  const bgAlt = activeTab === 'fitness' 
-    ? 'Olympus Temple' 
-    : `Region ${regionIndex} Background`;
+  if (activeTheme && activeTheme !== 'default') {
+    if (activeTheme === 'shiva') {
+      bgImage = getAssetUrl('/themes/kailash/bg.png');
+    } else if (activeTheme === 'lava') {
+      bgImage = getAssetUrl('/themes/lava/bg.png');
+    }
+  }
+
+  const bgAlt = activeTheme && activeTheme !== 'default'
+    ? `${activeTheme} Theme Background`
+    : (activeTab === 'fitness' ? 'Olympus Temple' : `Region ${regionIndex} Background`);
 
   const isRepetition = level > 10;
   const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
@@ -25,7 +35,7 @@ export default function DashboardLayout({ children, activeTab }) {
 
   const currentTheme = isRepetition ? regionThemes[(cycleIndex - 1) % regionThemes.length] : null;
 
-  const bgFilterStyle = (currentTheme && activeTab !== 'fitness') 
+  const bgFilterStyle = (currentTheme && activeTab !== 'fitness' && (!activeTheme || activeTheme === 'default')) 
     ? `hue-rotate(${currentTheme.hue}deg) sepia(${currentTheme.sepia}) saturate(${currentTheme.saturate})`
     : 'none';
 
@@ -41,7 +51,7 @@ export default function DashboardLayout({ children, activeTab }) {
             alt={bgAlt} 
             style={{ filter: bgFilterStyle }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.7 }}
+            animate={{ opacity: 0.9 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
@@ -49,7 +59,7 @@ export default function DashboardLayout({ children, activeTab }) {
         </AnimatePresence>
         {/* 2. THE ELITE GRADIENT OVERLAY (Pro-Tip) */}
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" 
+          className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/20" 
         />
         {/* 3. VIGNETTE FOR FOCUS */}
         <div 
