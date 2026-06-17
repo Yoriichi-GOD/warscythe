@@ -557,7 +557,7 @@ export const useWarscytheStore = create(
         // 3. Open Razorpay checkout
         return new Promise((resolve, reject) => {
           const options = {
-            key: 'rzp_live_SXn65yEl8EFyrc',
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_SXn65yEl8EFyrc',
             subscription_id: subscription_id,
             name: 'Warscythe',
             description: 'Warscythe Ad-Free Subscription',
@@ -1454,7 +1454,7 @@ export const useWarscytheStore = create(
         // 3. Open Razorpay checkout
         return new Promise((resolve, reject) => {
           const options = {
-            key: 'rzp_live_SXn65yEl8EFyrc',
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_SXn65yEl8EFyrc',
             amount: amount,
             currency: 'INR',
             order_id: order_id,
