@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.warscythe.app",
+      "sha256_cert_fingerprints": [
+        "28:61:4A:7B:11:42:EC:6B:F9:05:E1:E0:27:5C:22:8D:0E:DF:5C:2D:A3:7D:46:50:A9:9C:C6:DD:83:BE:6E:68"
+      ]
+    }
+  }
+]
