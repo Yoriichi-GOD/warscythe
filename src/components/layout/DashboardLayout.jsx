@@ -16,11 +16,14 @@ export default function DashboardLayout({ children, activeTab }) {
       bgImage = getAssetUrl('/themes/kailash/bg.png');
     } else if (activeTheme === 'lava') {
       bgImage = getAssetUrl('/themes/lava/bg.png');
+    } else if (activeTheme.startsWith('region-')) {
+      const regionNum = activeTheme.replace('region-', '');
+      bgImage = `/bg/bg-region-${regionNum}.png`;
     }
   }
 
   const bgAlt = activeTheme && activeTheme !== 'default'
-    ? `${activeTheme} Theme Background`
+    ? (activeTheme.startsWith('region-') ? `Region ${activeTheme.replace('region-', '')} Background` : `${activeTheme} Theme Background`)
     : (activeTab === 'fitness' ? 'Olympus Temple' : `Region ${regionIndex} Background`);
 
   const isRepetition = level > 10;
