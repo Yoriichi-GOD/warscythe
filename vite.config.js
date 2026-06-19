@@ -8,6 +8,14 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      workbox: {
+        navigateFallbackDenylist: [
+          /^\/app-ads\.txt$/,
+          /^\/robots\.txt$/,
+          /^\/\.well-known\/assetlinks\.json$/,
+          /^\/privacy\.html$/
+        ]
+      },
       manifest: {
         name: 'Warlord Execution Engine',
         short_name: 'Warlord',
