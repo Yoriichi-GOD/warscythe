@@ -92,8 +92,13 @@ const mergeState = (local, saved) => {
     ...(saved.unlockedThemes || ['default'])
   ]));
 
-  const activeScytheSkin = local.activeScytheSkin || saved.activeScytheSkin || 'default';
-  const activeTheme = local.activeTheme || saved.activeTheme || 'default';
+  const activeScytheSkin = (local.activeScytheSkin && local.activeScytheSkin !== 'default')
+    ? local.activeScytheSkin
+    : (saved.activeScytheSkin || 'default');
+
+  const activeTheme = (local.activeTheme && local.activeTheme !== 'default')
+    ? local.activeTheme
+    : (saved.activeTheme || 'default');
 
   const downloadedRegions = Array.from(new Set([
     ...(local.downloadedRegions || []),
