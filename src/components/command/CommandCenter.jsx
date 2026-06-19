@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame, Award, Dumbbell } from 'lucide-react';
+import { getAssetUrl } from '../../utils/assetResolver';
 
 const LEGACY_ARTIFACT_MAP = {
   'Iron Quill': 'tome', "Scout's Compass": 'compass', 'Wax Seal of Intent': 'scroll',
@@ -104,7 +105,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         {/* The Image (Centered and Blended) */}
         <div className="absolute inset-0 z-0 flex items-center justify-center p-4 bg-black/40">
            <img 
-             src={`/ultimate/${currentTier.name.toLowerCase()}.png`} 
+             src={getAssetUrl(`/ultimate/${currentTier.name.toLowerCase()}.png`)} 
              alt={currentTier.name} 
              className="w-[85%] h-[85%] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300"
              onError={(e) => { e.target.src = '/scythe/PLATINUM.png'; }}

@@ -8,8 +8,8 @@ export default function DashboardLayout({ children, activeTab }) {
   const regionIndex = ((level - 1) % 10) + 1;
 
   let bgImage = activeTab === 'fitness' 
-    ? '/olympus-bg.png' 
-    : `/bg/bg-region-${regionIndex}.png`;
+    ? getAssetUrl('/olympus-bg.png') 
+    : getAssetUrl(`/bg/bg-region-${regionIndex}.png`);
 
   if (activeTheme && activeTheme !== 'default') {
     if (activeTheme === 'shiva') {
@@ -18,7 +18,7 @@ export default function DashboardLayout({ children, activeTab }) {
       bgImage = getAssetUrl('/themes/lava/bg.png');
     } else if (activeTheme.startsWith('region-')) {
       const regionNum = activeTheme.replace('region-', '');
-      bgImage = `/bg/bg-region-${regionNum}.png`;
+      bgImage = getAssetUrl(`/bg/bg-region-${regionNum}.png`);
     }
   }
 

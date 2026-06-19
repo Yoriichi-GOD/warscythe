@@ -119,6 +119,8 @@ export const getAssetUrl = (localPath) => {
     // Day-1 local files in public folder:
     if (path.includes('region-crest-1.png')) return true;
     if (path.includes('maps/campaign-map-1.png')) return true;
+    if (path.includes('bg-region-1.png') || path.includes('bg/bg-region-1.png')) return true;
+    if (path.includes('olympus-bg.png')) return true;
     
     // Region 1 & 2 Fairy assets (empress 1 and 2) are bundled
     if (path.includes('fairies/empress-1-') || path.includes('fairies/empress-2-')) return true;
@@ -132,8 +134,12 @@ export const getAssetUrl = (localPath) => {
     // Region 2 crest, map, and trophies are NOT bundled
     if (path.includes('region-crest-2.png') || path.includes('maps/campaign-map-2.png') || path.includes('trophies/trophy-dragon-lava.png')) return false;
 
-    // Day-1 fitness (Hermes), artifacts and all deities avatars/statues are bundled (since user said: "we will give them the deities, the scythes... all artifacts")
-    if (path.includes('deity/') || path.includes('ultimate/') || path.includes('scythe/') || path.includes('artifacts/')) {
+    // Day-1 fitness (Hermes statue) and deity avatars are bundled. Other deity statues are remote.
+    if (path.includes('deity/avatar/') || path.includes('deity/hermes.png')) return true;
+    if (path.includes('deity/')) return false;
+
+    // Regular scythes and artifacts are bundled. Ultimate scythes are on CDN.
+    if (path.includes('scythe/') || path.includes('artifacts/')) {
       return true;
     }
 

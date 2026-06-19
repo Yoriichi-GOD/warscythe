@@ -1051,7 +1051,7 @@ body.theme-shiva {
   --gold-bright: #d6efff;
   
   background-color: #030a16 !important;
-  background-image: linear-gradient(rgba(3, 10, 22, 0.5), rgba(1, 3, 7, 0.65)), var(--theme-bg, url("/themes/kailash/bg.png")) !important;
+  background-image: linear-gradient(rgba(3, 10, 22, 0.5), rgba(1, 3, 7, 0.65)), var(--theme-bg, url("https://yrxchjontmgkjaazrybh.supabase.co/storage/v1/object/public/cosmetics/public/themes/kailash/bg.png")) !important;
   background-size: cover !important;
   background-attachment: fixed !important;
   background-position: center !important;
@@ -1086,7 +1086,7 @@ body.theme-lava {
   --gold-bright: #ffbdaf;
   
   background-color: #0f0402 !important;
-  background-image: linear-gradient(rgba(15, 4, 2, 0.5), rgba(3, 0, 0, 0.65)), var(--theme-bg, url("/themes/lava/bg.png")) !important;
+  background-image: linear-gradient(rgba(15, 4, 2, 0.5), rgba(3, 0, 0, 0.65)), var(--theme-bg, url("https://yrxchjontmgkjaazrybh.supabase.co/storage/v1/object/public/cosmetics/public/themes/lava/bg.png")) !important;
   background-size: cover !important;
   background-attachment: fixed !important;
   background-position: center !important;

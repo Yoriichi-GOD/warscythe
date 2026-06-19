@@ -118,13 +118,13 @@ const getDragonName = (lvl) => {
 
 const getNodeBanner = (nodeId) => {
   const banners = {
-    castle: '/nodes/node-blackvale.png',
-    ashendale: '/nodes/node-ashendale.png',
-    jail: '/nodes/node-ironjail.png',
-    stone: '/nodes/node-stonehollow.png',
-    boss: '/nodes/node-blackvale.png'
+    castle: getAssetUrl('/nodes/node-blackvale.png'),
+    ashendale: getAssetUrl('/nodes/node-ashendale.png'),
+    jail: getAssetUrl('/nodes/node-ironjail.png'),
+    stone: getAssetUrl('/nodes/node-stonehollow.png'),
+    boss: getAssetUrl('/nodes/node-blackvale.png')
   };
-  return banners[nodeId] || '/nodes/node-blackvale.png';
+  return banners[nodeId] || getAssetUrl('/nodes/node-blackvale.png');
 };
 
 const getRegionNodeInfo = (mapIdx, nodeId) => {
@@ -452,7 +452,7 @@ export default function MapSection({ onTabChange }) {
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    backgroundImage: "url('/maps/map-fog-overlay.png')",
+                    backgroundImage: `url('${getAssetUrl('/maps/map-fog-overlay.png')}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     zIndex: 100,
@@ -472,7 +472,7 @@ export default function MapSection({ onTabChange }) {
             {activeMapIndex > level ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
                 <motion.img 
-                  src="/maps/map-lock-icon.png" 
+                  src={getAssetUrl('/maps/map-lock-icon.png')} 
                   alt="Locked Sector" 
                   className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
                   animate={{ scale: [1, 1.08, 1] }}
@@ -556,7 +556,7 @@ export default function MapSection({ onTabChange }) {
                       <>
                         <div className={`node-glow ${node.type}`} />
                         {node.type === 'active' && <div className="current-ping" />}
-                        {node.type === 'locked' && <img src="/maps/map-lock-icon.png" className="lock-icon animate-pulse" alt="Locked" />}
+                        {node.type === 'locked' && <img src={getAssetUrl('/maps/map-lock-icon.png')} className="lock-icon animate-pulse" alt="Locked" />}
                         {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
                       </>
                     )}
@@ -700,7 +700,7 @@ export default function MapSection({ onTabChange }) {
                     {activeMapIndex > level && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                         <motion.img 
-                          src="/maps/map-lock-icon.png" 
+                          src={getAssetUrl('/maps/map-lock-icon.png')} 
                           alt="Locked" 
                           className="filter drop-shadow-[0_0_8px_rgba(239, 68, 68, 0.9)]"
                           style={{ width: '24px', height: '24px', objectFit: 'contain' }}
@@ -846,7 +846,7 @@ export default function MapSection({ onTabChange }) {
                       <div className="w-48 h-48 rounded border border-emerald-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(16,185,129,0.25)] flex items-center justify-center bg-black/40">
                         {!jailImageFailed ? (
                           <img 
-                            src="/nodes/node-jail-opened.png" 
+                            src={getAssetUrl('/nodes/node-jail-opened.png')} 
                             alt="Jail Opened" 
                             className="w-full h-full object-contain p-2"
                             onError={() => setJailImageFailed(true)}

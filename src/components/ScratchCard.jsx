@@ -2,14 +2,15 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Scroll } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import { getAssetUrl } from '../utils/assetResolver';
 
 const getFoilPath = (rarity) => {
   const foils = {
-    common: '/scratch/scratch-foil-common.png',
-    uncommon: '/scratch/scratch-foil-uncommon.png',
-    rare: '/scratch/scratch-foil-rare.png',
-    epic: '/scratch/scratch-foil-epic.png',
-    mythic: '/scratch/scratch-foil-mythic.png'
+    common: getAssetUrl('/scratch/scratch-foil-common.png'),
+    uncommon: getAssetUrl('/scratch/scratch-foil-uncommon.png'),
+    rare: getAssetUrl('/scratch/scratch-foil-rare.png'),
+    epic: getAssetUrl('/scratch/scratch-foil-epic.png'),
+    mythic: getAssetUrl('/scratch/scratch-foil-mythic.png')
   };
   return foils[rarity.toLowerCase()] || foils.common;
 };
@@ -211,7 +212,7 @@ export default function ScratchCard({ data, onClose }) {
                    transition={{ delay: 0.15 }}
                  >
                     <img 
-                      src={`/keys/key-${keyElement}.png`} 
+                      src={getAssetUrl(`/keys/key-${keyElement}.png`)} 
                       className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]" 
                       alt={`${keyElement} Key`} 
                       style={{ zIndex: 2 }}

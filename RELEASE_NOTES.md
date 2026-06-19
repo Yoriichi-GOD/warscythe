@@ -1,3 +1,23 @@
+# Release Notes - Warscythe v2.1.2 (Build 14)
+
+Welcome to **Warscythe v2.1.2**! This release introduces critical infrastructure improvements for AdMob app store verification, custom cosmetic theme syncing, layout rendering improvements, and payment flow logging.
+
+## What's New
+
+### 1. AdMob & Store Verification Configuration
+* **AdMob Application ID:** Added the Google Mobile Ads SDK application ID to `AndroidManifest.xml` to link the native app binary to your AdMob account and prevent crashes on startup.
+* **PWA Service Worker Denylist:** Configured the PWA service worker to bypass and ignore physical files (`app-ads.txt`, `robots.txt`, `.well-known/assetlinks.json`, and `privacy.html`). Visiting `/app-ads.txt` now serves the raw text file directly in all web browsers.
+* **Explicit Crawler Whitelisting:** Created a `robots.txt` configuration that whitelists the `Mediapartners-Google` and `Googlebot` crawlers for the root and `app-ads.txt` paths.
+
+### 2. State Merging & Cosmetic Syncing
+* **Store Sync Fix:** Fixed a synchronization bug in `useWarscytheStore.js` where merging states would cause local `'default'` themes or scythe skins to overwrite custom cosmetics saved on the database. Custom themes now sync perfectly across devices.
+* **Dynamic Region Backgrounds:** Added native support in `DashboardLayout.jsx` for dynamic region themes, allowing any region background to be unlocked and set as the active theme.
+
+### 3. Payment Gateway Diagnostics
+* **Detailed Error Unpacking:** Replaced standard `supabase.rpc` and `supabase.functions.invoke` calls with standard `fetch` requests for payment Edge Functions. This permits the app to unpack and display detailed Razorpay gateway error payloads directly to the client instead of generic HTTP errors.
+
+---
+
 # Release Notes - Warscythe v2.1.0 (Build 11)
 
 Welcome to the **Warscythe v2.1.0** production release! This update introduces a completely redesigned, narrative-integrated onboarding tutorial flow, contextual action guidance, visual polishing, and safety sandbox features for first-time players.

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, Trophy } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetResolver';
 
 export default function BossFlashScreen({ type, onClose }) {
   const config = {
@@ -44,8 +45,8 @@ export default function BossFlashScreen({ type, onClose }) {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="absolute inset-0 z-0 bg-cover bg-center bg-cinematic"
         style={{ 
-          '--bg-desktop': `url('${screen.image}')`,
-          '--bg-mobile': `url('${screen.mobileImage}')`
+          '--bg-desktop': `url('${getAssetUrl(screen.image)}')`,
+          '--bg-mobile': `url('${getAssetUrl(screen.mobileImage)}')`
         }}
       />
 

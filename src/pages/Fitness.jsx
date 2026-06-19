@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import { getAssetUrl } from '../utils/assetResolver';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
@@ -798,7 +799,7 @@ export default function Fitness() {
                   {/* Deity Statue Image - Full height, standing on bottom */}
                   <div className="relative z-10 w-full h-[360px] flex items-end justify-center">
                     <img 
-                      src={`/deity/${activeDeity.id}.png`} 
+                      src={getAssetUrl(`/deity/${activeDeity.id}.png`)} 
                       alt={activeDeity.name}
                       className="max-w-[90%] max-h-full object-contain"
                       onError={(e) => {
@@ -951,7 +952,7 @@ export default function Fitness() {
                             : 'border-white/10'
                       }`}>
                         <img 
-                          src={`/deity/avatar/${deity.id}.png`} 
+                          src={getAssetUrl(`/deity/avatar/${deity.id}.png`)} 
                           alt={deity.name} 
                           className={`w-full h-full object-cover ${!isUnlocked ? 'grayscale opacity-30' : ''}`}
                           onError={(e) => {

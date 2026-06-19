@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS, LORE_TEMPLATES } from '../store/constants';
 import { X } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetResolver';
 
 export default function LevelUpModal({ data, onClose }) {
   const { newLevel, newTitle, regionIdx } = data;
@@ -11,7 +12,7 @@ export default function LevelUpModal({ data, onClose }) {
   const loreTemplate = loreList[0] || "A new horizon awaits your command.";
 
   const crestIndex = ((newLevel - 1) % 10) + 1;
-  const crestPath = `/crests/region-crest-${crestIndex}.png`;
+  const crestPath = getAssetUrl(`/crests/region-crest-${crestIndex}.png`);
 
   return (
     <div className="modal-backdrop levelup-backdrop">

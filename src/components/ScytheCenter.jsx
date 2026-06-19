@@ -130,7 +130,7 @@ export default function ScytheCenter() {
                 <img 
                   src={(() => {
                     if (activeStage.type === 'streak') {
-                      return `/ultimate/${material}.png`;
+                      return getAssetUrl(`/ultimate/${material}.png`);
                     }
                     if (activeTheme && activeTheme !== 'default') {
                       if (activeTheme === 'shiva') {
@@ -139,7 +139,7 @@ export default function ScytheCenter() {
                         return getAssetUrl(`/themes/lava/scythe-${activeStage.name.toLowerCase()}.png`);
                       }
                     }
-                    return `/scythe/${activeStage.name}.png`;
+                    return getAssetUrl(`/scythe/${activeStage.name}.png`);
                   })()}
                   className={`w-full h-full object-contain scythe-img ${activeScytheSkin && activeScytheSkin !== 'default' ? `skin-${activeScytheSkin}` : ''}`} 
                   onError={(e) => {

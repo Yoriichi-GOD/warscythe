@@ -17,8 +17,8 @@ export default function ScytheDisplay({
   const safeLevel = level ? level.toUpperCase() : "DORMANT";
   
   let imagePath = type === "ultimate" 
-    ? `/ultimate/${level.toLowerCase()}.png`
-    : `/scythe/${safeLevel}.png`;
+    ? getAssetUrl(`/ultimate/${level.toLowerCase()}.png`)
+    : getAssetUrl(`/scythe/${safeLevel}.png`);
 
   if (type !== "ultimate" && activeTheme && activeTheme !== "default") {
     if (activeTheme === "shiva") {
