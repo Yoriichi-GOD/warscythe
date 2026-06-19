@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Specifically allow AdMob and Google crawlers
+User-agent: Mediapartners-Google
+Allow: /app-ads.txt
+
+User-agent: Googlebot
+Allow: /app-ads.txt
