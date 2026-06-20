@@ -932,7 +932,7 @@ export const useWarscytheStore = create(
         }
 
         // Digital Coins Award
-        const coinReward = Math.round(basePts * 0.1) + Math.round(reward.bonusPts * 0.1);
+        const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
         const newCoins = state.coins + coinReward;
 
         const today = todayKey();
@@ -1090,7 +1090,7 @@ export const useWarscytheStore = create(
         else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
 
         // Digital Coins Award
-        const coinReward = Math.round(basePts * 0.1) + Math.round(reward.bonusPts * 0.1);
+        const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
         const newCoins = state.coins + coinReward;
 
         const dailyLog = { ...state.dailyLog };
@@ -1423,6 +1423,10 @@ export const useWarscytheStore = create(
             coins: state.coins - cost,
             unlockedScythes: [...state.unlockedScythes, scytheId]
           });
+          const u = get().user?.id;
+          if (u) {
+            get().saveUserState(u);
+          }
           return true;
         }
         return false;

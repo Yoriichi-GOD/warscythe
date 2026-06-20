@@ -12,7 +12,9 @@ export default function ShopModal({ onClose, onOpenAuth }) {
     activeTheme, 
     equipScythe, 
     applyTheme, 
-    buyCosmetic 
+    buyCosmetic,
+    coins,
+    buyScythe
   } = useWarscytheStore();
 
   const [loadingItem, setLoadingItem] = useState(null);
@@ -34,6 +36,78 @@ export default function ShopModal({ onClose, onOpenAuth }) {
       price: '₹50',
       type: 'scythe',
       color: '#e74c3c'
+    },
+    {
+      id: 'soul_eater_prime',
+      name: 'Soul-Eater Prime',
+      desc: 'Necrotic skeletal bone frame that harvests lifeforce and glows with purple wraps.',
+      price: '₹50',
+      type: 'scythe',
+      color: '#8e44ad'
+    },
+    {
+      id: 'abyssal_leviathan',
+      name: 'Abyssal Leviathan',
+      desc: 'Dredged from ancient sea trenches, made of bioluminescent scales and bones.',
+      price: '₹50',
+      type: 'scythe',
+      color: '#2ecc71'
+    },
+    {
+      id: 'ares_devastator',
+      name: 'Ares\' Devastator',
+      desc: 'Brutal spiked war-trophy blood scythe that glows with a heated war rage.',
+      price: '₹50',
+      type: 'scythe',
+      color: '#c0392b'
+    }
+  ];
+
+  const coinScythes = [
+    {
+      id: 'shadow_blade',
+      name: 'Shadow Blade',
+      desc: 'Sleek obsidian metal wrapped in shifting semi-transparent black smoke. For operatives who move without announcing themselves.',
+      price: '5000 🪙',
+      priceValue: 5000,
+      type: 'coin_scythe',
+      color: '#2c3e50'
+    },
+    {
+      id: 'golden_harvester',
+      name: 'Golden Harvester',
+      desc: 'Ornate gilded metal with detailed sunburst engravings. For operatives who execute in full view.',
+      price: '5000 🪙',
+      priceValue: 5000,
+      type: 'coin_scythe',
+      color: '#ecc880'
+    },
+    {
+      id: 'cinder_reaper',
+      name: 'Cinder Reaper',
+      desc: 'Charred dry gray wood shaft with iron blade tips smoldering with orange coals. For operatives who leave nothing standing.',
+      price: '5000 🪙',
+      priceValue: 5000,
+      type: 'coin_scythe',
+      color: '#d35400'
+    },
+    {
+      id: 'frost_cleaver',
+      name: 'Frost Cleaver',
+      desc: 'Carved from glacial ice with glowing white runes emitting cold fog. For operatives who operate without heat.',
+      price: '5000 🪙',
+      priceValue: 5000,
+      type: 'coin_scythe',
+      color: '#5dade2'
+    },
+    {
+      id: 'storm_caller',
+      name: 'Storm Caller',
+      desc: 'Double-edged metallic white scythe with coiling electric blue lightning arcs. For operatives who move at the speed of decision.',
+      price: '5000 🪙',
+      priceValue: 5000,
+      type: 'coin_scythe',
+      color: '#3498db'
     }
   ];
 
@@ -70,6 +144,18 @@ export default function ShopModal({ onClose, onOpenAuth }) {
       setError(err.message || 'Payment execution failed.');
     } finally {
       setLoadingItem(null);
+    }
+  };
+
+  const handleCoinPurchase = (item) => {
+    setError(null);
+    if (coins < item.priceValue) {
+      setError(`Requisition failed: Requires ${item.priceValue} coins. You have ${coins} coins.`);
+      return;
+    }
+    const success = buyScythe(item.id, item.priceValue);
+    if (!success) {
+      setError('Scythe acquisition failed. You may already own it.');
     }
   };
 
@@ -110,7 +196,12 @@ export default function ShopModal({ onClose, onOpenAuth }) {
               <p className="font-mono text-[8px] text-gold-core tracking-[0.25em] uppercase">MONETARY EXCHANGE & REQUISITIONS</p>
             </div>
           </div>
-          <button className="shop-close" onClick={() => { resetThemePreview(); onClose(); }}><X size={20} /></button>
+          <div className="flex items-center gap-4">
+            <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
+              🪙 {coins} COINS
+            </div>
+            <button className="shop-close" onClick={() => { resetThemePreview(); onClose(); }}><X size={20} /></button>
+          </div>
         </div>
 
         {/* Error Alert */}
@@ -126,7 +217,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           
           {/* WEAPONS SECTION */}
           <div className="shop-section">
-            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">WEAPON EVOLUTION SKINS</h3>
+            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">WEAPON EVOLUTION SKINS (₹)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scytheSkins.map(item => {
                 const isUnlocked = unlockedScythes.includes(item.id);
@@ -180,9 +271,55 @@ export default function ShopModal({ onClose, onOpenAuth }) {
             </div>
           </div>
 
+          {/* PROGRESSION COIN WEAPONS */}
+          <div className="shop-section">
+            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">PROGRESSION COIN WEAPONS (🪙)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {coinScythes.map(item => {
+                const isUnlocked = unlockedScythes.includes(item.id);
+                const isActive = activeScytheSkin === item.id;
+                
+                return (
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="text-xs font-bold font-mono text-white uppercase tracking-wider">{item.name}</h4>
+                        <span className="price-tag font-mono text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gold-core">{item.price}</span>
+                      </div>
+                      <p className="text-[10px] text-gray-400 font-mono leading-relaxed mb-4">{item.desc}</p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {isUnlocked ? (
+                        <button 
+                          className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                            isActive 
+                              ? 'bg-gold-core text-black border border-gold-core' 
+                              : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
+                          }`}
+                          onClick={() => equipScythe(isActive ? 'default' : item.id)}
+                        >
+                          {isActive ? 'EQUIPPED' : 'EQUIP'}
+                        </button>
+                      ) : (
+                        <button 
+                          className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
+                          onClick={() => handleCoinPurchase(item)}
+                        >
+                          <Lock size={12} />
+                          <span>ACQUIRE FOR {item.priceValue} 🪙</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* THEMES SECTION */}
           <div className="shop-section">
-            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">VISUAL ENVIRONMENT SCROLLS</h3>
+            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">VISUAL ENVIRONMENT SCROLLS (₹)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {themes.map(item => {
                 const isUnlocked = unlockedThemes.includes(item.id);

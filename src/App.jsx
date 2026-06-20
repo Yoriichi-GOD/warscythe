@@ -468,7 +468,7 @@ export default function App() {
           style={{ display: activeTab === 'forge' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
-          <Forge />
+          <Forge onOpenShop={() => setShowShopModal(true)} />
         </div>
         
         <div 

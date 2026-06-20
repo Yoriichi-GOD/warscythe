@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, Unlock, Sparkles, Swords, Eye, Shield } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
-export default function ScytheCenter() {
-  const { dailyLog, streakCount, unlockedScythes, coins, buyScythe, scytheLevel, activeScytheSkin, activeTheme } = useWarscytheStore();
-  const [isSlashing, setIsSlashing] = useState(false);
-  const [viewedStageIndex, setViewedStageIndex] = useState(null);
+export default function ScytheCenter({ onOpenShop }) {
+  const { 
+    streakCount, 
+    unlockedScythes, 
+    unlockedThemes,
+    coins, 
+    scytheLevel, 
+    activeScytheSkin, 
+    activeTheme,
+    equipScythe,
+    applyTheme
+  } = useWarscytheStore();
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayStats = dailyLog[today] || { completed: 0, weight: 0 };
-  const weight = todayStats.weight;
+  const [isSlashing, setIsSlashing] = useState(false);
+  const [activeTab, setActiveTab] = useState('streak'); // 'streak', 'shop', 'theme'
+  const [selectedItemId, setSelectedItemId] = useState('dormant');
 
   const triggerSlash = () => {
     if (isSlashing) return;
@@ -19,139 +27,320 @@ export default function ScytheCenter() {
     setTimeout(() => setIsSlashing(false), 600);
   };
 
-  const stages = [
-    { id: 'dormant', name: 'DORMANT', req: 0, type: 'weight', material: 'dormant', materialName: 'Dormant' },
-    { id: 'awakened', name: 'AWAKENED', req: 3, type: 'weight', material: 'wood', materialName: 'Wooden' },
-    { id: 'hardened', name: 'HARDENED', req: 7, type: 'weight', material: 'steel', materialName: 'Steel' },
-    { id: 'refined', name: 'REFINED', req: 10, type: 'weight', material: 'silver', materialName: 'Silver' },
-    { id: 'neophyte', name: 'NEOPHYTE', req: 5, type: 'streak', material: 'neophyte', materialName: 'Neophyte' },
-    { id: 'acolyte', name: 'ACOLYTE', req: 15, type: 'streak', material: 'acolyte', materialName: 'Acolyte' },
-    { id: 'reaper', name: 'REAPER', req: 30, type: 'streak', material: 'reaper', materialName: 'Reaper' },
-    { id: 'executioner', name: 'EXECUTIONER', req: 60, type: 'streak', material: 'executioner', materialName: 'Executioner' },
-    { id: 'sovereign', name: 'SOVEREIGN', req: 120, type: 'streak', material: 'sovereign', materialName: 'Sovereign' },
-    { id: 'void-walker', name: 'VOID-WALKER', req: 200, type: 'streak', material: 'void-walker', materialName: 'Void-Walker' },
-    { id: 'eternal', name: 'ETERNAL', req: 300, type: 'streak', material: 'eternal', materialName: 'Eternal' },
-    { id: 'death-lord', name: 'DEATH-LORD', req: 360, type: 'streak', material: 'death-lord', materialName: 'Death-Lord' }
+  const streakScythes = [
+    { id: 'dormant', name: 'Dormant Scythe', req: 0, desc: 'The crude starting form of the Reaper\'s blade.', type: 'streak' },
+    { id: 'neophyte', name: 'Neophyte Reaper', req: 5, desc: 'Attuned to early daily consistency.', type: 'streak' },
+    { id: 'acolyte', name: 'Acolyte Reaper', req: 15, desc: 'Forged for dedicated initiates.', type: 'streak' },
+    { id: 'reaper', name: 'Reaper', req: 30, desc: 'A seasoned instrument of focus.', type: 'streak' },
+    { id: 'executioner', name: 'Executioner Reaper', req: 60, desc: 'Swift finality for resistance.', type: 'streak' },
+    { id: 'sovereign', name: 'Sovereign Reaper', req: 120, desc: 'Commanding weapon of the elite.', type: 'streak' },
+    { id: 'void-walker', name: 'Void-Walker Reaper', req: 200, desc: 'Imbued with the quiet of the void.', type: 'streak' },
+    { id: 'eternal', name: 'Eternal Reaper', req: 300, desc: 'A timeless relic of infinite execution.', type: 'streak' },
+    { id: 'death-lord', name: 'Death-Lord Reaper', req: 360, desc: 'The ultimate weapon of unbroken focus.', type: 'streak' }
   ];
 
-  const scythePrices = { 'acolyte': 100, 'reaper': 250, 'executioner': 500, 'sovereign': 1000, 'void-walker': 2000, 'eternal': 4000, 'death-lord': 8000 };
+  const paidScythes = [
+    // Premium Scythes (₹50)
+    { id: 'cosmic_harvester', name: 'Cosmic Harvester', desc: 'Forged from stellar dust. Evolves dynamically from Dormant to Platinum throughout the day based on your execution.', type: 'premium' },
+    { id: 'hellfire_reaper', name: 'Hellfire Reaper', desc: 'Forged in volcanic depths. Infuses attacks with burning magma veins.', type: 'premium' },
+    { id: 'soul_eater_prime', name: 'Soul-Eater Prime', desc: 'Necrotic skeletal frame that harvests lifeforce and glows with purple wraps.', type: 'premium' },
+    { id: 'abyssal_leviathan', name: 'Abyssal Leviathan', desc: 'Dredged from ancient trenches, built of giant fossilized bone and scale.', type: 'premium' },
+    { id: 'ares_devastator', name: 'Ares\' Devastator', desc: 'Spiked war trophy scythe that glows with a heated war rage.', type: 'premium' },
 
-  const scytheLevelsOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
+    // Coin Scythes (🪙)
+    { id: 'shadow_blade', name: 'Shadow Blade', desc: 'Sleek obsidian metal wrapped in shifting semi-transparent black smoke. For operatives who move without announcing themselves.', type: 'coin', price: 5000 },
+    { id: 'golden_harvester', name: 'Golden Harvester', desc: 'Ornate gilded metal with detailed sunburst engravings. For operatives who execute in full view.', type: 'coin', price: 5000 },
+    { id: 'cinder_reaper', name: 'Cinder Reaper', desc: 'Charred dry gray wood shaft with iron blade tips smoldering with orange coals. For operatives who leave nothing standing.', type: 'coin', price: 5000 },
+    { id: 'frost_cleaver', name: 'Frost Cleaver', desc: 'Carved from glacial ice with glowing white runes emitting cold fog. For operatives who operate without heat.', type: 'coin', price: 5000 },
+    { id: 'storm_caller', name: 'Storm Caller', desc: 'Double-edged metallic white scythe with coiling electric blue lightning arcs. For operatives who move at the speed of decision.', type: 'coin', price: 5000 }
+  ];
 
-  const isScytheUnlocked = (stage) => {
-    if (stage.type === 'weight') {
-      if (stage.id === 'dormant') return true;
+  const themes = [
+    { id: 'default', name: 'Genesis Default', desc: 'The baseline dark fantasy grid environment.', type: 'theme' },
+    { id: 'shiva', name: 'Kailash Ascension', desc: 'Electric blue accents with Himalayan background.', type: 'theme' },
+    { id: 'lava', name: 'Lava Citadel', desc: 'Deep volcanic layout with magma embers.', type: 'theme' }
+  ];
 
-      // Sync with global scytheLevel from store
-      const currentLevelIndex = scytheLevelsOrder.indexOf(scytheLevel);
-      const stageLevelIndex = scytheLevelsOrder.indexOf(stage.name);
-      if (currentLevelIndex >= stageLevelIndex && stageLevelIndex !== -1) {
-        return true;
-      }
-
-      if (stage.id === 'awakened' && weight >= 3) return true;
-      if (stage.id === 'hardened' && weight >= 7) return true;
-      if (stage.id === 'refined' && weight >= 10) return true;
-      return false;
+  const isUnlocked = (item) => {
+    if (item.type === 'streak') {
+      return streakCount >= item.req;
     }
-    return (unlockedScythes || []).includes(stage.id);
+    if (item.type === 'theme') {
+      return (unlockedThemes || []).includes(item.id);
+    }
+    return (unlockedScythes || []).includes(item.id);
   };
 
-  const currentStageIndex = (() => {
-    for (let i = stages.length - 1; i >= 0; i--) if (isScytheUnlocked(stages[i])) return i;
-    return 0;
-  })();
+  const getSelectedItem = () => {
+    if (activeTab === 'streak') {
+      return streakScythes.find(i => i.id === selectedItemId) || streakScythes[0];
+    }
+    if (activeTab === 'shop') {
+      return paidScythes.find(i => i.id === selectedItemId) || paidScythes[0];
+    }
+    return themes.find(i => i.id === selectedItemId) || themes[0];
+  };
 
-  const activeStageIndex = viewedStageIndex !== null ? viewedStageIndex : currentStageIndex;
-  const activeStage = stages[activeStageIndex];
-  const { material, materialName } = activeStage;
-  
+  const selectedItem = getSelectedItem();
+  const owned = isUnlocked(selectedItem);
+
   const auraColors = {
-    dormant: 'rgba(255,255,255,0.05)', wood: 'rgba(139,69,19,0.2)', steel: 'rgba(200,200,200,0.3)', silver: 'rgba(220,220,255,0.4)',
-    neophyte: 'rgba(255,255,255,0.3)', acolyte: 'rgba(100,149,237,0.4)', reaper: 'rgba(75,0,130,0.5)', executioner: 'rgba(220,20,60,0.5)',
-    sovereign: 'rgba(197,160,89,0.6)', 'void-walker': 'rgba(138,43,226,0.6)', eternal: 'rgba(255,60,60,0.7)', 'death-lord': 'rgba(30,30,30,0.8)'
+    dormant: 'rgba(255,255,255,0.05)',
+    neophyte: 'rgba(255,255,255,0.3)',
+    acolyte: 'rgba(100,149,237,0.4)',
+    reaper: 'rgba(75,0,130,0.5)',
+    executioner: 'rgba(220,20,60,0.5)',
+    sovereign: 'rgba(197,160,89,0.6)',
+    'void-walker': 'rgba(138,43,226,0.6)',
+    eternal: 'rgba(255,60,60,0.7)',
+    'death-lord': 'rgba(30,30,30,0.8)',
+    
+    cosmic_harvester: 'rgba(52, 152, 219, 0.75)',
+    hellfire_reaper: 'rgba(231, 76, 60, 0.75)',
+    soul_eater_prime: 'rgba(142, 68, 173, 0.75)',
+    abyssal_leviathan: 'rgba(46, 204, 113, 0.75)',
+    ares_devastator: 'rgba(192, 41, 43, 0.75)',
+
+    shadow_blade: 'rgba(44, 62, 80, 0.6)',
+    golden_harvester: 'rgba(241, 196, 15, 0.6)',
+    cinder_reaper: 'rgba(211, 84, 0, 0.6)',
+    frost_cleaver: 'rgba(52, 152, 219, 0.6)',
+    storm_caller: 'rgba(52, 73, 94, 0.7)'
   };
-  const auraColor = activeScytheSkin === 'cosmic_harvester'
-    ? 'rgba(52, 152, 219, 0.75)'
-    : activeScytheSkin === 'hellfire_reaper'
-    ? 'rgba(231, 76, 60, 0.75)'
-    : (auraColors[material] || 'rgba(255,255,255,0.05)');
-  const fullName = activeScytheSkin === 'cosmic_harvester'
-    ? 'Cosmic Harvester (Premium)'
-    : activeScytheSkin === 'hellfire_reaper'
-    ? 'Hellfire Reaper (Premium)'
-    : material === 'dormant' 
-    ? 'Dormant Scythe' 
-    : `${materialName} Reaper`;
+
+  const getWeaponImage = (item) => {
+    if (item.type === 'streak') {
+      if (item.id === 'dormant') return getAssetUrl('/scythe/DORMANT.png');
+      return getAssetUrl(`/ultimate/${item.id}.png`);
+    }
+    if (item.type === 'premium') {
+      const stage = (scytheLevel || 'DORMANT').toLowerCase();
+      return getAssetUrl(`/scythe/${item.id}_${stage}.png`);
+    }
+    return getAssetUrl(`/scythe/${item.id}.png`);
+  };
+
+  const auraColor = auraColors[selectedItem.id] || 'rgba(255,255,255,0.05)';
+
+  const getListItems = () => {
+    if (activeTab === 'streak') return streakScythes;
+    if (activeTab === 'shop') return paidScythes;
+    return themes;
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'streak') setSelectedItemId('dormant');
+    else if (tab === 'shop') setSelectedItemId('cosmic_harvester');
+    else setSelectedItemId('default');
+  };
 
   return (
     <section className="scythe-center-section">
       <div className="elite-panel">
-        <div className="flex justify-between items-start mb-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <span className="panel-tag">WEAPON EVOLUTION</span>
-            <h4 className="text-white font-display">THE REAPER'S SCYTHE</h4>
+            <span className="panel-tag">WEAPON FORGE & COSMETICS</span>
+            <h4 className="text-white font-display text-lg">THE OPERATIVE\'S ARMORY</h4>
           </div>
-          <div className="px-3 py-1 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
-            🪙 {coins} COINS
+          <div className="flex gap-3">
+            <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
+              🪙 {coins} COINS
+            </div>
+            <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
+              🔥 {streakCount} DAYS STREAK
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 h-[400px]">
-          <div className="evolution-list custom-scrollbar overflow-y-auto pr-2">
-            {stages.map((stage, index) => {
-              const isUnlocked = isScytheUnlocked(stage);
-              const isCurrent = currentStageIndex === index;
+        {/* Category Selector Tabs */}
+        <div className="flex gap-4 border-b border-white/5 pb-3 mb-6">
+          <button 
+            onClick={() => handleTabChange('streak')} 
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
+              activeTab === 'streak' 
+                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
+                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+            }`}
+          >
+            Streak Weapons
+          </button>
+          <button 
+            onClick={() => handleTabChange('shop')} 
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
+              activeTab === 'shop' 
+                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
+                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+            }`}
+          >
+            Acquired Skins
+          </button>
+          <button 
+            onClick={() => handleTabChange('theme')} 
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
+              activeTab === 'theme' 
+                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
+                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+            }`}
+          >
+            Acquired Themes
+          </button>
+        </div>
+
+        {/* Forge Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:h-[450px]">
+          {/* List Column */}
+          <div className="evolution-list custom-scrollbar overflow-y-auto pr-2 max-h-[300px] lg:max-h-full">
+            {getListItems().map((item) => {
+              const unlocked = isUnlocked(item);
+              let subtitle = 'LOCKED';
+              if (item.type === 'streak') {
+                subtitle = unlocked ? 'UNLOCKED' : `Requires ${item.req} day streak`;
+              } else if (item.type === 'theme') {
+                subtitle = unlocked ? 'UNLOCKED' : 'Locked - Shop Inscription';
+              } else {
+                subtitle = unlocked ? 'OWNED' : 'Locked - Dread Armory';
+              }
+
+              const isCurrent = activeTab === 'theme' ? activeTheme === item.id : activeScytheSkin === item.id;
+
               return (
-                <div key={stage.id} onClick={() => isUnlocked && setViewedStageIndex(index)} className={`evo-item ${isUnlocked ? 'active' : 'locked'} ${activeStageIndex === index ? 'selected' : ''}`}>
+                <div 
+                  key={item.id} 
+                  onClick={() => setSelectedItemId(item.id)} 
+                  className={`evo-item ${unlocked ? 'active' : 'locked'} ${selectedItemId === item.id ? 'selected' : ''}`}
+                >
                   <div className="flex items-center gap-3">
-                    {isUnlocked ? <Unlock size={12} className="text-gold-core" /> : <Lock size={12} className="text-white/20" />}
-                    <div>
-                      <div className="text-[10px] font-bold tracking-widest">{stage.name}</div>
-                      <div className="text-[8px] opacity-50">{isCurrent ? 'CURRENT' : isUnlocked ? 'UNLOCKED' : `${stage.req} ${stage.type === 'weight' ? 'PWR' : 'STRK'}`}</div>
+                    {unlocked ? <Unlock size={12} className="text-gold-core" /> : <Lock size={12} className="text-white/20" />}
+                    <div className="text-left">
+                      <div className="text-[10px] font-bold tracking-widest uppercase">{item.name}</div>
+                      <div className="text-[8px] opacity-50 uppercase font-mono">{isCurrent ? 'ACTIVE' : subtitle}</div>
                     </div>
                   </div>
-                  {!isUnlocked && scythePrices[stage.id] && (
-                    <button onClick={(e) => { e.stopPropagation(); buyScythe(stage.id, scythePrices[stage.id]); }} className="text-[9px] px-2 py-1 bg-gold-core/10 hover:bg-gold-core/30 border border-gold-core/30 rounded">
-                      {scythePrices[stage.id]} 🪙
-                    </button>
-                  )}
                 </div>
               );
             })}
           </div>
 
-          <div className="flex flex-col items-center justify-center relative border-l border-white/5 pl-8">
-            <motion.div onClick={triggerSlash} className="relative cursor-pointer" style={{ filter: `drop-shadow(0 0 30px ${auraColor})` }}>
-              <AnimatePresence>
-                {isSlashing && <motion.div className="absolute inset-0 border-2 border-white/50 rounded-full" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1.5, opacity: 0 }} exit={{ opacity: 0 }} />}
-              </AnimatePresence>
-              <div className="w-32 h-64 flex items-center justify-center">
-                <img 
-                  src={(() => {
-                    if (activeStage.type === 'streak') {
-                      return getAssetUrl(`/ultimate/${material}.png`);
-                    }
-                    if (activeTheme && activeTheme !== 'default') {
-                      if (activeTheme === 'shiva') {
-                        return getAssetUrl(`/themes/kailash/scythe-${activeStage.name.toLowerCase()}.png`);
-                      } else if (activeTheme === 'lava') {
-                        return getAssetUrl(`/themes/lava/scythe-${activeStage.name.toLowerCase()}.png`);
-                      }
-                    }
-                    return getAssetUrl(`/scythe/${activeStage.name}.png`);
-                  })()}
-                  className={`w-full h-full object-contain scythe-img ${activeScytheSkin && activeScytheSkin !== 'default' ? `skin-${activeScytheSkin}` : ''}`} 
-                  onError={(e) => {
-                    e.target.src = '/scythe/DORMANT.png';
-                  }} 
-                />
+          {/* Preview/Action Column */}
+          <div className="flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
+            
+            {/* Scythe Slash Render */}
+            {selectedItem.type !== 'theme' ? (
+              <motion.div 
+                onClick={triggerSlash} 
+                className="relative cursor-pointer" 
+                style={{ filter: `drop-shadow(0 0 30px ${auraColor})` }}
+              >
+                <AnimatePresence>
+                  {isSlashing && (
+                    <motion.div 
+                      className="absolute inset-0 border-2 border-white/50 rounded-full" 
+                      initial={{ scale: 0.5, opacity: 0 }} 
+                      animate={{ scale: 1.5, opacity: 0 }} 
+                      exit={{ opacity: 0 }} 
+                    />
+                  )}
+                </AnimatePresence>
+                <div className="w-32 h-56 flex items-center justify-center">
+                  <img 
+                    src={getWeaponImage(selectedItem)}
+                    className="w-full h-full object-contain scythe-img" 
+                    onError={(e) => {
+                      e.target.src = getAssetUrl('/scythe/DORMANT.png');
+                    }} 
+                    alt={selectedItem.name}
+                  />
+                </div>
+              </motion.div>
+            ) : (
+              /* Theme Render Preview */
+              <div 
+                className="w-48 h-32 rounded border border-white/10 flex flex-col justify-end p-4 relative overflow-hidden"
+                style={{
+                  background: selectedItem.id === 'shiva' 
+                    ? 'linear-gradient(135deg, #1b4f72, #0e2f44)' 
+                    : selectedItem.id === 'lava' 
+                    ? 'linear-gradient(135deg, #78281f, #1b0000)' 
+                    : 'linear-gradient(135deg, #111, #222)'
+                }}
+              >
+                <div className="absolute top-3 right-3 text-gold-core font-mono text-[9px] uppercase tracking-wider">
+                  {selectedItem.id === 'shiva' ? 'ॐ' : selectedItem.id === 'lava' ? '🌋' : 'Genesis'}
+                </div>
+                <div className="relative z-10 text-left font-mono">
+                  <span className="text-[7px] text-gray-400 uppercase tracking-widest block">Environment Scroll</span>
+                  <span className="text-white text-xs font-bold font-sans uppercase">{selectedItem.name}</span>
+                </div>
               </div>
-            </motion.div>
+            )}
+
+            {/* Description & Action */}
             <div className="mt-6 w-full text-center">
-              <div className="text-white font-display mb-1">{fullName}</div>
-              <div className="h-1 bg-white/10 w-full rounded-full overflow-hidden">
-                <motion.div className="h-full bg-gold-core" animate={{ width: `${activeStage.type === 'streak' ? (streakCount/activeStage.req)*100 : (weight/10)*100}%` }} />
+              <div className="text-white font-display mb-2 uppercase text-sm">{selectedItem.name}</div>
+              <p className="text-[10px] text-gray-400 font-mono max-w-xs mx-auto leading-relaxed mb-6">
+                {selectedItem.desc}
+              </p>
+
+              {/* Dynamic Button Action */}
+              <div className="flex justify-center w-full">
+                {selectedItem.type !== 'theme' ? (
+                  /* Weapon Action */
+                  owned ? (
+                    activeScytheSkin === selectedItem.id ? (
+                      <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
+                        EQUIPPED
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => equipScythe(selectedItem.id)}
+                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                      >
+                        EQUIP WEAPON
+                      </button>
+                    )
+                  ) : (
+                    /* Locked Weapon */
+                    selectedItem.type === 'streak' ? (
+                      <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
+                        <Lock size={10} />
+                        <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={onOpenShop}
+                        className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                      >
+                        ACQUIRE IN SHOP
+                      </button>
+                    )
+                  )
+                ) : (
+                  /* Theme Action */
+                  owned ? (
+                    activeTheme === selectedItem.id ? (
+                      <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
+                        APPLIED
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => applyTheme(selectedItem.id)}
+                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                      >
+                        APPLY THEME
+                      </button>
+                    )
+                  ) : (
+                    /* Locked Theme */
+                    <button 
+                      onClick={onOpenShop}
+                      className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                    >
+                      ACQUIRE IN SHOP
+                    </button>
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -164,8 +353,6 @@ export default function ScytheCenter() {
           margin: 0 auto;
           padding: 2rem 1.5rem 4rem 1.5rem;
         }
-
-
 
         .panel-tag {
           font-family: var(--font-mono);
@@ -182,9 +369,6 @@ export default function ScytheCenter() {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          max-height: 380px;
-          overflow-y: auto;
-          padding-right: 0.5rem;
         }
 
         .evo-item {
@@ -192,19 +376,18 @@ export default function ScytheCenter() {
           align-items: center;
           justify-content: space-between;
           gap: 0.75rem;
-          padding: 0.5rem 0.65rem;
+          padding: 0.75rem 1rem;
           border-radius: 5px;
-          border: 1px solid transparent;
+          border: 1px solid rgba(255,255,255,0.03);
+          background: rgba(255,255,255,0.01);
           transition: all 0.2s;
-          cursor: default;
-          opacity: 0.3;
+          cursor: pointer;
           font-family: var(--font-display);
           color: #fff;
         }
 
         .evo-item.active {
-          opacity: 0.7;
-          cursor: pointer;
+          opacity: 0.75;
         }
 
         .evo-item.active:hover {
@@ -221,7 +404,12 @@ export default function ScytheCenter() {
         }
 
         .evo-item.locked {
-          opacity: 0.25;
+          opacity: 0.35;
+        }
+        
+        .evo-item.locked:hover {
+          opacity: 0.6;
+          background: rgba(255,255,255,0.015);
         }
       `}</style>
     </section>
