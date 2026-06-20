@@ -4,8 +4,8 @@ import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint,
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme } = useWarscytheStore();
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore }) {
+  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme, soundscapeEnabled, soundscapeVolume, setSoundscapeEnabled, setSoundscapeVolume } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showAtlasDropdown, setShowAtlasDropdown] = React.useState(false);
   
@@ -130,6 +130,25 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
                 <button onClick={() => { setShowDropdown(false); alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); }}>
                   TERMS & CONDITIONS
                 </button>
+                <button 
+                  onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
+                  style={{ color: soundscapeEnabled ? 'var(--gold-core)' : '#9ca3af' }}
+                >
+                  SOUNDSCAPE: {soundscapeEnabled ? 'ON' : 'OFF'}
+                </button>
+                {soundscapeEnabled && (
+                  <div className="dropdown-slider-container">
+                    <span className="slider-label">VOLUME: {soundscapeVolume}%</span>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="100" 
+                      value={soundscapeVolume} 
+                      onChange={(e) => setSoundscapeVolume(Number(e.target.value))} 
+                      className="dropdown-volume-slider"
+                    />
+                  </div>
+                )}
                 <button onClick={() => {
                   setShowDropdown(false);
                   const hasUnsynced = syncStatus === 'failed' || useWarscytheStore.getState().hasPendingChanges;
@@ -202,6 +221,9 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
                 </button>
                 <button onClick={() => { setShowAtlasDropdown(false); onOpenMap(); }}>
                   TACTICAL MAP
+                </button>
+                <button onClick={() => { setShowAtlasDropdown(false); onOpenLore(); }}>
+                  LORE SCROLLS
                 </button>
               </div>
             )}
@@ -401,6 +423,27 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         .header-dropdown-menu button.delete-btn:hover {
           background: rgba(239, 68, 68, 0.1);
           color: #fca5a5;
+        }
+        .dropdown-slider-container {
+          padding: 0.5rem 1rem;
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .slider-label {
+          font-family: var(--font-mono);
+          font-size: 8px;
+          color: #8c6a4a;
+          letter-spacing: 0.05em;
+        }
+        .dropdown-volume-slider {
+          width: 100%;
+          height: 3px;
+          background: rgba(255,255,255,0.1);
+          outline: none;
+          accent-color: var(--gold-core);
+          cursor: pointer;
         }
       `}</style>
     </header>

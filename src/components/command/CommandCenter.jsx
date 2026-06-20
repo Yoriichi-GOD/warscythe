@@ -133,9 +133,9 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       </div>
 
       {/* STREAK PROGRESS BAR */}
-      <div className="cc-streak-descent elite-panel p-5 flex flex-col gap-4 bg-black/20">
+      <div className="cc-streak-ascent elite-panel p-5 flex flex-col gap-4 bg-black/20">
          <div className="flex justify-between items-center">
-            <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">Streak Descent</span>
+            <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">Streak Ascent</span>
             <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
          </div>
          

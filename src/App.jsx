@@ -13,7 +13,7 @@ import PremiumModal from './components/PremiumModal';
 import ShopModal from './components/ShopModal';
 import AssetDownloaderModal from './components/AssetDownloaderModal';
 import CacheAlertPopup from './components/CacheAlertPopup';
-import { ShieldAlert, X, Lock } from 'lucide-react';
+import { ShieldAlert, X, Lock, Terminal } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
@@ -33,6 +33,8 @@ import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
 import RegionFlashScreen from './components/RegionFlashScreen';
+import LoreModal from './components/LoreModal';
+import WarTerminal from './components/command/WarTerminal';
 import { REGIONS } from './store/constants';
 const PROPHECIES = [
   "Your brain accelerates when stakes are high. The chaos you feel is your processor scaling. Trust it.",
@@ -73,6 +75,9 @@ const getTaskCategoryType = (category = '') => {
 
 export default function App() {
   const user = useWarscytheStore(state => state.user);
+  const level = useWarscytheStore(state => state.level);
+  const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
+  const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
@@ -128,6 +133,8 @@ export default function App() {
   const [showSlash, setShowSlash] = useState(false);
   const [pendingEntryScreen, setPendingEntryScreen] = useState(null);
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
+  const [showLoreModal, setShowLoreModal] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(false);
   
   // 🔮 Guardian Angel Global States & Logic
   const [activeProphecy, setActiveProphecy] = useState(null);
@@ -165,6 +172,25 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [showProphecyCard]);
+
+  useEffect(() => {
+    import('./utils/audioManager').then(({ audioManager }) => {
+      audioManager.setEnabled(soundscapeEnabled);
+      audioManager.setVolume(soundscapeVolume);
+      audioManager.playRegion(level - 1);
+    });
+  }, [level, soundscapeEnabled, soundscapeVolume]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowTerminal(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
 
@@ -222,6 +248,7 @@ export default function App() {
   const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
   const pendingVictoryScreen = useWarscytheStore(state => state.pendingVictoryScreen);
   const clearPendingVictoryScreen = useWarscytheStore(state => state.clearPendingVictoryScreen);
+  const setSoundscapeEnabled = useWarscytheStore(state => state.setSoundscapeEnabled);
 
   const tasks = useWarscytheStore(state => state.tasks);
   const isFocusMode = useWarscytheStore(state => state.isFocusMode);
@@ -398,6 +425,7 @@ export default function App() {
         onOpenPremium={() => setShowPremiumModal(true)}
         onOpenShop={() => setShowShopModal(true)}
         onOpenDownloader={() => setShowDownloaderModal(true)}
+        onOpenLore={() => setShowLoreModal(true)}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -637,6 +665,30 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* 🎵 GLOBAL SOUNDSCAPE JUKEBOX (DRAGGABLE OVERLAY) */}
+      {user && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
+        <motion.div 
+          drag
+          dragMomentum={false}
+          className="jukebox-trigger-container"
+          style={{ touchAction: 'none' }}
+        >
+          <button 
+            className={`jukebox-trigger-btn ${soundscapeEnabled ? 'jukebox-active-glow' : ''}`}
+            onClick={() => setSoundscapeEnabled(!soundscapeEnabled)} 
+            title="Drag me anywhere / Click to Toggle Soundscape"
+          >
+            <img 
+              src="/soundscape-jukebox.png" 
+              className="jukebox-img" 
+              onError={(e) => { e.target.src = '/command-core.png'; }} 
+              alt="Soundscape Jukebox" 
+            />
+            <div className="jukebox-trigger-glow" />
+          </button>
+        </motion.div>
+      )}
+
       {/* 🔮 GLOBAL GUARDIAN ANGEL (DRAGGABLE OVERLAY) */}
       {user && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
         <motion.div 
@@ -709,7 +761,23 @@ export default function App() {
             onOpenDownloader={() => setShowDownloaderModal(true)}
           />
         )}
+        {showLoreModal && (
+          <LoreModal 
+            onClose={() => setShowLoreModal(false)} 
+          />
+        )}
       </AnimatePresence>
+
+      {/* Floating War Terminal Trigger Button */}
+      <button
+        onClick={() => setShowTerminal(true)}
+        className="fixed bottom-24 right-6 z-50 p-3 rounded-full bg-black/90 border border-gold-core/40 shadow-[0_0_15px_rgba(197,160,89,0.25)] hover:border-gold-bright hover:shadow-[0_0_20px_rgba(197,160,89,0.5)] transition-all flex items-center justify-center cursor-pointer"
+        title="Open War Terminal (Ctrl+K)"
+      >
+        <Terminal size={18} className="text-gold-core" />
+      </button>
+
+      <WarTerminal isOpen={showTerminal} onClose={() => setShowTerminal(false)} />
 
       <TutorialModal />
       <StreakScrollModal />

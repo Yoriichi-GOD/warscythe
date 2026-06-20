@@ -219,6 +219,16 @@ Ethereal, neon translucent wings, dreamy halo. Each region has exactly 2 states 
 
 ---
 
+## 🎵 AUDIO & SOUNDSCAPE CONTROLS — `public/`
+
+| Status | Filename | Description |
+|---|---|---|
+| ⏳ | `soundscape-jukebox.png` | Ethereal, floating dark fantasy musical jukebox widget for controlling ambient soundscapes |
+
+**Total: 1 file**
+
+---
+
 ## 📊 GRAND TOTAL
 
 | Folder | Count |
@@ -232,7 +242,8 @@ Ethereal, neon translucent wings, dreamy halo. Each region has exactly 2 states 
 | `public/trophies/` | 10 |
 | `public/nodes/` | 5 |
 | `public/fairies/` | 20 |
-| **TOTAL** | **201 assets** |
+| `public/` (Audio Controls) | 1 |
+| **TOTAL** | **202 assets** |
 
 ---
 

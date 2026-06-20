@@ -223,7 +223,9 @@ const mergeState = (local, saved) => {
     firstTaskCompleted,
     lastActiveDate,
     lastResetDate,
-    rescuedFairies
+    rescuedFairies,
+    soundscapeEnabled: saved.soundscapeEnabled !== undefined ? saved.soundscapeEnabled : (local.soundscapeEnabled !== undefined ? local.soundscapeEnabled : false),
+    soundscapeVolume: saved.soundscapeVolume !== undefined ? saved.soundscapeVolume : (local.soundscapeVolume !== undefined ? local.soundscapeVolume : 70)
   };
 };
 
@@ -339,6 +341,8 @@ export const useWarscytheStore = create(
       rescuedFairies: {},
       pendingVictoryScreen: null,
       receivedProphecies: [],
+      soundscapeEnabled: false,
+      soundscapeVolume: 70,
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -708,6 +712,8 @@ export const useWarscytheStore = create(
           dailyPoints: state.dailyPoints,
           lastResetDate: state.lastResetDate,
           rescuedFairies: state.rescuedFairies,
+          soundscapeEnabled: state.soundscapeEnabled,
+          soundscapeVolume: state.soundscapeVolume
         };
 
         try {
@@ -1408,6 +1414,22 @@ export const useWarscytheStore = create(
         if (themeId && themeId !== 'default') {
           document.body.classList.add(`theme-${themeId}`);
         }
+        const u = get().user?.id;
+        if (u) {
+          get().saveUserState(u);
+        }
+      },
+
+      setSoundscapeEnabled: (enabled) => {
+        set({ soundscapeEnabled: enabled });
+        const u = get().user?.id;
+        if (u) {
+          get().saveUserState(u);
+        }
+      },
+
+      setSoundscapeVolume: (volume) => {
+        set({ soundscapeVolume: volume });
         const u = get().user?.id;
         if (u) {
           get().saveUserState(u);
