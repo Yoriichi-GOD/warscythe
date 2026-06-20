@@ -413,7 +413,7 @@ export default function WarTerminal({ isOpen, onClose }) {
                 value={input}
                 onChange={e => { setInput(e.target.value); setActiveSuggestionIdx(0); }}
                 onKeyDown={handleKeyDown}
-                placeholder="Type directive... (e.g. /strike Finish YC application /threat legendary)"
+                placeholder="Type directive... (e.g. /strike Finish application /threat legendary)"
                 className="terminal-input-field"
               />
               <button onClick={handleExecute} className="terminal-enter-btn">

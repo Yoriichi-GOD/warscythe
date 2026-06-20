@@ -136,7 +136,28 @@ export default function App() {
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
-  
+
+  // Store subscriptions needed throughout component
+  const pendingReward = useWarscytheStore(state => state.pendingReward);
+  const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
+  const pendingLevelUp = useWarscytheStore(state => state.pendingLevelUp);
+  const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
+  const completeTask = useWarscytheStore(state => state.completeTask);
+  const updateProgress = useWarscytheStore(state => state.updateProgress);
+  const updateStreak = useWarscytheStore(state => state.updateStreak);
+  const activeBossFlash = useWarscytheStore(state => state.activeBossFlash);
+  const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
+  const pendingVictoryScreen = useWarscytheStore(state => state.pendingVictoryScreen);
+  const clearPendingVictoryScreen = useWarscytheStore(state => state.clearPendingVictoryScreen);
+  const setSoundscapeEnabled = useWarscytheStore(state => state.setSoundscapeEnabled);
+  const tasks = useWarscytheStore(state => state.tasks);
+  const isFocusMode = useWarscytheStore(state => state.isFocusMode);
+  const focusedTaskId = useWarscytheStore(state => state.focusedTaskId);
+  const scytheLevel = useWarscytheStore(state => state.scytheLevel);
+  const showResetPasswordModal = useWarscytheStore(state => state.showResetPasswordModal);
+  const updatePassword = useWarscytheStore(state => state.updatePassword);
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
+
   // 🔮 Guardian Angel Global States & Logic
   const [activeProphecy, setActiveProphecy] = useState(null);
   const [showProphecyCard, setShowProphecyCard] = useState(false);
@@ -236,28 +257,6 @@ export default function App() {
     }
   };
   
-
-  
-  const pendingReward = useWarscytheStore(state => state.pendingReward);
-  const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
-  const pendingLevelUp = useWarscytheStore(state => state.pendingLevelUp);
-  const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
-  const completeTask = useWarscytheStore(state => state.completeTask);
-  const updateProgress = useWarscytheStore(state => state.updateProgress);
-  const updateStreak = useWarscytheStore(state => state.updateStreak);
-  const activeBossFlash = useWarscytheStore(state => state.activeBossFlash);
-  const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
-  const pendingVictoryScreen = useWarscytheStore(state => state.pendingVictoryScreen);
-  const clearPendingVictoryScreen = useWarscytheStore(state => state.clearPendingVictoryScreen);
-  const setSoundscapeEnabled = useWarscytheStore(state => state.setSoundscapeEnabled);
-
-  const tasks = useWarscytheStore(state => state.tasks);
-  const isFocusMode = useWarscytheStore(state => state.isFocusMode);
-  const focusedTaskId = useWarscytheStore(state => state.focusedTaskId);
-  const scytheLevel = useWarscytheStore(state => state.scytheLevel);
-  const showResetPasswordModal = useWarscytheStore(state => state.showResetPasswordModal);
-  const updatePassword = useWarscytheStore(state => state.updatePassword);
-  const activeTheme = useWarscytheStore(state => state.activeTheme);
 
   // Sync priority body class
   useEffect(() => {
