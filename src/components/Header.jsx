@@ -4,7 +4,7 @@ import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint,
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore }) {
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial }) {
   const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme, soundscapeEnabled, soundscapeVolume, setSoundscapeEnabled, setSoundscapeVolume } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showAtlasDropdown, setShowAtlasDropdown] = React.useState(false);
@@ -224,6 +224,9 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
                 </button>
                 <button onClick={() => { setShowAtlasDropdown(false); onOpenLore(); }}>
                   LORE SCROLLS
+                </button>
+                <button onClick={() => { setShowAtlasDropdown(false); onOpenSocial(); }}>
+                  LEGION & STANDINGS
                 </button>
               </div>
             )}

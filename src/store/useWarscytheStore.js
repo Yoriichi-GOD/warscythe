@@ -12,6 +12,13 @@ import {
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const todayKey = () => new Date().toISOString().slice(0, 10);
+const getWeekStart = () => {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  return mon.toISOString().slice(0, 10);
+};
 
 const getRedirectUrl = () => {
   if (Capacitor.isNativePlatform()) {
@@ -343,6 +350,14 @@ export const useWarscytheStore = create(
       receivedProphecies: [],
       soundscapeEnabled: false,
       soundscapeVolume: 70,
+      friendships: [],
+      leaderboard: [],
+      leaderboardEvents: [],
+      activeLegion: null,
+      legionMembers: [],
+      legionOperations: [],
+      legionSubtasks: [],
+      legionEvents: [],
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -1018,6 +1033,17 @@ export const useWarscytheStore = create(
           firstTaskCompleted: true
         });
 
+        get().updateWeeklyLeaderboard(totalPts);
+        if (isBoss) {
+          get().recordWeeklyEvent('boss_raid_completed', `Conquered a legendary Boss Raid: ${task.title}`);
+        }
+        if (newLevel > state.level) {
+          get().recordWeeklyEvent('empress_liberated', `Liberated the regional Empress at Level ${newLevel}`);
+        }
+        if (newScytheLevel !== state.scytheLevel && newScytheLevel !== "DORMANT") {
+          get().recordWeeklyEvent('scythe_evolved', `Evolved Scythe to the ${newScytheLevel} tier`);
+        }
+
         ph.capture('operation_conquered', {
           category: task.category,
           pts: totalPts,
@@ -1153,6 +1179,8 @@ export const useWarscytheStore = create(
           lastActiveDate: today,
           rescuedFairies
         });
+
+        get().updateWeeklyLeaderboard(totalPts);
 
         ph.capture('ritual_conquered', {
           effort: ritual.effort,
@@ -1909,6 +1937,584 @@ export const useWarscytheStore = create(
             bossKills
           };
         });
+      },
+
+      // Social & Legion Actions
+      fetchSocialData: async () => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        try {
+          const { data: friendData, error: friendErr } = await supabase
+            .from('friendships')
+            .select(`
+              id,
+              requester_id,
+              receiver_id,
+              status,
+              requester:profiles!friendships_requester_id_fkey(id, email, state),
+              receiver:profiles!friendships_receiver_id_fkey(id, email, state)
+            `)
+            .or(`requester_id.eq.${u},receiver_id.eq.${u}`);
+
+          if (!friendErr && friendData) {
+            set({ friendships: friendData });
+          }
+
+          const weekStart = getWeekStart();
+          const { data: leadData, error: leadErr } = await supabase
+            .from('leaderboard_snapshots')
+            .select(`
+              id,
+              user_id,
+              week_start,
+              weekly_xp,
+              streak_days,
+              operations_completed,
+              profile:profiles(id, email, state)
+            `)
+            .eq('week_start', weekStart)
+            .order('weekly_xp', { ascending: false });
+
+          if (!leadErr && leadData) {
+            set({ leaderboard: leadData });
+          }
+
+          const { data: eventData, error: eventErr } = await supabase
+            .from('leaderboard_events')
+            .select(`
+              id,
+              user_id,
+              event_type,
+              event_description,
+              created_at,
+              profile:profiles(id, email, state)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+          if (!eventErr && eventData) {
+            set({ leaderboardEvents: eventData });
+          }
+
+          const { data: memberRows, error: memberRowsErr } = await supabase
+            .from('legion_members')
+            .select('legion_id')
+            .eq('user_id', u)
+            .eq('status', 'active')
+            .maybeSingle();
+
+          if (!memberRowsErr && memberRows) {
+            const legionId = memberRows.legion_id;
+            
+            const { data: legionData } = await supabase
+              .from('legions')
+              .select('*')
+              .eq('id', legionId)
+              .single();
+
+            const { data: members } = await supabase
+              .from('legion_members')
+              .select(`
+                id,
+                legion_id,
+                user_id,
+                role,
+                joined_at,
+                profile:profiles(id, email, state)
+              `)
+              .eq('legion_id', legionId)
+              .eq('status', 'active');
+
+            const { data: ops } = await supabase
+              .from('legion_operations')
+              .select('*')
+              .eq('legion_id', legionId)
+              .order('created_at', { ascending: false });
+
+            let subtasks = [];
+            if (ops && ops.length > 0) {
+              const opIds = ops.map(o => o.id);
+              const { data: subData } = await supabase
+                .from('legion_subtasks')
+                .select(`
+                  *,
+                  assignee:profiles(id, email, state)
+                `)
+                .in('legion_operation_id', opIds);
+              if (subData) subtasks = subData;
+            }
+
+            const { data: lEvents } = await supabase
+              .from('legion_events')
+              .select('*')
+              .eq('legion_id', legionId)
+              .order('created_at', { ascending: false })
+              .limit(15);
+
+            set({
+              activeLegion: legionData,
+              legionMembers: members || [],
+              legionOperations: ops || [],
+              legionSubtasks: subtasks || [],
+              legionEvents: lEvents || []
+            });
+          } else {
+            set({
+              activeLegion: null,
+              legionMembers: [],
+              legionOperations: [],
+              legionSubtasks: [],
+              legionEvents: []
+            });
+          }
+        } catch (err) {
+          console.error("fetchSocialData error:", err);
+        }
+      },
+
+      sendFriendRequest: async (email) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { data: targetProfile, error: searchErr } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (searchErr || !targetProfile) {
+          throw new Error('User with this email not found.');
+        }
+
+        if (targetProfile.id === u) {
+          throw new Error('You cannot add yourself as a friend.');
+        }
+
+        const { error: insertErr } = await supabase
+          .from('friendships')
+          .insert({
+            requester_id: u,
+            receiver_id: targetProfile.id,
+            status: 'pending'
+          });
+
+        if (insertErr) {
+          throw new Error('Friend request already sent or pending.');
+        }
+
+        await get().fetchSocialData();
+      },
+
+      acceptFriendRequest: async (requestId) => {
+        const { error } = await supabase
+          .from('friendships')
+          .update({ status: 'accepted', updated_at: new Date().toISOString() })
+          .eq('id', requestId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      declineFriendRequest: async (requestId) => {
+        const { error } = await supabase
+          .from('friendships')
+          .delete()
+          .eq('id', requestId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      removeFriend: async (friendshipId) => {
+        const { error } = await supabase
+          .from('friendships')
+          .delete()
+          .eq('id', friendshipId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      createLegion: async (name) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { data: legion, error: legionErr } = await supabase
+          .from('legions')
+          .insert({
+            name,
+            creator_id: u,
+            owner_id: u,
+            level: 1,
+            total_xp: 0
+          })
+          .select()
+          .single();
+
+        if (legionErr) throw legionErr;
+
+        const { error: memberErr } = await supabase
+          .from('legion_members')
+          .insert({
+            legion_id: legion.id,
+            user_id: u,
+            role: 'creator',
+            status: 'active'
+          });
+
+        if (memberErr) throw memberErr;
+
+        await supabase.from('legion_events').insert({
+          legion_id: legion.id,
+          event_type: 'operation_started',
+          actor_id: u,
+          metadata: { message: `Legion ${name} was founded.` }
+        });
+
+        await get().fetchSocialData();
+      },
+
+      inviteLegionMember: async (legionId, friendId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_members')
+          .insert({
+            legion_id: legionId,
+            user_id: friendId,
+            role: 'member',
+            status: 'active'
+          });
+
+        if (error) throw error;
+
+        await get().fetchSocialData();
+      },
+
+      initiateLegionOperation: async (legionId, parentTaskId, deadline, subtasksList) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { data: op, error: opErr } = await supabase
+          .from('legion_operations')
+          .insert({
+            legion_id: legionId,
+            parent_task_id: parentTaskId,
+            status: 'acceptance_open',
+            deadline
+          })
+          .select()
+          .single();
+
+        if (opErr) throw opErr;
+
+        const subtasksToInsert = subtasksList.map(s => ({
+          legion_operation_id: op.id,
+          assigned_to: s.assignedTo,
+          task_id: genId(),
+          acceptance_status: s.assignedTo === u ? 'accepted' : 'pending',
+          completion_status: 'incomplete',
+          xp_value: s.xpValue
+        }));
+
+        const { error: subErr } = await supabase
+          .from('legion_subtasks')
+          .insert(subtasksToInsert);
+
+        if (subErr) throw subErr;
+
+        await supabase.from('legion_events').insert({
+          legion_id: legionId,
+          event_type: 'operation_started',
+          actor_id: u,
+          metadata: { operation_id: op.id, parent_task_id: parentTaskId }
+        });
+
+        await get().fetchSocialData();
+      },
+
+      respondToSubtask: async (subtaskId, acceptStatus) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({
+            acceptance_status: acceptStatus
+          })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+
+        const { data: sub } = await supabase
+          .from('legion_subtasks')
+          .select('legion_operation_id')
+          .eq('id', subtaskId)
+          .single();
+
+        if (sub) {
+          const { data: op } = await supabase
+            .from('legion_operations')
+            .select('legion_id')
+            .eq('id', sub.legion_operation_id)
+            .single();
+
+          if (op) {
+            await supabase.from('legion_events').insert({
+              legion_id: op.legion_id,
+              event_type: acceptStatus === 'accepted' ? 'subtask_accepted' : 'subtask_declined',
+              actor_id: u
+            });
+          }
+        }
+
+        await get().fetchSocialData();
+      },
+
+      lockLegionOperation: async (operationId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_operations')
+          .update({
+            status: 'active',
+            locked_at: new Date().toISOString()
+          })
+          .eq('id', operationId);
+
+        if (error) throw error;
+
+        const { data: op } = await supabase
+          .from('legion_operations')
+          .select('legion_id')
+          .eq('id', operationId)
+          .single();
+
+        if (op) {
+          await supabase.from('legion_events').insert({
+            legion_id: op.legion_id,
+            event_type: 'operation_started',
+            actor_id: u,
+            metadata: { operation_id: operationId }
+          });
+        }
+
+        await get().fetchSocialData();
+      },
+
+      restrainLegionMember: async (subtaskId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({
+            completion_status: 'restrained',
+            restrained_at: new Date().toISOString(),
+            restrained_by: u
+          })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+
+        const { data: sub } = await supabase
+          .from('legion_subtasks')
+          .select('legion_operation_id, assigned_to')
+          .eq('id', subtaskId)
+          .single();
+
+        if (sub) {
+          const { data: op } = await supabase
+            .from('legion_operations')
+            .select('legion_id')
+            .eq('id', sub.legion_operation_id)
+            .single();
+
+          if (op) {
+            await supabase.from('legion_events').insert({
+              legion_id: op.legion_id,
+              event_type: 'member_restrained',
+              actor_id: u,
+              target_id: sub.assigned_to,
+              metadata: { subtask_id: subtaskId }
+            });
+          }
+        }
+
+        await get().fetchSocialData();
+      },
+
+      completeLegionSubtask: async (subtaskId, coverStatus = 'completed') => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({
+            completion_status: coverStatus,
+            completed_by: u
+          })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+
+        const { data: sub } = await supabase
+          .from('legion_subtasks')
+          .select('legion_operation_id, assigned_to, xp_value')
+          .eq('id', subtaskId)
+          .single();
+
+        if (sub) {
+          const { data: op } = await supabase
+            .from('legion_operations')
+            .select('legion_id, parent_task_id')
+            .eq('id', sub.legion_operation_id)
+            .single();
+
+          if (op) {
+            await supabase.from('legion_events').insert({
+              legion_id: op.legion_id,
+              event_type: coverStatus === 'covered' ? 'subtask_covered' : 'subtask_completed',
+              actor_id: u,
+              target_id: coverStatus === 'covered' ? sub.assigned_to : null
+            });
+
+            const { data: siblings } = await supabase
+              .from('legion_subtasks')
+              .select('completion_status')
+              .eq('legion_operation_id', sub.legion_operation_id);
+
+            const allFinished = siblings.every(s => 
+              s.completion_status === 'completed' || 
+              s.completion_status === 'covered' || 
+              s.completion_status === 'restrained'
+            );
+
+            if (allFinished) {
+              await supabase
+                .from('legion_operations')
+                .update({
+                  status: 'success',
+                  completed_at: new Date().toISOString()
+                })
+                .eq('id', sub.legion_operation_id);
+
+              await supabase.from('legion_events').insert({
+                legion_id: op.legion_id,
+                event_type: 'operation_success',
+                actor_id: u,
+                metadata: { operation_id: sub.legion_operation_id }
+              });
+
+              const { data: allSubs } = await supabase
+                .from('legion_subtasks')
+                .select('assigned_to, completed_by, completion_status, xp_value')
+                .eq('legion_operation_id', sub.legion_operation_id);
+
+              let cumulativeOperationXp = 0;
+              for (const sItem of allSubs) {
+                if (sItem.completion_status === 'completed' || sItem.completion_status === 'covered') {
+                  const winner = sItem.completed_by || sItem.assigned_to;
+                  cumulativeOperationXp += sItem.xp_value;
+                  
+                  if (winner === u) {
+                    set(state => ({
+                      executionScore: state.executionScore + sItem.xp_value,
+                      xp: state.xp + sItem.xp_value
+                    }));
+                    await get().updateWeeklyLeaderboard(sItem.xp_value);
+                  }
+                }
+              }
+
+              const { data: currentLegion } = await supabase
+                .from('legions')
+                .select('total_xp, level')
+                .eq('id', op.legion_id)
+                .single();
+
+              if (currentLegion) {
+                const nextXp = currentLegion.total_xp + cumulativeOperationXp;
+                const nextLevel = Math.floor(nextXp / 1000) + 1;
+                await supabase
+                  .from('legions')
+                  .update({
+                    total_xp: nextXp,
+                    level: nextLevel
+                  })
+                  .eq('id', op.legion_id);
+              }
+            }
+          }
+        }
+
+        await get().fetchSocialData();
+      },
+
+      submitFailureNote: async (subtaskId, noteText) => {
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({
+            note: noteText
+          })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      recordWeeklyEvent: async (eventType, description) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        try {
+          await supabase
+            .from('leaderboard_events')
+            .insert({
+              user_id: u,
+              event_type: eventType,
+              event_description: description
+            });
+        } catch (err) {
+          console.error("recordWeeklyEvent error:", err);
+        }
+      },
+
+      updateWeeklyLeaderboard: async (ptsEarned) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        try {
+          const weekStart = getWeekStart();
+          const { data, error } = await supabase
+            .from('leaderboard_snapshots')
+            .select('weekly_xp, operations_completed')
+            .eq('user_id', u)
+            .eq('week_start', weekStart)
+            .maybeSingle();
+
+          let currentWeeklyXp = 0;
+          let currentOpsCompleted = 0;
+          if (!error && data) {
+            currentWeeklyXp = data.weekly_xp;
+            currentOpsCompleted = data.operations_completed;
+          }
+
+          const streak = get().streakCount || 0;
+
+          await supabase.from('leaderboard_snapshots').upsert({
+            user_id: u,
+            week_start: weekStart,
+            weekly_xp: currentWeeklyXp + ptsEarned,
+            streak_days: streak,
+            operations_completed: currentOpsCompleted + (ptsEarned > 0 ? 1 : 0)
+          }, { onConflict: 'user_id,week_start' });
+        } catch (err) {
+          console.error("Failed to update weekly leaderboard:", err);
+        }
       }
     }),
     {
@@ -2040,6 +2646,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     const isInitialLoad = !currentUser;
     if (isNewSignIn || isInitialLoad) {
       await useWarscytheStore.getState().fetchUserState(session.user.id);
+      await useWarscytheStore.getState().fetchSocialData();
     }
   } else {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template

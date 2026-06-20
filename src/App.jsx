@@ -22,6 +22,7 @@ import QuestMap from './pages/QuestMap';
 import Fitness from './pages/Fitness';
 import Forge from './pages/Forge';
 import Ledger from './pages/Ledger';
+import Social from './pages/Social';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
@@ -426,6 +427,7 @@ export default function App() {
         onOpenShop={() => setShowShopModal(true)}
         onOpenDownloader={() => setShowDownloaderModal(true)}
         onOpenLore={() => setShowLoreModal(true)}
+        onOpenSocial={() => setActiveTab('social')}
       />
       
       <main className="flex-1 w-full overflow-hidden relative">
@@ -489,6 +491,13 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
           <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
+        </div>
+
+        <div 
+          style={{ display: activeTab === 'social' ? 'block' : 'none' }} 
+          className="h-full w-full overflow-y-auto custom-scrollbar"
+        >
+          <Social />
         </div>
       </main>
 

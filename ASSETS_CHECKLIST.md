@@ -229,6 +229,17 @@ Ethereal, neon translucent wings, dreamy halo. Each region has exactly 2 states 
 
 ---
 
+## 🛡️ LEGION BANNERS & FRAMES — `public/legion/`
+
+| Status | Filename | Description |
+|---|---|---|
+| ⏳ | `banners/legion-banner-1.png` to `10.png` | Vertical progress banners showing raw iron to aetheric platinum theme levels 1-10 |
+| ⏳ | `frames/legion-frame-1.png` to `10.png` | Circular border avatar frames matching the tier level themes 1-10 |
+
+**Total: 20 files**
+
+---
+
 ## 📊 GRAND TOTAL
 
 | Folder | Count |
@@ -243,7 +254,8 @@ Ethereal, neon translucent wings, dreamy halo. Each region has exactly 2 states 
 | `public/nodes/` | 5 |
 | `public/fairies/` | 20 |
 | `public/` (Audio Controls) | 1 |
-| **TOTAL** | **202 assets** |
+| `public/legion/` (Banners & Frames) | 20 |
+| **TOTAL** | **222 assets** |
 
 ---
 
