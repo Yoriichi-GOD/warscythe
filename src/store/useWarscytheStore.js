@@ -100,10 +100,13 @@ const mergeState = (local, saved) => {
     ? local.activeTheme
     : (saved.activeTheme || 'default');
 
-  const downloadedRegions = Array.from(new Set([
-    ...(local.downloadedRegions || []),
-    ...(saved.downloadedRegions || [])
-  ]));
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+  const downloadedRegions = isMobileApp 
+    ? Array.from(new Set([
+        ...(local.downloadedRegions || []),
+        ...(saved.downloadedRegions || [])
+      ]))
+    : [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   // Daily Log
   const dailyLog = { ...(local.dailyLog || {}) };
@@ -317,7 +320,7 @@ export const useWarscytheStore = create(
       unlockedThemes: ['default'],
       activeScytheSkin: 'default',
       activeTheme: 'default',
-      downloadedRegions: [],
+      downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : [2, 3, 4, 5, 6, 7, 8, 9, 10],
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
@@ -468,7 +471,7 @@ export const useWarscytheStore = create(
           unlockedThemes: ['default'],
           activeScytheSkin: 'default',
           activeTheme: 'default',
-          downloadedRegions: [],
+          downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : [2, 3, 4, 5, 6, 7, 8, 9, 10],
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
@@ -1889,6 +1892,16 @@ export const useWarscytheStore = create(
     {
       name: 'Warscythe-storage',
       storage: createJSONStorage(() => localStorage),
+      merge: (persistedState, currentState) => {
+        const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+        return {
+          ...currentState,
+          ...persistedState,
+          downloadedRegions: isMobile 
+            ? (persistedState?.downloadedRegions || []) 
+            : [2, 3, 4, 5, 6, 7, 8, 9, 10]
+        };
+      }
     }
   )
 );

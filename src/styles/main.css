@@ -199,6 +199,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.85), 0 8px 32px rgba(0, 0, 0, 0.6);
+  padding: 1.25rem;
 }
 
 /* Automatic gold corner brackets on all elite-panels (translucent gold) */
@@ -1073,6 +1074,12 @@ body.theme-shiva .elite-panel::before {
     linear-gradient(to top, rgba(93, 173, 226, 0.5) 2px, transparent 2px) 0 100%,
     linear-gradient(to left, rgba(93, 173, 226, 0.5) 2px, transparent 2px) 100% 100%,
     linear-gradient(to top, rgba(93, 173, 226, 0.5) 2px, transparent 2px) 100% 100% !important;
+  background-repeat: no-repeat !important;
+  background-size: 8px 8px !important;
+}
+
+body.theme-shiva .elite-panel::after {
+  border-color: rgba(93, 173, 226, 0.03) !important;
 }
 
 /* Lava Theme (Volcanic Citadel deep crimson/orange) */
@@ -1108,6 +1115,12 @@ body.theme-lava .elite-panel::before {
     linear-gradient(to top, rgba(255, 61, 0, 0.5) 2px, transparent 2px) 0 100%,
     linear-gradient(to left, rgba(255, 61, 0, 0.5) 2px, transparent 2px) 100% 100%,
     linear-gradient(to top, rgba(255, 61, 0, 0.5) 2px, transparent 2px) 100% 100% !important;
+  background-repeat: no-repeat !important;
+  background-size: 8px 8px !important;
+}
+
+body.theme-lava .elite-panel::after {
+  border-color: rgba(255, 61, 0, 0.03) !important;
 }
 
 /* Premium Scythe Skins Color Filters */

@@ -3,9 +3,8 @@ const SUPABASE_CDN_BASE = 'https://yrxchjontmgkjaazrybh.supabase.co/storage/v1/o
 export const BUNDLE_CONFIG = {
   2: {
     name: 'Ashwood Frontier',
-    size: '8.4 MB',
+    size: '4.5 MB',
     files: [
-      'crests/region-crest-2.png',
       'maps/campaign-map-2.png',
       'trophies/trophy-dragon-lava.png'
     ]
@@ -117,22 +116,25 @@ export const getAssetUrl = (localPath) => {
     // So Region 2 map, crest, and trophies are NOT bundled.
     
     // Day-1 local files in public folder:
-    if (path.includes('region-crest-1.png')) return true;
+    if (path.includes('region-crest-1.png') || path.includes('region-crest-2.png')) return true;
     if (path.includes('maps/campaign-map-1.png')) return true;
     if (path.includes('bg-region-1.png') || path.includes('bg/bg-region-1.png')) return true;
     if (path.includes('olympus-bg.png')) return true;
     
-    // Region 1 & 2 Fairy assets (empress 1 and 2) are bundled
+    // Keys are bundled locally
+    if (path.includes('keys/')) return true;
+    
+    // Region 1 & 2 Fairy assets are bundled
     if (path.includes('fairies/empress-1-') || path.includes('fairies/empress-2-')) return true;
     
-    // Region 1 & 2 dragon assets (wyrm & lava) are bundled
+    // Region 1 & 2 dragon assets are bundled
     if (path.includes('dragons/dragon-wyrm.png') || path.includes('dragons/dragon-lava.png')) return true;
     
     // Region 1 trophies are bundled (wyrm)
     if (path.includes('trophies/trophy-dragon-wyrm.png')) return true;
 
-    // Region 2 crest, map, and trophies are NOT bundled
-    if (path.includes('region-crest-2.png') || path.includes('maps/campaign-map-2.png') || path.includes('trophies/trophy-dragon-lava.png')) return false;
+    // Region 2 map and trophies are NOT bundled (crest-2 is bundled)
+    if (path.includes('maps/campaign-map-2.png') || path.includes('trophies/trophy-dragon-lava.png')) return false;
 
     // Day-1 fitness (Hermes statue) and deity avatars are bundled. Other deity statues are remote.
     if (path.includes('deity/avatar/') || path.includes('deity/hermes.png')) return true;

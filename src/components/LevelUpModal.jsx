@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { REGIONS, LORE_TEMPLATES } from '../store/constants';
 import { X } from 'lucide-react';
-import { getAssetUrl } from '../utils/assetResolver';
+import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 
 export default function LevelUpModal({ data, onClose }) {
   const { newLevel, newTitle, regionIdx } = data;
@@ -13,6 +13,27 @@ export default function LevelUpModal({ data, onClose }) {
 
   const crestIndex = ((newLevel - 1) % 10) + 1;
   const crestPath = getAssetUrl(`/crests/region-crest-${crestIndex}.png`);
+
+  const downloadedRegions = useWarscytheStore(state => state.downloadedRegions) || [];
+  const downloadRegionBundle = useWarscytheStore(state => state.downloadRegionBundle);
+
+  const [downloadState, setDownloadState] = useState('idle');
+
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+  const isDownloaded = downloadedRegions.includes(crestIndex);
+  const showPrompt = isMobileApp && !isDownloaded && crestIndex >= 2;
+  const bundleConfig = BUNDLE_CONFIG[crestIndex];
+
+  const handleDownload = async () => {
+    setDownloadState('downloading');
+    try {
+      await downloadRegionBundle(crestIndex);
+      setDownloadState('completed');
+    } catch (err) {
+      console.error(err);
+      setDownloadState('error');
+    }
+  };
 
   return (
     <div className="modal-backdrop levelup-backdrop">
@@ -87,14 +108,57 @@ export default function LevelUpModal({ data, onClose }) {
 
           <h3 className="new-region-name font-times">{region.name}</h3>
           <p className="region-desc font-times">"{loreTemplate.replace('{title}', newTitle)}"</p>
+          
+          {showPrompt && (
+            <div className="region-cache-prompt bg-black/80 border border-gold-core/20 p-4 rounded-md my-4 flex flex-col items-center gap-2 max-w-[280px] mx-auto font-mono text-[9px] uppercase tracking-wider text-center relative z-20">
+              <span className="text-gold-core font-extrabold">Resource Cache Required (Size: {bundleConfig?.size || '10 MB'})</span>
+              <span className="text-gray-400 text-[8px] leading-normal font-medium">Cache region assets to enable offline gameplay and view maps, trophies, and fairies.</span>
+              
+              {downloadState === 'idle' && (
+                <div className="flex gap-2 w-full mt-1">
+                  <button 
+                    onClick={handleDownload}
+                    className="flex-1 bg-gold-core text-black font-extrabold py-2 px-1 rounded shadow-[0_0_10px_rgba(197,160,89,0.3)] hover:bg-white transition-all cursor-pointer"
+                  >
+                    CACHE NOW
+                  </button>
+                  <button 
+                    onClick={onClose}
+                    className="flex-1 border border-white/20 text-gray-300 font-extrabold py-2 px-1 rounded hover:bg-white/5 transition-all cursor-pointer"
+                  >
+                    LATER
+                  </button>
+                </div>
+              )}
+              {downloadState === 'downloading' && (
+                <span className="text-gold-core font-bold animate-pulse mt-2">[ CACHING RESOURCES... PLEASE WAIT ]</span>
+              )}
+              {downloadState === 'completed' && (
+                <span className="text-emerald-400 font-bold mt-2">[ CACHE ENCODING COMPLETE! ]</span>
+              )}
+              {downloadState === 'error' && (
+                <div className="flex flex-col gap-2 mt-1 w-full">
+                  <span className="text-red-400 font-bold">[ CACHE FAILED ]</span>
+                  <button 
+                    onClick={handleDownload}
+                    className="bg-red-500 text-white font-bold py-2 rounded transition-all cursor-pointer"
+                  >
+                    TRY AGAIN
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Modal Footer & Button */}
         <div className="levelup-footer font-times">
           <span className="embody-text">EMBODY YOUR NEW FORM</span>
-          <button className="btn-gothic-gold claim-btn" onClick={onClose}>
-            CLAIM REWARD
-          </button>
+          {(!showPrompt || downloadState === 'completed') && (
+            <button className="btn-gothic-gold claim-btn" onClick={onClose}>
+              CLAIM REWARD
+            </button>
+          )}
         </div>
       </div>
 

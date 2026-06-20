@@ -12,6 +12,7 @@ import EliteNavigation from './components/EliteNavigation';
 import PremiumModal from './components/PremiumModal';
 import ShopModal from './components/ShopModal';
 import AssetDownloaderModal from './components/AssetDownloaderModal';
+import CacheAlertPopup from './components/CacheAlertPopup';
 import { ShieldAlert, X, Lock } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -126,12 +127,35 @@ export default function App() {
   const [isValidating, setIsValidating] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
   const [pendingEntryScreen, setPendingEntryScreen] = useState(null);
+  const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   
   // 🔮 Guardian Angel Global States & Logic
   const [activeProphecy, setActiveProphecy] = useState(null);
   const [showProphecyCard, setShowProphecyCard] = useState(false);
 
   const addReceivedProphecy = useWarscytheStore(state => state.addReceivedProphecy);
+
+  useEffect(() => {
+    const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+    if (!isMobileApp) return;
+
+    const handleImageError = (e) => {
+      if (e.target && e.target.tagName === 'IMG') {
+        const src = e.target.src;
+        if (src && src.includes('supabase.co/storage/v1/object/public/cosmetics/')) {
+          let detectedRegionId = null;
+          const match = src.match(/(?:empress|crest|map|region)-(\d+)/i);
+          if (match) {
+            detectedRegionId = parseInt(match[1], 10);
+          }
+          setCacheAlertRegionId(detectedRegionId || 'Unknown');
+        }
+      }
+    };
+
+    window.addEventListener('error', handleImageError, true); // capture phase
+    return () => window.removeEventListener('error', handleImageError, true);
+  }, []);
 
   useEffect(() => {
     if (showProphecyCard) {
@@ -676,6 +700,13 @@ export default function App() {
         {showDownloaderModal && (
           <AssetDownloaderModal 
             onClose={() => setShowDownloaderModal(false)} 
+          />
+        )}
+        {cacheAlertRegionId && (
+          <CacheAlertPopup 
+            regionId={cacheAlertRegionId}
+            onClose={() => setCacheAlertRegionId(null)}
+            onOpenDownloader={() => setShowDownloaderModal(true)}
           />
         )}
       </AnimatePresence>
