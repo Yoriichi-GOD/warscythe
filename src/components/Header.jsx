@@ -371,6 +371,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           }
         }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
         
         .sync-btn {
           cursor: pointer;

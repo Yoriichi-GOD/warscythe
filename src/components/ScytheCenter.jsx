@@ -14,14 +14,12 @@ export default function ScytheCenter({ onOpenShop }) {
     activeScytheSkin, 
     activeTheme,
     equipScythe,
-    applyTheme,
-    buyScythe
+    applyTheme
   } = useWarscytheStore();
 
   const [isSlashing, setIsSlashing] = useState(false);
   const [activeTab, setActiveTab] = useState('streak'); // 'streak', 'shop', 'theme'
   const [selectedItemId, setSelectedItemId] = useState('dormant');
-  const [coinBuyError, setCoinBuyError] = useState(null);
 
   const triggerSlash = () => {
     if (isSlashing) return;
@@ -113,7 +111,7 @@ export default function ScytheCenter({ onOpenShop }) {
   const getWeaponImage = (item) => {
     if (item.type === 'streak') {
       if (item.id === 'dormant') return getAssetUrl('/scythe/DORMANT.png');
-      return getAssetUrl(`/scythe/${item.id}.png`);
+      return getAssetUrl(`/ultimate/${item.id}.png`);
     }
     if (item.type === 'premium') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
@@ -308,20 +306,6 @@ export default function ScytheCenter({ onOpenShop }) {
                       <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
                         <Lock size={10} />
                         <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
-                      </div>
-                    ) : selectedItem.type === 'coin' ? (
-                      <div className="flex flex-col items-center gap-2 w-full">
-                        {coinBuyError && <p className="text-red-400 font-mono text-[8px]">{coinBuyError}</p>}
-                        <button 
-                          onClick={() => {
-                            setCoinBuyError(null);
-                            const success = buyScythe(selectedItem.id, selectedItem.price);
-                            if (!success) setCoinBuyError(`Insufficient coins. Need ${selectedItem.price} 🪙 (you have ${coins} 🪙)`);
-                          }}
-                          className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
-                        >
-                          BUY FOR {selectedItem.price} 🪙
-                        </button>
                       </div>
                     ) : (
                       <button 
