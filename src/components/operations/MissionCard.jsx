@@ -49,7 +49,7 @@ export default function MissionCard({ task, onOpen }) {
       <div className="flex items-center gap-4 p-4">
         
         {/* EMBLEM WITH DYNAMIC PRIORITY COLOR */}
-        <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${
+        <div className={`hidden md:flex w-12 h-12 shrink-0 rounded-full border items-center justify-center ${
           task.priority === 'high' ? 'border-red-500/30 bg-red-500/5' :
           task.priority === 'medium' ? 'border-yellow-500/30 bg-yellow-500/5' :
           task.priority === 'low' ? 'border-green-500/30 bg-green-500/5' :
@@ -79,11 +79,11 @@ export default function MissionCard({ task, onOpen }) {
 
         {/* CONTENT */}
         <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-          <h3 className="text-white font-display text-[10px] tracking-[0.2em] uppercase truncate group-hover:text-gold-bright transition-colors">
+          <h3 className="text-white font-display text-[11px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase truncate group-hover:text-gold-bright transition-colors">
             {task.title}
           </h3>
-          <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">{task.category || 'Strategic'} Strike</span>
-          <div className="flex items-center gap-2 mt-0.5">
+          <span className="hidden md:block text-[8px] font-mono text-gray-500 uppercase tracking-widest">{task.category || 'Strategic'} Strike</span>
+          <div className="hidden md:flex items-center gap-2 mt-0.5">
             <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
@@ -96,15 +96,15 @@ export default function MissionCard({ task, onOpen }) {
         </div>
 
         {/* FLAME + MENU WITH DYNAMIC PRIORITY COLOR */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="hidden md:flex items-center gap-2 shrink-0">
           <Flame 
             size={20} 
-            className={
+            className={`hidden md:block ${
               task.priority === 'high' ? 'text-red-500' :
               task.priority === 'medium' ? 'text-yellow-500' :
               task.priority === 'low' ? 'text-green-500' :
               'text-gold-core'
-            }
+            }`}
             style={{
               filter: `drop-shadow(0 0 8px ${
                 task.priority === 'high' ? 'rgba(231, 76, 60, 0.4)' :

@@ -77,7 +77,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         </div>
 
         {user && (
-          <div className={`flex items-center ml-2 ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
+          <div className={`elite-status-wrapper flex items-center ml-2 ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
             {isAdFree ? (
               <div 
                 className="elite-badge flex items-center justify-center font-mono font-bold tracking-widest text-[8px] border border-gold-core/40 text-gold-core bg-gold-core/5 rounded px-2.5 py-1.5 shadow-[0_0_12px_rgba(236,200,128,0.25)] animate-pulse" 
@@ -253,6 +253,43 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           border-right: none;
           border-top: none;
           height: 64px;
+        }
+
+        @media (max-width: 1023px) {
+          .main-header {
+            display: grid !important;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto;
+            height: auto !important;
+            padding: 0.75rem 1rem;
+            gap: 0.75rem 0.5rem;
+          }
+          .header-left {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: center;
+          }
+          .header-right {
+            display: contents !important;
+          }
+          .xp-counter {
+            display: none !important;
+          }
+          .elite-status-wrapper {
+            grid-column: 2;
+            grid-row: 1;
+            align-self: center;
+            justify-self: end;
+            margin-left: 0 !important;
+          }
+          .action-buttons {
+            grid-column: 1 / span 2;
+            grid-row: 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            width: 100%;
+          }
         }
 
         @media (min-width: 1024px) {
