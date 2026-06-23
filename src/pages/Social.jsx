@@ -256,7 +256,7 @@ export default function Social() {
                       ) : (
                         leaderboardEvents.map((evt) => (
                           <div key={evt.id} className="feed-item font-serif text-[11px] leading-relaxed">
-                            <span className="text-gold-core font-mono mr-1">[{evt.profile?.email.split('@')[0]}]</span>
+                            <span className="text-gold-core font-mono mr-1">[{evt.profile?.username || evt.profile?.email.split('@')[0]}]</span>
                             {evt.event_description}
                           </div>
                         ))
@@ -301,12 +301,11 @@ export default function Social() {
                       <tbody>
                         {leaderboard.map((row, idx) => {
                           const isSelf = row.user_id === user.id;
-                          const stats = parseUserState(row.profile);
                           return (
                             <tr key={row.id} className={isSelf ? 'self-row font-bold text-gold-core' : ''}>
                               <td className="rank-num">#{idx + 1}</td>
                               <td className="user-email text-left truncate max-w-[120px]">
-                                {row.profile?.email.split('@')[0]}
+                                {row.profile?.username || row.profile?.email.split('@')[0]}
                               </td>
                               <td className="text-right">{row.streak_days} DAYS</td>
                               <td className="text-right">{row.weekly_xp}</td>
@@ -347,8 +346,8 @@ export default function Social() {
                 <form onSubmit={handleSendRequest} className="add-friend-form mt-4">
                   <div className="input-group">
                     <input 
-                      type="email" 
-                      placeholder="Operative Email..." 
+                      type="text" 
+                      placeholder="Operative Username or Email..." 
                       value={searchEmail}
                       onChange={e => setSearchEmail(e.target.value)}
                       className="friend-email-input font-mono"
@@ -367,7 +366,7 @@ export default function Social() {
                   <div className="requests-list mt-3 flex flex-col gap-2">
                     {pendingRequests.map(req => (
                       <div key={req.id} className="request-card font-mono text-[10px] flex justify-between items-center">
-                        <span className="truncate max-w-[120px]">{req.requester?.email.split('@')[0]}</span>
+                        <span className="truncate max-w-[120px]">{req.requester?.username || req.requester?.email.split('@')[0]}</span>
                         <div className="flex gap-2">
                           <button onClick={() => acceptFriendRequest(req.id)} className="accept-req-btn">
                             <Check size={12} />
@@ -390,7 +389,7 @@ export default function Social() {
                   <div className="requests-list mt-3 flex flex-col gap-2">
                     {sentRequests.map(req => (
                       <div key={req.id} className="request-card font-mono text-[10px] flex justify-between items-center opacity-65">
-                        <span className="truncate max-w-[120px]">{req.receiver?.email.split('@')[0]}</span>
+                        <span className="truncate max-w-[120px]">{req.receiver?.username || req.receiver?.email.split('@')[0]}</span>
                         <span className="text-[7px] uppercase tracking-widest text-gold-core">PENDING</span>
                       </div>
                     ))}
@@ -423,7 +422,7 @@ export default function Social() {
                           <span className="friend-level-num">Lvl {friend.stats.level}</span>
                         </div>
                         <div className="flex flex-col text-left">
-                          <span className="friend-email font-mono font-bold text-xs">{friend.profile?.email.split('@')[0]}</span>
+                          <span className="friend-email font-mono font-bold text-xs">{friend.profile?.username || friend.profile?.email.split('@')[0]}</span>
                           <span className="friend-title text-[9px] uppercase tracking-widest text-gold-core">{friend.stats.currentTitle}</span>
                         </div>
                       </div>
@@ -509,7 +508,7 @@ export default function Social() {
                           return (
                             <div key={member.id} className="member-item flex justify-between items-center text-left">
                               <div className="flex flex-col font-mono text-[10px]">
-                                <span className="font-bold">{member.profile?.email.split('@')[0]}</span>
+                                <span className="font-bold">{member.profile?.username || member.profile?.email.split('@')[0]}</span>
                                 <span className="text-[7px] text-gold-core/80 uppercase">{member.role}</span>
                               </div>
                               {isCreator && <span className="text-[7px] font-mono border border-gold-core/40 text-gold-core px-1 py-0.5 rounded">LEADER</span>}
@@ -535,7 +534,7 @@ export default function Social() {
                             {friends
                               .filter(f => !legionMembers.some(m => m.user_id === f.profile.id))
                               .map(f => (
-                                <option key={f.profile.id} value={f.profile.id}>{f.profile.email.split('@')[0]}</option>
+                                <option key={f.profile.id} value={f.profile.id}>{f.profile.username || f.profile.email.split('@')[0]}</option>
                               ))}
                           </select>
                           <button type="submit" className="invite-btn p-2 border border-gold-core/40 text-gold-core rounded flex items-center justify-center hover:bg-gold-core/10">
@@ -619,7 +618,7 @@ export default function Social() {
                                 >
                                   <option value="">Assign To...</option>
                                   {legionMembers.map(m => (
-                                    <option key={m.user_id} value={m.user_id}>{m.profile?.email.split('@')[0]}</option>
+                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
                                   ))}
                                 </select>
                                 <input 
@@ -667,7 +666,7 @@ export default function Social() {
                             {/* Subtask Status board */}
                             <div className="subtask-status-board flex flex-col gap-2 mt-3">
                               {subtasksForOp.map(s => {
-                                const assigneeName = s.assignee?.email.split('@')[0];
+                                const assigneeName = s.assignee?.username || s.assignee?.email.split('@')[0];
                                 return (
                                   <div key={s.id} className="subtask-row flex justify-between items-center text-[10px] font-mono border-b border-white/[0.03] pb-1">
                                     <div className="flex flex-col">

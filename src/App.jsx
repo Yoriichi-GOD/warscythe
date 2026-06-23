@@ -8,6 +8,7 @@ import RitualModal from './components/RitualModal';
 import TaskDetail from './components/TaskDetail';
 import AuthModal from './components/AuthModal';
 import VaultModal from './components/VaultModal';
+import UsernameSetup from './components/UsernameSetup';
 import EliteNavigation from './components/EliteNavigation';
 import PremiumModal from './components/PremiumModal';
 import ShopModal from './components/ShopModal';
@@ -76,6 +77,8 @@ const getTaskCategoryType = (category = '') => {
 
 export default function App() {
   const user = useWarscytheStore(state => state.user);
+  const username = useWarscytheStore(state => state.username);
+  const isMerging = useWarscytheStore(state => state.isMerging);
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
@@ -409,6 +412,15 @@ export default function App() {
     return (
       <DashboardLayout>
         <AuthModal onClose={() => {}} isMandatory={true} />
+        <div id="toast-container" />
+      </DashboardLayout>
+    );
+  }
+
+  if (user && !isMerging && !username) {
+    return (
+      <DashboardLayout>
+        <UsernameSetup />
         <div id="toast-container" />
       </DashboardLayout>
     );

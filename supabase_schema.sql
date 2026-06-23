@@ -1,7 +1,11 @@
 -- Supabase Database Schema Migration: Warscythe V4 Social, Leaderboard & Legion Systems
 
--- 1. Ensure public.profiles table matches expectations and has email syncing
+-- 1. Ensure public.profiles table matches expectations and has email syncing & unique username
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS username text;
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_username_key;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_username_key UNIQUE (username);
+CREATE INDEX IF NOT EXISTS profiles_username_idx ON public.profiles (username);
 
 -- Create search index on email for friends search
 CREATE INDEX IF NOT EXISTS profiles_email_idx ON public.profiles (email);
@@ -66,11 +70,22 @@ CREATE TABLE IF NOT EXISTS public.leaderboard_events (
     'empress_liberated',
     'boss_raid_completed',
     'scythe_evolved',
-    'streak_milestone'
+    'streak_milestone',
+    'task_completed'
   )) NOT NULL,
   event_description text NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
+
+-- Ensure check constraint matches on existing DB
+ALTER TABLE public.leaderboard_events DROP CONSTRAINT IF EXISTS leaderboard_events_event_type_check;
+ALTER TABLE public.leaderboard_events ADD CONSTRAINT leaderboard_events_event_type_check CHECK (event_type IN (
+  'empress_liberated',
+  'boss_raid_completed',
+  'scythe_evolved',
+  'streak_milestone',
+  'task_completed'
+));
 
 CREATE INDEX IF NOT EXISTS leaderboard_events_user_idx ON public.leaderboard_events (user_id);
 CREATE INDEX IF NOT EXISTS leaderboard_events_created_idx ON public.leaderboard_events (created_at DESC);

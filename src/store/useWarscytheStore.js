@@ -358,6 +358,7 @@ export const useWarscytheStore = create(
       legionOperations: [],
       legionSubtasks: [],
       legionEvents: [],
+      username: null,
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -619,7 +620,7 @@ export const useWarscytheStore = create(
           isSyncingFromServer = true;
           const { data, error } = await supabase
             .from('profiles')
-            .select('state')
+            .select('state, username')
             .eq('id', userId)
             .single();
             
@@ -636,6 +637,7 @@ export const useWarscytheStore = create(
             const merged = mergeState(get(), saved);
             set({
               ...merged,
+              username: data.username || null,
               syncStatus: 'synced',
               hasPendingChanges: false
             });
@@ -678,12 +680,34 @@ export const useWarscytheStore = create(
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
           }
-        } catch (err) {
-          console.error('Exception in fetchUserState:', err);
         } finally {
           isSyncingFromServer = false;
           set({ isMerging: false });
         }
+      },
+
+      setupUsername: async (username) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { data, error: checkErr } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .maybeSingle();
+
+        if (data) {
+          throw new Error('This Username is already taken.');
+        }
+
+        const { error: updateErr } = await supabase
+          .from('profiles')
+          .update({ username })
+          .eq('id', u);
+
+        if (updateErr) throw updateErr;
+
+        set({ username });
       },
 
       saveUserState: async (userId) => {
@@ -1035,7 +1059,9 @@ export const useWarscytheStore = create(
 
         get().updateWeeklyLeaderboard(totalPts);
         if (isBoss) {
-          get().recordWeeklyEvent('boss_raid_completed', `Conquered a legendary Boss Raid: ${task.title}`);
+          get().recordWeeklyEvent('boss_raid_completed', `Conquered a legendary Boss Raid task`);
+        } else {
+          get().recordWeeklyEvent('task_completed', `Conquered a ${task.effort || 'Medium'} Resistance task`);
         }
         if (newLevel > state.level) {
           get().recordWeeklyEvent('empress_liberated', `Liberated the regional Empress at Level ${newLevel}`);
@@ -1956,8 +1982,8 @@ export const useWarscytheStore = create(
               requester_id,
               receiver_id,
               status,
-              requester:profiles!friendships_requester_id_fkey(id, email, state),
-              receiver:profiles!friendships_receiver_id_fkey(id, email, state)
+              requester:profiles!friendships_requester_id_fkey(id, email, state, username),
+              receiver:profiles!friendships_receiver_id_fkey(id, email, state, username)
             `)
             .or(`requester_id.eq.${u},receiver_id.eq.${u}`);
 
@@ -1975,7 +2001,7 @@ export const useWarscytheStore = create(
               weekly_xp,
               streak_days,
               operations_completed,
-              profile:profiles(id, email, state)
+              profile:profiles(id, email, state, username)
             `)
             .eq('week_start', weekStart)
             .order('weekly_xp', { ascending: false });
@@ -1992,7 +2018,7 @@ export const useWarscytheStore = create(
               event_type,
               event_description,
               created_at,
-              profile:profiles(id, email, state)
+              profile:profiles(id, email, state, username)
             `)
             .order('created_at', { ascending: false })
             .limit(10);
@@ -2025,7 +2051,7 @@ export const useWarscytheStore = create(
                 user_id,
                 role,
                 joined_at,
-                profile:profiles(id, email, state)
+                profile:profiles(id, email, state, username)
               `)
               .eq('legion_id', legionId)
               .eq('status', 'active');
@@ -2043,7 +2069,7 @@ export const useWarscytheStore = create(
                 .from('legion_subtasks')
                 .select(`
                   *,
-                  assignee:profiles(id, email, state)
+                  assignee:profiles(id, email, state, username)
                 `)
                 .in('legion_operation_id', opIds);
               if (subData) subtasks = subData;
@@ -2077,18 +2103,21 @@ export const useWarscytheStore = create(
         }
       },
 
-      sendFriendRequest: async (email) => {
+      sendFriendRequest: async (identifier) => {
         const u = get().user?.id;
         if (!u) return;
 
-        const { data: targetProfile, error: searchErr } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle();
+        let query = supabase.from('profiles').select('id');
+        if (identifier.includes('@')) {
+          query = query.eq('email', identifier);
+        } else {
+          query = query.eq('username', identifier);
+        }
+
+        const { data: targetProfile, error: searchErr } = await query.maybeSingle();
 
         if (searchErr || !targetProfile) {
-          throw new Error('User with this email not found.');
+          throw new Error('User with this email or username not found.');
         }
 
         if (targetProfile.id === u) {
