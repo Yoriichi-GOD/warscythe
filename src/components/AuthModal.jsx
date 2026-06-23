@@ -15,6 +15,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [referralSource, setReferralSource] = useState(null);
   
   const signIn = useWarscytheStore(state => state.signIn);
   const signUp = useWarscytheStore(state => state.signUp);
@@ -47,9 +48,14 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
   const handleEmailSignupSubmit = async (e) => {
     e.preventDefault();
+    if (!referralSource) {
+      setError('Please select how you learned about us.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
+      useWarscytheStore.setState({ referralSource });
       await signUp(email, password);
       setRegistered(true);
     } catch (err) {
@@ -297,7 +303,24 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                   />
                 </div>
 
-                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                <div className="referral-mcq-container">
+                  <span className="referral-mcq-label">HOW DID YOU LEARN ABOUT US?</span>
+                  <div className="referral-mcq-grid">
+                    {['friends', 'insta', 'ads', 'others'].map(source => (
+                      <button
+                        key={source}
+                        type="button"
+                        onClick={() => setReferralSource(source)}
+                        className={`referral-mcq-btn ${referralSource === source ? 'active' : ''}`}
+                        disabled={loading}
+                      >
+                        {source}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading || !referralSource}>
                   {loading ? 'CREATING...' : 'CREATE ACCOUNT'}
                 </button>
 
@@ -717,6 +740,49 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
         .auth-disclaimer-text a:hover {
           color: #c5a059;
+        }
+
+        .referral-mcq-container {
+          text-align: left;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .referral-mcq-label {
+          display: block;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.6rem;
+          color: #6b7280;
+          letter-spacing: 0.15em;
+          margin-bottom: 0.65rem;
+          text-transform: uppercase;
+        }
+        .referral-mcq-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.5rem;
+        }
+        .referral-mcq-btn {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 4px;
+          padding: 0.65rem 0.5rem;
+          color: #9ca3af;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: 0.2s;
+          text-transform: uppercase;
+        }
+        .referral-mcq-btn:hover {
+          border-color: rgba(197, 160, 89, 0.5);
+          color: #fff;
+        }
+        .referral-mcq-btn.active {
+          background: rgba(197, 160, 89, 0.05);
+          border-color: #c5a059;
+          color: #c5a059;
+          box-shadow: 0 0 10px rgba(197, 160, 89, 0.15);
         }
       `}</style>
     </div>

@@ -359,6 +359,7 @@ export const useWarscytheStore = create(
       legionSubtasks: [],
       legionEvents: [],
       username: null,
+      referralSource: null,
 
       // Auth & Sync
       signIn: async (email, password) => {
@@ -752,7 +753,8 @@ export const useWarscytheStore = create(
           lastResetDate: state.lastResetDate,
           rescuedFairies: state.rescuedFairies,
           soundscapeEnabled: state.soundscapeEnabled,
-          soundscapeVolume: state.soundscapeVolume
+          soundscapeVolume: state.soundscapeVolume,
+          referralSource: state.referralSource
         };
 
         try {
