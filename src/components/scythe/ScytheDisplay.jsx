@@ -14,13 +14,27 @@ export default function ScytheDisplay({
   previewLevel = null
 }) {
   const activeTheme = useWarscytheStore(state => state.activeTheme);
+  const activeScytheSkin = useWarscytheStore(state => state.activeScytheSkin);
   const safeLevel = level ? level.toUpperCase() : "DORMANT";
   
-  let imagePath = type === "ultimate" 
-    ? getAssetUrl(`/ultimate/${level.toLowerCase()}.png`)
-    : getAssetUrl(`/scythe/${safeLevel}.png`);
+  const shopSkins = [
+    'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator',
+    'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller'
+  ];
+  const isShopSkin = shopSkins.includes(activeScytheSkin);
 
-  if (type !== "ultimate" && activeTheme && activeTheme !== "default") {
+  let imagePath;
+  if (previewLevel && type === "ultimate") {
+    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
+  } else if (isShopSkin) {
+    imagePath = getAssetUrl(`/scythe/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
+  } else if (type === "ultimate") {
+    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
+  } else {
+    imagePath = getAssetUrl(`/scythe/${safeLevel}.png`);
+  }
+
+  if (activeTheme && activeTheme !== "default") {
     if (activeTheme === "shiva") {
       imagePath = getAssetUrl(`/themes/kailash/scythe-${safeLevel.toLowerCase()}.png`);
     } else if (activeTheme === "lava") {

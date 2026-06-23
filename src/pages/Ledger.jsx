@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles } from 'lucide-react';
+import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 const EMPRESS_NAMES = [
@@ -118,7 +118,158 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
   const abandonedTasks = useWarscytheStore(state => state.abandonedTasks) || [];
   const receivedProphecies = useWarscytheStore(state => state.receivedProphecies) || [];
+  const gymLog = useWarscytheStore(state => state.gymLog) || [];
   const level = useWarscytheStore(state => state.level) || 1;
+
+  // Local date helper (returns YYYY-MM-DD in local time)
+  const getLocalDateString = (dateInput) => {
+    if (!dateInput) return '';
+    const d = new Date(dateInput);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  // Group all logs by date string
+  const logsByDate = {};
+  completedTasks.forEach(task => {
+    const dateStr = getLocalDateString(task.completedAt);
+    if (dateStr) {
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      logsByDate[dateStr].completed.push(task);
+    }
+  });
+
+  abandonedTasks.forEach(task => {
+    const dateStr = getLocalDateString(task.abandonedAt);
+    if (dateStr) {
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      logsByDate[dateStr].abandoned.push(task);
+    }
+  });
+
+  gymLog.forEach(workout => {
+    const dateStr = getLocalDateString(workout.date);
+    if (dateStr) {
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      logsByDate[dateStr].gym.push(workout);
+    }
+  });
+
+  // Calendar state
+  const [selectedDateStr, setSelectedDateStr] = useState(() => getLocalDateString(new Date()));
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const today = new Date();
+    // Clamp min to May 2026 (month index 4)
+    if (today.getFullYear() < 2026 || (today.getFullYear() === 2026 && today.getMonth() < 4)) {
+      return new Date(2026, 4, 1);
+    }
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  const handlePrevMonth = () => {
+    setCalendarMonth(prev => {
+      const year = prev.getFullYear();
+      const month = prev.getMonth();
+      if (year === 2026 && month <= 4) return prev; // May 2026 limit
+      return new Date(year, month - 1, 1);
+    });
+  };
+
+  const handleNextMonth = () => {
+    setCalendarMonth(prev => {
+      const year = prev.getFullYear();
+      const month = prev.getMonth();
+      const today = new Date();
+      if (year === today.getFullYear() && month >= today.getMonth()) return prev;
+      return new Date(year, month + 1, 1);
+    });
+  };
+
+  const canGoPrev = !(calendarMonth.getFullYear() === 2026 && calendarMonth.getMonth() <= 4);
+  const todayDate = new Date();
+  const canGoNext = !(calendarMonth.getFullYear() === todayDate.getFullYear() && calendarMonth.getMonth() >= todayDate.getMonth());
+
+  // Generate calendar days
+  const calYear = calendarMonth.getFullYear();
+  const calMonth = calendarMonth.getMonth();
+  const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+  const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+
+  const dayCells = [];
+  for (let i = 0; i < firstDayIndex; i++) {
+    dayCells.push(null);
+  }
+  for (let d = 1; d <= totalDays; d++) {
+    dayCells.push(new Date(calYear, calMonth, d));
+  }
+
+  // Calculate day circle style based on work volume and difficulty
+  const getDayCircleStyle = (dateStr) => {
+    const dayData = logsByDate[dateStr];
+    if (!dayData) return null;
+
+    const { completed, abandoned, gym } = dayData;
+    const totalCount = completed.length + gym.length;
+    const totalAbandoned = abandoned.length;
+
+    if (totalCount === 0 && totalAbandoned === 0) return null;
+
+    let color = '#6b7280'; // default slate for abandoned
+    let levelName = 'ABANDONED';
+
+    if (completed.some(t => t.effort === 'Boss')) {
+      color = '#ecc880'; // gold
+      levelName = 'BOSS';
+    } else if (completed.some(t => t.effort === 'High')) {
+      color = '#ef4444'; // crimson
+      levelName = 'HIGH';
+    } else if (completed.some(t => t.effort === 'Medium')) {
+      color = '#8b5cf6'; // amethyst
+      levelName = 'MEDIUM';
+    } else if (completed.some(t => t.effort === 'Low')) {
+      color = '#3b82f6'; // blue
+      levelName = 'LOW';
+    } else if (gym.length > 0) {
+      color = '#10b981'; // emerald
+      levelName = 'FITNESS';
+    }
+
+    let style = {};
+    if (totalCount >= 3) {
+      style = {
+        background: `${color}25`,
+        borderColor: color,
+        boxShadow: `0 0 10px ${color}55`,
+        borderWidth: '2px',
+        color: '#fff',
+        fontWeight: 'bold'
+      };
+    } else if (totalCount === 2) {
+      style = {
+        borderColor: color,
+        borderWidth: '2px',
+        color: '#fff',
+        boxShadow: `0 0 5px ${color}33`
+      };
+    } else if (totalCount === 1) {
+      style = {
+        borderColor: color,
+        borderWidth: '1px',
+        color: '#fff'
+      };
+    } else {
+      style = {
+        borderColor: '#4b5563',
+        borderWidth: '1px',
+        color: '#6b7280',
+        borderStyle: 'dashed'
+      };
+    }
+
+    return { style, color, levelName, totalCount };
+  };
 
   const isRepetition = level > 10;
   const cycleIndex = isRepetition ? Math.floor((level - 1) / 10) : 0;
@@ -145,10 +296,38 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   });
 
   const filteredLogs = allLogs.filter(log => {
-    if (historyFilter === 'CONQUERED') return log.type === 'completed';
-    if (historyFilter === 'ABANDONED') return log.type === 'abandoned';
+    if (historyFilter === 'CONQUERED' && log.type !== 'completed') return false;
+    if (historyFilter === 'ABANDONED' && log.type !== 'abandoned') return false;
+
+    if (selectedDateStr) {
+      const logDateStr = getLocalDateString(log.completedAt || log.abandonedAt);
+      if (logDateStr !== selectedDateStr) return false;
+    }
     return true;
   });
+
+  const dailyGymLogs = selectedDateStr 
+    ? gymLog.filter(workout => getLocalDateString(workout.date) === selectedDateStr)
+    : [];
+
+  const getSessionTonnage = (workout) => {
+    if (workout.movements) {
+      return workout.movements.reduce((total, m) => {
+        return total + (m.sets || []).reduce((sum, s) => {
+          if (s.completed && s.type !== 'warmup') {
+            return sum + (Number(s.weight) || 0) * (Number(s.reps) || 0);
+          }
+          return sum;
+        }, 0);
+      }, 0);
+    }
+    if (workout.exercises) {
+      return workout.exercises.reduce((total, e) => {
+        return total + (Number(e.sets) || 0) * (Number(e.reps) || 0) * (Number(e.weight) || 0);
+      }, 0);
+    }
+    return 0;
+  };
 
   // Vault tab state & logic (from VaultModal)
   const collectedArtifacts = useWarscytheStore(state => state.collectedArtifacts) || [];
@@ -218,39 +397,192 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
       <div className="flex-1 min-h-0">
         {subTab === 'history' ? (
           <div className="flex flex-col gap-6">
-            {/* Filter controls */}
-            <div className="flex gap-2 p-1 bg-black/40 border border-white/5 rounded w-fit">
-              {['ALL', 'CONQUERED', 'ABANDONED'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setHistoryFilter(tab)}
-                  className={`px-4 py-1.5 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
-                    historyFilter === tab 
-                      ? 'bg-gold-core text-black font-bold shadow-[0_0_12px_rgba(197,160,89,0.3)]' 
-                      : 'text-text-dim hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {tab} ({
-                    tab === 'ALL' ? allLogs.length : 
-                    tab === 'CONQUERED' ? completedTasks.length : 
-                    abandonedTasks.length
-                  })
-                </button>
-              ))}
+            {/* Calendar Widget */}
+            <div className="elite-panel p-6 bg-black/40 border border-white/5 rounded-lg flex flex-col gap-4 relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-3 gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} className="text-gold-core" />
+                  <span className="text-[10px] font-mono text-gray-300 uppercase tracking-widest font-bold">TEMPORAL CONQUEST GRID</span>
+                </div>
+                
+                {/* Month navigation */}
+                <div className="flex items-center gap-4 bg-black/60 border border-white/10 rounded px-2 py-1 select-none self-end sm:self-auto">
+                  <button
+                    disabled={!canGoPrev}
+                    onClick={handlePrevMonth}
+                    className={`p-1 hover:text-white transition-colors cursor-pointer ${!canGoPrev ? 'opacity-20 cursor-not-allowed' : 'text-gold-core'}`}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="text-[9px] font-mono font-bold text-white tracking-widest uppercase w-32 text-center">
+                    {calendarMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                  </span>
+                  <button
+                    disabled={!canGoNext}
+                    onClick={handleNextMonth}
+                    className={`p-1 hover:text-white transition-colors cursor-pointer ${!canGoNext ? 'opacity-20 cursor-not-allowed' : 'text-gold-core'}`}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Day Headers (SUN, MON...) */}
+              <div className="grid grid-cols-7 gap-2 text-center text-[8px] font-mono text-gray-500 uppercase tracking-widest font-bold">
+                {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
+                  <div key={day} className="py-1">{day}</div>
+                ))}
+              </div>
+
+              {/* Days Grid */}
+              <div className="grid grid-cols-7 gap-2">
+                {dayCells.map((day, idx) => {
+                  if (day === null) {
+                    return <div key={`empty-${idx}`} className="aspect-square" />;
+                  }
+
+                  const dateStr = getLocalDateString(day);
+                  const isSelected = selectedDateStr === dateStr;
+                  const isToday = getLocalDateString(new Date()) === dateStr;
+                  
+                  const circleDetails = getDayCircleStyle(dateStr);
+                  const hasLogs = !!circleDetails;
+                  
+                  let cellClassName = "relative aspect-square flex flex-col items-center justify-center rounded cursor-pointer transition-all border select-none ";
+                  
+                  if (!hasLogs) {
+                    cellClassName += "border-white/[0.02] bg-white/[0.005] opacity-25 hover:opacity-60 hover:border-white/10";
+                  } else {
+                    cellClassName += "hover:scale-105 ";
+                    if (isSelected) {
+                      cellClassName += "border-gold-core shadow-[0_0_12px_rgba(197,160,89,0.3)] bg-gold-core/[0.04]";
+                    } else {
+                      cellClassName += "border-white/5 bg-white/[0.01] hover:bg-white/[0.02]";
+                    }
+                  }
+
+                  return (
+                    <div
+                      key={dateStr}
+                      onClick={() => setSelectedDateStr(isSelected ? null : dateStr)}
+                      className={cellClassName}
+                      title={hasLogs ? `${circleDetails.totalCount} event(s) - ${circleDetails.levelName} effort` : 'No activity logged'}
+                    >
+                      {/* Day Number */}
+                      <span className={`text-[10px] font-mono font-bold ${
+                        isSelected ? 'text-gold-bright' : isToday ? 'text-gold-core font-black' : 'text-gray-300'
+                      }`}>
+                        {day.getDate()}
+                      </span>
+
+                      {/* Circle Indicator around or inside cell */}
+                      {hasLogs && (
+                        <div
+                          className="absolute inset-1 rounded border pointer-events-none transition-all"
+                          style={circleDetails.style}
+                        />
+                      )}
+
+                      {/* Today Dot Indicator */}
+                      {isToday && (
+                        <div className="absolute bottom-1 w-1 h-1 rounded-full bg-gold-core" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Color Coding Legend */}
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-2 pt-3 border-t border-white/5 text-[7.5px] font-mono text-gray-500 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-[#ecc880]" />
+                  <span>Boss</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-[#ef4444]" />
+                  <span>High</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-[#8b5cf6]" />
+                  <span>Medium</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-[#3b82f6]" />
+                  <span>Low</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-[#10b981]" />
+                  <span>Fitness Only</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded border border-dashed border-[#6b7280]" />
+                  <span>Abandoned</span>
+                </div>
+                <div className="flex items-center gap-1.5 ml-2 border-l border-white/10 pl-4">
+                  <span className="opacity-70">Circle thickness represents volume (1 → 2 → 3+ events)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Selected Date Header and List Filters */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-3">
+              <div>
+                {selectedDateStr ? (
+                  <h3 className="text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
+                    CONQUESTS FOR {new Date(selectedDateStr + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </h3>
+                ) : (
+                  <h3 className="text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
+                    ALL RECORDED CONQUESTS
+                  </h3>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Filter controls */}
+                <div className="flex gap-1.5 p-1 bg-black/40 border border-white/5 rounded">
+                  {['ALL', 'CONQUERED', 'ABANDONED'].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setHistoryFilter(tab)}
+                      className={`px-3 py-1 text-[8.5px] font-mono tracking-widest uppercase rounded transition-all ${
+                        historyFilter === tab 
+                          ? 'bg-gold-core text-black font-bold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
+                          : 'text-text-dim hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedDateStr && (
+                  <button 
+                    onClick={() => setSelectedDateStr(null)}
+                    className="text-[8.5px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded transition-all uppercase tracking-widest font-bold"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Execution List */}
             <div className="flex flex-col gap-3">
+              <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest text-left">
+                OPERATION HISTORY
+              </span>
+
               <AnimatePresence mode="popLayout">
                 {filteredLogs.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.4 }}
                     exit={{ opacity: 0 }}
-                    className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-white/5 rounded-lg"
+                    className="flex flex-col items-center justify-center py-10 gap-3 border border-dashed border-white/5 rounded-lg"
                   >
-                    <ShieldAlert size={24} className="text-gray-600" />
-                    <span className="text-[10px] font-mono text-text-dim tracking-[0.3em] uppercase">No logs recorded</span>
+                    <ShieldAlert size={20} className="text-gray-600" />
+                    <span className="text-[10px] font-mono text-text-dim tracking-[0.3em] uppercase">No operations recorded for this day</span>
                   </motion.div>
                 ) : (
                   filteredLogs.map((log, i) => {
@@ -276,7 +608,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                           </div>
                           
                           <div className="flex flex-col gap-1 min-w-0 flex-1">
-                            <h4 className="text-white font-display text-[12px] tracking-wider uppercase leading-snug truncate">
+                            <h4 className="text-white font-display text-[12px] tracking-wider uppercase leading-snug truncate text-left">
                               {log.title || 'UNSPECIFIED STRIKE'}
                             </h4>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-[8px] font-mono text-text-dim uppercase tracking-wider">
@@ -306,6 +638,65 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Fitness History logs below the operations history */}
+            {selectedDateStr && dailyGymLogs.length > 0 && (
+              <div className="flex flex-col gap-3 mt-4 text-left">
+                <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest text-left border-t border-white/5 pt-6">
+                  FITNESS HISTORY
+                </span>
+
+                <div className="flex flex-col gap-4">
+                  {dailyGymLogs.map((log) => (
+                    <div key={log.id} className="elite-panel p-5 border border-gold-core/10 bg-gradient-to-r from-gold-core/[0.01] to-transparent rounded-lg flex flex-col gap-4">
+                      <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                        <div className="flex flex-col text-left">
+                          <span className="text-[7.5px] font-mono text-gold-core/70 tracking-widest uppercase font-bold">WORKOUT SPLIT</span>
+                          <span className="font-display text-xs text-white tracking-widest uppercase font-black">{log.split}</span>
+                        </div>
+                        <div className="flex flex-col text-right">
+                          <span className="text-[7.5px] font-mono text-gray-500 uppercase tracking-wider">TONNAGE LOAD</span>
+                          <span className="text-xs font-mono font-bold text-gold-bright">{Math.round(getSessionTonnage(log)).toLocaleString()} KG</span>
+                        </div>
+                      </div>
+
+                      {/* Movements list */}
+                      {log.movements && log.movements.length > 0 && (
+                        <div className="flex flex-col gap-3">
+                          {log.movements.map((movement, mIdx) => (
+                            <div key={mIdx} className="text-left border-b border-white/[0.02] pb-2 last:border-0 last:pb-0">
+                              <span className="text-[9.5px] font-mono font-bold text-gold-core uppercase tracking-wider">{movement.name}</span>
+                              <div className="pl-3 mt-1.5 flex flex-col gap-1 text-[9px] font-mono text-gray-400">
+                                {(movement.sets || []).map((setObj, sIdx) => (
+                                  <div key={sIdx} className="flex items-center justify-between py-0.5 border-b border-white/[0.01] last:border-0 max-w-md">
+                                    <span className={`${setObj.completed ? 'text-gray-300' : 'text-gray-600 line-through'}`}>
+                                      Set {sIdx + 1} ({setObj.type.toUpperCase()}): {setObj.weight} kg × {setObj.reps} reps {setObj.rpe ? `@ ${setObj.rpe} RPE` : ''}
+                                    </span>
+                                    <span className={`text-[7px] font-bold px-1 rounded ${
+                                      setObj.completed ? 'text-emerald-400 bg-emerald-950/20' : 'text-red-400 bg-red-950/20'
+                                    }`}>
+                                      {setObj.completed ? 'COMPLETE' : 'MISSED'}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Session Notes */}
+                      {log.notes && (
+                        <div className="bg-white/[0.01] border border-white/5 p-3 rounded text-left">
+                          <span className="text-[7.5px] font-mono text-gray-500 uppercase tracking-widest block mb-1">SESSION NOTES</span>
+                          <p className="text-[9.5px] font-mono text-gray-300 leading-relaxed uppercase">{log.notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : subTab === 'prophecies' ? (
           <div className="flex flex-col gap-6">
