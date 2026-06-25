@@ -17,17 +17,18 @@ export default function ScytheDisplay({
   const activeScytheSkin = useWarscytheStore(state => state.activeScytheSkin);
   const safeLevel = level ? level.toUpperCase() : "DORMANT";
   
-  const shopSkins = [
-    'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator',
-    'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller'
-  ];
-  const isShopSkin = shopSkins.includes(activeScytheSkin);
+  const premiumSkins = ['cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator'];
+  const coinSkins = ['shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller'];
+  const isPremiumSkin = premiumSkins.includes(activeScytheSkin);
+  const isCoinSkin = coinSkins.includes(activeScytheSkin);
 
   let imagePath;
   if (previewLevel && type === "ultimate") {
     imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
-  } else if (isShopSkin) {
-    imagePath = getAssetUrl(`/scythe/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
+  } else if (isPremiumSkin) {
+    imagePath = getAssetUrl(`/scythe/premium/${activeScytheSkin}/${safeLevel.toLowerCase()}.png`);
+  } else if (isCoinSkin) {
+    imagePath = getAssetUrl(`/scythe/coin/${activeScytheSkin}/${safeLevel.toLowerCase()}.png`);
   } else if (type === "ultimate") {
     imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
   } else {

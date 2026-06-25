@@ -113,9 +113,13 @@ export default function ScytheCenter({ onOpenShop }) {
       if (item.id === 'dormant') return getAssetUrl('/scythe/DORMANT.png');
       return getAssetUrl(`/ultimate/${item.id}.png`);
     }
-    if (item.type === 'premium' || item.type === 'coin') {
+    if (item.type === 'premium') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
-      return getAssetUrl(`/scythe/${item.id}_${stage}.png`);
+      return getAssetUrl(`/scythe/premium/${item.id}/${stage}.png`);
+    }
+    if (item.type === 'coin') {
+      const stage = (scytheLevel || 'DORMANT').toLowerCase();
+      return getAssetUrl(`/scythe/coin/${item.id}/${stage}.png`);
     }
     return getAssetUrl(`/scythe/${item.id}.png`);
   };
