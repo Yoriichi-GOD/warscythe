@@ -953,10 +953,17 @@ export default function Social() {
         .social-page-container {
           display: flex;
           flex-direction: column;
-          height: calc(100vh - 160px);
-          overflow: hidden;
+          height: auto;
+          overflow: visible;
           padding: 1.5rem;
           gap: 1.5rem;
+        }
+        
+        @media (min-width: 1024px) {
+          .social-page-container {
+            height: calc(100vh - 160px);
+            overflow: hidden;
+          }
         }
         
         .social-sub-nav {
@@ -965,6 +972,7 @@ export default function Social() {
           gap: 2rem;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           padding-bottom: 0.75rem;
+          flex-shrink: 0;
         }
 
         .social-tab-content {
@@ -972,7 +980,13 @@ export default function Social() {
           display: flex;
           flex-direction: column;
           min-height: 0;
-          overflow: hidden;
+          overflow: visible;
+        }
+
+        @media (min-width: 1024px) {
+          .social-tab-content {
+            overflow: hidden;
+          }
         }
 
         .social-nav-item {
@@ -997,15 +1011,16 @@ export default function Social() {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1.5rem;
-          height: 100%;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
+          height: auto;
+          overflow: visible;
         }
 
         @media (min-width: 1024px) {
           .social-grid-layout {
             grid-template-columns: 320px 1fr;
+            height: 100%;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
           }
         }
 

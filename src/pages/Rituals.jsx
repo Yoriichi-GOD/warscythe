@@ -99,7 +99,7 @@ export default function Rituals({ onAddTask }) {
             <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
           </div>
           
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 shrink-0">
             {evolutionStages.map((stage, idx) => {
               const isUnlocked = idx <= currentStageIndex;
               const isActive = activeDisplayLevel.toUpperCase() === stage.id;
@@ -108,7 +108,7 @@ export default function Rituals({ onAddTask }) {
               return (
                 <div 
                   key={stage.id} 
-                  className={`flex flex-col gap-2 p-3 rounded border transition-all cursor-pointer ${
+                  className={`flex flex-col gap-2 p-3 rounded border transition-all cursor-pointer shrink-0 ${
                     isActive ? 'border-gold-core/40 bg-gold-core/5' : 'border-white/5 hover:bg-white/5'
                   } ${!isUnlocked ? 'opacity-30' : ''}`}
                   onClick={() => isUnlocked && setPreview({ level: stage.id, type: 'standard', pwr: stage.pwr })}
