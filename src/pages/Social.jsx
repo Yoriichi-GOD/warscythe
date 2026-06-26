@@ -279,7 +279,7 @@ export default function Social() {
               <div className="social-panel-right" style={{ position: 'relative', overflow: 'hidden' }}>
                 <div className="standings-black-mask" style={{ position: 'absolute', inset: 0, backgroundColor: '#000000', zIndex: 0 }} />
                 <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.25, pointerEvents: 'none', zIndex: 1 }} />
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+                <div className="standings-content-wrapper">
                   <div className="panel-title-row flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <TrophyIcon size={12} className="text-gold-core" />
@@ -1099,8 +1099,22 @@ export default function Social() {
           line-height: 1.6;
         }
 
+        .standings-content-wrapper {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+          height: auto;
+          width: 100%;
+        }
+        @media (min-width: 1024px) {
+          .standings-content-wrapper {
+            height: 100%;
+          }
+        }
+
         .leaderboard-table-container {
-          overflow-y: auto;
+          overflow: visible;
           flex: 1;
         }
         .leaderboard-table {
