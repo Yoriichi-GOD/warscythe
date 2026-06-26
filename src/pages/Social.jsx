@@ -268,7 +268,7 @@ export default function Social() {
 
               {/* RIGHT COLUMN: FRIENDS RANKINGS */}
               <div className="social-panel-right" style={{ position: 'relative', overflow: 'hidden' }}>
-                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.07, pointerEvents: 'none', zIndex: 1 }} />
+                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.15, pointerEvents: 'none', zIndex: 1 }} />
                 <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
                   <div className="panel-title-row flex justify-between items-center">
                     <div className="flex items-center gap-2">

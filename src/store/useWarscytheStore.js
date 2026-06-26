@@ -2040,10 +2040,11 @@ export const useWarscytheStore = create(
             .select('legion_id')
             .eq('user_id', u)
             .eq('status', 'active')
-            .maybeSingle();
+            .order('joined_at', { ascending: false })
+            .limit(1);
 
-          if (!memberRowsErr && memberRows) {
-            const legionId = memberRows.legion_id;
+          if (!memberRowsErr && memberRows && memberRows.length > 0) {
+            const legionId = memberRows[0].legion_id;
             
             const { data: legionData } = await supabase
               .from('legions')
