@@ -20,7 +20,17 @@ const getArtifactImage = (name) => {
 
 
 export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
-  const { xp, totalCompletions, scytheLevel, completedTasks = [], abandonedTasks = [], streakCount = 0, collectedArtifacts = [] } = useWarscytheStore();
+  const { 
+    xp, 
+    totalCompletions, 
+    scytheLevel, 
+    completedTasks = [], 
+    abandonedTasks = [], 
+    streakCount = 0, 
+    collectedArtifacts = [],
+    soundscapeEnabled,
+    setSoundscapeEnabled
+  } = useWarscytheStore();
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
@@ -64,27 +74,45 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Command Center</h2>
       </div>
 
-      {/* 🔢 DAILY COMPLETIONS */}
-      <div className="cc-daily-completions elite-panel p-4 flex flex-col items-center justify-center gap-2">
-        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Daily Completions</span>
-        <div className="flex items-center gap-3">
-          <span className="text-2xl font-display text-gold-bright leading-none">{totalCompletions || 0}</span>
-          <Flame size={12} className="text-gold-core/40" />
+      {/* 🎵 SOUNDSCAPE JUKEBOX */}
+      <button 
+        onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
+        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+          soundscapeEnabled 
+            ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
+            : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
+        }`}
+      >
+        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
+        <div className="flex items-center gap-2 relative">
+          <img 
+            src="/soundscape-jukebox.png" 
+            className={`w-6 h-6 object-contain ${soundscapeEnabled ? 'animate-spin' : ''}`}
+            style={{ animationDuration: '8s' }}
+            onError={(e) => { e.target.src = '/command-core.png'; }} 
+            alt="Soundscape Jukebox" 
+          />
+          {soundscapeEnabled && (
+            <div className="absolute -inset-2 bg-gold-core/10 rounded-full filter blur-md animate-pulse" />
+          )}
         </div>
-      </div>
+      </button>
 
-      {/* 🔢 EXECUTION RATIO */}
-      <div className="cc-execution-ratio elite-panel p-4 flex flex-col items-center justify-center gap-1 text-center">
-         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Execution</span>
-         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Ratio</span>
-         <div className="relative w-12 h-12 mt-1">
-           <svg className="w-full h-full transform -rotate-90">
-             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
-             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gold-core" strokeDasharray="125" strokeDashoffset={dashOffset} style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
-           </svg>
-           <span className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-white">{executionRatio}%</span>
-         </div>
-      </div>
+      {/* 🔮 GUARDIAN OBSERVER */}
+      <button 
+        onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
+        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
+      >
+        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
+        <div className="flex items-center gap-2 relative">
+          <img 
+            src="/guardian-observer.png" 
+            className="w-6 h-6 object-contain hover:scale-110 transition-transform"
+            onError={(e) => { e.target.src = '/command-core.png'; }} 
+            alt="Guardian Observer" 
+          />
+        </div>
+      </button>
 
       {/* 🏋️ GYM LOGBOOK LAUNCHER */}
       <button 
@@ -234,6 +262,28 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
              <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
            </button>
          )}
+      </div>
+
+      {/* 🔢 DAILY COMPLETIONS */}
+      <div className="cc-daily-completions elite-panel p-4 flex flex-col items-center justify-center gap-2 bg-black/20">
+        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Daily Completions</span>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl font-display text-gold-bright leading-none">{totalCompletions || 0}</span>
+          <Flame size={12} className="text-gold-core/40" />
+        </div>
+      </div>
+
+      {/* 🔢 EXECUTION RATIO */}
+      <div className="cc-execution-ratio elite-panel p-4 flex flex-col items-center justify-center gap-1 text-center bg-black/20">
+         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Execution</span>
+         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Ratio</span>
+         <div className="relative w-12 h-12 mt-1">
+           <svg className="w-full h-full transform -rotate-90">
+             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
+             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gold-core" strokeDasharray="125" strokeDashoffset={dashOffset} style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
+           </svg>
+           <span className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-white">{executionRatio}%</span>
+         </div>
       </div>
 
       {/* 📜 RECENT INTEL */}

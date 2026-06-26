@@ -16,6 +16,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
+  const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
+  const setSoundscapeEnabled = useWarscytheStore(state => state.setSoundscapeEnabled);
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -143,6 +145,49 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
           </p>
         </button>
+
+        {/* MOBILE ONLY SOUNDSCAPE & GUARDIAN PANEL */}
+        <div className="block lg:hidden mt-8 grid grid-cols-2 gap-4">
+          <button 
+            type="button"
+            onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
+            className={`elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+              soundscapeEnabled 
+                ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
+                : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
+            }`}
+          >
+            <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
+            <div className="flex items-center gap-2 relative">
+              <img 
+                src="/soundscape-jukebox.png" 
+                className={`w-6 h-6 object-contain ${soundscapeEnabled ? 'animate-spin' : ''}`}
+                style={{ animationDuration: '8s' }}
+                onError={(e) => { e.target.src = '/command-core.png'; }} 
+                alt="Soundscape Jukebox" 
+              />
+              {soundscapeEnabled && (
+                <div className="absolute -inset-2 bg-gold-core/10 rounded-full filter blur-md animate-pulse" />
+              )}
+            </div>
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
+            className="elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
+          >
+            <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
+            <div className="flex items-center gap-2 relative">
+              <img 
+                src="/guardian-observer.png" 
+                className="w-6 h-6 object-contain hover:scale-110 transition-transform"
+                onError={(e) => { e.target.src = '/command-core.png'; }} 
+                alt="Guardian Observer" 
+              />
+            </div>
+          </button>
+        </div>
       </section>
 
       <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">

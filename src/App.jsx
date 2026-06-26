@@ -386,16 +386,22 @@ export default function App() {
     };
     setupDeepLinking();
 
+    const handleTriggerProphecy = () => {
+      pullGlobalProphecy();
+    };
+
     window.addEventListener('keydown', handleEsc);
     window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('navToLedgerVault', handleNavToLedgerVault);
+    window.addEventListener('triggerProphecy', handleTriggerProphecy);
 
     return () => {
       window.removeEventListener('keydown', handleEsc);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('navToLedgerVault', handleNavToLedgerVault);
+      window.removeEventListener('triggerProphecy', handleTriggerProphecy);
       if (appUrlListener) {
         appUrlListener.remove();
       }
@@ -685,45 +691,6 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-
-      {/* 🎵 GLOBAL SOUNDSCAPE JUKEBOX (DRAGGABLE OVERLAY) */}
-      {user && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
-        <motion.div 
-          drag
-          dragMomentum={false}
-          className="jukebox-trigger-container"
-          style={{ touchAction: 'none' }}
-        >
-          <button 
-            className={`jukebox-trigger-btn ${soundscapeEnabled ? 'jukebox-active-glow' : ''}`}
-            onClick={() => setSoundscapeEnabled(!soundscapeEnabled)} 
-            title="Drag me anywhere / Click to Toggle Soundscape"
-          >
-            <img 
-              src="/soundscape-jukebox.png" 
-              className="jukebox-img" 
-              onError={(e) => { e.target.src = '/command-core.png'; }} 
-              alt="Soundscape Jukebox" 
-            />
-            <div className="jukebox-trigger-glow" />
-          </button>
-        </motion.div>
-      )}
-
-      {/* 🔮 GLOBAL GUARDIAN ANGEL (DRAGGABLE OVERLAY) */}
-      {user && !pendingVictoryScreen && !pendingEntryScreen && !activeBossFlash && (
-        <motion.div 
-          drag
-          dragMomentum={false}
-          className="guardian-trigger-container"
-          style={{ touchAction: 'none' }}
-        >
-          <button className="guardian-trigger-btn" onClick={pullGlobalProphecy} title="Drag me anywhere / Click for Prophecy">
-            <img src="/guardian-observer.png" className="guardian-observer-img" alt="Guardian Observer" />
-            <div className="guardian-trigger-glow" />
-          </button>
-        </motion.div>
-      )}
 
       {/* 🔮 GLOBAL PROPHECY CARD */}
       <AnimatePresence>

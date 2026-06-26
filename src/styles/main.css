@@ -119,14 +119,16 @@
   grid-template-columns: repeat(6, 1fr);
   gap: 0.4rem;
 }
-.cc-header { grid-column: span 6; grid-row: 1; }
-.cc-daily-completions { grid-column: span 2; grid-row: 2; }
-.cc-execution-ratio { grid-column: span 2; grid-row: 2; }
-.cc-fitness-log { grid-column: span 2; grid-row: 2; }
-.cc-ultimate-artifact { grid-column: span 3; grid-row: 3; }
-.cc-completion-log { grid-column: span 3; grid-row: 3; }
-.cc-streak-ascent { grid-column: span 6; grid-row: 4; }
-.cc-arsenal { grid-column: span 6; grid-row: 5; }
+.cc-header { grid-column: span 6; }
+.cc-soundscape { grid-column: span 3; }
+.cc-guardian { grid-column: span 3; }
+.cc-fitness-log { grid-column: span 6; }
+.cc-ultimate-artifact { grid-column: span 6; }
+.cc-streak-ascent { grid-column: span 6; }
+.cc-arsenal { grid-column: span 6; }
+.cc-daily-completions { grid-column: span 3; }
+.cc-execution-ratio { grid-column: span 3; }
+.cc-completion-log { grid-column: span 6; }
 
 @media (min-width: 1024px) {
   .command-center-grid {
@@ -134,12 +136,14 @@
     gap: 1rem;
   }
   .cc-header { grid-column: span 2; }
-  .cc-daily-completions { grid-column: span 1; }
-  .cc-execution-ratio { grid-column: span 1; }
+  .cc-soundscape { grid-column: span 1; }
+  .cc-guardian { grid-column: span 1; }
   .cc-fitness-log { grid-column: span 2; }
   .cc-ultimate-artifact { grid-column: span 2; }
   .cc-streak-ascent { grid-column: span 2; }
   .cc-arsenal { grid-column: span 2; }
+  .cc-daily-completions { grid-column: span 1; }
+  .cc-execution-ratio { grid-column: span 1; }
   .cc-completion-log { grid-column: span 2; }
   
   .cc-header,
