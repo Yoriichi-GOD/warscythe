@@ -77,7 +77,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       {/* 🎵 SOUNDSCAPE JUKEBOX */}
       <button 
         onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
-        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
           soundscapeEnabled 
             ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
             : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
@@ -87,13 +87,13 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         <div className="flex items-center gap-2 relative">
           <img 
             src="/soundscape-jukebox.png" 
-            className={`w-6 h-6 object-contain ${soundscapeEnabled ? 'animate-spin' : ''}`}
+            className={`w-14 h-14 object-contain ${soundscapeEnabled ? 'animate-spin' : ''}`}
             style={{ animationDuration: '8s' }}
             onError={(e) => { e.target.src = '/command-core.png'; }} 
             alt="Soundscape Jukebox" 
           />
           {soundscapeEnabled && (
-            <div className="absolute -inset-2 bg-gold-core/10 rounded-full filter blur-md animate-pulse" />
+            <div className="absolute -inset-3 bg-gold-core/10 rounded-full filter blur-md animate-pulse" />
           )}
         </div>
       </button>
@@ -101,13 +101,13 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       {/* 🔮 GUARDIAN OBSERVER */}
       <button 
         onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
-        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-2 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
+        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-3 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
       >
         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
         <div className="flex items-center gap-2 relative">
           <img 
             src="/guardian-observer.png" 
-            className="w-6 h-6 object-contain hover:scale-110 transition-transform"
+            className="w-14 h-14 object-contain hover:scale-110 transition-transform"
             onError={(e) => { e.target.src = '/command-core.png'; }} 
             alt="Guardian Observer" 
           />

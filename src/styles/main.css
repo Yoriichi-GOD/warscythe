@@ -120,8 +120,8 @@
   gap: 0.4rem;
 }
 .cc-header { grid-column: span 6; }
-.cc-soundscape { grid-column: span 3; }
-.cc-guardian { grid-column: span 3; }
+.cc-soundscape { grid-column: span 3; aspect-ratio: 1 / 1; }
+.cc-guardian { grid-column: span 3; aspect-ratio: 1 / 1; }
 .cc-fitness-log { grid-column: span 6; }
 .cc-ultimate-artifact { grid-column: span 6; }
 .cc-streak-ascent { grid-column: span 6; }
