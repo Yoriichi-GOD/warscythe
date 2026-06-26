@@ -115,11 +115,11 @@ export default function ScytheCenter({ onOpenShop }) {
     }
     if (item.type === 'premium') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
-      return getAssetUrl(`/scythe/premium/${item.id}/${stage}.png`);
+      return getAssetUrl(`/scythe/premium/${item.id}/${item.id}_${stage}.png`);
     }
     if (item.type === 'coin') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
-      return getAssetUrl(`/scythe/coin/${item.id}/${stage}.png`);
+      return getAssetUrl(`/scythe/coin/${item.id}/${item.id}_${stage}.png`);
     }
     return getAssetUrl(`/scythe/${item.id}.png`);
   };

@@ -26,9 +26,9 @@ export default function ScytheDisplay({
   if (previewLevel && type === "ultimate") {
     imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
   } else if (isPremiumSkin) {
-    imagePath = getAssetUrl(`/scythe/premium/${activeScytheSkin}/${safeLevel.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/scythe/premium/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
   } else if (isCoinSkin) {
-    imagePath = getAssetUrl(`/scythe/coin/${activeScytheSkin}/${safeLevel.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/scythe/coin/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
   } else if (type === "ultimate") {
     imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
   } else {

@@ -140,7 +140,10 @@ export const getAssetUrl = (localPath) => {
     if (path.includes('deity/avatar/') || path.includes('deity/hermes.png')) return true;
     if (path.includes('deity/')) return false;
 
-    // Regular scythes and artifacts are bundled. Ultimate scythes are on CDN.
+    // Regular scythes and artifacts are bundled. Ultimate scythes and Coin scythes are on CDN.
+    if (path.includes('scythe/coin/')) {
+      return false;
+    }
     if (path.includes('scythe/') || path.includes('artifacts/')) {
       return true;
     }
