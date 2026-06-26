@@ -1,19 +1,132 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial }) {
-  const { executionScore: xp, level, currentTitle, user, signOut, deleteAccount, isFocusMode, currentLevelProgress, syncStatus, forceSync, tutorialStep, isAdFree, activeTheme, soundscapeEnabled, soundscapeVolume, setSoundscapeEnabled, setSoundscapeVolume } = useWarscytheStore();
+  const { 
+    executionScore: xp, 
+    level, 
+    currentTitle, 
+    user, 
+    signOut, 
+    deleteAccount, 
+    isFocusMode, 
+    currentLevelProgress, 
+    syncStatus, 
+    forceSync, 
+    tutorialStep, 
+    isAdFree, 
+    activeTheme, 
+    soundscapeEnabled, 
+    soundscapeVolume, 
+    setSoundscapeEnabled, 
+    setSoundscapeVolume,
+    friendships,
+    tasks,
+    legionEvents,
+    leaderboardEvents,
+    activeLegion
+  } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
-  const [showAtlasDropdown, setShowAtlasDropdown] = React.useState(false);
+  const [showNotifications, setShowNotifications] = React.useState(false);
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
   const progress = (displayProgress / TASKS_PER_LEVEL) * 100;
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+
+  // Dynamic dispatches / notification list
+  const notifications = [];
+
+  // 1. Pending incoming friend requests
+  const pendingRequests = (friendships || []).filter(f => f.status === 'pending' && f.receiver_id === user?.id);
+  pendingRequests.forEach(req => {
+    const sender = req.requester?.username || req.requester?.email?.split('@')[0] || 'Unknown';
+    notifications.push({
+      id: `friend-${req.id}`,
+      type: 'friend_request',
+      title: 'Friend Request',
+      message: `${sender} sent you an operative request.`,
+      action: onOpenSocial,
+      timestamp: req.created_at || new Date().toISOString()
+    });
+  });
+
+  // 2. Tasks close to deadline (within 24 hours) or overdue
+  (tasks || []).forEach(task => {
+    if (task.deadline) {
+      const diffMs = new Date(task.deadline) - new Date();
+      const diffHrs = diffMs / (1000 * 60 * 60);
+      if (diffHrs <= 24) {
+        let message = '';
+        if (diffHrs < 0) {
+          message = `"${task.title}" is overdue.`;
+        } else {
+          const hrs = Math.ceil(diffHrs);
+          message = `"${task.title}" reaches deadline in ${hrs} hour${hrs > 1 ? 's' : ''}.`;
+        }
+        notifications.push({
+          id: `task-${task.id}`,
+          type: 'deadline',
+          title: 'Deadline Alert',
+          message: message,
+          action: () => {},
+          timestamp: task.createdAt || new Date().toISOString()
+        });
+      }
+    }
+  });
+
+  // 3. Legion events (progress of teammates, operations success/failure)
+  if (activeLegion) {
+    (legionEvents || []).forEach(evt => {
+      let msg = '';
+      if (evt.event_type === 'operation_started') {
+        msg = `An operation was initiated in ${activeLegion.name}.`;
+      } else if (evt.event_type === 'subtask_completed') {
+        msg = `A legion subtask was conquered.`;
+      } else if (evt.event_type === 'subtask_covered') {
+        msg = `A legion subtask was covered by an ally.`;
+      } else if (evt.event_type === 'member_restrained') {
+        msg = `A legion member was restrained.`;
+      } else if (evt.event_type === 'operation_success') {
+        msg = `Operation succeeded!`;
+      } else if (evt.event_type === 'operation_failed') {
+        msg = `Operation failed.`;
+      } else {
+        msg = evt.metadata?.message || `Legion activity update.`;
+      }
+      notifications.push({
+        id: `legion-event-${evt.id}`,
+        type: 'legion',
+        title: 'Legion Update',
+        message: msg,
+        action: onOpenSocial,
+        timestamp: evt.created_at || new Date().toISOString()
+      });
+    });
+  }
+
+  // 4. Friends' achievements (streak increased, etc.)
+  (leaderboardEvents || []).forEach(evt => {
+    if (evt.user_id !== user?.id) {
+      const sender = evt.profile?.username || evt.profile?.email?.split('@')[0] || 'An operative';
+      notifications.push({
+        id: `leaderboard-event-${evt.id}`,
+        type: 'friend_activity',
+        title: 'Friend Progress',
+        message: `${sender} ${evt.event_description}`,
+        action: onOpenSocial,
+        timestamp: evt.created_at || new Date().toISOString()
+      });
+    }
+  });
+
+  // Sort by timestamp (newest first)
+  notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
     <header className="main-header glass-panel">
@@ -200,34 +313,77 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             <CloudDownload size={18} className="text-gold-core" />
           </button>
 
+          {/* Direct Lore Scrolls Access */}
+          <button 
+            className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+            onClick={() => {
+              setShowNotifications(false);
+              setShowDropdown(false);
+              onOpenLore();
+            }} 
+            title="Lore Scrolls"
+          >
+            <BookOpen size={18} />
+          </button>
+
+          {/* Direct Legion & Standings Access */}
+          <button 
+            className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+            onClick={() => {
+              setShowNotifications(false);
+              setShowDropdown(false);
+              onOpenSocial();
+            }} 
+            title="Legion & Standings"
+          >
+            <Users size={18} />
+          </button>
+
+          {/* Notification Bell Dropdown */}
           <div style={{ position: 'relative' }}>
             <button 
-              className={`nav-btn ${showAtlasDropdown ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+              className={`nav-btn ${showNotifications ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
               onClick={() => {
-                setShowAtlasDropdown(!showAtlasDropdown);
+                setShowNotifications(!showNotifications);
                 setShowDropdown(false);
               }}
-              title="Atlas Records"
+              title="Notifications"
             >
-              <BookOpen size={18} />
+              <Bell size={18} />
+              {notifications.length > 0 && (
+                <span className="notification-badge" />
+              )}
             </button>
-            {showAtlasDropdown && (
-              <div className="header-dropdown-menu">
-                <button onClick={() => { setShowAtlasDropdown(false); onOpenGymLog(); }}>
-                  FITNESS LOG
-                </button>
-                <button onClick={() => { setShowAtlasDropdown(false); onOpenVault(); }}>
-                  ARTIFACT VAULT
-                </button>
-                <button onClick={() => { setShowAtlasDropdown(false); onOpenMap(); }}>
-                  TACTICAL MAP
-                </button>
-                <button onClick={() => { setShowAtlasDropdown(false); onOpenLore(); }}>
-                  LORE SCROLLS
-                </button>
-                <button onClick={() => { setShowAtlasDropdown(false); onOpenSocial(); }}>
-                  LEGION & STANDINGS
-                </button>
+            {showNotifications && (
+              <div className="header-dropdown-menu notifications-dropdown custom-scrollbar">
+                <div className="notifications-header">
+                  <span>DISPATCHES</span>
+                  {notifications.length > 0 && (
+                    <span className="clear-btn font-mono">{notifications.length} ACTIVE</span>
+                  )}
+                </div>
+                <div className="notifications-list">
+                  {notifications.length === 0 ? (
+                    <div className="no-notifications">No active dispatches.</div>
+                  ) : (
+                    notifications.map(n => (
+                      <div 
+                        key={n.id} 
+                        className="notification-item" 
+                        onClick={() => {
+                          if (n.action) n.action();
+                          setShowNotifications(false);
+                        }}
+                      >
+                        <div className="notification-title">{n.title}</div>
+                        <div className="notification-desc">{n.message}</div>
+                        <div className="notification-time">
+                          {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -484,6 +640,86 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           outline: none;
           accent-color: var(--gold-core);
           cursor: pointer;
+        }
+
+        .notification-badge {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          width: 6px;
+          height: 6px;
+          background: var(--gold-core);
+          border-radius: 50%;
+          box-shadow: 0 0 8px var(--gold-core);
+        }
+        .notifications-dropdown {
+          width: 320px;
+          max-height: 400px;
+          overflow-y: auto;
+        }
+        .notifications-header {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-family: var(--font-display);
+          font-size: 0.7rem;
+          letter-spacing: 0.15em;
+          color: #fff;
+          background: rgba(15, 15, 20, 0.98);
+        }
+        .notifications-header .clear-btn {
+          background: transparent;
+          border: none;
+          color: var(--gold-core);
+          font-size: 0.55rem;
+          cursor: default;
+          letter-spacing: 0.1em;
+        }
+        .notifications-list {
+          display: flex;
+          flex-direction: column;
+        }
+        .no-notifications {
+          padding: 2rem;
+          text-align: center;
+          color: rgba(255,255,255,0.3);
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
+          font-style: italic;
+        }
+        .notification-item {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+          cursor: pointer;
+          transition: background 0.2s;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          text-align: left;
+        }
+        .notification-item:hover {
+          background: rgba(197, 160, 89, 0.06);
+        }
+        .notification-title {
+          font-family: var(--font-display);
+          font-size: 0.65rem;
+          color: var(--gold-core);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .notification-desc {
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          color: #dfdfdf;
+          line-height: 1.4;
+        }
+        .notification-time {
+          font-family: var(--font-mono);
+          font-size: 0.5rem;
+          color: rgba(255,255,255,0.25);
+          margin-top: 2px;
         }
       `}</style>
     </header>

@@ -1989,11 +1989,16 @@ export const useWarscytheStore = create(
             `)
             .or(`requester_id.eq.${u},receiver_id.eq.${u}`);
 
+          let friendIds = [];
           if (!friendErr && friendData) {
             set({ friendships: friendData });
+            friendIds = friendData
+              .filter(f => f.status === 'accepted')
+              .map(f => f.requester_id === u ? f.receiver_id : f.requester_id);
           }
 
           const weekStart = getWeekStart();
+          const targetUserIds = [u, ...friendIds];
           const { data: leadData, error: leadErr } = await supabase
             .from('leaderboard_snapshots')
             .select(`
@@ -2006,6 +2011,7 @@ export const useWarscytheStore = create(
               profile:profiles(id, email, state, username)
             `)
             .eq('week_start', weekStart)
+            .in('user_id', targetUserIds)
             .order('weekly_xp', { ascending: false });
 
           if (!leadErr && leadData) {

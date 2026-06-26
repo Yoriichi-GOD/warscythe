@@ -227,6 +227,10 @@ export default function Social() {
                   <h3>CAMPFIRE LOG</h3>
                 </div>
 
+                <div className="campfire-visual-container">
+                  <img src="/bonfire.png" alt="Campfire" className="campfire-image" />
+                </div>
+
                 <div className="flex flex-col gap-5 mt-4">
                   {/* Current stats vs personal bests */}
                   <div className="self-camp-card">
@@ -473,7 +477,7 @@ export default function Social() {
                       onChange={e => setLegionNameInput(e.target.value)}
                       className="legion-name-input font-mono mb-4 text-center"
                     />
-                    <button type="submit" className="confirm-btn">
+                    <button type="submit" className="legion-forge-btn">
                       <span>FORGE COALITION</span>
                     </button>
                   </form>
@@ -1045,16 +1049,77 @@ export default function Social() {
           justify-content: center;
           padding: 3rem;
           min-height: 400px;
+          background: rgba(10, 10, 12, 0.85);
+          border: 1px solid rgba(197, 160, 89, 0.25);
+          border-radius: 4px;
+          box-shadow: inset 0 0 30px rgba(197, 160, 89, 0.08), 0 10px 40px rgba(0,0,0,0.6);
         }
         .legion-name-input {
           width: 100%;
-          background: rgba(0,0,0,0.4);
-          border: 1px solid rgba(197,160,89,0.25);
+          background: rgba(0,0,0,0.6);
+          border: 1px solid rgba(197,160,89,0.3);
           color: #fff;
           padding: 0.75rem;
           border-radius: 4px;
           font-size: 11px;
           outline: none;
+          transition: border-color 0.3s, box-shadow 0.3s;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+        .legion-name-input:focus {
+          border-color: var(--gold-core);
+          box-shadow: 0 0 10px rgba(197, 160, 89, 0.15);
+        }
+
+        .legion-forge-btn {
+          width: 100%;
+          height: 42px;
+          background: rgba(197, 160, 89, 0.04);
+          border: 1px solid var(--gold-core);
+          color: var(--gold-core);
+          border-radius: 4px;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 10px rgba(197, 160, 89, 0.05);
+        }
+        .legion-forge-btn:hover {
+          background: var(--gold-core);
+          color: #000;
+          box-shadow: 0 0 20px rgba(197, 160, 89, 0.35);
+          transform: translateY(-1px);
+        }
+
+        .campfire-visual-container {
+          width: 100%;
+          height: 120px;
+          border-radius: 4px;
+          overflow: hidden;
+          border: 1px solid rgba(197, 160, 89, 0.15);
+          background: rgba(0,0,0,0.3);
+          margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .campfire-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0.85;
+          transition: opacity 0.3s;
+          filter: sepia(0.15) brightness(0.9);
+        }
+        .campfire-visual-container:hover .campfire-image {
+          opacity: 1;
         }
 
         .legion-banner-img {
