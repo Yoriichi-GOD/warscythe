@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus } from 'lucide-react';
 import { REGIONS } from '../store/constants';
 
 const parseUserState = (profile) => {
@@ -47,6 +47,13 @@ export default function Social() {
     restrainLegionMember,
     completeLegionSubtask,
     submitFailureNote,
+    renameLegion,
+    leaveLegion,
+    disbandLegion,
+    kickLegionMember,
+    cancelLegionOperation,
+    removeOperationSubtask,
+    reassignOperationSubtask,
     streakCount,
     level,
     executionScore
@@ -59,6 +66,8 @@ export default function Social() {
   const [isSearching, setIsSearching] = useState(false);
   const [legionNameInput, setLegionNameInput] = useState('');
   const [inviteFriendId, setInviteFriendId] = useState('');
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameInput, setRenameInput] = useState('');
   
   // Collaborative Operation Creation
   const [opTaskTitle, setOpTaskTitle] = useState('');
@@ -268,7 +277,8 @@ export default function Social() {
 
               {/* RIGHT COLUMN: FRIENDS RANKINGS */}
               <div className="social-panel-right" style={{ position: 'relative', overflow: 'hidden' }}>
-                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.15, pointerEvents: 'none', zIndex: 1 }} />
+                <div className="standings-black-mask" style={{ position: 'absolute', inset: 0, backgroundColor: '#000000', zIndex: 0 }} />
+                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.25, pointerEvents: 'none', zIndex: 1 }} />
                 <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
                   <div className="panel-title-row flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -487,14 +497,50 @@ export default function Social() {
                   {/* LEFT COLUMN: LEGION STATS, MEMBERS & INVITATIONS */}
                   <div className="social-panel-left select-none">
                     <div className="legion-profile-card flex flex-col items-center text-center">
-                      <div className="legion-banner-display relative w-full h-36 flex items-center justify-center border border-white/5 bg-black/40 overflow-hidden mb-4">
+                      <div className="legion-banner-display relative w-full h-36 flex flex-col items-center justify-center border border-white/5 bg-black/40 overflow-hidden mb-4">
                         <img 
                           src={`/legion/banners/legion-banner-${Math.min(activeLegion.level, 10)}.png`}
                           onError={(e) => { e.target.src = '/olympus-bg.png'; }}
                           className="legion-banner-img absolute inset-0 w-full h-full object-cover opacity-60"
                           alt=""
                         />
-                        <span className="relative z-10 font-display text-white text-md tracking-widest uppercase">{activeLegion.name}</span>
+                        {isRenaming ? (
+                          <form 
+                            onSubmit={async (e) => {
+                              e.preventDefault();
+                              if (!renameInput.trim()) return;
+                              try {
+                                await renameLegion(activeLegion.id, renameInput.trim());
+                                setIsRenaming(false);
+                              } catch (err) {
+                                alert('Rename failed: ' + err.message);
+                              }
+                            }}
+                            className="relative z-10 flex gap-2 w-[80%]"
+                          >
+                            <input 
+                              type="text"
+                              value={renameInput}
+                              onChange={(e) => setRenameInput(e.target.value)}
+                              className="flex-1 font-mono text-[10px] bg-black/90 text-white border border-gold-core/40 px-2 py-1 rounded outline-none uppercase tracking-wider text-center"
+                              autoFocus
+                            />
+                            <button type="submit" className="p-1.5 border border-green-500 text-green-500 rounded bg-black/90 hover:bg-green-500/10"><Check size={10} /></button>
+                            <button type="button" onClick={() => setIsRenaming(false)} className="p-1.5 border border-red-500 text-red-500 rounded bg-black/90 hover:bg-red-500/10"><X size={10} /></button>
+                          </form>
+                        ) : (
+                          <div className="relative z-10 flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded border border-white/5 backdrop-blur-sm">
+                            <span className="font-display text-white text-md tracking-widest uppercase">{activeLegion.name}</span>
+                            {activeLegion.owner_id === user.id && (
+                              <button 
+                                onClick={() => { setRenameInput(activeLegion.name); setIsRenaming(true); }}
+                                className="text-white/40 hover:text-gold-core p-1 transition-colors"
+                              >
+                                <Edit2 size={10} />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <span className="text-[10px] font-mono text-gold-core">LEGION LEVEL {activeLegion.level}</span>
                       <span className="text-[8px] font-mono text-gray-500 mt-1">TOTAL XP CONTRIBUTED: {activeLegion.total_xp}</span>
@@ -514,10 +560,66 @@ export default function Social() {
                                 <span className="font-bold">{member.profile?.username || member.profile?.email.split('@')[0]}</span>
                                 <span className="text-[7px] text-gold-core/80 uppercase">{member.role}</span>
                               </div>
-                              {isCreator && <span className="text-[7px] font-mono border border-gold-core/40 text-gold-core px-1 py-0.5 rounded">LEADER</span>}
+                              <div className="flex items-center gap-2">
+                                {isCreator && <span className="text-[7px] font-mono border border-gold-core/40 text-gold-core px-1 py-0.5 rounded">LEADER</span>}
+                                {!isCreator && activeLegion.owner_id === user.id && (
+                                  <button
+                                    onClick={async () => {
+                                      if (confirm(`Exile ${member.profile?.username || member.profile?.email.split('@')[0]} from the Garrison?`)) {
+                                        try {
+                                          await kickLegionMember(activeLegion.id, member.user_id);
+                                        } catch (err) {
+                                          alert('Exile failed: ' + err.message);
+                                        }
+                                      }
+                                    }}
+                                    className="text-[8px] border border-red-500/20 text-red-500 p-1 rounded hover:border-red-500 hover:bg-red-500/5 transition-colors"
+                                    title="Exile member"
+                                  >
+                                    <UserMinus size={10} />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
+                      </div>
+
+                      {/* LEAVE / DISBAND ACTION */}
+                      <div className="mt-4 border-t border-white/5 pt-3">
+                        {activeLegion.owner_id === user.id ? (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (confirm("Are you sure you want to DISBAND this Legion? This action is irreversible and all members will be removed.")) {
+                                try {
+                                  await disbandLegion(activeLegion.id);
+                                } catch (err) {
+                                  alert("Disband failed: " + err.message);
+                                }
+                              }
+                            }}
+                            className="w-full py-1.5 font-mono text-[8px] border border-red-500/40 text-red-500 rounded text-center hover:bg-red-500/10 transition-colors uppercase tracking-widest"
+                          >
+                            Disband Legion
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (confirm("Are you sure you want to LEAVE this Legion?")) {
+                                try {
+                                  await leaveLegion(activeLegion.id);
+                                } catch (err) {
+                                  alert("Leave failed: " + err.message);
+                                }
+                              }
+                            }}
+                            className="w-full py-1.5 font-mono text-[8px] border border-red-500/40 text-red-500 rounded text-center hover:bg-red-500/10 transition-colors uppercase tracking-widest"
+                          >
+                            Leave Legion
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -652,7 +754,7 @@ export default function Social() {
                     {/* SECTION B: RUN OPERATIONS PANEL */}
                     <div className="operations-run-list mt-4 flex flex-col gap-4 text-left">
                       {legionOperations.map(op => {
-                        const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id);
+                        const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
                         const userSubtask = subtasksForOp.find(s => s.assigned_to === user.id);
                         const isLocked = op.status !== 'acceptance_open';
 
@@ -679,9 +781,54 @@ export default function Social() {
                                     <div className="flex gap-3 items-center">
                                       {/* Acceptance display */}
                                       {!isLocked ? (
-                                        <span className={`text-[8px] uppercase font-bold ${s.acceptance_status === 'accepted' ? 'text-green-500' : 'text-amber-500'}`}>
-                                          {s.acceptance_status.toUpperCase()}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                          <span className={`text-[8px] uppercase font-bold ${
+                                            s.acceptance_status === 'accepted' ? 'text-green-500' : 
+                                            s.acceptance_status === 'declined' ? 'text-red-500' : 'text-amber-500'
+                                          }`}>
+                                            {s.acceptance_status.toUpperCase()}
+                                          </span>
+                                          {activeLegion.owner_id === user.id && (
+                                            <div className="flex items-center gap-1.5 ml-2">
+                                              <select
+                                                value={s.assigned_to}
+                                                onChange={async (e) => {
+                                                  const val = e.target.value;
+                                                  if (val && val !== s.assigned_to) {
+                                                    try {
+                                                      await reassignOperationSubtask(s.id, val);
+                                                    } catch (err) {
+                                                      alert('Reassignment failed: ' + err.message);
+                                                    }
+                                                  }
+                                                }}
+                                                className="bg-black/80 border border-white/10 text-white text-[8px] font-mono rounded px-1.5 py-0.5 outline-none hover:border-gold-core/40 transition-colors"
+                                              >
+                                                {legionMembers.map(m => (
+                                                  <option key={m.user_id} value={m.user_id}>
+                                                    {m.profile?.username || m.profile?.email.split('@')[0]}
+                                                  </option>
+                                                ))}
+                                              </select>
+                                              <button
+                                                type="button"
+                                                onClick={async () => {
+                                                  if (confirm(`Remove this subtask assigned to ${assigneeName}?`)) {
+                                                    try {
+                                                      await removeOperationSubtask(s.id);
+                                                    } catch (err) {
+                                                      alert('Removal failed: ' + err.message);
+                                                    }
+                                                  }
+                                                }}
+                                                className="text-red-500 hover:text-red-400 p-0.5 border border-red-500/20 rounded bg-red-500/5 hover:bg-red-500/10 transition-colors"
+                                                title="Remove Subtask"
+                                              >
+                                                <X size={10} />
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
                                       ) : (
                                         /* Completion status display */
                                         <span className={`text-[8px] uppercase font-bold ${
@@ -745,12 +892,30 @@ export default function Social() {
 
                             {/* Lock Operation trigger for creator */}
                             {op.status === 'acceptance_open' && activeLegion.owner_id === user.id && (
-                              <button 
-                                onClick={() => lockLegionOperation(op.id)}
-                                className="lock-op-btn w-full mt-4 py-2 font-mono text-[9px] border border-gold-core/40 text-gold-core rounded text-center block"
-                              >
-                                LOCK & START RUN
-                              </button>
+                              <div className="flex gap-3 mt-4">
+                                <button 
+                                  type="button"
+                                  onClick={() => lockLegionOperation(op.id)}
+                                  className="lock-op-btn flex-1 py-2 font-mono text-[9px] border border-gold-core/40 text-gold-core rounded text-center block hover:bg-gold-core/10 transition-colors"
+                                >
+                                  LOCK & START RUN
+                                </button>
+                                <button 
+                                  type="button"
+                                  onClick={async () => {
+                                    if (confirm("Are you sure you want to CANCEL this operation? This will discard the tactical run and subtasks.")) {
+                                      try {
+                                        await cancelLegionOperation(op.id);
+                                      } catch (err) {
+                                        alert('Cancel failed: ' + err.message);
+                                      }
+                                    }
+                                  }}
+                                  className="cancel-op-btn flex-1 py-2 font-mono text-[9px] border border-red-500/40 text-red-500 rounded text-center block hover:bg-red-500/10 transition-colors"
+                                >
+                                  CANCEL RUN
+                                </button>
+                              </div>
                             )}
 
                             {/* Failure note prompt */}

@@ -2496,6 +2496,105 @@ export const useWarscytheStore = create(
         await get().fetchSocialData();
       },
 
+      renameLegion: async (legionId, name) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legions')
+          .update({ name })
+          .eq('id', legionId)
+          .eq('owner_id', u);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      leaveLegion: async (legionId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_members')
+          .update({ status: 'removed' })
+          .eq('legion_id', legionId)
+          .eq('user_id', u);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      disbandLegion: async (legionId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error: memberErr } = await supabase
+          .from('legion_members')
+          .update({ status: 'removed' })
+          .eq('legion_id', legionId);
+
+        if (memberErr) throw memberErr;
+
+        try {
+          await supabase.from('legions').delete().eq('id', legionId);
+        } catch (err) {
+          console.warn('Disband delete legions failed (fallback active):', err);
+        }
+
+        await get().fetchSocialData();
+      },
+
+      kickLegionMember: async (legionId, userId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_members')
+          .update({ status: 'removed' })
+          .eq('legion_id', legionId)
+          .eq('user_id', userId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      cancelLegionOperation: async (operationId) => {
+        const u = get().user?.id;
+        if (!u) return;
+
+        const { error } = await supabase
+          .from('legion_operations')
+          .delete()
+          .eq('id', operationId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      removeOperationSubtask: async (subtaskId) => {
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({ acceptance_status: 'removed_pre_start' })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
+      reassignOperationSubtask: async (subtaskId, newAssigneeId) => {
+        const u = get().user?.id;
+        const { error } = await supabase
+          .from('legion_subtasks')
+          .update({
+            assigned_to: newAssigneeId,
+            acceptance_status: newAssigneeId === u ? 'accepted' : 'pending'
+          })
+          .eq('id', subtaskId);
+
+        if (error) throw error;
+        await get().fetchSocialData();
+      },
+
       submitFailureNote: async (subtaskId, noteText) => {
         const { error } = await supabase
           .from('legion_subtasks')
