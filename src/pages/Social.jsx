@@ -1005,7 +1005,7 @@ export default function Social() {
         @media (min-width: 1024px) {
           .social-grid-layout {
             grid-template-columns: 320px 1fr;
-            overflow: hidden;
+            overflow-y: auto;
           }
         }
 
@@ -1016,13 +1016,6 @@ export default function Social() {
           padding: 1.5rem;
           display: flex;
           flex-direction: column;
-          overflow-y: visible;
-        }
-        @media (min-width: 1024px) {
-          .social-panel-left, .social-panel-right {
-            height: calc(100vh - 240px);
-            overflow-y: auto;
-          }
         }
 
         .panel-title-row {
