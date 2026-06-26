@@ -967,6 +967,14 @@ export default function Social() {
           padding-bottom: 0.75rem;
         }
 
+        .social-tab-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          overflow: hidden;
+        }
+
         .social-nav-item {
           background: transparent;
           border: none;
@@ -991,6 +999,7 @@ export default function Social() {
           gap: 1.5rem;
           height: 100%;
           overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
         }
 
         @media (min-width: 1024px) {
@@ -1007,11 +1016,12 @@ export default function Social() {
           padding: 1.5rem;
           display: flex;
           flex-direction: column;
-          overflow-y: auto;
+          overflow-y: visible;
         }
         @media (min-width: 1024px) {
           .social-panel-left, .social-panel-right {
             height: calc(100vh - 240px);
+            overflow-y: auto;
           }
         }
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { REGIONS } from '../../store/constants';
-import { Terminal, CornerDownLeft, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
+import { Terminal, CornerDownLeft, Sparkles, AlertCircle, CheckCircle, X } from 'lucide-react';
 
 export default function WarTerminal({ isOpen, onClose }) {
   const store = useWarscytheStore();
@@ -363,12 +363,22 @@ export default function WarTerminal({ isOpen, onClose }) {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="terminal-header font-mono">
+            <div className="terminal-header font-mono flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Terminal size={14} className="text-gold-core animate-pulse" />
                 <span className="text-[9px] uppercase tracking-[0.25em] text-white">War Terminal</span>
               </div>
-              <span className="text-[7px] text-gray-500 font-bold font-mono">ESC TO ABORT</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[7px] text-gray-500 font-bold font-mono hidden sm:inline">ESC TO ABORT</span>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-gray-500 hover:text-red-500 transition-colors p-0.5 focus:outline-none"
+                  title="Close Terminal"
+                >
+                  <X size={12} />
+                </button>
+              </div>
             </div>
 
             {/* Logs Area */}
