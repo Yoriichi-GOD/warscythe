@@ -38,10 +38,10 @@ export default function LoreModal({ onClose }) {
   return (
     <div className="modal-backdrop scroll-modal-backdrop" onClick={onClose}>
       <motion.div
-        initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: 'auto' }}
-        exit={{ opacity: 0, height: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="scroll-container"
         onClick={(e) => e.stopPropagation()}
       >
@@ -155,58 +155,75 @@ export default function LoreModal({ onClose }) {
           align-items: center;
           justify-content: center;
           z-index: 1000;
+          padding: 2rem 1rem;
+          box-sizing: border-box;
         }
 
         .scroll-container {
           position: relative;
-          width: 90%;
-          max-width: 460px;
+          width: 90vw;
+          max-width: 330px;
           margin: auto;
           display: flex;
           flex-direction: column;
-          filter: drop-shadow(0 15px 35px rgba(0,0,0,0.8));
+          align-items: center;
+          filter: drop-shadow(0 20px 45px rgba(0,0,0,0.9));
+        }
+
+        @media (max-height: 720px) {
+          .scroll-container {
+            max-width: 270px;
+          }
         }
 
         .scroll-roller {
-          height: 18px;
+          width: 114%;
+          aspect-ratio: 5.8 / 1;
           position: relative;
           z-index: 10;
           display: flex;
+          align-items: center;
           justify-content: center;
-          background: #3a2e1d;
-          border-radius: 4px;
-          box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 10px rgba(0,0,0,0.5);
+          overflow: hidden;
+          background: transparent;
+          border: none;
+          box-shadow: none;
         }
 
         .top-roller {
-          border-bottom: 2px solid #5a4931;
+          margin-bottom: -18px;
         }
 
         .bottom-roller {
-          border-top: 2px solid #5a4931;
+          margin-top: -18px;
         }
 
         .scroll-roller img {
-          height: 100%;
-          object-fit: contain;
+          width: 100%;
+          height: auto;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
         }
 
         .scroll-body-parchment {
           position: relative;
-          background: #f2e2ce;
+          z-index: 5;
+          width: 100%;
+          aspect-ratio: 9 / 16;
+          background: transparent;
           background-image: url('/scroll-paper.png');
-          background-size: cover;
+          background-size: 100% 100%;
           background-repeat: no-repeat;
           background-position: center;
-          padding: 2.5rem 2rem 2rem 2rem;
-          color: #3b2314;
-          box-shadow: inset 0 0 40px rgba(90, 73, 49, 0.3);
-          border-left: 8px solid rgba(58, 46, 29, 0.15);
-          border-right: 8px solid rgba(58, 46, 29, 0.15);
-          min-height: 380px;
+          padding: 3.5rem 2.2rem 3rem 2.2rem;
+          color: #2b1a10;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          box-sizing: border-box;
         }
 
         .scroll-close {
@@ -347,10 +364,12 @@ export default function LoreModal({ onClose }) {
         }
 
         .scroll-page-text p {
-          font-size: 13px;
-          line-height: 1.6;
+          font-size: 14px;
+          line-height: 1.65;
           font-style: italic;
-          color: #2b1a10;
+          font-weight: 700;
+          color: #1a0b02;
+          text-shadow: 0.5px 0.5px 0px rgba(255, 255, 255, 0.15);
         }
 
         .scroll-page-locked {
@@ -362,16 +381,17 @@ export default function LoreModal({ onClose }) {
         }
 
         .scroll-page-locked p {
-          font-size: 12px;
-          font-weight: 500;
-          color: #6b4d36;
+          font-size: 13px;
+          font-weight: 700;
+          color: #4e2e18;
           margin-top: 0.5rem;
         }
 
         .scroll-page-locked span {
-          font-size: 8px;
+          font-size: 9px;
+          font-weight: 700;
           letter-spacing: 0.05em;
-          color: #8c6a4a;
+          color: #6b4d36;
           text-transform: uppercase;
         }
 

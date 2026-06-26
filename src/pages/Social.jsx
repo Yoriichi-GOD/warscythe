@@ -227,10 +227,6 @@ export default function Social() {
                   <h3>CAMPFIRE LOG</h3>
                 </div>
 
-                <div className="campfire-visual-container">
-                  <img src="/bonfire.png" alt="Campfire" className="campfire-image" />
-                </div>
-
                 <div className="flex flex-col gap-5 mt-4">
                   {/* Current stats vs personal bests */}
                   <div className="self-camp-card">
@@ -271,62 +267,65 @@ export default function Social() {
               </div>
 
               {/* RIGHT COLUMN: FRIENDS RANKINGS */}
-              <div className="social-panel-right">
-                <div className="panel-title-row flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <TrophyIcon size={12} className="text-gold-core" />
-                    <h3>TACTICAL STANDINGS</h3>
+              <div className="social-panel-right" style={{ position: 'relative', overflow: 'hidden' }}>
+                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.07, pointerEvents: 'none', zIndex: 1 }} />
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+                  <div className="panel-title-row flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <TrophyIcon size={12} className="text-gold-core" />
+                      <h3>TACTICAL STANDINGS</h3>
+                    </div>
+                    <button 
+                      onClick={() => setLeaderboardMode(leaderboardMode === 'friends' ? 'solo' : 'friends')}
+                      className="mode-toggle-btn uppercase"
+                    >
+                      MODE: {leaderboardMode}
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setLeaderboardMode(leaderboardMode === 'friends' ? 'solo' : 'friends')}
-                    className="mode-toggle-btn uppercase"
-                  >
-                    MODE: {leaderboardMode}
-                  </button>
-                </div>
 
-                {leaderboardMode === 'solo' ? (
-                  <div className="solo-tranquility-card">
-                    <Shield size={32} className="text-gold-core/40 animate-pulse" />
-                    <h4 className="font-serif">Solo Tranquility Mode Active</h4>
-                    <p className="font-mono">Other operatives are hidden. Focus entirely on your own execution curve.</p>
-                  </div>
-                ) : (
-                  <div className="leaderboard-table-container custom-scrollbar">
-                    <table className="leaderboard-table font-mono">
-                      <thead>
-                        <tr>
-                          <th className="w-12">RANK</th>
-                          <th>OPERATIVE</th>
-                          <th className="text-right">STREAK</th>
-                          <th className="text-right">WEEKLY XP</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {leaderboard.map((row, idx) => {
-                          const isSelf = row.user_id === user.id;
-                          return (
-                            <tr key={row.id} className={isSelf ? 'self-row font-bold text-gold-core' : ''}>
-                              <td className="rank-num">#{idx + 1}</td>
-                              <td className="user-email text-left truncate max-w-[120px]">
-                                {row.profile?.username || row.profile?.email.split('@')[0]}
-                              </td>
-                              <td className="text-right">{row.streak_days} DAYS</td>
-                              <td className="text-right">{row.weekly_xp}</td>
-                            </tr>
-                          );
-                        })}
-                        {leaderboard.length === 0 && (
+                  {leaderboardMode === 'solo' ? (
+                    <div className="solo-tranquility-card">
+                      <Shield size={32} className="text-gold-core/40 animate-pulse" />
+                      <h4 className="font-serif">Solo Tranquility Mode Active</h4>
+                      <p className="font-mono">Other operatives are hidden. Focus entirely on your own execution curve.</p>
+                    </div>
+                  ) : (
+                    <div className="leaderboard-table-container custom-scrollbar">
+                      <table className="leaderboard-table font-mono">
+                        <thead>
                           <tr>
-                            <td colSpan="4" className="text-center text-gray-500 py-8 italic text-[10px]">
-                              No snapshots generated. Complete operations to trigger.
-                            </td>
+                            <th className="w-12">RANK</th>
+                            <th>OPERATIVE</th>
+                            <th className="text-right">STREAK</th>
+                            <th className="text-right">WEEKLY XP</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </thead>
+                        <tbody>
+                          {leaderboard.map((row, idx) => {
+                            const isSelf = row.user_id === user.id;
+                            return (
+                              <tr key={row.id} className={isSelf ? 'self-row font-bold text-gold-core' : ''}>
+                                <td className="rank-num">#{idx + 1}</td>
+                                <td className="user-email text-left truncate max-w-[120px]">
+                                  {row.profile?.username || row.profile?.email.split('@')[0]}
+                                </td>
+                                <td className="text-right">{row.streak_days} DAYS</td>
+                                <td className="text-right">{row.weekly_xp}</td>
+                              </tr>
+                            );
+                          })}
+                          {leaderboard.length === 0 && (
+                            <tr>
+                              <td colSpan="4" className="text-center text-gray-500 py-8 italic text-[10px]">
+                                No snapshots generated. Complete operations to trigger.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
