@@ -16,7 +16,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
-  const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: '10' });
+  const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
 
@@ -188,12 +188,12 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                         exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                       >
-                        <p className="text-[7px] font-mono text-gray-500 uppercase leading-relaxed mt-1">
+                        <p className="text-[10px] font-mono text-gray-500 uppercase leading-relaxed mt-1">
                           {stage.desc}
                         </p>
                         <div className="flex justify-between items-center mt-2">
-                          <span className="text-[7px] font-mono text-gold-core/60 font-bold uppercase">{stage.pwr}</span>
-                          {isActualLevel && <span className="text-[6px] font-mono bg-gold-core text-black px-1.5 py-0.5 rounded-sm font-black">ACTIVE</span>}
+                          <span className="text-[9px] font-mono text-gold-core/60 font-bold uppercase">{stage.pwr}</span>
+                          {isActualLevel && <span className="text-[8px] font-mono bg-gold-core text-black px-1.5 py-0.5 rounded-sm font-black">ACTIVE</span>}
                         </div>
                       </motion.div>
                     )}
@@ -216,12 +216,12 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
              currentStageIndex={currentStageIndex}
              scytheLevel={scytheLevel}
              onSelectStage={(stageId, stagePwr) => setPreview({ level: stageId, type: 'standard', pwr: stagePwr })}
-             onReturnToActive={() => setPreview({ level: null, type: 'standard', pwr: '10' })}
+             onReturnToActive={() => setPreview({ level: null, type: 'standard', pwr: null })}
              previewLevel={preview.level}
            />
            {preview.level && (
              <button 
-               onClick={() => setPreview({ level: null, type: 'standard', pwr: '10' })}
+               onClick={() => setPreview({ level: null, type: 'standard', pwr: null })}
                className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30 pointer-events-auto"
              >
                Return to Active

@@ -255,11 +255,11 @@ export default function ScytheDisplay({
 
         .scythe-desc {
           color: #6b7280;
-          font-size: 8px;
+          font-size: 10px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           line-height: 1.6;
-          max-width: 200px;
+          max-width: 250px;
         }
 
         .scythe-pwr-label {

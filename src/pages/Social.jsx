@@ -956,6 +956,7 @@ export default function Social() {
           height: auto;
           overflow: visible;
           padding: 1.5rem;
+          padding-bottom: 7.5rem;
           gap: 1.5rem;
         }
         
@@ -963,6 +964,7 @@ export default function Social() {
           .social-page-container {
             height: calc(100vh - 160px);
             overflow: hidden;
+            padding-bottom: 1.5rem;
           }
         }
         
@@ -1129,8 +1131,16 @@ export default function Social() {
         }
 
         .leaderboard-table-container {
-          overflow: visible;
+          max-height: 280px;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
           flex: 1;
+        }
+        @media (min-width: 1024px) {
+          .leaderboard-table-container {
+            max-height: none;
+            overflow-y: auto;
+          }
         }
         .leaderboard-table {
           width: 100%;
