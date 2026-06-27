@@ -11,9 +11,24 @@ export default function AssetDownloaderModal({ onClose }) {
   const [expandedCats, setExpandedCats] = useState({ regions: true, premium_scythes: false }); // Regions expanded by default
   const [error, setError] = useState(null);
 
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+
   // Dynamic Cache Check
   const runCacheCheck = async () => {
     try {
+      if (!isMobileApp) {
+        // Pre-populate all items on web to bypass downloader overlays
+        const allIds = [];
+        for (const cat of Object.values(BUNDLE_CONFIG)) {
+          for (const subId of Object.keys(cat.items)) {
+            allIds.push(String(subId));
+          }
+        }
+        setDownloadedItemIds(allIds);
+        useWarscytheStore.setState({ downloadedRegions: allIds });
+        return;
+      }
+
       const { isBundled, getAssetUrl } = await import('../utils/assetResolver');
       const cache = await caches.open('warscythe-region-assets');
       const found = [];
