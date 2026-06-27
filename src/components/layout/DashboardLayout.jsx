@@ -43,7 +43,7 @@ export default function DashboardLayout({ children, activeTab }) {
     : 'none';
 
   return (
-    <div className="relative min-h-screen w-full bg-black text-white overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-black text-white overflow-hidden">
       
       {/* 1. THE CINEMATIC BACKGROUND (Direct Image) */}
       <div className="absolute inset-0 z-0">
@@ -74,7 +74,7 @@ export default function DashboardLayout({ children, activeTab }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative z-10 w-full min-h-[100dvh] lg:h-screen p-0 flex flex-col overflow-x-hidden"
+        className="relative z-10 w-full min-h-[100dvh] lg:h-screen p-0 flex flex-col"
       >
         {children}
       </motion.div>

@@ -86,9 +86,6 @@ export default function App() {
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
 
-  // Web browsers serve assets directly from CDN — no local caching needed
-  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
-
   useEffect(() => {
     const state = useWarscytheStore.getState();
     const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
@@ -797,14 +794,12 @@ export default function App() {
             onOpenAuth={() => setShowAuth(true)} 
           />
         )}
-        {/* Cache Download Manager — Mobile only. Web uses CDN assets directly. */}
-        {isMobileApp && showDownloaderModal && (
+        {showDownloaderModal && (
           <AssetDownloaderModal 
             onClose={() => setShowDownloaderModal(false)} 
           />
         )}
-        {/* Cache Miss Alert — Mobile only */}
-        {isMobileApp && cacheAlertRegionId && (
+        {cacheAlertRegionId && (
           <CacheAlertPopup 
             regionId={cacheAlertRegionId}
             onClose={() => setCacheAlertRegionId(null)}
