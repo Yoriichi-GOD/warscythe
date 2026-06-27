@@ -16,7 +16,7 @@ export default function LandingPage({ onLaunch }) {
       id: 'operations',
       label: 'Operations & Raids',
       icon: Sword,
-      asset: '/command-core.png',
+      asset: '/nodes/node-blackvale.png',
       topics: [
         {
           title: 'What is an Operation?',
@@ -70,7 +70,7 @@ export default function LandingPage({ onLaunch }) {
       id: 'rituals',
       label: 'Daily Rituals & Streaks',
       icon: Shield,
-      asset: '/bonfire.png',
+      asset: '/nodes/node-ashendale.png',
       topics: [
         {
           title: 'What is a Ritual?',
@@ -98,7 +98,7 @@ export default function LandingPage({ onLaunch }) {
       id: 'scythe',
       label: 'Scythe & Progression',
       icon: Layers,
-      asset: '/scroll-paper.png',
+      asset: '/artifacts/artifact-scroll.png',
       topics: [
         {
           title: 'What is the Scythe?',
@@ -154,7 +154,7 @@ export default function LandingPage({ onLaunch }) {
       id: 'fairies',
       label: 'Fairy & Dragon Lore',
       icon: BookOpen,
-      asset: '/fairies/empress-1-liberated.png',
+      asset: '/fairies/empress-9-caged.png',
       topics: [
         {
           title: 'What is a Fairy?',
@@ -425,8 +425,15 @@ export default function LandingPage({ onLaunch }) {
             <div className="lg:col-span-8 border border-white/10 rounded-lg overflow-hidden bg-black/50 shadow-2xl flex flex-col">
               {/* Feature Media */}
               <div className="feature-panel-media w-full aspect-[21/9] overflow-hidden relative border-b border-white/5">
-                <img src={activeChapter.asset} alt={activeChapter.label} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80" />
+                {activeTab === 'fairies' ? (
+                  <div className="w-full h-full flex">
+                    <img src="/fairies/empress-9-caged.png" alt="Empress Caged" className="w-1/2 h-full object-cover border-r border-white/5" />
+                    <img src="/dragons/dragon-abyssal.png" alt="Dragon Abyssal" className="w-1/2 h-full object-cover" />
+                  </div>
+                ) : (
+                  <img src={activeChapter.asset} alt={activeChapter.label} className="w-full h-full object-cover" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80 pointer-events-none" />
               </div>
 
               {/* Feature Content */}
