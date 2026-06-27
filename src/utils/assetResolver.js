@@ -102,7 +102,7 @@ export const isBundled = (path) => {
 
   // 6. Keys and crests are bundled
   if (path.includes('keys/')) return true;
-  if (path.includes('crests/')) return true;
+  if (path.includes('crests/region-crest-1.png') || path.includes('crests/region-crest-2.png')) return true;
 
   // 7. Scythes: Regular scythes (Dormant, Neophyte, etc.) are bundled.
   // Premium and Coin scythes are on CDN.
