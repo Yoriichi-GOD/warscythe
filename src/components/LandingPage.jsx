@@ -128,7 +128,7 @@ export default function LandingPage({ onLaunch }) {
       id: 'fitness',
       label: 'Fitness & Deities',
       icon: Activity,
-      asset: '/deity/hermes.png',
+      asset: '/bg/bg-region-10.png',
       topics: [
         {
           title: 'What is Deity Progression?',
@@ -382,7 +382,7 @@ export default function LandingPage({ onLaunch }) {
             </p>
           </div>
           <div className="about-media rounded border border-white/10 overflow-hidden relative shadow-[0_0_30px_rgba(0,0,0,0.6)]">
-            <img src="/fairies/empress-1-caged.png" alt="Warscythe Core Platform" className="w-full object-cover aspect-video" />
+            <img src="/bg/bg-region-6.png" alt="Warscythe Core Platform" className="w-full object-cover aspect-video" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] to-transparent opacity-60" />
           </div>
         </div>
@@ -447,38 +447,48 @@ export default function LandingPage({ onLaunch }) {
                       {topic.title}
                     </h4>
                     
-                    <div className="flex flex-col gap-3 font-mono text-[9px] text-gray-300 tracking-wide leading-relaxed uppercase">
-                      <div>
-                        <span className="text-gold-core font-bold block mb-1">✦ PHILOSOPHY:</span>
-                        <p className="text-gray-400 font-mono pl-3 border-l border-gold-core/20">{topic.philosophy}</p>
-                      </div>
-
-                      {topic.useCase && (
+                    <div className="flex flex-row justify-between items-start gap-4">
+                      <div className="flex-1 flex flex-col gap-3 font-mono text-[9px] text-gray-300 tracking-wide leading-relaxed uppercase">
                         <div>
-                          <span className="text-gold-core font-bold block mb-1">✦ USE CASE / MECHANIC:</span>
-                          <p className="text-gray-400 font-mono pl-3 border-l border-white/10">{topic.useCase}</p>
+                          <span className="text-gold-core font-bold block mb-1">✦ PHILOSOPHY:</span>
+                          <p className="text-gray-400 font-mono pl-3 border-l border-gold-core/20">{topic.philosophy}</p>
                         </div>
-                      )}
 
-                      {topic.details && topic.details.length > 0 && (
-                        <div className="mt-2">
-                          <span className="text-gold-core font-bold block mb-1">✦ CORE PARAMETERS:</span>
-                          <ul className="list-none pl-3 flex flex-col gap-1.5 text-gray-400">
-                            {topic.details.map((detail, dIdx) => (
-                              <li key={dIdx} className="flex items-start gap-2">
-                                <CheckCircle2 size={9} className="text-gold-core shrink-0 mt-0.5" />
-                                <span>{detail}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                        {topic.useCase && (
+                          <div>
+                            <span className="text-gold-core font-bold block mb-1">✦ USE CASE / MECHANIC:</span>
+                            <p className="text-gray-400 font-mono pl-3 border-l border-white/10">{topic.useCase}</p>
+                          </div>
+                        )}
 
-                      {topic.whyItMatters && (
-                        <div className="mt-2 p-3 bg-white/[0.01] border border-white/5 rounded">
-                          <span className="text-gold-core font-bold block mb-1">✦ GUIDANCE INTEL:</span>
-                          <p className="text-gray-400 font-mono">{topic.whyItMatters}</p>
-                        </div>
+                        {topic.details && topic.details.length > 0 && (
+                          <div className="mt-2">
+                            <span className="text-gold-core font-bold block mb-1">✦ CORE PARAMETERS:</span>
+                            <ul className="list-none pl-3 flex flex-col gap-1.5 text-gray-400">
+                              {topic.details.map((detail, dIdx) => (
+                                <li key={dIdx} className="flex items-start gap-2">
+                                  <CheckCircle2 size={9} className="text-gold-core shrink-0 mt-0.5" />
+                                  <span>{detail}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {topic.whyItMatters && (
+                          <div className="mt-2 p-3 bg-white/[0.01] border border-white/5 rounded">
+                            <span className="text-gold-core font-bold block mb-1">✦ GUIDANCE INTEL:</span>
+                            <p className="text-gray-400 font-mono">{topic.whyItMatters}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {topic.title === 'What is Deity Progression?' && (
+                        <img 
+                          src="/deity/hermes.png" 
+                          alt="Hermes" 
+                          className="w-[120px] lg:w-[150px] shrink-0 h-auto object-contain mt-2 opacity-80 filter drop-shadow-[0_0_15px_rgba(197,160,89,0.2)] pointer-events-none" 
+                        />
                       )}
                     </div>
                   </div>
