@@ -284,21 +284,21 @@ export const infoData = {
       {
         id: "ad-free",
         title: "What is Ad-Free?",
-        philosophy: "Ads appear only on transition screens—between operations, during loading. Never during execution. Execution is sacred.\n\nIf you want a clean experience, you can remove them. That costs ₹100/month (India) or $3.60/month (International).",
+        philosophy: "Ads appear only on transition screens—between operations, during loading. Never during execution. Execution is sacred.\n\nIf you want a clean experience, you can remove them while supporting the app.",
         useCase: "Ad-free subscription:\n- Removes all full-screen ads\n- Keeps the experience clean\n- Recurring (billed monthly)\n- Includes access to all features (no features locked behind payment)\n\nThis is optional. The app works perfectly with ads. But if execution moments matter to you, ad-free removes that friction."
       },
       {
         id: "cosmetics",
         title: "What are Cosmetics?",
         philosophy: "Cosmetics are emotional attachment. They don't make you stronger. They make the journey feel more personal.",
-        useCase: "Two types of cosmetics:\n\n**Scythes** (₹50 / $1.80):\n- Visual variants of your scythe\n- Cosmetic only (no gameplay impact)\n- Unlock at higher tiers\n\n**Themes** (₹200 / $7.20):\n- Region-specific visual overhauls\n- Switch visuals AND soundscape simultaneously\n- Premium pricing reflects design effort\n\n**Bundle** (₹350 / $8.00):\n- 2 scythes + 1 theme + ad-free for 1 month\n- Perceived discount vs. ala carte\n- Best value if you want everything",
+        useCase: "Two types of cosmetics:\n\n**Scythes**:\n- Visual variants of your scythe\n- Cosmetic only (no gameplay impact)\n- Unlock at higher tiers\n\n**Themes**:\n- Region-specific visual overhauls\n- Switch visuals AND soundscape simultaneously\n- Premium pricing reflects design effort\n\n**Bundle**:\n- 2 scythes + 1 theme + ad-free for 1 month\n- Discounted package value\n- Best value if you want everything",
         whyExists: "The journey lasts months. Looking at beautiful things matters. Cosmetics let you personalize that journey."
       },
       {
         id: "bundle",
         title: "What is the Bundle?",
         philosophy: "The bundle bundles value. You want ad-free + themes? The bundle costs less than buying them separately. It's a signal: \"We want you to have the full experience.\"",
-        useCase: "Bundle includes:\n- 2 cosmetic scythes (you choose which)\n- 1 region theme (you choose which)\n- 1 month of ad-free subscription\n- Price: ₹350 (India) / $8.00 (International)\n\nPerceived savings: ~17% vs. ala carte.\n\nRecommended first purchase for new players who want to commit fully to the experience."
+        useCase: "Bundle includes:\n- 2 cosmetic scythes (you choose which)\n- 1 region theme (you choose which)\n- 1 month of ad-free subscription\n\nSaves on cost compared to acquiring them ala carte.\n\nRecommended first purchase for new players who want to commit fully to the experience."
       }
     ]
   },
