@@ -33,6 +33,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
   const [showNotifications, setShowNotifications] = React.useState(false);
   
   const xpForNext = level * 1000;
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
   const progress = (displayProgress / TASKS_PER_LEVEL) * 100;
 
@@ -326,14 +327,17 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             <ShoppingBag size={18} className="text-gold-core animate-pulse" />
           </button>
 
-          <button 
-            className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
-            onClick={onOpenDownloader} 
-            title="Tactical Cache Manager"
-            style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
-          >
-            <CloudDownload size={18} className="text-gold-core" />
-          </button>
+          {/* Cache Manager — Mobile-only, web uses assets directly from CDN */}
+          {isMobileApp && (
+            <button 
+              className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
+              onClick={onOpenDownloader} 
+              title="Tactical Cache Manager"
+              style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
+            >
+              <CloudDownload size={18} className="text-gold-core" />
+            </button>
+          )}
 
           {/* Direct Lore Scrolls Access */}
           <button 
