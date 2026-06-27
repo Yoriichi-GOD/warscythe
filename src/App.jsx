@@ -33,6 +33,7 @@ import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
+import LandingPage from './components/LandingPage';
 
 import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
@@ -142,6 +143,7 @@ export default function App() {
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
+  const [showAuthOnWeb, setShowAuthOnWeb] = useState(false);
   
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
 
@@ -472,11 +474,31 @@ export default function App() {
   }, [user, updateStreak]);
 
   if (!user) {
+    const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+    
+    if (isMobile) {
+      return (
+        <DashboardLayout>
+          <AuthModal onClose={() => {}} isMandatory={true} />
+          <div id="toast-container" />
+        </DashboardLayout>
+      );
+    }
+
+    if (showAuthOnWeb) {
+      return (
+        <DashboardLayout>
+          <AuthModal onClose={() => setShowAuthOnWeb(false)} isMandatory={false} />
+          <div id="toast-container" />
+        </DashboardLayout>
+      );
+    }
+
     return (
-      <DashboardLayout>
-        <AuthModal onClose={() => {}} isMandatory={true} />
+      <>
+        <LandingPage onLaunch={() => setShowAuthOnWeb(true)} />
         <div id="toast-container" />
-      </DashboardLayout>
+      </>
     );
   }
 
