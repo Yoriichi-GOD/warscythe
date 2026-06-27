@@ -1,3 +1,28 @@
+# Release Notes - Warscythe v4.0.0 (Build 20)
+
+Welcome to **Warscythe v4.0.0**! This major release introduces the **Info Icon Navigation System**, cosmetic custom overrides, and multiple Quality of Life improvements across all modules.
+
+## What's New
+
+### 1. Unified Info Icon Navigation System
+* **Contextual Triggers**: Added small interactive info icons next to headers across all major pages (Operations, CommandCenter, Rituals, Fitness, Social, WarTerminal, ShopModal, PremiumModal, TutorialModal, and Header).
+* **Gothic Lore Modal**: Opens a dark, gold-fantasy themed slide-up modal.
+  * **Level 1**: Lists sub-features inside the selected section as clickable gold links.
+  * **Level 2**: Displays dynamic lore **Philosophy**, **Use Case & Rules**, and **Key Operational Directives** with back buttons.
+* **Smart Back Interception**: Intercepts native device popstate to return to the list view first, and then dismisses the modal on the second tap instead of exiting the app.
+* **Dynamic Deep Linking**: Links to URLs containing specific section hashes (e.g., `/#boss-raid` or `/#streak`) directly open the respective info overlay on mount.
+
+### 2. Forge & Customization Overrides
+* **Paid Scythes over Paid Themes**: Custom equipped scythe skins now override active environment themes correctly. Themes default back to their themed scythes only when no custom skin is equipped.
+* **Forge Unequip Toggle**: The equipped scythe slot button is now an active `EQUIPPED (UNEQUIP)` toggle, enabling you to click it to return to baseline defaults.
+
+### 3. Localization & Fitness Upgrades
+* **No Price Demoralization**: Scrubbed currency tags and specific pricing references (e.g. `₹` or `$`) from the info descriptions to support dynamic localization.
+* **High Contrast Triggers**: The info button next to **THE IRON LEDGER** was upgraded to high-visibility gold. Added a second info icon next to the **PANTHEON TIER / ASCENSION PATH** header in the right-hand column.
+* **Event Propagation Decoupling**: Stopped event propagation on Soundscape and Guardian cards to prevent clicking the info icons from triggering music state changes or loading prophecies.
+
+---
+
 # Release Notes - Warscythe v2.1.2 (Build 14)
 
 Welcome to **Warscythe v2.1.2**! This release introduces critical infrastructure improvements for AdMob app store verification, custom cosmetic theme syncing, layout rendering improvements, and payment flow logging.

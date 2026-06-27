@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, Lock, Sparkles, Check, Flame, Star, ShieldAlert, Loader2, Eye, Info } from 'lucide-react';
+import { X, Lock, Sparkles, Check, Flame, Star, ShieldAlert, Loader2, Eye, Info, CloudDownload } from 'lucide-react';
 
 export default function ShopModal({ onClose, onOpenAuth }) {
   const { 
@@ -14,11 +14,24 @@ export default function ShopModal({ onClose, onOpenAuth }) {
     applyTheme, 
     buyCosmetic,
     coins,
-    buyScythe
+    buyScythe,
+    downloadedRegions,
+    downloadRegionBundle
   } = useWarscytheStore();
 
   const [loadingItem, setLoadingItem] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState(null);
+
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+
+  const isAssetDownloaded = (itemId, type) => {
+    if (!isMobileApp) return true;
+    if (type === 'theme') {
+      return (downloadedRegions || []).includes(itemId) || itemId === 'default';
+    }
+    return (downloadedRegions || []).includes(itemId);
+  };
 
   const scytheSkins = [
     {
@@ -234,7 +247,12 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeScytheSkin === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                    {isUnlocked && !isAssetDownloaded(item.id, 'scythe') && (
+                      <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
+                        <CloudDownload size={12} className="animate-pulse" />
+                      </div>
+                    )}
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="text-xs font-bold font-mono text-white uppercase tracking-wider">{item.name}</h4>
@@ -245,16 +263,36 @@ export default function ShopModal({ onClose, onOpenAuth }) {
 
                     <div className="flex gap-2">
                       {isUnlocked ? (
-                        <button 
-                          className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
-                            isActive 
-                              ? 'bg-gold-core text-black border border-gold-core' 
-                              : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
-                          }`}
-                          onClick={() => equipScythe(isActive ? 'default' : item.id)}
-                        >
-                          {isActive ? 'EQUIPPED' : 'EQUIP'}
-                        </button>
+                        !isAssetDownloaded(item.id, 'scythe') ? (
+                          <button 
+                            disabled={isDownloading}
+                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            onClick={async () => {
+                              setIsDownloading(true);
+                              try {
+                                await downloadRegionBundle(item.id);
+                              } catch (err) {
+                                alert('Download failed. Check connection.');
+                              } finally {
+                                setIsDownloading(false);
+                              }
+                            }}
+                          >
+                            {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                            <span>DOWNLOAD & EQUIP</span>
+                          </button>
+                        ) : (
+                          <button 
+                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                              isActive 
+                                ? 'bg-gold-core text-black border border-gold-core' 
+                                : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                            onClick={() => equipScythe(isActive ? 'default' : item.id)}
+                          >
+                            {isActive ? 'EQUIPPED' : 'EQUIP'}
+                          </button>
+                        )
                       ) : (
                         <button 
                           className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
@@ -290,7 +328,12 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeScytheSkin === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                    {isUnlocked && !isAssetDownloaded(item.id, 'scythe') && (
+                      <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
+                        <CloudDownload size={12} className="animate-pulse" />
+                      </div>
+                    )}
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="text-xs font-bold font-mono text-white uppercase tracking-wider">{item.name}</h4>
@@ -301,16 +344,36 @@ export default function ShopModal({ onClose, onOpenAuth }) {
 
                     <div className="flex gap-2">
                       {isUnlocked ? (
-                        <button 
-                          className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
-                            isActive 
-                              ? 'bg-gold-core text-black border border-gold-core' 
-                              : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
-                          }`}
-                          onClick={() => equipScythe(isActive ? 'default' : item.id)}
-                        >
-                          {isActive ? 'EQUIPPED' : 'EQUIP'}
-                        </button>
+                        !isAssetDownloaded(item.id, 'scythe') ? (
+                          <button 
+                            disabled={isDownloading}
+                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            onClick={async () => {
+                              setIsDownloading(true);
+                              try {
+                                await downloadRegionBundle(item.id);
+                              } catch (err) {
+                                alert('Download failed. Check connection.');
+                              } finally {
+                                setIsDownloading(false);
+                              }
+                            }}
+                          >
+                            {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                            <span>DOWNLOAD & EQUIP</span>
+                          </button>
+                        ) : (
+                          <button 
+                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                              isActive 
+                                ? 'bg-gold-core text-black border border-gold-core' 
+                                : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                            onClick={() => equipScythe(isActive ? 'default' : item.id)}
+                          >
+                            {isActive ? 'EQUIPPED' : 'EQUIP'}
+                          </button>
+                        )
                       ) : (
                         <button 
                           className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
@@ -346,7 +409,12 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeTheme === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                    {isUnlocked && !isAssetDownloaded(item.id, 'theme') && (
+                      <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
+                        <CloudDownload size={12} className="animate-pulse" />
+                      </div>
+                    )}
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="text-xs font-bold font-mono text-white uppercase tracking-wider">{item.name}</h4>
@@ -365,18 +433,38 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                       </button>
 
                       {isUnlocked ? (
-                        <button 
-                          className={`flex-1 font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
-                            isActive 
-                              ? 'bg-gold-core text-black border border-gold-core' 
-                              : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
-                          }`}
-                          onClick={() => {
-                            applyTheme(isActive ? 'default' : item.id);
-                          }}
-                        >
-                          {isActive ? 'APPLIED' : 'APPLY'}
-                        </button>
+                        !isAssetDownloaded(item.id, 'theme') ? (
+                          <button 
+                            disabled={isDownloading}
+                            className="flex-1 bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            onClick={async () => {
+                              setIsDownloading(true);
+                              try {
+                                await downloadRegionBundle(item.id);
+                              } catch (err) {
+                                alert('Download failed. Check connection.');
+                              } finally {
+                                setIsDownloading(false);
+                              }
+                            }}
+                          >
+                            {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                            <span>DOWNLOAD & APPLY</span>
+                          </button>
+                        ) : (
+                          <button 
+                            className={`flex-1 font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                              isActive 
+                                ? 'bg-gold-core text-black border border-gold-core' 
+                                : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                            onClick={() => {
+                              applyTheme(isActive ? 'default' : item.id);
+                            }}
+                          >
+                            {isActive ? 'APPLIED' : 'APPLY'}
+                          </button>
+                        )
                       ) : (
                         <button 
                           className="flex-1 bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"

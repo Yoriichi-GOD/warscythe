@@ -329,7 +329,7 @@ export const useWarscytheStore = create(
       unlockedThemes: ['default'],
       activeScytheSkin: 'default',
       activeTheme: 'default',
-      downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : [2, 3, 4, 5, 6, 7, 8, 9, 10],
+      downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deities_all', 'artifacts_all', 'nodes_all'],
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
@@ -509,7 +509,7 @@ export const useWarscytheStore = create(
           unlockedThemes: ['default'],
           activeScytheSkin: 'default',
           activeTheme: 'default',
-          downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : [2, 3, 4, 5, 6, 7, 8, 9, 10],
+          downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deities_all', 'artifacts_all', 'nodes_all'],
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
@@ -1591,70 +1591,74 @@ export const useWarscytheStore = create(
         });
       },
 
-      downloadRegionBundle: async (regionId) => {
+      downloadRegionBundle: async (subItemId) => {
         const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-        const config = BUNDLE_CONFIG[regionId];
-        if (!config) return;
+        
+        let itemConfig = null;
+        for (const cat of Object.values(BUNDLE_CONFIG)) {
+          if (cat.items && cat.items[subItemId]) {
+            itemConfig = cat.items[subItemId];
+            break;
+          }
+        }
+        if (!itemConfig) return;
 
         try {
           const cache = await caches.open('warscythe-region-assets');
-          
-          // Get the CDN URLs for all files in the bundle
-          const urls = config.files.map(file => getAssetUrl(`/${file}`));
-          
-          // Download and cache
+          const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
           await cache.addAll(urls);
 
-          // Update store state
           set(state => {
-            const downloaded = Array.from(new Set([...(state.downloadedRegions || []), Number(regionId)]));
+            const downloaded = Array.from(new Set([...(state.downloadedRegions || []).map(String), String(subItemId)]));
             return {
               downloadedRegions: downloaded,
               hasPendingChanges: true
             };
           });
 
-          // Save user state
           const u = get().user?.id;
           if (u) {
             get().saveUserState(u);
           }
         } catch (err) {
-          console.error(`Failed to download bundle for region ${regionId}:`, err);
+          console.error(`Failed to download bundle for ${subItemId}:`, err);
           throw err;
         }
       },
 
-      deleteRegionBundle: async (regionId) => {
+      deleteRegionBundle: async (subItemId) => {
         const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-        const config = BUNDLE_CONFIG[regionId];
-        if (!config) return;
+        
+        let itemConfig = null;
+        for (const cat of Object.values(BUNDLE_CONFIG)) {
+          if (cat.items && cat.items[subItemId]) {
+            itemConfig = cat.items[subItemId];
+            break;
+          }
+        }
+        if (!itemConfig) return;
 
         try {
           const cache = await caches.open('warscythe-region-assets');
-          
-          // Delete from cache
-          const urls = config.files.map(file => getAssetUrl(`/${file}`));
+          const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
           for (const url of urls) {
             await cache.delete(url);
           }
 
-          // Update store state
           set(state => {
-            const downloaded = (state.downloadedRegions || []).filter(id => Number(id) !== Number(regionId));
+            const downloaded = (state.downloadedRegions || []).map(String).filter(id => id !== String(subItemId));
             return {
               downloadedRegions: downloaded,
               hasPendingChanges: true
             };
           });
 
-          // Save user state
           const u = get().user?.id;
           if (u) {
             get().saveUserState(u);
           }
         } catch (err) {
-          console.error(`Failed to delete bundle for region ${regionId}:`, err);
+          console.error(`Failed to delete bundle for ${subItemId}:`, err);
           throw err;
         }
       },

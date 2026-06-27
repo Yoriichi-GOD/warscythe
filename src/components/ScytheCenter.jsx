@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Lock, Unlock, Sparkles, Swords, Eye, Shield } from 'lucide-react';
+import { Lock, Unlock, Sparkles, Swords, Eye, Shield, CloudDownload, Loader2 } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 export default function ScytheCenter({ onOpenShop }) {
@@ -14,12 +14,26 @@ export default function ScytheCenter({ onOpenShop }) {
     activeScytheSkin, 
     activeTheme,
     equipScythe,
-    applyTheme
+    applyTheme,
+    downloadedRegions,
+    downloadRegionBundle
   } = useWarscytheStore();
 
   const [isSlashing, setIsSlashing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState('streak'); // 'streak', 'shop', 'theme'
   const [selectedItemId, setSelectedItemId] = useState('dormant');
+
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+
+  const isAssetDownloaded = (item) => {
+    if (!isMobileApp) return true;
+    if (item.type === 'streak') return true;
+    if (item.type === 'theme') {
+      return (downloadedRegions || []).includes(item.id) || item.id === 'default';
+    }
+    return (downloadedRegions || []).includes(item.id);
+  };
 
   const triggerSlash = () => {
     if (isSlashing) return;
@@ -208,12 +222,13 @@ export default function ScytheCenter({ onOpenShop }) {
               }
 
               const isCurrent = activeTab === 'theme' ? activeTheme === item.id : activeScytheSkin === item.id;
+              const downloaded = isAssetDownloaded(item);
 
               return (
                 <div 
                   key={item.id} 
                   onClick={() => setSelectedItemId(item.id)} 
-                  className={`evo-item ${unlocked ? 'active' : 'locked'} ${selectedItemId === item.id ? 'selected' : ''}`}
+                  className={`evo-item ${unlocked ? 'active' : 'locked'} ${selectedItemId === item.id ? 'selected' : ''} relative`}
                 >
                   <div className="flex items-center gap-3">
                     {unlocked ? <Unlock size={12} className="text-gold-core" /> : <Lock size={12} className="text-white/20" />}
@@ -222,6 +237,11 @@ export default function ScytheCenter({ onOpenShop }) {
                       <div className="text-[8px] opacity-50 uppercase font-mono">{isCurrent ? 'ACTIVE' : subtitle}</div>
                     </div>
                   </div>
+                  {unlocked && !downloaded && (
+                    <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
+                      <CloudDownload size={10} className="animate-pulse" />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -301,6 +321,25 @@ export default function ScytheCenter({ onOpenShop }) {
                         EQUIPPED (UNEQUIP)
                       </button>
                     ) : (
+                    !isAssetDownloaded(selectedItem) ? (
+                      <button 
+                        disabled={isDownloading}
+                        onClick={async () => {
+                          setIsDownloading(true);
+                          try {
+                            await downloadRegionBundle(selectedItem.id);
+                          } catch (err) {
+                            alert('Download failed. Check connection.');
+                          } finally {
+                            setIsDownloading(false);
+                          }
+                        }}
+                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                        <span>DOWNLOAD & EQUIP</span>
+                      </button>
+                    ) : (
                       <button 
                         onClick={() => equipScythe(selectedItem.id)}
                         className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
@@ -308,28 +347,48 @@ export default function ScytheCenter({ onOpenShop }) {
                         EQUIP WEAPON
                       </button>
                     )
-                  ) : (
-                    /* Locked Weapon */
-                    selectedItem.type === 'streak' ? (
-                      <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
-                        <Lock size={10} />
-                        <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
-                      </div>
-                    ) : (
-                      <button 
-                        onClick={onOpenShop}
-                        className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
-                      >
-                        ACQUIRE IN SHOP
-                      </button>
-                    )
                   )
                 ) : (
-                  /* Theme Action */
-                  owned ? (
-                    activeTheme === selectedItem.id ? (
-                      <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
-                        APPLIED
+                  /* Locked Weapon */
+                  selectedItem.type === 'streak' ? (
+                    <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
+                      <Lock size={10} />
+                      <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={onOpenShop}
+                      className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                    >
+                      ACQUIRE IN SHOP
+                    </button>
+                  )
+                )
+              ) : (
+                /* Theme Action */
+                owned ? (
+                  activeTheme === selectedItem.id ? (
+                    <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
+                      APPLIED
+                    </button>
+                  ) : (
+                    !isAssetDownloaded(selectedItem) ? (
+                      <button 
+                        disabled={isDownloading}
+                        onClick={async () => {
+                          setIsDownloading(true);
+                          try {
+                            await downloadRegionBundle(selectedItem.id);
+                          } catch (err) {
+                            alert('Download failed. Check connection.');
+                          } finally {
+                            setIsDownloading(false);
+                          }
+                        }}
+                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                        <span>DOWNLOAD & APPLY</span>
                       </button>
                     ) : (
                       <button 
@@ -339,7 +398,7 @@ export default function ScytheCenter({ onOpenShop }) {
                         APPLY THEME
                       </button>
                     )
-                  ) : (
+                  ) ) : (
                     /* Locked Theme */
                     <button 
                       onClick={onOpenShop}
