@@ -1079,6 +1079,10 @@ export const useWarscytheStore = create(
         get().updateWeeklyLeaderboard(totalPts);
         if (isBoss) {
           get().recordWeeklyEvent('boss_raid_completed', `Conquered a legendary Boss Raid task`);
+          // Trigger interstitial ad when boss is defeated
+          import('../utils/adManager')
+            .then(({ AdManager }) => AdManager.showInterstitial())
+            .catch(err => console.error('AdMob Interstitial failed:', err));
         } else {
           get().recordWeeklyEvent('task_completed', `Conquered a ${task.effort || 'Medium'} Resistance task`);
         }
@@ -1811,6 +1815,11 @@ export const useWarscytheStore = create(
             date: new Date().toISOString(),
             ...finalWorkout
           };
+          // Trigger interstitial ad at workout completion
+          import('../utils/adManager')
+            .then(({ AdManager }) => AdManager.showInterstitial())
+            .catch(err => console.error('AdMob Interstitial failed:', err));
+
           return {
             gymLog: [newWorkout, ...(state.gymLog || [])],
             activeWorkout: null

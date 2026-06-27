@@ -28,6 +28,7 @@ import InfoModal from './components/InfoModal';
 import { infoData } from './data/infoDescriptions';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
+import { AdManager, AdSenseManager } from './utils/adManager';
 import ScratchCard from './components/ScratchCard';
 import { initNetworkMonitoring } from './utils/nativeTriggers';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -187,6 +188,41 @@ export default function App() {
 
     window.addEventListener('error', handleImageError, true); // capture phase
     return () => window.removeEventListener('error', handleImageError, true);
+  }, []);
+
+  useEffect(() => {
+    // Initialize Ads based on environment
+    const initAds = async () => {
+      // Mobile native setup
+      await AdManager.initialize();
+      await AdManager.showBanner();
+
+      // Web browser setup
+      await AdSenseManager.initialize();
+    };
+    initAds();
+
+    // Subscribe to store change of isAdFree to update ad status dynamically
+    let prevAdFree = useWarscytheStore.getState().isAdFree;
+    const unsubscribe = useWarscytheStore.subscribe((state) => {
+      const nextAdFree = state.isAdFree;
+      if (nextAdFree !== prevAdFree) {
+        prevAdFree = nextAdFree;
+        if (nextAdFree) {
+          AdManager.hideBanner();
+          AdSenseManager.removeAds();
+        } else {
+          AdManager.showBanner();
+          AdSenseManager.initialize();
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      AdManager.hideBanner();
+      AdSenseManager.removeAds();
+    };
   }, []);
 
   useEffect(() => {
