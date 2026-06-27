@@ -36,7 +36,7 @@ export default function ScytheDisplay({
     imagePath = getAssetUrl(`/scythe/${safeLevel}.png`);
   }
 
-  if (activeTheme && activeTheme !== "default") {
+  if (activeTheme && activeTheme !== "default" && (!activeScytheSkin || activeScytheSkin === "default")) {
     if (activeTheme === "shiva") {
       imagePath = getAssetUrl(`/themes/kailash/scythe-${safeLevel.toLowerCase()}.png`);
     } else if (activeTheme === "lava") {

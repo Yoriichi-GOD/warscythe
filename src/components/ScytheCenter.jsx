@@ -293,8 +293,12 @@ export default function ScytheCenter({ onOpenShop }) {
                   /* Weapon Action */
                   owned ? (
                     activeScytheSkin === selectedItem.id ? (
-                      <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
-                        EQUIPPED
+                      <button 
+                        onClick={() => equipScythe('default')}
+                        className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/10 hover:bg-gold-core/20 text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                        title="Click to unequip"
+                      >
+                        EQUIPPED (UNEQUIP)
                       </button>
                     ) : (
                       <button 
