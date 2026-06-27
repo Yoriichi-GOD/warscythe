@@ -1147,57 +1147,6 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const newTotalCompletions = state.totalCompletions + 1;
-        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
-        const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
-
-        const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
-        const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
-        const keyElement = keyElements[keyIndex % keyElements.length];
-
-        let level = state.level;
-        let currentTitle = state.currentTitle;
-        let pendingLevelUp = null;
-
-        // Lore unlock
-        const regionIdx = level - 1;
-        const loreArr = getLore(regionIdx);
-        const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
-        const fragment = loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
-        const unlockedLore = { ...state.unlockedLore };
-        if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
-        if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
-          unlockedLore[regionIdx].push(fragment);
-        }
-
-        const isBoss = ritual.effort === 'Boss';
-        const rescuedFairies = { ...(state.rescuedFairies || {}) };
-
-        let pendingVictoryScreen = null;
-        // Level up check
-        if (newLevel > state.level) {
-          const oldMapIndex = ((state.level - 1) % 10) + 1;
-          level = newLevel;
-          currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
-          pendingLevelUp = {
-            regionIdx: level - 1,
-            newLevel: level,
-            newTitle: currentTitle
-          };
-          pendingVictoryScreen = {
-            regionIdx: state.level - 1,
-            mapIndex: oldMapIndex,
-            taskTitle: ritual.title
-          };
-          if (!rescuedFairies[state.level - 1]) {
-            rescuedFairies[state.level - 1] = {
-              date: new Date().toISOString(),
-              taskTitle: ritual.title,
-              taskCategory: 'Ritual'
-            };
-          }
-        }
-
         const updatedRituals = rituals.map(r => r.id === id ? ritual : r);
 
         set({
@@ -1209,10 +1158,6 @@ export const useWarscytheStore = create(
           dailyPoints,
           coins: newCoins,
           scytheLevel: newScytheLevel,
-          totalCompletions: newTotalCompletions,
-          currentLevelProgress: finalLevelProgress,
-          level,
-          currentTitle,
           collectedArtifacts: [...state.collectedArtifacts, {
             ...reward.artifact,
             rarity: reward.rarity,
@@ -1220,13 +1165,11 @@ export const useWarscytheStore = create(
             context: `Forged on Day ${state.streakCount} of the Quest.`,
             effortContext: `Claimed during a Daily Ritual Strike.`
           }],
-          unlockedLore,
-          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: ritual.title, keyElement },
-          pendingLevelUp,
-          pendingVictoryScreen,
+          pendingReward: { reward, basePts, totalPts, fragment: null, taskTitle: ritual.title, keyElement: null },
+          pendingLevelUp: null,
+          pendingVictoryScreen: null,
           closerDismissed: false,
-          lastActiveDate: today,
-          rescuedFairies
+          lastActiveDate: today
         });
 
         get().updateWeeklyLeaderboard(totalPts);

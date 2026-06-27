@@ -140,6 +140,8 @@ export default function MapSection({ onTabChange }) {
     downloadedRegions, downloadRegionBundle
   } = useWarscytheStore();
 
+  const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
   const level = isTutorialActive ? 0 : storeLevel;
 
@@ -485,7 +487,7 @@ export default function MapSection({ onTabChange }) {
                   [ SECTOR LOCKED // COMPLETE PREVIOUS REGIONS ]
                 </span>
               </div>
-            ) : (activeMapIndex >= 2 && !downloadedRegions?.includes(String(activeMapIndex))) ? (
+            ) : (isMobileApp && activeMapIndex >= 2 && !downloadedRegions?.includes(String(activeMapIndex))) ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-10 font-times select-none p-6 text-center">
                 <motion.div
                   className="w-16 h-16 mb-4 flex items-center justify-center rounded-full border-2 border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(236,200,128,0.2)]"
