@@ -193,7 +193,7 @@ export default function Fitness() {
                   <button 
                     type="button"
                     onClick={() => useWarscytheStore.getState().openInfoModal('fitness')}
-                    className="text-gray-500 hover:text-gold-core transition-colors"
+                    className="text-gold-core/70 hover:text-gold-bright transition-colors ml-1.5"
                     title="Fitness Info"
                   >
                     <Info size={14} />
@@ -930,7 +930,17 @@ export default function Fitness() {
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">ASCENSION PATH</span>
-                <h3 className="font-display text-lg text-white tracking-wider uppercase">PANTHEON TIER</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-lg text-white tracking-wider uppercase">PANTHEON TIER</h3>
+                  <button 
+                    type="button"
+                    onClick={() => useWarscytheStore.getState().openInfoModal('fitness')}
+                    className="text-gold-core/70 hover:text-gold-bright transition-colors ml-1.5"
+                    title="Fitness Info"
+                  >
+                    <Info size={14} />
+                  </button>
+                </div>
               </div>
               <Award size={16} className="text-gold-core" />
             </div>

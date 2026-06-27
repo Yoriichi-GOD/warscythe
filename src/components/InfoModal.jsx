@@ -24,15 +24,16 @@ export default function InfoModal() {
     window.history.pushState({ infoModal: true }, '');
 
     const handlePopState = (e) => {
-      // If user presses back
-      if (infoFeatureId) {
+      // Read current state values dynamically from the store to avoid dependency re-runs
+      const currentFeatureId = useWarscytheStore.getState().infoFeatureId;
+      if (currentFeatureId) {
         // Level 2 -> Level 1
-        setInfoFeatureId(null);
+        useWarscytheStore.getState().setInfoFeatureId(null);
         // Push state again to keep user in modal on next back
         window.history.pushState({ infoModal: true }, '');
       } else {
         // Level 1 -> Close Modal
-        closeInfoModal();
+        useWarscytheStore.getState().closeInfoModal();
       }
     };
 
@@ -44,7 +45,7 @@ export default function InfoModal() {
         window.history.back();
       }
     };
-  }, [showInfoModal, infoFeatureId, closeInfoModal, setInfoFeatureId]);
+  }, [showInfoModal]);
 
   if (!showInfoModal || !activeSection) return null;
 
