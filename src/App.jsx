@@ -24,6 +24,8 @@ import Fitness from './pages/Fitness';
 import Forge from './pages/Forge';
 import Ledger from './pages/Ledger';
 import Social from './pages/Social';
+import InfoModal from './components/InfoModal';
+import { infoData } from './data/infoDescriptions';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import ScratchCard from './components/ScratchCard';
@@ -139,6 +141,25 @@ export default function App() {
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
+  
+  const openInfoModal = useWarscytheStore(state => state.openInfoModal);
+
+  useEffect(() => {
+    const checkHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        const foundSectionId = Object.keys(infoData).find(secId =>
+          infoData[secId].features.some(f => f.id === hash)
+        );
+        if (foundSectionId) {
+          openInfoModal(foundSectionId, hash);
+        }
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [openInfoModal]);
   
   // 🔮 Guardian Angel Global States & Logic
   const [activeProphecy, setActiveProphecy] = useState(null);
@@ -766,6 +787,8 @@ export default function App() {
       </button>
 
       <WarTerminal isOpen={showTerminal} onClose={() => setShowTerminal(false)} />
+
+      <InfoModal />
 
       <TutorialModal />
       <StreakScrollModal />

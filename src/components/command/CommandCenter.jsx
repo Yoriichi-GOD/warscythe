@@ -1,6 +1,6 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
-import { Swords, History, Flame, Award, Dumbbell } from 'lucide-react';
+import { Swords, History, Flame, Award, Dumbbell, Info } from 'lucide-react';
 import { getAssetUrl } from '../../utils/assetResolver';
 
 const LEGACY_ARTIFACT_MAP = {
@@ -83,7 +83,17 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
         }`}
       >
-        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
+        <div className="flex justify-between items-center w-full px-2">
+          <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
+          <Info 
+            size={10} 
+            className="text-gray-500 hover:text-[#c5a059] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              useWarscytheStore.getState().openInfoModal('atmosphere');
+            }}
+          />
+        </div>
         <div className="flex-1 w-full flex items-center justify-center relative min-h-0">
           <img 
             src="/soundscape-jukebox.png" 
@@ -103,7 +113,17 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
         className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
       >
-        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
+        <div className="flex justify-between items-center w-full px-2">
+          <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
+          <Info 
+            size={10} 
+            className="text-gray-500 hover:text-[#c5a059] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              useWarscytheStore.getState().openInfoModal('wisdom');
+            }}
+          />
+        </div>
         <div className="flex-1 w-full flex items-center justify-center relative min-h-0">
           <img 
             src="/guardian-observer.png" 

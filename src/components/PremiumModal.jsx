@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Zap, Sparkles, ShieldCheck, Lock, Loader2 } from 'lucide-react';
+import { X, ShieldAlert, Zap, Sparkles, ShieldCheck, Lock, Loader2, Info } from 'lucide-react';
 
 export default function PremiumModal({ onClose, onOpenAuth }) {
   const { user, isAdFree, initiateSubscription } = useWarscytheStore();
@@ -63,7 +63,17 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
             <div className="premium-upgrade-state">
               {/* Lore Intro */}
               <div className="text-center mb-8">
-                <h2 className="cinzel-title text-2xl font-bold text-white tracking-widest mb-2">WARSCYTHE ELITE</h2>
+                <div className="flex justify-center items-center gap-2 mb-2">
+                  <h2 className="cinzel-title text-2xl font-bold text-white tracking-widest">WARSCYTHE ELITE</h2>
+                  <button 
+                    type="button"
+                    onClick={() => useWarscytheStore.getState().openInfoModal('monetization')}
+                    className="text-gray-500 hover:text-gold-core transition-colors"
+                    title="Monetization Info"
+                  >
+                    <Info size={14} />
+                  </button>
+                </div>
                 <p className="font-mono text-[8px] text-gray-500 tracking-[0.25em] uppercase">MONETIZATION COGNITIVE RE-SCHEDULER</p>
               </div>
 

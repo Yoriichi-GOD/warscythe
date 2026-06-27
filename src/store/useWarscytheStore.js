@@ -360,6 +360,23 @@ export const useWarscytheStore = create(
       legionEvents: [],
       username: null,
       referralSource: null,
+      showInfoModal: false,
+      infoSectionId: null,
+      infoFeatureId: null,
+
+      openInfoModal: (sectionId, featureId = null) => set({
+        showInfoModal: true,
+        infoSectionId: sectionId,
+        infoFeatureId: featureId
+      }),
+      closeInfoModal: () => set({
+        showInfoModal: false,
+        infoSectionId: null,
+        infoFeatureId: null
+      }),
+      setInfoFeatureId: (featureId) => set({
+        infoFeatureId: featureId
+      }),
 
       // Auth & Sync
       signIn: async (email, password) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
@@ -237,6 +237,28 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             
             {showDropdown && user && (
               <div className="header-dropdown-menu">
+                <button 
+                  onClick={() => { 
+                    setShowDropdown(false); 
+                    useWarscytheStore.getState().openInfoModal('settings'); 
+                  }}
+                  className="flex items-center justify-between font-mono"
+                  style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span>SETTINGS INFO</span>
+                  <Info size={10} className="text-gold-core/60" />
+                </button>
+                <button 
+                  onClick={() => { 
+                    setShowDropdown(false); 
+                    useWarscytheStore.getState().openInfoModal('about'); 
+                  }}
+                  className="flex items-center justify-between font-mono border-b border-white/5 pb-2 mb-1"
+                  style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span>ABOUT WARSCYTHE</span>
+                  <Info size={10} className="text-gold-core/60" />
+                </button>
                 <button onClick={() => { setShowDropdown(false); window.open('/privacy.html', '_blank'); }}>
                   PRIVACY POLICY
                 </button>

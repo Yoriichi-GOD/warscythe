@@ -6,7 +6,7 @@ import {
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
   Calendar, Flame, Sparkles, ChevronDown, CheckSquare, SquareSquare,
-  ClipboardList, X
+  ClipboardList, X, Info
 } from 'lucide-react';
 
 
@@ -188,7 +188,17 @@ export default function Fitness() {
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
-                <h3 className="font-display text-lg text-white tracking-wider uppercase">THE IRON LEDGER</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-lg text-white tracking-wider uppercase">THE IRON LEDGER</h3>
+                  <button 
+                    type="button"
+                    onClick={() => useWarscytheStore.getState().openInfoModal('fitness')}
+                    className="text-gray-500 hover:text-gold-core transition-colors"
+                    title="Fitness Info"
+                  >
+                    <Info size={14} />
+                  </button>
+                </div>
               </div>
               <Dumbbell size={16} className="text-gold-core" />
             </div>

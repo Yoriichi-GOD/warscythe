@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info } from 'lucide-react';
 import { REGIONS } from '../store/constants';
 
 const parseUserState = (profile) => {
@@ -193,27 +193,37 @@ export default function Social() {
   return (
     <div className="social-page-container">
       {/* 🧭 SOCIAL SUB-NAVBAR */}
-      <div className="social-sub-nav">
+      <div className="social-sub-nav relative flex items-center justify-center">
+        <div className="flex gap-8 justify-center flex-1">
+          <button 
+            onClick={() => setActiveSubTab('leaderboard')}
+            className={`social-nav-item ${activeSubTab === 'leaderboard' ? 'active' : ''}`}
+          >
+            <Trophy size={14} />
+            <span>LEADERBOARD</span>
+          </button>
+          <button 
+            onClick={() => setActiveSubTab('friends')}
+            className={`social-nav-item ${activeSubTab === 'friends' ? 'active' : ''}`}
+          >
+            <Users size={14} />
+            <span>OPERATIVE GRAPH ({friends.length})</span>
+          </button>
+          <button 
+            onClick={() => setActiveSubTab('legion')}
+            className={`social-nav-item ${activeSubTab === 'legion' ? 'active' : ''}`}
+          >
+            <Shield size={14} />
+            <span>LEGION COMMAND</span>
+          </button>
+        </div>
         <button 
-          onClick={() => setActiveSubTab('leaderboard')}
-          className={`social-nav-item ${activeSubTab === 'leaderboard' ? 'active' : ''}`}
+          type="button"
+          onClick={() => useWarscytheStore.getState().openInfoModal('social')}
+          className="text-gray-500 hover:text-gold-core transition-colors px-2 absolute right-4"
+          title="Social Info"
         >
-          <Trophy size={14} />
-          <span>LEADERBOARD</span>
-        </button>
-        <button 
-          onClick={() => setActiveSubTab('friends')}
-          className={`social-nav-item ${activeSubTab === 'friends' ? 'active' : ''}`}
-        >
-          <Users size={14} />
-          <span>OPERATIVE GRAPH ({friends.length})</span>
-        </button>
-        <button 
-          onClick={() => setActiveSubTab('legion')}
-          className={`social-nav-item ${activeSubTab === 'legion' ? 'active' : ''}`}
-        >
-          <Shield size={14} />
-          <span>LEGION COMMAND</span>
+          <Info size={14} />
         </button>
       </div>
 

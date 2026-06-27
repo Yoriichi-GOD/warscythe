@@ -6,9 +6,10 @@ import MissionCard from '../components/operations/MissionCard';
 import RitualCard from '../components/operations/RitualCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
-import { Zap, Lock } from 'lucide-react';
+import { Zap, Lock, Info } from 'lucide-react';
 
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOpenGymLog }) {
+  const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
@@ -78,9 +79,19 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
       <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
-        <div className="flex items-center gap-3 mb-8">
-          <Zap size={14} className="text-gold-core" />
-          <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-3">
+            <Zap size={14} className="text-gold-core" />
+            <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
+          </div>
+          <button 
+            type="button"
+            onClick={() => openInfoModal('operations')}
+            className="text-gray-500 hover:text-gold-core transition-colors"
+            title="Operations Info"
+          >
+            <Info size={14} />
+          </button>
         </div>
 
         <div className="flex flex-col gap-8">
@@ -149,9 +160,19 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
-          <div className="mb-6 lg:mb-10">
-            <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
-            <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
+          <div className="flex justify-between items-start mb-6 lg:mb-10">
+            <div className="flex flex-col">
+              <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
+              <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
+            </div>
+            <button 
+              type="button"
+              onClick={() => openInfoModal('scythe')}
+              className="text-gray-500 hover:text-gold-core transition-colors mt-1"
+              title="Scythe & Progression Info"
+            >
+              <Info size={12} />
+            </button>
           </div>
           
           <div className="flex flex-col gap-4 shrink-0">

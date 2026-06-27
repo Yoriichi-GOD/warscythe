@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { getAssetUrl } from '../../utils/assetResolver';
+import { Info } from 'lucide-react';
 
 export default function ScytheDisplay({ 
   level = "DORMANT", 
@@ -71,9 +72,19 @@ export default function ScytheDisplay({
 
       {/* MOBILE ONLY HEADER & TIMELINE */}
       <div className="block lg:hidden w-full px-4 pt-4 z-20">
-        <div className="text-center mb-1">
-          <span className="text-[8px] font-mono text-gray-400 tracking-[0.25em] uppercase block mb-0.5">Weapon Evolution</span>
-          <h4 className="text-white font-display text-xs tracking-[0.2em] uppercase font-black">Reaper's Scythe</h4>
+        <div className="flex justify-between items-center mb-1">
+          <div className="flex-1 text-center">
+            <span className="text-[8px] font-mono text-gray-400 tracking-[0.25em] uppercase block mb-0.5">Weapon Evolution</span>
+            <h4 className="text-white font-display text-xs tracking-[0.2em] uppercase font-black">Reaper's Scythe</h4>
+          </div>
+          <button 
+            type="button"
+            onClick={() => useWarscytheStore.getState().openInfoModal('scythe')}
+            className="text-gray-500 hover:text-gold-core transition-colors shrink-0"
+            title="Scythe & Progression Info"
+          >
+            <Info size={12} />
+          </button>
         </div>
 
         {/* HORIZONTAL STEPPER TIMELINE */}

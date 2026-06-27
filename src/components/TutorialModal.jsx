@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Compass, Scroll, Crosshair, Award, Sparkles, ShieldAlert, CheckCircle } from 'lucide-react';
+import { X, BookOpen, Compass, Scroll, Crosshair, Award, Sparkles, ShieldAlert, CheckCircle, Info } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import RegionFlashScreen from './RegionFlashScreen';
 
@@ -65,8 +65,16 @@ export default function TutorialModal() {
               {tutorialStep === 'not_started' ? (
                 // Screen 1: The Narrative Entry (Full Lore Drop)
                 <div className="flex flex-col gap-6">
-                  <div className="tutorial-header">
+                  <div className="tutorial-header flex justify-between items-center w-full">
                     <span className="panel-tag font-mono text-[9px] text-gold-core">COMMAND ARCHIVE // DOCTRINE OF WILL</span>
+                    <button 
+                      type="button"
+                      onClick={() => useWarscytheStore.getState().openInfoModal('philosophy')}
+                      className="text-gray-500 hover:text-gold-core transition-colors"
+                      title="Doctrine Info"
+                    >
+                      <Info size={12} />
+                    </button>
                   </div>
                   
                   <div className="tutorial-body">

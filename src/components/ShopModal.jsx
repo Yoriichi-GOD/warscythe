@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, Lock, Sparkles, Check, Flame, Star, ShieldAlert, Loader2, Eye } from 'lucide-react';
+import { X, Lock, Sparkles, Check, Flame, Star, ShieldAlert, Loader2, Eye, Info } from 'lucide-react';
 
 export default function ShopModal({ onClose, onOpenAuth }) {
   const { 
@@ -192,7 +192,17 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           <div className="flex items-center gap-3">
             <Flame className="text-gold animate-pulse" size={24} />
             <div className="title-group">
-              <h2 className="cinzel-title text-xl font-bold tracking-widest text-white">THE DREAD ARMORY</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="cinzel-title text-xl font-bold tracking-widest text-white">THE DREAD ARMORY</h2>
+                <button
+                  type="button"
+                  onClick={() => useWarscytheStore.getState().openInfoModal('monetization')}
+                  className="text-gray-500 hover:text-gold-core transition-colors"
+                  title="Shop Info"
+                >
+                  <Info size={14} />
+                </button>
+              </div>
               <p className="font-mono text-[8px] text-gold-core tracking-[0.25em] uppercase">MONETARY EXCHANGE & REQUISITIONS</p>
             </div>
           </div>
@@ -319,7 +329,17 @@ export default function ShopModal({ onClose, onOpenAuth }) {
 
           {/* THEMES SECTION */}
           <div className="shop-section">
-            <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">VISUAL ENVIRONMENT SCROLLS (₹)</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="section-title cinzel-title text-sm font-bold tracking-wider text-gold-core">VISUAL ENVIRONMENT SCROLLS (₹)</h3>
+              <button 
+                type="button"
+                onClick={() => useWarscytheStore.getState().openInfoModal('aesthetics')}
+                className="text-gray-500 hover:text-gold-core transition-colors"
+                title="Themes Info"
+              >
+                <Info size={12} />
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {themes.map(item => {
                 const isUnlocked = unlockedThemes.includes(item.id);
