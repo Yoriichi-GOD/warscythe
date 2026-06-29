@@ -145,6 +145,9 @@ CREATE TABLE IF NOT EXISTS public.legion_subtasks (
   legion_operation_id uuid REFERENCES public.legion_operations(id) ON DELETE CASCADE NOT NULL,
   assigned_to uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   task_id uuid NOT NULL, -- Individual task created on assignee's side
+  title text, -- Sub-task custom title/objective name
+  deadline timestamp with time zone, -- Sub-task custom deadline
+  priority text DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'boss')), -- Sub-task custom priority
   acceptance_status text CHECK (acceptance_status IN (
     'pending',
     'accepted',

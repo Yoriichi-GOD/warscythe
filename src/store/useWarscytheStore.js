@@ -11,6 +11,16 @@ import {
 } from './constants';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
 const todayKey = () => new Date().toISOString().slice(0, 10);
 const getWeekStart = () => {
   const d = new Date();
@@ -2216,7 +2226,7 @@ export const useWarscytheStore = create(
           .from('legion_operations')
           .insert({
             legion_id: legionId,
-            parent_task_id: parentTaskId,
+            parent_task_id: parentTaskId || generateUUID(),
             status: 'acceptance_open',
             deadline
           })
@@ -2228,10 +2238,13 @@ export const useWarscytheStore = create(
         const subtasksToInsert = subtasksList.map(s => ({
           legion_operation_id: op.id,
           assigned_to: s.assignedTo,
-          task_id: genId(),
+          task_id: generateUUID(),
           acceptance_status: s.assignedTo === u ? 'accepted' : 'pending',
           completion_status: 'incomplete',
-          xp_value: s.xpValue
+          xp_value: s.xpValue,
+          title: s.title || 'Unnamed Objective',
+          deadline: s.deadline || deadline,
+          priority: s.priority || 'medium'
         }));
 
         const { error: subErr } = await supabase
@@ -2244,7 +2257,7 @@ export const useWarscytheStore = create(
           legion_id: legionId,
           event_type: 'operation_started',
           actor_id: u,
-          metadata: { operation_id: op.id, parent_task_id: parentTaskId }
+          metadata: { operation_id: op.id, parent_task_id: parentTaskId || op.parent_task_id }
         });
 
         await get().fetchSocialData();

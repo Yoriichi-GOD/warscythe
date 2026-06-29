@@ -23,6 +23,17 @@ const parseUserState = (profile) => {
   };
 };
 
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export default function Social() {
   const {
     user,
@@ -129,7 +140,16 @@ export default function Social() {
   };
 
   const handleAddSubtaskInput = () => {
-    setSubtaskInputs([...subtaskInputs, { assignedTo: '', xpValue: 100 }]);
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 3);
+    const dateString = defaultDate.toISOString().slice(0, 10);
+    setSubtaskInputs([...subtaskInputs, { 
+      assignedTo: '', 
+      xpValue: 100, 
+      title: '', 
+      priority: 'medium', 
+      deadline: dateString 
+    }]);
   };
 
   const handleRemoveSubtaskInput = (idx) => {
@@ -153,12 +173,28 @@ export default function Social() {
       return;
     }
 
+    // Validate that each subtask has a title and a deadline
+    for (const sub of subtasks) {
+      if (!sub.title || !sub.title.trim()) {
+        alert('All assignments must have an objective name.');
+        return;
+      }
+      if (!sub.deadline) {
+        alert('All assignments must have a deadline.');
+        return;
+      }
+    }
+
     const deadline = new Date();
     deadline.setDate(deadline.getDate() + Number(opDeadlineDays));
 
     try {
-      const parentId = Math.random().toString(36).slice(2, 9); // generated parent key
-      await initiateLegionOperation(activeLegion.id, parentId, deadline.toISOString(), subtasks);
+      const parentId = generateUUID(); // generated parent key
+      const mappedSubtasks = subtasks.map(s => ({
+        ...s,
+        deadline: new Date(s.deadline).toISOString()
+      }));
+      await initiateLegionOperation(activeLegion.id, parentId, deadline.toISOString(), mappedSubtasks);
       setOpTaskTitle('');
       setSubtaskInputs([]);
     } catch (err) {
@@ -725,31 +761,80 @@ export default function Social() {
 
                           <div className="flex flex-col gap-2">
                             {subtaskInputs.map((s, idx) => (
-                              <div key={idx} className="flex gap-2 items-center">
-                                <select 
-                                  value={s.assignedTo} 
-                                  onChange={e => handleSubtaskChange(idx, 'assignedTo', e.target.value)}
-                                  className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px] flex-1"
-                                >
-                                  <option value="">Assign To...</option>
-                                  {legionMembers.map(m => (
-                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
-                                  ))}
-                                </select>
-                                <input 
-                                  type="number" 
-                                  placeholder="XP Value" 
-                                  value={s.xpValue}
-                                  onChange={e => handleSubtaskChange(idx, 'xpValue', Number(e.target.value))}
-                                  className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px] w-20"
-                                />
+                              <div key={idx} className="subtask-input-card border border-white/10 bg-black/20 p-3 rounded flex flex-col gap-2 relative mb-2">
                                 <button 
                                   type="button" 
                                   onClick={() => handleRemoveSubtaskInput(idx)} 
-                                  className="text-red-500 text-[12px] p-1.5"
+                                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500 transition-colors"
                                 >
-                                  <X size={10} />
+                                  <X size={12} />
                                 </button>
+                                
+                                <div className="flex flex-col gap-1">
+                                  <label className="text-[8px] font-mono text-gray-500 uppercase">Sub-Task Objective Name</label>
+                                  <input 
+                                    type="text"
+                                    placeholder="Enter objective..."
+                                    value={s.title || ''}
+                                    onChange={e => handleSubtaskChange(idx, 'title', e.target.value)}
+                                    className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
+                                    required
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="flex flex-col gap-1">
+                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Assignee</label>
+                                    <select 
+                                      value={s.assignedTo} 
+                                      onChange={e => handleSubtaskChange(idx, 'assignedTo', e.target.value)}
+                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
+                                      required
+                                    >
+                                      <option value="">Select Operative...</option>
+                                      {legionMembers.map(m => (
+                                        <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="text-[8px] font-mono text-gray-500 uppercase">XP Reward</label>
+                                    <input 
+                                      type="number" 
+                                      placeholder="XP Value" 
+                                      value={s.xpValue}
+                                      onChange={e => handleSubtaskChange(idx, 'xpValue', Number(e.target.value))}
+                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
+                                      required
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="flex flex-col gap-1">
+                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Priority</label>
+                                    <select 
+                                      value={s.priority || 'medium'} 
+                                      onChange={e => handleSubtaskChange(idx, 'priority', e.target.value)}
+                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
+                                    >
+                                      <option value="low">Low</option>
+                                      <option value="medium">Medium</option>
+                                      <option value="high">High</option>
+                                      <option value="boss">Boss</option>
+                                    </select>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Deadline</label>
+                                    <input 
+                                      type="date"
+                                      value={s.deadline || ''}
+                                      onChange={e => handleSubtaskChange(idx, 'deadline', e.target.value)}
+                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
+                                      required
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -783,10 +868,20 @@ export default function Social() {
                               {subtasksForOp.map(s => {
                                 const assigneeName = s.assignee?.username || s.assignee?.email.split('@')[0];
                                 return (
-                                  <div key={s.id} className="subtask-row flex justify-between items-center text-[10px] font-mono border-b border-white/[0.03] pb-1">
-                                    <div className="flex flex-col">
-                                      <span>Operative: {assigneeName}</span>
-                                      <span className="text-[8px] text-gray-500">XP Value: {s.xp_value}</span>
+                                  <div key={s.id} className="subtask-row flex justify-between items-start text-[10px] font-mono border-b border-white/[0.03] pb-2 pt-1">
+                                    <div className="flex flex-col text-left">
+                                      <span className="font-bold text-white text-[11px] uppercase tracking-wider">{s.title || 'UNNAMED OBJECTIVE'}</span>
+                                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[8px] text-gray-500 mt-1 uppercase">
+                                        <span>OPERATIVE: {assigneeName}</span>
+                                        <span>•</span>
+                                        <span className={`font-bold ${
+                                          s.priority === 'boss' || s.priority === 'high' ? 'text-red-500' :
+                                          s.priority === 'medium' ? 'text-amber-500' : 'text-green-500'
+                                        }`}>PRIORITY: {s.priority || 'medium'}</span>
+                                        <span>•</span>
+                                        <span>DEADLINE: {s.deadline ? new Date(s.deadline).toLocaleDateString() : 'N/A'}</span>
+                                      </div>
+                                      <span className="text-[8px] text-gold-core mt-1">REWARD: {s.xp_value} XP</span>
                                     </div>
                                     <div className="flex gap-3 items-center">
                                       {/* Acceptance display */}
