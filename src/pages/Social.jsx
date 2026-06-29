@@ -738,6 +738,73 @@ export default function Social() {
                         </div>
                       </form>
                     )}
+
+                    {/* 📜 LEGION HISTORY WINDOW */}
+                    <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-4" />
+                    
+                    <div className="legion-history-section text-left">
+                      <span className="sec-label mb-3 block text-left flex items-center gap-2">
+                        <Calendar size={12} className="text-gold-core" /> Ledger of Legions (History)
+                      </span>
+                      
+                      <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                        {legionOperations.filter(op => op.status === 'success').length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-6 gap-2 border border-dashed border-white/5 rounded">
+                            <span className="text-[9px] font-mono text-gray-600 tracking-wider uppercase text-center block w-full">No operations logged</span>
+                          </div>
+                        ) : (
+                          legionOperations
+                            .filter(op => op.status === 'success')
+                            .map((op, i) => {
+                              const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
+                              const firstSub = subtasksForOp[0];
+                              const parts = firstSub?.title.split(' // ') || [];
+                              const parentTitle = parts.length > 1 ? parts[0] : 'Unnamed Operation';
+                              
+                              return (
+                                <div 
+                                  key={op.id}
+                                  className="p-3 border border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent rounded flex flex-col gap-2"
+                                >
+                                  <div className="flex items-start gap-2.5 justify-between">
+                                    <div className="flex items-start gap-2 min-w-0 flex-1">
+                                      <div className="mt-0.5 w-4 h-4 rounded flex items-center justify-center border border-gold-core/30 text-gold-core bg-gold-core/5 flex-shrink-0">
+                                        <Check size={8} />
+                                      </div>
+                                      <div className="flex flex-col min-w-0 flex-1">
+                                        <h4 className="text-white font-display text-[10px] tracking-wider uppercase leading-snug truncate">
+                                          {parentTitle}
+                                        </h4>
+                                        <span className="text-[7px] font-mono text-gray-500 uppercase">
+                                          Completed: {op.completed_at ? new Date(op.completed_at).toLocaleDateString() : 'N/A'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <span className="px-1.5 py-0.5 rounded text-[7px] font-mono tracking-widest font-extrabold uppercase border text-gold-bright bg-gold-core/10 border-gold-core/20 shadow-[0_0_8px_rgba(197,160,89,0.15)] flex-shrink-0">
+                                      CONQUERED
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Subtasks Detail View */}
+                                  <div className="flex flex-col gap-1 mt-1 pl-6 border-l border-white/5">
+                                    {subtasksForOp.map(sub => {
+                                      const assigneeName = sub.assignee?.username || sub.assignee?.email.split('@')[0] || 'Unknown';
+                                      const sParts = sub.title.split(' // ');
+                                      const subTitle = sParts.length > 1 ? sParts[1] : sub.title;
+                                      return (
+                                        <div key={sub.id} className="text-[7px] font-mono text-gray-500 flex justify-between uppercase">
+                                          <span className="truncate flex-1 pr-2 text-left">{subTitle} ({assigneeName})</span>
+                                          <span className="text-gold-core font-bold shrink-0">{sub.completion_status}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* RIGHT COLUMN: COLLABORATIVE OPERATIONS BOARD */}
@@ -748,7 +815,7 @@ export default function Social() {
                     </div>
 
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
-                    {activeLegion.owner_id === user.id && legionOperations.filter(o => o.status === 'active' || o.status === 'acceptance_open').length === 0 && (
+                    {activeLegion.owner_id === user.id && (
                       <form onSubmit={handleStartOperation} className="tactical-form mt-4 glass-panel p-4 flex flex-col gap-4 text-left relative z-50">
                         {effortOpen && (
                           <div 
@@ -929,17 +996,22 @@ export default function Social() {
 
                     {/* SECTION B: RUN OPERATIONS PANEL */}
                     <div className="operations-run-list mt-4 flex flex-col gap-4 text-left">
-                      {legionOperations.map(op => {
+                      {legionOperations.filter(op => op.status === 'active' || op.status === 'acceptance_open').map(op => {
                         const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
                         const userSubtask = subtasksForOp.find(s => s.assigned_to === user.id);
                         const isLocked = op.status !== 'acceptance_open';
+
+                        const firstSub = subtasksForOp[0];
+                        const parts = firstSub?.title.split(' // ') || [];
+                        const parentTitle = parts.length > 1 ? parts[0] : 'Unnamed Operation';
 
                         return (
                           <div key={op.id} className="op-run-card glass-panel p-4 border border-white/5 rounded">
                             <div className="flex justify-between items-start mb-3">
                               <div className="flex flex-col">
-                                <span className="text-[7px] font-mono text-gray-500 uppercase">LEGION TASK RUN</span>
-                                <h4 className="font-serif text-[13px] text-white">Objective Conquered: {op.status.toUpperCase()}</h4>
+                                <span className="text-[7px] font-mono text-gold-core uppercase tracking-wider">Active Legion Run</span>
+                                <h4 className="font-serif text-[13px] text-white uppercase">{parentTitle}</h4>
+                                <span className="text-[8px] font-mono text-gray-500 uppercase mt-0.5">Status: {op.status.toUpperCase()}</span>
                               </div>
                               <span className="text-[8px] font-mono text-gold-core">Deadline: {new Date(op.deadline).toLocaleDateString()}</span>
                             </div>
@@ -948,10 +1020,12 @@ export default function Social() {
                             <div className="subtask-status-board flex flex-col gap-2 mt-3">
                               {subtasksForOp.map(s => {
                                 const assigneeName = s.assignee?.username || s.assignee?.email.split('@')[0];
+                                const sParts = s.title.split(' // ');
+                                const cleanSubtaskTitle = sParts.length > 1 ? sParts[1] : s.title;
                                 return (
                                   <div key={s.id} className="subtask-row flex justify-between items-start text-[10px] font-mono border-b border-white/[0.03] pb-2 pt-1">
                                     <div className="flex flex-col text-left">
-                                      <span className="font-bold text-white text-[11px] uppercase tracking-wider">{s.title || 'UNNAMED OBJECTIVE'}</span>
+                                      <span className="font-bold text-white text-[11px] uppercase tracking-wider">{cleanSubtaskTitle || 'UNNAMED OBJECTIVE'}</span>
                                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[8px] text-gray-500 mt-1 uppercase">
                                         <span>OPERATIVE: {assigneeName}</span>
                                         <span>•</span>
