@@ -248,10 +248,10 @@ export default function Social() {
   };
 
   // Process relationships to get active friends list
-  const pendingRequests = friendships.filter(f => f.status === 'pending' && f.receiver_id === user.id);
-  const sentRequests = friendships.filter(f => f.status === 'pending' && f.requester_id === user.id);
-  const friends = friendships.filter(f => f.status === 'accepted').map(f => {
-    const other = f.requester_id === user.id ? f.receiver : f.requester;
+  const pendingRequests = (friendships || []).filter(f => f.status === 'pending' && f.receiver_id === user?.id);
+  const sentRequests = (friendships || []).filter(f => f.status === 'pending' && f.requester_id === user?.id);
+  const friends = (friendships || []).filter(f => f.status === 'accepted' && (f.requester || f.receiver)).map(f => {
+    const other = f.requester_id === user?.id ? f.receiver : f.requester;
     return {
       friendshipId: f.id,
       profile: other,
@@ -642,12 +642,12 @@ export default function Social() {
                     <div className="legion-members-list mt-2">
                       <span className="sec-label mb-2 block text-left">Garrison</span>
                       <div className="flex flex-col gap-2">
-                        {legionMembers.map(member => {
+                        {(legionMembers || []).map(member => {
                           const isCreator = member.role === 'creator';
                           return (
                             <div key={member.id} className="member-item flex justify-between items-center text-left">
                               <div className="flex flex-col font-mono text-[10px]">
-                                <span className="font-bold">{member.profile?.username || member.profile?.email.split('@')[0]}</span>
+                                <span className="font-bold">{member.profile?.username || member.profile?.email?.split('@')[0] || 'Unknown'}</span>
                                 <span className="text-[7px] text-gold-core/80 uppercase">{member.role}</span>
                               </div>
                               <div className="flex items-center gap-2">
@@ -655,7 +655,7 @@ export default function Social() {
                                 {!isCreator && activeLegion.owner_id === user.id && (
                                   <button
                                     onClick={async () => {
-                                      if (confirm(`Exile ${member.profile?.username || member.profile?.email.split('@')[0]} from the Garrison?`)) {
+                                      if (confirm(`Exile ${member.profile?.username || member.profile?.email?.split('@')[0] || 'Unknown'} from the Garrison?`)) {
                                         try {
                                           await kickLegionMember(activeLegion.id, member.user_id);
                                         } catch (err) {
@@ -727,9 +727,9 @@ export default function Social() {
                           >
                             <option value="">Select Friend...</option>
                             {friends
-                              .filter(f => !legionMembers.some(m => m.user_id === f.profile.id))
+                              .filter(f => !(legionMembers || []).some(m => m.user_id === f.profile?.id))
                               .map(f => (
-                                <option key={f.profile.id} value={f.profile.id}>{f.profile.username || f.profile.email.split('@')[0]}</option>
+                                <option key={f.profile?.id} value={f.profile?.id}>{f.profile?.username || f.profile?.email?.split('@')[0] || 'Unknown'}</option>
                               ))}
                           </select>
                           <button type="submit" className="invite-btn p-2 border border-gold-core/40 text-gold-core rounded flex items-center justify-center hover:bg-gold-core/10">
@@ -748,15 +748,15 @@ export default function Social() {
                       </span>
                       
                       <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
-                        {legionOperations.filter(op => op.status === 'success').length === 0 ? (
+                        {(legionOperations || []).filter(op => op.status === 'success').length === 0 ? (
                           <div className="flex flex-col items-center justify-center py-6 gap-2 border border-dashed border-white/5 rounded">
                             <span className="text-[9px] font-mono text-gray-600 tracking-wider uppercase text-center block w-full">No operations logged</span>
                           </div>
                         ) : (
-                          legionOperations
+                          (legionOperations || [])
                             .filter(op => op.status === 'success')
                             .map((op, i) => {
-                              const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
+                              const subtasksForOp = (legionSubtasks || []).filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
                               const firstSub = subtasksForOp[0];
                               const parts = (firstSub?.title || '').split(' // ');
                               const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
@@ -909,7 +909,7 @@ export default function Social() {
                                 >
                                   <option value="">Select Operative...</option>
                                   {legionMembers.map(m => (
-                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
+                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}</option>
                                   ))}
                                 </select>
                               </div>
@@ -996,9 +996,9 @@ export default function Social() {
 
                     {/* SECTION B: RUN OPERATIONS PANEL */}
                     <div className="operations-run-list mt-4 flex flex-col gap-4 text-left">
-                      {legionOperations.filter(op => op.status === 'active' || op.status === 'acceptance_open').map(op => {
-                        const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
-                        const userSubtask = subtasksForOp.find(s => s.assigned_to === user.id);
+                      {(legionOperations || []).filter(op => op.status === 'active' || op.status === 'acceptance_open').map(op => {
+                        const subtasksForOp = (legionSubtasks || []).filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
+                        const userSubtask = subtasksForOp.find(s => s.assigned_to === user?.id);
                         const isLocked = op.status !== 'acceptance_open';
 
                         const firstSub = subtasksForOp[0];
@@ -1066,7 +1066,7 @@ export default function Social() {
                                               >
                                                 {legionMembers.map(m => (
                                                   <option key={m.user_id} value={m.user_id}>
-                                                    {m.profile?.username || m.profile?.email.split('@')[0]}
+                                                    {m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}
                                                   </option>
                                                 ))}
                                               </select>
