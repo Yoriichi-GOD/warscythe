@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 
 const parseUserState = (profile) => {
@@ -621,7 +621,7 @@ export default function Social() {
                         ) : (
                           <div className="relative z-10 flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded border border-white/5 backdrop-blur-sm">
                             <span className="font-display text-white text-md tracking-widest uppercase">{activeLegion.name}</span>
-                            {activeLegion.owner_id === user.id && (
+                            {activeLegion.owner_id === user?.id && (
                               <button 
                                 onClick={() => { setRenameInput(activeLegion.name); setIsRenaming(true); }}
                                 className="text-white/40 hover:text-gold-core p-1 transition-colors"
@@ -652,7 +652,7 @@ export default function Social() {
                               </div>
                               <div className="flex items-center gap-2">
                                 {isCreator && <span className="text-[7px] font-mono border border-gold-core/40 text-gold-core px-1 py-0.5 rounded">LEADER</span>}
-                                {!isCreator && activeLegion.owner_id === user.id && (
+                                {!isCreator && activeLegion.owner_id === user?.id && (
                                   <button
                                     onClick={async () => {
                                       if (confirm(`Exile ${member.profile?.username || member.profile?.email?.split('@')[0] || 'Unknown'} from the Garrison?`)) {
@@ -677,7 +677,7 @@ export default function Social() {
 
                       {/* LEAVE / DISBAND ACTION */}
                       <div className="mt-4 border-t border-white/5 pt-3">
-                        {activeLegion.owner_id === user.id ? (
+                        {activeLegion.owner_id === user?.id ? (
                           <button
                             type="button"
                             onClick={async () => {
@@ -716,7 +716,7 @@ export default function Social() {
                     <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-4" />
 
                     {/* INVITE COALITION MEMBER */}
-                    {activeLegion.owner_id === user.id && (
+                    {activeLegion.owner_id === user?.id && (
                       <form onSubmit={handleInviteMember} className="invite-member-form">
                         <span className="sec-label mb-2 block text-left">Reinforce garrison</span>
                         <div className="flex gap-2">
@@ -1011,7 +1011,7 @@ export default function Social() {
                               <div className="flex flex-col">
                                 <span className="text-[7px] font-mono text-gold-core uppercase tracking-wider">Active Legion Run</span>
                                 <h4 className="font-serif text-[13px] text-white uppercase">{parentTitle}</h4>
-                                <span className="text-[8px] font-mono text-gray-500 uppercase mt-0.5">Status: {op.status.toUpperCase()}</span>
+                                <span className="text-[8px] font-mono text-gray-500 uppercase mt-0.5">Status: {(op.status || '').toUpperCase()}</span>
                               </div>
                               <span className="text-[8px] font-mono text-gold-core">Deadline: {new Date(op.deadline).toLocaleDateString()}</span>
                             </div>
@@ -1046,9 +1046,9 @@ export default function Social() {
                                             s.acceptance_status === 'accepted' ? 'text-green-500' : 
                                             s.acceptance_status === 'declined' ? 'text-red-500' : 'text-amber-500'
                                           }`}>
-                                            {s.acceptance_status.toUpperCase()}
+                                            {(s.acceptance_status || '').toUpperCase()}
                                           </span>
-                                          {activeLegion.owner_id === user.id && (
+                                          {activeLegion.owner_id === user?.id && (
                                             <div className="flex items-center gap-1.5 ml-2">
                                               <select
                                                 value={s.assigned_to}
@@ -1095,12 +1095,12 @@ export default function Social() {
                                           s.completion_status === 'completed' || s.completion_status === 'covered' ? 'text-gold-core' : 
                                           s.completion_status === 'restrained' ? 'text-red-500' : 'text-gray-500'
                                         }`}>
-                                          {s.completion_status.toUpperCase()}
+                                          {(s.completion_status || '').toUpperCase()}
                                         </span>
                                       )}
 
                                       {/* Action options */}
-                                      {op.status === 'active' && s.assigned_to === user.id && s.completion_status === 'incomplete' && (
+                                      {op.status === 'active' && s.assigned_to === user?.id && s.completion_status === 'incomplete' && (
                                         <button 
                                           onClick={() => completeLegionSubtask(s.id, 'completed')}
                                           className="text-[8px] border border-gold-core/40 text-gold-core px-1.5 py-0.5 rounded"
@@ -1109,7 +1109,7 @@ export default function Social() {
                                         </button>
                                       )}
 
-                                      {op.status === 'active' && s.assigned_to !== user.id && s.completion_status === 'incomplete' && (
+                                      {op.status === 'active' && s.assigned_to !== user?.id && s.completion_status === 'incomplete' && (
                                         <button 
                                           onClick={() => completeLegionSubtask(s.id, 'covered')}
                                           className="text-[8px] border border-white/20 text-white/60 px-1.5 py-0.5 rounded hover:border-gold-core hover:text-gold-core"
@@ -1118,7 +1118,7 @@ export default function Social() {
                                         </button>
                                       )}
 
-                                      {op.status === 'active' && activeLegion.owner_id === user.id && s.completion_status === 'incomplete' && (
+                                      {op.status === 'active' && activeLegion.owner_id === user?.id && s.completion_status === 'incomplete' && (
                                         <button 
                                           onClick={() => restrainLegionMember(s.id)}
                                           className="text-[8px] border border-red-500/20 text-red-500 px-1.5 py-0.5 rounded hover:border-red-500 hover:bg-red-500/5"
@@ -1151,7 +1151,7 @@ export default function Social() {
                             )}
 
                             {/* Lock Operation trigger for creator */}
-                            {op.status === 'acceptance_open' && activeLegion.owner_id === user.id && (
+                            {op.status === 'acceptance_open' && activeLegion.owner_id === user?.id && (
                               <div className="flex gap-3 mt-4">
                                 <button 
                                   type="button"
