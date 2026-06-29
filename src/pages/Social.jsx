@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 
 const parseUserState = (profile) => {
@@ -88,6 +88,15 @@ export default function Social() {
   defaultOpDate.setDate(defaultOpDate.getDate() + 7);
   const [opDeadline, setOpDeadline] = useState(() => defaultOpDate.toISOString().slice(0, 10));
   const [subtaskInputs, setSubtaskInputs] = useState([]);
+
+  const [effortOpen, setEffortOpen] = useState(false);
+  const [draftSubTitle, setDraftSubTitle] = useState('');
+  const [draftSubAssignee, setDraftSubAssignee] = useState('');
+  const [draftSubPriority, setDraftSubPriority] = useState('medium');
+  
+  const defaultSubDate = new Date();
+  defaultSubDate.setDate(defaultSubDate.getDate() + 3);
+  const [draftSubDeadline, setDraftSubDeadline] = useState(() => defaultSubDate.toISOString().slice(0, 10));
   
   // Failure note state
   const [failureNoteSubtaskId, setFailureNoteSubtaskId] = useState(null);
@@ -142,17 +151,30 @@ export default function Social() {
     }
   };
 
-  const handleAddSubtaskInput = () => {
-    const defaultDate = new Date();
-    defaultDate.setDate(defaultDate.getDate() + 3);
-    const dateString = defaultDate.toISOString().slice(0, 10);
-    setSubtaskInputs([...subtaskInputs, { 
-      assignedTo: '', 
-      xpValue: 100, 
-      title: '', 
-      priority: 'medium', 
-      deadline: dateString 
+  const handleAddSubtask = () => {
+    if (!draftSubTitle.trim()) {
+      alert('Sub-task objective identifier is required.');
+      return;
+    }
+    if (!draftSubAssignee) {
+      alert('Sub-task assignee is required.');
+      return;
+    }
+    if (!draftSubDeadline) {
+      alert('Sub-task deadline is required.');
+      return;
+    }
+    setSubtaskInputs([...subtaskInputs, {
+      title: draftSubTitle.trim(),
+      assignedTo: draftSubAssignee,
+      priority: draftSubPriority,
+      deadline: draftSubDeadline,
+      xpValue: 100
     }]);
+    
+    setDraftSubTitle('');
+    setDraftSubAssignee('');
+    setDraftSubPriority('medium');
   };
 
   const handleRemoveSubtaskInput = (idx) => {
@@ -240,6 +262,13 @@ export default function Social() {
   // Dynamic automated XP calculations
   const coreXp = POINTS_BASE * (EFFORT_MULT[opEffort] || 1);
   const automatedXp = subtaskInputs.length > 0 ? Math.round(coreXp / subtaskInputs.length) : coreXp;
+
+  const effortOptions = [
+    { value: 'Low', label: 'RECON (LOW)' },
+    { value: 'Medium', label: 'SKIRMISH (MED)' },
+    { value: 'High', label: 'ASSAULT (HIGH)' },
+    { value: 'Boss', label: 'BOSS RAID' }
+  ];
 
   return (
     <div className="social-page-container">
@@ -720,136 +749,179 @@ export default function Social() {
 
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
                     {activeLegion.owner_id === user.id && legionOperations.filter(o => o.status === 'active' || o.status === 'acceptance_open').length === 0 && (
-                      <form onSubmit={handleStartOperation} className="start-op-form mt-4 elite-panel p-4 flex flex-col gap-4 text-left">
-                        <h4 className="text-[10px] font-display text-gold-core tracking-widest uppercase">Initiate Tactical Run</h4>
-                        <div className="flex flex-col gap-2">
-                          <label className="text-[8px] font-mono text-gray-500 uppercase">Parent Operation Title</label>
+                      <form onSubmit={handleStartOperation} className="tactical-form mt-4 glass-panel p-4 flex flex-col gap-4 text-left relative z-50">
+                        {effortOpen && (
+                          <div 
+                            className="fixed inset-0 z-40 bg-transparent" 
+                            onClick={() => { setEffortOpen(false); }} 
+                          />
+                        )}
+
+                        <div className="modal-title-box mb-2">
+                          <Shield size={16} className="text-gold-core" />
+                          <h2 className="text-[11px] font-display text-gold-core tracking-widest uppercase">Initiate Tactical Run</h2>
+                        </div>
+
+                        <div className="form-group full">
+                          <label><Zap size={10} /> OBJECTIVE IDENTIFIER (PARENT OPERATION)</label>
                           <input 
                             type="text" 
-                            placeholder="Decompose objectives..." 
+                            placeholder="ENTER OPERATION PROTOCOL..." 
                             value={opTaskTitle}
                             onChange={e => setOpTaskTitle(e.target.value)}
-                            className="op-title-input font-mono bg-black/40 text-white border border-white/10 p-2 rounded text-[11px]"
                             required
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex flex-col gap-2">
-                            <label className="text-[8px] font-mono text-gray-500 uppercase">Difficulty / Threat</label>
-                            <select 
-                              value={opEffort}
-                              onChange={e => setOpEffort(e.target.value)}
-                              className="op-select font-mono bg-black/40 text-white border border-white/10 p-2 rounded text-[10px]"
-                            >
-                              <option value="Low">Low Effort</option>
-                              <option value="Medium">Medium Effort</option>
-                              <option value="High">High Effort</option>
-                              <option value="Boss">Boss Raid</option>
-                            </select>
+                        <div className="form-grid">
+                          <div className="form-group" style={{ position: 'relative', zIndex: 50 }}>
+                            <label><Activity size={10} /> RESISTANCE LEVEL</label>
+                            <div className="custom-select-container">
+                              <button 
+                                type="button" 
+                                className="custom-select-trigger" 
+                                onClick={() => { setEffortOpen(!effortOpen); }}
+                              >
+                                <span>{effortOptions.find(o => o.value === opEffort)?.label || opEffort}</span>
+                                <ChevronDown size={12} />
+                              </button>
+                              {effortOpen && (
+                                <div className="custom-select-options">
+                                  {effortOptions.map(opt => (
+                                    <div 
+                                      key={opt.value} 
+                                      className="custom-select-option" 
+                                      onClick={() => { setOpEffort(opt.value); setEffortOpen(false); }}
+                                    >
+                                      {opt.label}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex flex-col gap-2">
-                            <label className="text-[8px] font-mono text-gray-500 uppercase">Parent Operation Deadline</label>
-                            <input 
-                              type="date" 
-                              value={opDeadline}
-                              onChange={e => setOpDeadline(e.target.value)}
-                              className="op-date-input font-mono bg-black/40 text-white border border-white/10 p-2 rounded text-[10px]"
-                              required
-                            />
+
+                          <div className="form-group">
+                            <label><Calendar size={10} /> TARGET DEADLINE</label>
+                            <div className="date-input-wrapper">
+                              <input 
+                                type="date" 
+                                value={opDeadline}
+                                onChange={e => setOpDeadline(e.target.value)}
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
 
-                        {/* SUBTASK DECOMPOSITION GRID */}
-                        <div className="subtask-builder mt-2">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-[9px] font-mono text-gray-400 uppercase">Decomposed Assignments</span>
-                            <button 
-                              type="button" 
-                              onClick={handleAddSubtaskInput} 
-                              className="text-[8px] font-mono border border-gold-core/40 text-gold-core px-2 py-1 rounded"
-                            >
-                              + Sub-Task
-                            </button>
-                          </div>
+                        {/* SUBTASK DECOMPOSITION */}
+                        <div className="form-group full mt-2">
+                          <label><Plus size={10} /> SUB-TASKS DECOMPOSITION</label>
+                          
+                          {/* Assignment input panel */}
+                          <div className="border border-white/5 bg-black/40 p-4 rounded flex flex-col gap-3 mt-2">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[8px] font-mono text-gray-500 uppercase">Sub-Task Objective Name</label>
+                              <input 
+                                type="text" 
+                                placeholder="ADD STEP PROTOCOL..." 
+                                value={draftSubTitle}
+                                onChange={e => setDraftSubTitle(e.target.value)}
+                                className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px]"
+                                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubtask(); } }}
+                              />
+                            </div>
 
-                          <div className="flex flex-col gap-2">
-                            {subtaskInputs.map((s, idx) => (
-                              <div key={idx} className="subtask-input-card border border-white/10 bg-black/20 p-3 rounded flex flex-col gap-2 relative mb-2">
-                                <button 
-                                  type="button" 
-                                  onClick={() => handleRemoveSubtaskInput(idx)} 
-                                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500 transition-colors"
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="flex flex-col gap-1">
+                                <label className="text-[8px] font-mono text-gray-500 uppercase">Assignee</label>
+                                <select 
+                                  value={draftSubAssignee} 
+                                  onChange={e => setDraftSubAssignee(e.target.value)}
+                                  className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px] h-[34px]"
                                 >
-                                  <X size={12} />
-                                </button>
-                                
-                                <div className="flex flex-col gap-1">
-                                  <label className="text-[8px] font-mono text-gray-500 uppercase">Sub-Task Objective Name</label>
+                                  <option value="">Select Operative...</option>
+                                  {legionMembers.map(m => (
+                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="text-[8px] font-mono text-gray-500 uppercase">Priority</label>
+                                <select 
+                                  value={draftSubPriority} 
+                                  onChange={e => setDraftSubPriority(e.target.value)}
+                                  className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px] h-[34px]"
+                                >
+                                  <option value="low">Low</option>
+                                  <option value="medium">Medium</option>
+                                  <option value="high">High</option>
+                                  <option value="boss">Boss</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="flex flex-col gap-1">
+                                <label className="text-[8px] font-mono text-gray-500 uppercase flex items-center gap-1">
+                                  <Calendar size={10} className="text-gold-core" /> Deadline
+                                </label>
+                                <div className="date-input-wrapper">
                                   <input 
-                                    type="text"
-                                    placeholder="Enter objective..."
-                                    value={s.title || ''}
-                                    onChange={e => handleSubtaskChange(idx, 'title', e.target.value)}
-                                    className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
-                                    required
+                                    type="date" 
+                                    value={draftSubDeadline} 
+                                    onChange={e => setDraftSubDeadline(e.target.value)}
                                   />
                                 </div>
+                              </div>
+                              <div className="flex items-end">
+                                <button 
+                                  type="button" 
+                                  onClick={handleAddSubtask} 
+                                  className="w-full h-[34px] bg-gold-core hover:bg-gold-bright text-black font-mono text-[9px] font-bold tracking-widest uppercase rounded flex items-center justify-center gap-1 transition-all animate-pulse"
+                                >
+                                  <Plus size={12} /> Add Assignment
+                                </button>
+                              </div>
+                            </div>
+                          </div>
 
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="flex flex-col gap-1">
-                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Assignee</label>
-                                    <select 
-                                      value={s.assignedTo} 
-                                      onChange={e => handleSubtaskChange(idx, 'assignedTo', e.target.value)}
-                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
-                                      required
-                                    >
-                                      <option value="">Select Operative...</option>
-                                      {legionMembers.map(m => (
-                                        <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email.split('@')[0]}</option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                  <div className="flex flex-col gap-1">
-                                    <label className="text-[8px] font-mono text-gray-500 uppercase">XP Reward (Automated)</label>
-                                    <div className="font-mono bg-black/20 text-gold-core border border-white/5 p-1.5 rounded text-[9px] h-[28px] flex items-center justify-center font-bold">
-                                      {automatedXp} XP
+                          {/* List of current assignments */}
+                          <div className="subtask-items-list mt-3 flex flex-col gap-2">
+                            {subtaskInputs.map((st, idx) => {
+                              const assigneeMember = legionMembers.find(m => m.user_id === st.assignedTo);
+                              const assigneeName = assigneeMember?.profile?.username || assigneeMember?.profile?.email.split('@')[0] || 'Unknown';
+                              return (
+                                <div key={idx} className="flex justify-between items-center bg-black/20 border border-white/5 px-3 py-2 rounded text-[10px] font-mono">
+                                  <div className="flex flex-col text-left">
+                                    <span className="font-bold text-white text-[10px] uppercase tracking-wide">{st.title}</span>
+                                    <div className="flex items-center gap-2 text-[7px] text-gray-500 mt-0.5 uppercase">
+                                      <span>Operative: {assigneeName}</span>
+                                      <span>•</span>
+                                      <span className={`font-bold ${
+                                        st.priority === 'boss' || st.priority === 'high' ? 'text-red-500' :
+                                        st.priority === 'medium' ? 'text-amber-500' : 'text-green-500'
+                                      }`}>Priority: {st.priority}</span>
+                                      <span>•</span>
+                                      <span>Deadline: {new Date(st.deadline).toLocaleDateString()}</span>
+                                      <span>•</span>
+                                      <span className="text-gold-core font-bold">{automatedXp} XP</span>
                                     </div>
                                   </div>
+                                  <button 
+                                    type="button" 
+                                    onClick={() => handleRemoveSubtaskInput(idx)}
+                                    className="text-gray-500 hover:text-red-500 p-1"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="flex flex-col gap-1">
-                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Priority</label>
-                                    <select 
-                                      value={s.priority || 'medium'} 
-                                      onChange={e => handleSubtaskChange(idx, 'priority', e.target.value)}
-                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
-                                    >
-                                      <option value="low">Low</option>
-                                      <option value="medium">Medium</option>
-                                      <option value="high">High</option>
-                                      <option value="boss">Boss</option>
-                                    </select>
-                                  </div>
-                                  <div className="flex flex-col gap-1">
-                                    <label className="text-[8px] font-mono text-gray-500 uppercase">Deadline</label>
-                                    <input 
-                                      type="date"
-                                      value={s.deadline || ''}
-                                      onChange={e => handleSubtaskChange(idx, 'deadline', e.target.value)}
-                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
 
-                        <button type="submit" className="confirm-btn mt-2">
+                        <button type="submit" className="confirm-btn mt-2 w-full py-2.5 rounded font-mono text-[10px] font-bold tracking-[0.2em] uppercase">
                           <span>INITIATE TACTICAL RUN</span>
                         </button>
                       </form>
