@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info } from 'lucide-react';
-import { REGIONS } from '../store/constants';
+import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 
 const parseUserState = (profile) => {
   const defaults = { level: 1, streakCount: 0, currentTitle: 'Recruit', xp: 0 };
@@ -83,7 +83,10 @@ export default function Social() {
   // Collaborative Operation Creation
   const [opTaskTitle, setOpTaskTitle] = useState('');
   const [opEffort, setOpEffort] = useState('Medium');
-  const [opDeadlineDays, setOpDeadlineDays] = useState(3);
+  
+  const defaultOpDate = new Date();
+  defaultOpDate.setDate(defaultOpDate.getDate() + 7);
+  const [opDeadline, setOpDeadline] = useState(() => defaultOpDate.toISOString().slice(0, 10));
   const [subtaskInputs, setSubtaskInputs] = useState([]);
   
   // Failure note state
@@ -165,6 +168,10 @@ export default function Social() {
   const handleStartOperation = async (e) => {
     e.preventDefault();
     if (!opTaskTitle.trim()) return;
+    if (!opDeadline) {
+      alert('Parent operation deadline is required.');
+      return;
+    }
     
     // Auto-create subtasks list
     const subtasks = subtaskInputs.filter(s => s.assignedTo !== '');
@@ -185,13 +192,17 @@ export default function Social() {
       }
     }
 
-    const deadline = new Date();
-    deadline.setDate(deadline.getDate() + Number(opDeadlineDays));
+    const coreXp = POINTS_BASE * (EFFORT_MULT[opEffort] || 1);
+    const numSubtasks = subtasks.length;
+    const automatedXp = numSubtasks > 0 ? Math.round(coreXp / numSubtasks) : coreXp;
+
+    const deadline = new Date(opDeadline);
 
     try {
       const parentId = generateUUID(); // generated parent key
       const mappedSubtasks = subtasks.map(s => ({
         ...s,
+        xpValue: automatedXp,
         deadline: new Date(s.deadline).toISOString()
       }));
       await initiateLegionOperation(activeLegion.id, parentId, deadline.toISOString(), mappedSubtasks);
@@ -225,6 +236,10 @@ export default function Social() {
       stats: parseUserState(other)
     };
   });
+
+  // Dynamic automated XP calculations
+  const coreXp = POINTS_BASE * (EFFORT_MULT[opEffort] || 1);
+  const automatedXp = subtaskInputs.length > 0 ? Math.round(coreXp / subtaskInputs.length) : coreXp;
 
   return (
     <div className="social-page-container">
@@ -734,14 +749,13 @@ export default function Social() {
                             </select>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <label className="text-[8px] font-mono text-gray-500 uppercase">Operation Duration (Days)</label>
+                            <label className="text-[8px] font-mono text-gray-500 uppercase">Parent Operation Deadline</label>
                             <input 
-                              type="number" 
-                              min="1" 
-                              max="30"
-                              value={opDeadlineDays}
-                              onChange={e => setOpDeadlineDays(Number(e.target.value))}
-                              className="op-number-input font-mono bg-black/40 text-white border border-white/10 p-2 rounded text-[10px]"
+                              type="date" 
+                              value={opDeadline}
+                              onChange={e => setOpDeadline(e.target.value)}
+                              className="op-date-input font-mono bg-black/40 text-white border border-white/10 p-2 rounded text-[10px]"
+                              required
                             />
                           </div>
                         </div>
@@ -798,15 +812,10 @@ export default function Social() {
                                     </select>
                                   </div>
                                   <div className="flex flex-col gap-1">
-                                    <label className="text-[8px] font-mono text-gray-500 uppercase">XP Reward</label>
-                                    <input 
-                                      type="number" 
-                                      placeholder="XP Value" 
-                                      value={s.xpValue}
-                                      onChange={e => handleSubtaskChange(idx, 'xpValue', Number(e.target.value))}
-                                      className="font-mono bg-black/40 text-white border border-white/10 p-1.5 rounded text-[9px]"
-                                      required
-                                    />
+                                    <label className="text-[8px] font-mono text-gray-500 uppercase">XP Reward (Automated)</label>
+                                    <div className="font-mono bg-black/20 text-gold-core border border-white/5 p-1.5 rounded text-[9px] h-[28px] flex items-center justify-center font-bold">
+                                      {automatedXp} XP
+                                    </div>
                                   </div>
                                 </div>
 
