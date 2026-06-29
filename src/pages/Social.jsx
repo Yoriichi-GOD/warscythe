@@ -23,6 +23,111 @@ const parseUserState = (profile) => {
   };
 };
 
+function CustomDatePicker({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dateObj = value ? new Date(value + 'T00:00:00') : new Date();
+  const [viewMonth, setViewMonth] = useState(dateObj.getMonth());
+  const [viewYear, setViewYear] = useState(dateObj.getFullYear());
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayIndex = new Date(viewYear, viewMonth, 1).getDay();
+  const startOffset = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+  const handlePrevMonth = (e) => {
+    e.stopPropagation();
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear(viewYear - 1);
+    } else {
+      setViewMonth(viewMonth - 1);
+    }
+  };
+
+  const handleNextMonth = (e) => {
+    e.stopPropagation();
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear(viewYear + 1);
+    } else {
+      setViewMonth(viewMonth + 1);
+    }
+  };
+
+  const handleSelectDay = (day) => {
+    const formattedMonth = String(viewMonth + 1).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    onChange(`${viewYear}-${formattedMonth}-${formattedDay}`);
+    setIsOpen(false);
+  };
+
+  const daysArray = [];
+  for (let i = 0; i < startOffset; i++) {
+    daysArray.push(null);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    daysArray.push(d);
+  }
+
+  const displayDate = value ? new Date(value + 'T00:00:00').toLocaleDateString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric'
+  }) : 'Select Date...';
+
+  return (
+    <div className="custom-date-picker-container" style={{ position: 'relative', width: '100%' }}>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] bg-transparent" onClick={() => setIsOpen(false)} />
+      )}
+      <button
+        type="button"
+        className="custom-select-trigger"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ position: 'relative', zIndex: 101 }}
+      >
+        <span>{displayDate}</span>
+        <Calendar size={12} className="text-gold-core" />
+      </button>
+
+      {isOpen && (
+        <div className="custom-calendar-dropdown" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '4px', zIndex: 102 }}>
+          <div className="calendar-header">
+            <button type="button" onClick={handlePrevMonth} className="cal-nav-btn">&lt;</button>
+            <span className="calendar-month-year">{months[viewMonth]} {viewYear}</span>
+            <button type="button" onClick={handleNextMonth} className="cal-nav-btn">&gt;</button>
+          </div>
+          <div className="calendar-weekdays">
+            {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(w => (
+              <span key={w} className="calendar-weekday">{w}</span>
+            ))}
+          </div>
+          <div className="calendar-days">
+            {daysArray.map((day, idx) => {
+              if (day === null) {
+                return <span key={`empty-${idx}`} className="calendar-day empty" />;
+              }
+              const isSelected = value === `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              return (
+                <button
+                  key={`day-${day}`}
+                  type="button"
+                  onClick={() => handleSelectDay(day)}
+                  className={`calendar-day ${isSelected ? 'selected' : ''}`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const generateUUID = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -90,6 +195,8 @@ export default function Social() {
   const [subtaskInputs, setSubtaskInputs] = useState([]);
 
   const [effortOpen, setEffortOpen] = useState(false);
+  const [assigneeDropdownOpen, setAssigneeDropdownOpen] = useState(false);
+  const [priorityDropdownOpen, setPriorityDropdownOpen] = useState(false);
   const [draftSubTitle, setDraftSubTitle] = useState('');
   const [draftSubAssignee, setDraftSubAssignee] = useState('');
   const [draftSubPriority, setDraftSubPriority] = useState('medium');
@@ -817,10 +924,14 @@ export default function Social() {
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
                     {activeLegion.owner_id === user?.id && (
                       <form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded">
-                        {effortOpen && (
+                        {(effortOpen || assigneeDropdownOpen || priorityDropdownOpen) && (
                           <div 
                             className="fixed inset-0 z-40 bg-transparent" 
-                            onClick={() => { setEffortOpen(false); }} 
+                            onClick={() => { 
+                              setEffortOpen(false); 
+                              setAssigneeDropdownOpen(false); 
+                              setPriorityDropdownOpen(false); 
+                            }} 
                           />
                         )}
 
@@ -874,14 +985,10 @@ export default function Social() {
 
                             <div className="form-group">
                               <label><Calendar size={12} className="text-gold-core" /> Target Deadline</label>
-                              <div className="date-input-wrapper">
-                                <input 
-                                  type="date" 
-                                  value={opDeadline}
-                                  onChange={e => setOpDeadline(e.target.value)}
-                                  required
-                                />
-                              </div>
+                              <CustomDatePicker 
+                                value={opDeadline} 
+                                onChange={setOpDeadline} 
+                              />
                             </div>
                           </div>
 
@@ -901,43 +1008,79 @@ export default function Social() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                              <div className="form-group">
+                              <div className="form-group" style={{ position: 'relative', zIndex: 90 }}>
                                 <label>Assignee</label>
-                                <select 
-                                  value={draftSubAssignee} 
-                                  onChange={e => setDraftSubAssignee(e.target.value)}
-                                >
-                                  <option value="">Select Operative...</option>
-                                  {(legionMembers || []).map(m => (
-                                    <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}</option>
-                                  ))}
-                                </select>
+                                <div className="custom-select-container">
+                                  <button 
+                                    type="button" 
+                                    className="custom-select-trigger" 
+                                    onClick={() => { setAssigneeDropdownOpen(!assigneeDropdownOpen); setPriorityDropdownOpen(false); }}
+                                  >
+                                    <span>
+                                      {(() => {
+                                        const selected = (legionMembers || []).find(m => m.user_id === draftSubAssignee);
+                                        return selected ? (selected.profile?.username || selected.profile?.email?.split('@')[0] || 'Unknown') : 'Select Operative...';
+                                      })()}
+                                    </span>
+                                    <ChevronDown size={12} className="text-gold-core" />
+                                  </button>
+                                  {assigneeDropdownOpen && (
+                                    <div className="custom-select-options">
+                                      <div 
+                                        className="custom-select-option" 
+                                        onClick={() => { setDraftSubAssignee(''); setAssigneeDropdownOpen(false); }}
+                                      >
+                                        Select Operative...
+                                      </div>
+                                      {(legionMembers || []).map(m => (
+                                        <div 
+                                          key={m.user_id} 
+                                          className="custom-select-option" 
+                                          onClick={() => { setDraftSubAssignee(m.user_id); setAssigneeDropdownOpen(false); }}
+                                        >
+                                          {m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
 
-                              <div className="form-group">
+                              <div className="form-group" style={{ position: 'relative', zIndex: 90 }}>
                                 <label>Priority</label>
-                                <select 
-                                  value={draftSubPriority} 
-                                  onChange={e => setDraftSubPriority(e.target.value)}
-                                >
-                                  <option value="low">Low</option>
-                                  <option value="medium">Medium</option>
-                                  <option value="high">High</option>
-                                  <option value="boss">Boss</option>
-                                </select>
+                                <div className="custom-select-container">
+                                  <button 
+                                    type="button" 
+                                    className="custom-select-trigger" 
+                                    onClick={() => { setPriorityDropdownOpen(!priorityDropdownOpen); setAssigneeDropdownOpen(false); }}
+                                  >
+                                    <span className="capitalize">{draftSubPriority}</span>
+                                    <ChevronDown size={12} className="text-gold-core" />
+                                  </button>
+                                  {priorityDropdownOpen && (
+                                    <div className="custom-select-options">
+                                      {['low', 'medium', 'high', 'boss'].map(p => (
+                                        <div 
+                                          key={p} 
+                                          className="custom-select-option capitalize" 
+                                          onClick={() => { setDraftSubPriority(p); setPriorityDropdownOpen(false); }}
+                                        >
+                                          {p}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                               <div className="form-group">
                                 <label>Deadline</label>
-                                <div className="date-input-wrapper">
-                                  <input 
-                                    type="date" 
-                                    value={draftSubDeadline} 
-                                    onChange={e => setDraftSubDeadline(e.target.value)}
-                                  />
-                                </div>
+                                <CustomDatePicker 
+                                  value={draftSubDeadline} 
+                                  onChange={setDraftSubDeadline} 
+                                />
                               </div>
                               <div className="flex items-end">
                                 <button 
@@ -1735,6 +1878,96 @@ export default function Social() {
           background: #c5a059;
           color: #000;
           box-shadow: 0 0 25px rgba(197, 160, 89, 0.4);
+        }
+
+        /* ═══════════════ CUSTOM CALENDAR DROPDOWN STYLE ═══════════════ */
+        .custom-calendar-dropdown {
+          background: #000000 !important;
+          border: 1px solid rgba(197, 160, 89, 0.3) !important;
+          border-radius: 4px;
+          padding: 10px;
+          width: 230px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+          font-family: 'Times New Roman', Georgia, Times, serif;
+        }
+        
+        .calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding-bottom: 6px;
+        }
+
+        .calendar-month-year {
+          color: #c5a059;
+          font-size: 11px;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .cal-nav-btn {
+          background: transparent;
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          font-size: 12px;
+          padding: 2px 6px;
+          border-radius: 2px;
+        }
+
+        .cal-nav-btn:hover {
+          color: #c5a059;
+          background: rgba(255,255,255,0.05);
+        }
+
+        .calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          text-align: center;
+          margin-bottom: 4px;
+        }
+
+        .calendar-weekday {
+          color: #8c6a4a;
+          font-size: 8px;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+
+        .calendar-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+        }
+
+        .calendar-day {
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-size: 10px;
+          padding: 4px 0;
+          text-align: center;
+          cursor: pointer;
+          border-radius: 2px;
+          font-family: var(--font-mono);
+        }
+
+        .calendar-day:hover:not(.empty) {
+          background: rgba(197, 160, 89, 0.15);
+          color: #c5a059;
+        }
+
+        .calendar-day.selected {
+          background: #c5a059 !important;
+          color: #000000 !important;
+          font-weight: bold;
+        }
+
+        .calendar-day.empty {
+          cursor: default;
         }
       `}</style>
     </div>

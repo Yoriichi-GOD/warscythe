@@ -3,6 +3,111 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
 
+function CustomDatePicker({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dateObj = value ? new Date(value + 'T00:00:00') : new Date();
+  const [viewMonth, setViewMonth] = useState(dateObj.getMonth());
+  const [viewYear, setViewYear] = useState(dateObj.getFullYear());
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayIndex = new Date(viewYear, viewMonth, 1).getDay();
+  const startOffset = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+  const handlePrevMonth = (e) => {
+    e.stopPropagation();
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear(viewYear - 1);
+    } else {
+      setViewMonth(viewMonth - 1);
+    }
+  };
+
+  const handleNextMonth = (e) => {
+    e.stopPropagation();
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear(viewYear + 1);
+    } else {
+      setViewMonth(viewMonth + 1);
+    }
+  };
+
+  const handleSelectDay = (day) => {
+    const formattedMonth = String(viewMonth + 1).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    onChange(`${viewYear}-${formattedMonth}-${formattedDay}`);
+    setIsOpen(false);
+  };
+
+  const daysArray = [];
+  for (let i = 0; i < startOffset; i++) {
+    daysArray.push(null);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    daysArray.push(d);
+  }
+
+  const displayDate = value ? new Date(value + 'T00:00:00').toLocaleDateString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric'
+  }) : 'Select Date...';
+
+  return (
+    <div className="custom-date-picker-container" style={{ position: 'relative', width: '100%' }}>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] bg-transparent" onClick={() => setIsOpen(false)} />
+      )}
+      <button
+        type="button"
+        className="custom-select-trigger"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ position: 'relative', zIndex: 101 }}
+      >
+        <span>{displayDate}</span>
+        <Calendar size={12} className="text-gold-core" />
+      </button>
+
+      {isOpen && (
+        <div className="custom-calendar-dropdown" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '4px', zIndex: 102 }}>
+          <div className="calendar-header">
+            <button type="button" onClick={handlePrevMonth} className="cal-nav-btn">&lt;</button>
+            <span className="calendar-month-year">{months[viewMonth]} {viewYear}</span>
+            <button type="button" onClick={handleNextMonth} className="cal-nav-btn">&gt;</button>
+          </div>
+          <div className="calendar-weekdays">
+            {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(w => (
+              <span key={w} className="calendar-weekday">{w}</span>
+            ))}
+          </div>
+          <div className="calendar-days">
+            {daysArray.map((day, idx) => {
+              if (day === null) {
+                return <span key={`empty-${idx}`} className="calendar-day empty" />;
+              }
+              const isSelected = value === `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              return (
+                <button
+                  key={`day-${day}`}
+                  type="button"
+                  onClick={() => handleSelectDay(day)}
+                  className={`calendar-day ${isSelected ? 'selected' : ''}`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Work');
@@ -214,14 +319,10 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
 
           <div className="form-group full">
             <label><Calendar size={10} /> TARGET DEADLINE</label>
-            <div className="date-input-wrapper">
-              <input 
-                type="date" 
-                value={deadline} 
-                onChange={e => setDeadline(e.target.value)}
-                required
-              />
-            </div>
+            <CustomDatePicker 
+              value={deadline} 
+              onChange={setDeadline} 
+            />
             {tutorialStep === 'task_modal_open' && (
               <div className="onboarding-pointer left-pointer">
                 <span className="pointer-tag">GUIDE</span>
@@ -624,6 +725,96 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           margin-top: 0.5rem;
           border-color: rgba(197, 160, 89, 0.3);
           background: rgba(197, 160, 89, 0.03);
+        }
+
+        /* ═══════════════ CUSTOM CALENDAR DROPDOWN STYLE ═══════════════ */
+        .custom-calendar-dropdown {
+          background: #000000 !important;
+          border: 1px solid rgba(197, 160, 89, 0.3) !important;
+          border-radius: 4px;
+          padding: 10px;
+          width: 230px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+          font-family: 'Times New Roman', Georgia, Times, serif;
+        }
+        
+        .calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding-bottom: 6px;
+        }
+
+        .calendar-month-year {
+          color: #c5a059;
+          font-size: 11px;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .cal-nav-btn {
+          background: transparent;
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          font-size: 12px;
+          padding: 2px 6px;
+          border-radius: 2px;
+        }
+
+        .cal-nav-btn:hover {
+          color: #c5a059;
+          background: rgba(255,255,255,0.05);
+        }
+
+        .calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          text-align: center;
+          margin-bottom: 4px;
+        }
+
+        .calendar-weekday {
+          color: #8c6a4a;
+          font-size: 8px;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+
+        .calendar-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+        }
+
+        .calendar-day {
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-size: 10px;
+          padding: 4px 0;
+          text-align: center;
+          cursor: pointer;
+          border-radius: 2px;
+          font-family: var(--font-mono);
+        }
+
+        .calendar-day:hover:not(.empty) {
+          background: rgba(197, 160, 89, 0.15);
+          color: #c5a059;
+        }
+
+        .calendar-day.selected {
+          background: #c5a059 !important;
+          color: #000000 !important;
+          font-weight: bold;
+        }
+
+        .calendar-day.empty {
+          cursor: default;
         }
       `}</style>
     </div>
