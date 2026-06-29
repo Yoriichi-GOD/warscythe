@@ -758,8 +758,8 @@ export default function Social() {
                             .map((op, i) => {
                               const subtasksForOp = legionSubtasks.filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
                               const firstSub = subtasksForOp[0];
-                              const parts = firstSub?.title.split(' // ') || [];
-                              const parentTitle = parts.length > 1 ? parts[0] : 'Unnamed Operation';
+                              const parts = (firstSub?.title || '').split(' // ');
+                              const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
                               
                               return (
                                 <div 
@@ -788,8 +788,8 @@ export default function Social() {
                                   {/* Subtasks Detail View */}
                                   <div className="flex flex-col gap-1 mt-1 pl-6 border-l border-white/5">
                                     {subtasksForOp.map(sub => {
-                                      const assigneeName = sub.assignee?.username || sub.assignee?.email.split('@')[0] || 'Unknown';
-                                      const sParts = sub.title.split(' // ');
+                                      const assigneeName = sub.assignee?.username || sub.assignee?.email?.split('@')[0] || 'Unknown';
+                                      const sParts = (sub.title || '').split(' // ');
                                       const subTitle = sParts.length > 1 ? sParts[1] : sub.title;
                                       return (
                                         <div key={sub.id} className="text-[7px] font-mono text-gray-500 flex justify-between uppercase">
@@ -957,7 +957,7 @@ export default function Social() {
                           <div className="subtask-items-list mt-3 flex flex-col gap-2">
                             {subtaskInputs.map((st, idx) => {
                               const assigneeMember = legionMembers.find(m => m.user_id === st.assignedTo);
-                              const assigneeName = assigneeMember?.profile?.username || assigneeMember?.profile?.email.split('@')[0] || 'Unknown';
+                              const assigneeName = assigneeMember?.profile?.username || assigneeMember?.profile?.email?.split('@')[0] || 'Unknown';
                               return (
                                 <div key={idx} className="flex justify-between items-center bg-black/20 border border-white/5 px-3 py-2 rounded text-[10px] font-mono">
                                   <div className="flex flex-col text-left">
@@ -1002,8 +1002,8 @@ export default function Social() {
                         const isLocked = op.status !== 'acceptance_open';
 
                         const firstSub = subtasksForOp[0];
-                        const parts = firstSub?.title.split(' // ') || [];
-                        const parentTitle = parts.length > 1 ? parts[0] : 'Unnamed Operation';
+                        const parts = (firstSub?.title || '').split(' // ');
+                        const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
 
                         return (
                           <div key={op.id} className="op-run-card glass-panel p-4 border border-white/5 rounded">
@@ -1019,8 +1019,8 @@ export default function Social() {
                             {/* Subtask Status board */}
                             <div className="subtask-status-board flex flex-col gap-2 mt-3">
                               {subtasksForOp.map(s => {
-                                const assigneeName = s.assignee?.username || s.assignee?.email.split('@')[0];
-                                const sParts = s.title.split(' // ');
+                                const assigneeName = s.assignee?.username || s.assignee?.email?.split('@')[0] || 'Unknown';
+                                const sParts = (s.title || '').split(' // ');
                                 const cleanSubtaskTitle = sParts.length > 1 ? sParts[1] : s.title;
                                 return (
                                   <div key={s.id} className="subtask-row flex justify-between items-start text-[10px] font-mono border-b border-white/[0.03] pb-2 pt-1">
