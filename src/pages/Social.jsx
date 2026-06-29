@@ -815,8 +815,8 @@ export default function Social() {
                     </div>
 
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
-                    {activeLegion.owner_id === user.id && (
-                      <form onSubmit={handleStartOperation} className="tactical-form mt-4 glass-panel p-4 flex flex-col gap-4 text-left relative z-50">
+                    {activeLegion.owner_id === user?.id && (
+                      <form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded">
                         {effortOpen && (
                           <div 
                             className="fixed inset-0 z-40 bg-transparent" 
@@ -824,101 +824,101 @@ export default function Social() {
                           />
                         )}
 
-                        <div className="modal-title-box mb-2">
+                        <div className="modal-title-box mb-2 border-b border-gold-core/10 pb-3 flex items-center gap-2">
                           <Shield size={16} className="text-gold-core" />
-                          <h2 className="text-[11px] font-display text-gold-core tracking-widest uppercase">Initiate Tactical Run</h2>
+                          <h2 className="text-[14px] font-serif text-gold-core tracking-widest uppercase">Initiate Tactical Run</h2>
                         </div>
 
-                        <div className="form-group full">
-                          <label><Zap size={10} /> OBJECTIVE IDENTIFIER (PARENT OPERATION)</label>
-                          <input 
-                            type="text" 
-                            placeholder="ENTER OPERATION PROTOCOL..." 
-                            value={opTaskTitle}
-                            onChange={e => setOpTaskTitle(e.target.value)}
-                            required
-                          />
-                        </div>
-
-                        <div className="form-grid">
-                          <div className="form-group" style={{ position: 'relative', zIndex: 50 }}>
-                            <label><Activity size={10} /> RESISTANCE LEVEL</label>
-                            <div className="custom-select-container">
-                              <button 
-                                type="button" 
-                                className="custom-select-trigger" 
-                                onClick={() => { setEffortOpen(!effortOpen); }}
-                              >
-                                <span>{effortOptions.find(o => o.value === opEffort)?.label || opEffort}</span>
-                                <ChevronDown size={12} />
-                              </button>
-                              {effortOpen && (
-                                <div className="custom-select-options">
-                                  {effortOptions.map(opt => (
-                                    <div 
-                                      key={opt.value} 
-                                      className="custom-select-option" 
-                                      onClick={() => { setOpEffort(opt.value); setEffortOpen(false); }}
-                                    >
-                                      {opt.label}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="form-group">
-                            <label><Calendar size={10} /> TARGET DEADLINE</label>
-                            <div className="date-input-wrapper">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* COLUMN 1: CAMPAIGN PARAMETERS */}
+                          <div className="flex flex-col gap-4 border-r border-white/5 pr-0 md:pr-6">
+                            <h3 className="text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Campaign Parameters</h3>
+                            
+                            <div className="form-group">
+                              <label><Zap size={12} className="text-gold-core" /> Objective Identifier (Parent Operation)</label>
                               <input 
-                                type="date" 
-                                value={opDeadline}
-                                onChange={e => setOpDeadline(e.target.value)}
+                                type="text" 
+                                placeholder="ENTER OPERATION PROTOCOL..." 
+                                value={opTaskTitle}
+                                onChange={e => setOpTaskTitle(e.target.value)}
                                 required
                               />
                             </div>
-                          </div>
-                        </div>
 
-                        {/* SUBTASK DECOMPOSITION */}
-                        <div className="form-group full mt-2">
-                          <label><Plus size={10} /> SUB-TASKS DECOMPOSITION</label>
-                          
-                          {/* Assignment input panel */}
-                          <div className="border border-white/5 bg-black/40 p-4 rounded flex flex-col gap-3 mt-2">
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[8px] font-mono text-gray-500 uppercase">Sub-Task Objective Name</label>
+                            <div className="form-group" style={{ position: 'relative', zIndex: 100 }}>
+                              <label><Activity size={12} className="text-gold-core" /> Resistance Level</label>
+                              <div className="custom-select-container">
+                                <button 
+                                  type="button" 
+                                  className="custom-select-trigger" 
+                                  onClick={() => { setEffortOpen(!effortOpen); }}
+                                >
+                                  <span>{effortOptions.find(o => o.value === opEffort)?.label || opEffort}</span>
+                                  <ChevronDown size={12} className="text-gold-core" />
+                                </button>
+                                {effortOpen && (
+                                  <div className="custom-select-options">
+                                    {effortOptions.map(opt => (
+                                      <div 
+                                        key={opt.value} 
+                                        className="custom-select-option" 
+                                        onClick={() => { setOpEffort(opt.value); setEffortOpen(false); }}
+                                      >
+                                        {opt.label}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="form-group">
+                              <label><Calendar size={12} className="text-gold-core" /> Target Deadline</label>
+                              <div className="date-input-wrapper">
+                                <input 
+                                  type="date" 
+                                  value={opDeadline}
+                                  onChange={e => setOpDeadline(e.target.value)}
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* COLUMN 2: SUB-TASKS DECOMPOSITION */}
+                          <div className="flex flex-col gap-4">
+                            <h3 className="text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Operative Assignments</h3>
+
+                            <div className="form-group">
+                              <label>Sub-Task Objective Name</label>
                               <input 
                                 type="text" 
                                 placeholder="ADD STEP PROTOCOL..." 
                                 value={draftSubTitle}
                                 onChange={e => setDraftSubTitle(e.target.value)}
-                                className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px]"
                                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubtask(); } }}
                               />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="flex flex-col gap-1">
-                                <label className="text-[8px] font-mono text-gray-500 uppercase">Assignee</label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="form-group">
+                                <label>Assignee</label>
                                 <select 
                                   value={draftSubAssignee} 
                                   onChange={e => setDraftSubAssignee(e.target.value)}
-                                  className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px] h-[34px]"
                                 >
                                   <option value="">Select Operative...</option>
-                                  {legionMembers.map(m => (
+                                  {(legionMembers || []).map(m => (
                                     <option key={m.user_id} value={m.user_id}>{m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}</option>
                                   ))}
                                 </select>
                               </div>
-                              <div className="flex flex-col gap-1">
-                                <label className="text-[8px] font-mono text-gray-500 uppercase">Priority</label>
+
+                              <div className="form-group">
+                                <label>Priority</label>
                                 <select 
                                   value={draftSubPriority} 
                                   onChange={e => setDraftSubPriority(e.target.value)}
-                                  className="font-mono bg-black/50 text-white border border-white/10 p-2 rounded text-[10px] h-[34px]"
                                 >
                                   <option value="low">Low</option>
                                   <option value="medium">Medium</option>
@@ -928,11 +928,9 @@ export default function Social() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="flex flex-col gap-1">
-                                <label className="text-[8px] font-mono text-gray-500 uppercase flex items-center gap-1">
-                                  <Calendar size={10} className="text-gold-core" /> Deadline
-                                </label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="form-group">
+                                <label>Deadline</label>
                                 <div className="date-input-wrapper">
                                   <input 
                                     type="date" 
@@ -945,51 +943,47 @@ export default function Social() {
                                 <button 
                                   type="button" 
                                   onClick={handleAddSubtask} 
-                                  className="w-full h-[34px] bg-gold-core hover:bg-gold-bright text-black font-mono text-[9px] font-bold tracking-widest uppercase rounded flex items-center justify-center gap-1 transition-all animate-pulse"
+                                  className="add-assignment-btn"
                                 >
-                                  <Plus size={12} /> Add Assignment
+                                  <Plus size={12} /> ADD ASSIGNMENT
                                 </button>
                               </div>
                             </div>
-                          </div>
 
-                          {/* List of current assignments */}
-                          <div className="subtask-items-list mt-3 flex flex-col gap-2">
-                            {subtaskInputs.map((st, idx) => {
-                              const assigneeMember = legionMembers.find(m => m.user_id === st.assignedTo);
-                              const assigneeName = assigneeMember?.profile?.username || assigneeMember?.profile?.email?.split('@')[0] || 'Unknown';
-                              return (
-                                <div key={idx} className="flex justify-between items-center bg-black/20 border border-white/5 px-3 py-2 rounded text-[10px] font-mono">
-                                  <div className="flex flex-col text-left">
-                                    <span className="font-bold text-white text-[10px] uppercase tracking-wide">{st.title}</span>
-                                    <div className="flex items-center gap-2 text-[7px] text-gray-500 mt-0.5 uppercase">
-                                      <span>Operative: {assigneeName}</span>
-                                      <span>•</span>
-                                      <span className={`font-bold ${
-                                        st.priority === 'boss' || st.priority === 'high' ? 'text-red-500' :
-                                        st.priority === 'medium' ? 'text-amber-500' : 'text-green-500'
-                                      }`}>Priority: {st.priority}</span>
-                                      <span>•</span>
-                                      <span>Deadline: {new Date(st.deadline).toLocaleDateString()}</span>
-                                      <span>•</span>
-                                      <span className="text-gold-core font-bold">{automatedXp} XP</span>
+                            {/* List of current assignments */}
+                            <div className="subtask-items-list mt-2 flex flex-col gap-2 max-h-[140px] overflow-y-auto custom-scrollbar pr-1">
+                              {subtaskInputs.map((st, idx) => {
+                                const assigneeMember = (legionMembers || []).find(m => m.user_id === st.assignedTo);
+                                const assigneeName = assigneeMember?.profile?.username || assigneeMember?.profile?.email?.split('@')[0] || 'Unknown';
+                                return (
+                                  <div key={idx} className="flex justify-between items-center bg-white/[0.02] border border-gold-core/10 px-3 py-1.5 rounded text-[10px] font-serif">
+                                    <div className="flex flex-col text-left">
+                                      <span className="font-bold text-white text-[10px] uppercase tracking-wide">{st.title}</span>
+                                      <div className="flex items-center gap-2 text-[8px] text-gold-core/60 mt-0.5 uppercase">
+                                        <span>Operative: {assigneeName}</span>
+                                        <span>•</span>
+                                        <span>Priority: {st.priority}</span>
+                                        <span>•</span>
+                                        <span>XP: {automatedXp}</span>
+                                      </div>
                                     </div>
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleRemoveSubtaskInput(idx)}
+                                      className="text-gray-500 hover:text-red-500 p-1"
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
                                   </div>
-                                  <button 
-                                    type="button" 
-                                    onClick={() => handleRemoveSubtaskInput(idx)}
-                                    className="text-gray-500 hover:text-red-500 p-1"
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
 
-                        <button type="submit" className="confirm-btn mt-2 w-full py-2.5 rounded font-mono text-[10px] font-bold tracking-[0.2em] uppercase">
-                          <span>INITIATE TACTICAL RUN</span>
+                        {/* Submit deployment button */}
+                        <button type="submit" className="confirm-deployment-btn mt-4">
+                          <span>CONFIRM DEPLOYMENT</span>
                         </button>
                       </form>
                     )}
@@ -1596,6 +1590,151 @@ export default function Social() {
         .member-item {
           padding: 0.5rem;
           border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        /* ═══════════════ COLLECTIVE OPERATIONS FORM STYLE ═══════════════ */
+        .collective-ops-form {
+          font-family: 'Times New Roman', Georgia, Times, serif !important;
+          border: 1px solid rgba(197, 160, 89, 0.25) !important;
+          background: rgba(10, 10, 12, 0.95) !important;
+          box-shadow: inset 0 0 20px rgba(197, 160, 89, 0.05), 0 10px 30px rgba(0,0,0,0.6);
+        }
+        
+        .collective-ops-form .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          text-align: left;
+        }
+
+        .collective-ops-form label {
+          font-family: 'Times New Roman', Georgia, Times, serif !important;
+          font-size: 10px !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.15em !important;
+          color: #c5a059 !important;
+          text-transform: uppercase !important;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .collective-ops-form input, 
+        .collective-ops-form select, 
+        .collective-ops-form .custom-select-trigger {
+          background: #000000 !important;
+          border: 1px solid rgba(197, 160, 89, 0.25) !important;
+          border-radius: 4px !important;
+          padding: 0.75rem 1rem !important;
+          color: #ffffff !important;
+          font-family: 'Times New Roman', Georgia, Times, serif !important;
+          font-size: 11px !important;
+          outline: none;
+          transition: all 0.2s ease;
+          width: 100%;
+          box-sizing: border-box;
+          height: auto;
+          line-height: normal;
+        }
+
+        .collective-ops-form input:focus, 
+        .collective-ops-form select:focus, 
+        .collective-ops-form .custom-select-trigger:focus {
+          border-color: #c5a059 !important;
+          background: rgba(197, 160, 89, 0.05) !important;
+          box-shadow: 0 0 10px rgba(197, 160, 89, 0.2) !important;
+        }
+
+        .collective-ops-form .custom-select-trigger {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+        }
+
+        .collective-ops-form .custom-select-options {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: #000;
+          border: 1px solid rgba(197, 160, 89, 0.3);
+          border-radius: 4px;
+          margin-top: 4px;
+          z-index: 100;
+          max-height: 160px;
+          overflow-y: auto;
+          box-shadow: 0 10px 35px rgba(0,0,0,0.9);
+        }
+
+        .collective-ops-form .custom-select-option {
+          padding: 0.6rem 1rem;
+          color: #fff;
+          font-family: 'Times New Roman', Georgia, Times, serif;
+          font-size: 11px;
+          cursor: pointer;
+          transition: all 0.1s ease;
+          text-align: left;
+        }
+
+        .collective-ops-form .custom-select-option:hover {
+          background: #c5a059;
+          color: #000;
+        }
+
+        .collective-ops-form input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(1) sepia(50%) saturate(500%) hue-rotate(15deg);
+          cursor: pointer;
+          opacity: 0.6;
+        }
+
+        .collective-ops-form .add-assignment-btn {
+          width: 100%;
+          height: 38px;
+          background: rgba(197, 160, 89, 0.1);
+          border: 1px solid rgba(197, 160, 89, 0.5);
+          color: #c5a059;
+          font-family: 'Times New Roman', Georgia, Times, serif;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .collective-ops-form .add-assignment-btn:hover {
+          background: #c5a059;
+          color: #000;
+          box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+        }
+
+        .collective-ops-form .confirm-deployment-btn {
+          width: 100%;
+          height: 48px;
+          background: rgba(197, 160, 89, 0.04);
+          border: 1px solid #c5a059;
+          color: #c5a059;
+          font-family: 'Times New Roman', Georgia, Times, serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
+        }
+
+        .collective-ops-form .confirm-deployment-btn:hover {
+          background: #c5a059;
+          color: #000;
+          box-shadow: 0 0 25px rgba(197, 160, 89, 0.4);
         }
       `}</style>
     </div>
