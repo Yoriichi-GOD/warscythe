@@ -41,6 +41,9 @@ let isSyncingFromServer = false;
 let lastState = null;
 let initialLoadDone = false;
 let initialFetchDone = false;
+let pendingWeeklyXp = 0;
+let pendingOpsCompleted = 0;
+let leaderboardTimeout = null;
 
 const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
   const map = new Map();
@@ -2614,38 +2617,51 @@ export const useWarscytheStore = create(
         }
       },
 
-      updateWeeklyLeaderboard: async (ptsEarned) => {
+      updateWeeklyLeaderboard: (ptsEarned) => {
         const u = get().user?.id;
         if (!u) return;
 
-        try {
-          const weekStart = getWeekStart();
-          const { data, error } = await supabase
-            .from('leaderboard_snapshots')
-            .select('weekly_xp, operations_completed')
-            .eq('user_id', u)
-            .eq('week_start', weekStart)
-            .maybeSingle();
-
-          let currentWeeklyXp = 0;
-          let currentOpsCompleted = 0;
-          if (!error && data) {
-            currentWeeklyXp = data.weekly_xp;
-            currentOpsCompleted = data.operations_completed;
-          }
-
-          const streak = get().streakCount || 0;
-
-          await supabase.from('leaderboard_snapshots').upsert({
-            user_id: u,
-            week_start: weekStart,
-            weekly_xp: currentWeeklyXp + ptsEarned,
-            streak_days: streak,
-            operations_completed: currentOpsCompleted + (ptsEarned > 0 ? 1 : 0)
-          }, { onConflict: 'user_id,week_start' });
-        } catch (err) {
-          console.error("Failed to update weekly leaderboard:", err);
+        pendingWeeklyXp += ptsEarned;
+        if (ptsEarned > 0) {
+          pendingOpsCompleted += 1;
         }
+
+        if (leaderboardTimeout) clearTimeout(leaderboardTimeout);
+        leaderboardTimeout = setTimeout(async () => {
+          const xpToSave = pendingWeeklyXp;
+          const opsToSave = pendingOpsCompleted;
+          pendingWeeklyXp = 0;
+          pendingOpsCompleted = 0;
+
+          try {
+            const weekStart = getWeekStart();
+            const { data, error } = await supabase
+              .from('leaderboard_snapshots')
+              .select('weekly_xp, operations_completed')
+              .eq('user_id', u)
+              .eq('week_start', weekStart)
+              .maybeSingle();
+
+            let currentWeeklyXp = 0;
+            let currentOpsCompleted = 0;
+            if (!error && data) {
+              currentWeeklyXp = data.weekly_xp;
+              currentOpsCompleted = data.operations_completed;
+            }
+
+            const streak = get().streakCount || 0;
+
+            await supabase.from('leaderboard_snapshots').upsert({
+              user_id: u,
+              week_start: weekStart,
+              weekly_xp: currentWeeklyXp + xpToSave,
+              streak_days: streak,
+              operations_completed: currentOpsCompleted + opsToSave
+            }, { onConflict: 'user_id,week_start' });
+          } catch (err) {
+            console.error("Failed to update weekly leaderboard:", err);
+          }
+        }, 2000);
       }
     }),
     {
