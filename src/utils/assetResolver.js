@@ -77,7 +77,7 @@ export const isBundled = (path) => {
       path.includes('favicon.svg') || 
       path.includes('icons.svg') || 
       path.includes('manifest.webmanifest') || 
-      path.includes('ritual-platform.png') || 
+      (path.includes('ritual-platform.png') && !path.includes('themes/')) || 
       path.includes('shop-bg.png') ||
       path.includes('bonfire.png') ||
       path.includes('olympus-bg.png') ||
