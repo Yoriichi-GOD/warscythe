@@ -86,6 +86,7 @@ export default function App() {
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
+  const activeTheme = useWarscytheStore(state => state.activeTheme);
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
@@ -319,7 +320,6 @@ export default function App() {
   const scytheLevel = useWarscytheStore(state => state.scytheLevel);
   const showResetPasswordModal = useWarscytheStore(state => state.showResetPasswordModal);
   const updatePassword = useWarscytheStore(state => state.updatePassword);
-  const activeTheme = useWarscytheStore(state => state.activeTheme);
 
   // Sync priority body class
   useEffect(() => {
