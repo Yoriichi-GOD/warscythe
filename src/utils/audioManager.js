@@ -8,15 +8,20 @@ class AudioManager {
     this.enabled = false;
     this.currentTrackName = null;
     this.fadeInterval = null;
+    this.lastActiveTheme = null;
+    this.lastLevel = null;
+    this.forcedRegionIdx = null;
   }
 
-  getTrackForRegion(regionIdx, activeTheme) {
-    // Premium themes override standard regional soundscapes
-    if (activeTheme === 'shiva') {
-      return 'theme-shiva.mp3.mp3';
-    }
-    if (activeTheme === 'lava') {
-      return 'theme-lava.mp3.mp3';
+  getTrackForRegion(regionIdx, activeTheme, bypassTheme = false) {
+    // Premium themes override standard regional soundscapes, unless bypassed
+    if (!bypassTheme) {
+      if (activeTheme === 'shiva') {
+        return 'theme-shiva.mp3.mp3';
+      }
+      if (activeTheme === 'lava') {
+        return 'theme-lava.mp3.mp3';
+      }
     }
 
     // Standard regional soundscapes (regionIdx is 0-indexed, level is 1-indexed)
@@ -79,8 +84,22 @@ class AudioManager {
     this.currentTrackName = null;
   }
 
-  playRegion(regionIdx, activeTheme) {
-    const trackName = this.getTrackForRegion(regionIdx, activeTheme);
+  playRegion(regionIdx, activeTheme, forceRegionTrack = false) {
+    // If activeTheme or base level regionIdx changes, reset the override
+    if (this.lastActiveTheme !== activeTheme || this.lastLevel !== regionIdx) {
+      this.forcedRegionIdx = null;
+      this.lastActiveTheme = activeTheme;
+      this.lastLevel = regionIdx;
+    }
+
+    if (forceRegionTrack) {
+      this.forcedRegionIdx = regionIdx;
+    }
+
+    const targetRegionIdx = this.forcedRegionIdx !== null ? this.forcedRegionIdx : regionIdx;
+    const bypassTheme = this.forcedRegionIdx !== null;
+
+    const trackName = this.getTrackForRegion(targetRegionIdx, activeTheme, bypassTheme);
     if (!this.enabled) {
       this.currentTrackName = trackName;
       return;
