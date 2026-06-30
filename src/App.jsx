@@ -240,7 +240,7 @@ export default function App() {
     import('./utils/audioManager').then(({ audioManager }) => {
       audioManager.setEnabled(soundscapeEnabled);
       audioManager.setVolume(soundscapeVolume);
-      audioManager.playRegion(level - 1);
+      audioManager.playRegion(level - 1, activeTheme);
     });
   }, [level, soundscapeEnabled, soundscapeVolume, activeTheme]);
 

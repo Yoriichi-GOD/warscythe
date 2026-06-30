@@ -1,5 +1,4 @@
 import { getAssetUrl } from './assetResolver';
-import { useWarscytheStore } from '../store/useWarscytheStore';
 
 class AudioManager {
   constructor() {
@@ -11,10 +10,7 @@ class AudioManager {
     this.fadeInterval = null;
   }
 
-  getTrackForRegion(regionIdx) {
-    const state = useWarscytheStore.getState();
-    const activeTheme = state.activeTheme;
-
+  getTrackForRegion(regionIdx, activeTheme) {
     // Premium themes override standard regional soundscapes
     if (activeTheme === 'shiva') {
       return 'theme-shiva.mp3.mp3';
@@ -80,8 +76,8 @@ class AudioManager {
     this.currentTrackName = null;
   }
 
-  playRegion(regionIdx) {
-    const trackName = this.getTrackForRegion(regionIdx);
+  playRegion(regionIdx, activeTheme) {
+    const trackName = this.getTrackForRegion(regionIdx, activeTheme);
     if (!this.enabled) {
       this.currentTrackName = trackName;
       return;
