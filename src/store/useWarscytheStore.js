@@ -545,12 +545,21 @@ export const useWarscytheStore = create(
 
       signOut: async () => {
         try {
-          await supabase.auth.signOut();
+          // Trigger remote signout in background; do not block local UI cleanup
+          supabase.auth.signOut().catch(err => {
+            console.warn('Supabase remote signOut failed:', err);
+          });
         } catch (err) {
-          console.warn('Supabase signOut failed, clearing local state anyway:', err);
+          console.warn('Supabase signOut call failed:', err);
         }
         get().clearClientState();
-        ph.capture('warscythe_sign_out');
+        if (ph && typeof ph.capture === 'function') {
+          try {
+            ph.capture('warscythe_sign_out');
+          } catch (err) {
+            console.warn('Telemetry event capture failed:', err);
+          }
+        }
       },
 
       checkEntitlement: async () => {
