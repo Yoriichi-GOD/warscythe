@@ -55,7 +55,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     setPlayingRegionIdx((level || 1) - 1);
   }, [level]);
 
-  const currentRegionName = (REGIONS[playingRegionIdx]?.name || "Ashwood").split(' ')[0];
+  const currentRegionName = REGIONS[playingRegionIdx]?.name || "Ashwood";
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
@@ -149,7 +149,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
           {showDropdown && (
             <div className="absolute left-0 right-0 bottom-full mb-1 max-h-[180px] overflow-y-auto bg-black/95 border border-gold-core/40 rounded shadow-2xl z-30 divide-y divide-white/5 scrollbar-thin">
               {REGIONS.map((regionName, idx) => {
-                const cleanName = (regionName.name || '').split(' ')[0];
+                const cleanName = regionName.name || '';
                 return (
                   <button
                     key={idx}
