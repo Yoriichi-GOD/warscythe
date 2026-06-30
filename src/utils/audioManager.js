@@ -50,6 +50,9 @@ class AudioManager {
     if (this.currentAudio) {
       this.currentAudio.volume = this.volume;
     }
+    if (this.nextAudio) {
+      this.nextAudio.volume = this.volume;
+    }
   }
 
   stopAll() {
@@ -87,7 +90,22 @@ class AudioManager {
 
   playTrack(trackName) {
     if (this.currentTrackName === trackName && this.currentAudio && !this.currentAudio.paused) {
+      this.currentAudio.volume = this.volume;
       return; // Already playing this track
+    }
+
+    // Clear any active fade interval first
+    if (this.fadeInterval) {
+      clearInterval(this.fadeInterval);
+      this.fadeInterval = null;
+    }
+
+    // Discard any existing nextAudio to prevent background leaks
+    if (this.nextAudio) {
+      try {
+        this.nextAudio.pause();
+      } catch (e) {}
+      this.nextAudio = null;
     }
 
     const nextTrackUrl = getAssetUrl(`/soundscapes/${trackName}`);
@@ -120,17 +138,17 @@ class AudioManager {
 
     const fadeStep = 0.05;
     const fadeIntervalMs = 100;
-    const targetVolume = this.volume;
 
     this.fadeInterval = setInterval(() => {
       let currentDone = false;
       let nextDone = false;
+      const targetVolume = this.volume; // Read dynamically to support real-time slider updates
 
       // Fade out current audio
       if (this.currentAudio) {
         const curVol = Math.max(this.currentAudio.volume - fadeStep, 0);
-        this.currentAudio.volume = curVol;
-        if (curVol <= 0) {
+        this.currentAudio.volume = Math.min(curVol, this.currentAudio.volume);
+        if (this.currentAudio.volume <= 0) {
           try {
             this.currentAudio.pause();
           } catch (e) {}
@@ -142,10 +160,15 @@ class AudioManager {
 
       // Fade in next audio
       if (this.nextAudio) {
-        const nextVol = Math.min(this.nextAudio.volume + fadeStep, targetVolume);
-        this.nextAudio.volume = nextVol;
-        if (nextVol >= targetVolume) {
+        if (targetVolume <= 0) {
+          this.nextAudio.volume = 0;
           nextDone = true;
+        } else {
+          const nextVol = Math.min(this.nextAudio.volume + fadeStep, targetVolume);
+          this.nextAudio.volume = nextVol;
+          if (nextVol >= targetVolume) {
+            nextDone = true;
+          }
         }
       } else {
         nextDone = true;
