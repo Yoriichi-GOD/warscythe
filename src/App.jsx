@@ -86,7 +86,6 @@ export default function App() {
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
-  const activeTheme = useWarscytheStore(state => state.activeTheme);
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
