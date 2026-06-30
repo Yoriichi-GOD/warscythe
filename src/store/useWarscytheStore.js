@@ -39,6 +39,8 @@ const getRedirectUrl = () => {
 
 let isSyncingFromServer = false;
 let lastState = null;
+let initialLoadDone = false;
+let initialFetchDone = false;
 
 const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
   const map = new Map();
@@ -657,6 +659,7 @@ export const useWarscytheStore = create(
             if (error.code === 'PGRST116') {
               isSyncingFromServer = false;
               await get().saveUserState(userId);
+              initialFetchDone = true;
             } else {
               console.error('Error fetching user state:', error.message);
             }
@@ -707,6 +710,7 @@ export const useWarscytheStore = create(
 
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
+            initialFetchDone = true;
           }
         } finally {
           isSyncingFromServer = false;
@@ -2669,8 +2673,8 @@ useWarscytheStore.subscribe((state) => {
     return;
   }
 
-  // If currently pulling data from server, keep lastState aligned and skip save
-  if (isSyncingFromServer) {
+  // If currently pulling data from server or initial fetch has not completed, keep lastState aligned and skip save
+  if (isSyncingFromServer || !initialFetchDone) {
     lastState = {
       tasks: state.tasks,
       rituals: state.rituals,
@@ -2760,18 +2764,20 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
   if (session?.user) {
     const isNewSignIn = event === 'SIGNED_IN' && (!currentUser || currentUser.id !== session.user.id);
+    const isInitialLoad = !initialLoadDone;
 
     // If a different user is logging in, wipe current client state first to prevent crossover
     if (currentUser && currentUser.id !== session.user.id) {
       state.clearClientState();
+      initialFetchDone = false;
     }
 
     useWarscytheStore.setState({ user: session.user });
 
     // Only fetch user state from the server on new sign-in or initial app load.
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
-    const isInitialLoad = !currentUser;
     if (isNewSignIn || isInitialLoad) {
+      initialLoadDone = true;
       await useWarscytheStore.getState().fetchUserState(session.user.id);
       await useWarscytheStore.getState().fetchSocialData();
     }
@@ -2779,6 +2785,8 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
     if (currentUser) {
       state.clearClientState();
+      initialLoadDone = false;
+      initialFetchDone = false;
     }
   }
 });
