@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
-import { Swords, History, Flame, Award, Dumbbell, Info } from 'lucide-react';
+import { Swords, History, Flame, Award, Dumbbell, Info, ChevronDown } from 'lucide-react';
 import { getAssetUrl } from '../../utils/assetResolver';
+import { REGIONS } from '../../store/constants';
+
+const REGION_SHORT_DESCS = [
+  "Warm, hopeful, and calm grasslands.",
+  "Eerie, mysterious, and foggy woods.",
+  "Cold, barren, and epic snowlands.",
+  "Dark, damp, and dangerous wetlands.",
+  "Sun-drenched, exotic, and warm sands.",
+  "Glorious, holy, and noble heights.",
+  "Spooky, chilling, and silent tombs.",
+  "Electrifying, tempestuous, high-altitude cliffs.",
+  "Heavy, chaotic, and dark dungeons.",
+  "Colossal, silent, and legendary graveyard."
+];
 
 const LEGACY_ARTIFACT_MAP = {
   'Iron Quill': 'tome', "Scout's Compass": 'compass', 'Wax Seal of Intent': 'scroll',
@@ -29,8 +43,17 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     streakCount = 0, 
     collectedArtifacts = [],
     soundscapeEnabled,
-    setSoundscapeEnabled
+    setSoundscapeEnabled,
+    level,
+    activeTheme
   } = useWarscytheStore();
+
+  const [playingRegionIdx, setPlayingRegionIdx] = useState((level || 1) - 1);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    setPlayingRegionIdx((level || 1) - 1);
+  }, [level]);
 
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
@@ -75,9 +98,8 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       </div>
 
       {/* 🎵 SOUNDSCAPE JUKEBOX */}
-      <button 
-        onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
-        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all ${
+      <div 
+        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-between gap-1 transition-all relative ${
           soundscapeEnabled 
             ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
             : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
@@ -87,26 +109,69 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
           <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
           <Info 
             size={10} 
-            className="text-gray-500 hover:text-[#c5a059] transition-colors"
+            className="text-gray-500 hover:text-[#c5a059] transition-colors cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               useWarscytheStore.getState().openInfoModal('atmosphere');
             }}
           />
         </div>
-        <div className="flex-1 w-full flex items-center justify-center relative min-h-0">
+        <div 
+          onClick={() => setSoundscapeEnabled(!soundscapeEnabled)}
+          className="flex-1 w-full flex items-center justify-center relative min-h-0 cursor-pointer group"
+        >
           <img 
             src="/soundscape-jukebox.png" 
-            className={`w-[75%] h-[75%] object-contain ${soundscapeEnabled ? 'animate-spin' : ''}`}
+            className={`w-[60px] h-[60px] object-contain transition-transform group-hover:scale-105 ${soundscapeEnabled ? 'animate-spin' : ''}`}
             style={{ animationDuration: '8s' }}
             onError={(e) => { e.target.src = '/command-core.png'; }} 
             alt="Soundscape Jukebox" 
           />
           {soundscapeEnabled && (
-            <div className="absolute w-[85%] h-[85%] bg-gold-core/10 rounded-full filter blur-md animate-pulse" />
+            <div className="absolute w-[70px] h-[70px] bg-gold-core/10 rounded-full filter blur-md animate-pulse pointer-events-none" />
           )}
         </div>
-      </button>
+        <div className="w-full mt-2 relative z-20">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDropdown(!showDropdown);
+            }}
+            className="w-full flex items-center justify-between bg-black/40 border border-gold-core/20 hover:border-gold-core/50 px-2 py-1.5 rounded text-[10px] text-gold-core font-mono transition-colors"
+          >
+            <span className="truncate tracking-wider text-left pr-1 font-bold">
+              {REGIONS[playingRegionIdx] ? REGIONS[playingRegionIdx].split(' ')[0] : 'Ashwood'}
+            </span>
+            <ChevronDown size={12} className={`transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          {showDropdown && (
+            <div className="absolute left-0 right-0 bottom-full mb-1 max-h-[180px] overflow-y-auto bg-black/95 border border-gold-core/40 rounded shadow-2xl z-30 divide-y divide-white/5 scrollbar-thin">
+              {REGIONS.map((regionName, idx) => {
+                const cleanName = regionName.split(' ')[0];
+                return (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPlayingRegionIdx(idx);
+                      setShowDropdown(false);
+                      import('../../utils/audioManager').then(({ audioManager }) => {
+                        audioManager.playRegion(idx, activeTheme);
+                      });
+                    }}
+                    className={`w-full text-left px-2 py-1.5 transition-colors hover:bg-gold-core/10 flex flex-col gap-0.5 ${
+                      playingRegionIdx === idx ? 'bg-gold-core/5 text-gold-core' : 'text-gray-300'
+                    }`}
+                  >
+                    <span className="text-[10px] font-bold tracking-wide">{cleanName}</span>
+                    <span className="text-[8px] text-gray-400 leading-normal">{REGION_SHORT_DESCS[idx] || ''}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* 🔮 GUARDIAN OBSERVER */}
       <button 
