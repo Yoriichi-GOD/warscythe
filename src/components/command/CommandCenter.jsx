@@ -55,6 +55,8 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     setPlayingRegionIdx((level || 1) - 1);
   }, [level]);
 
+  const currentRegionName = (REGIONS[playingRegionIdx] || "Ashwood").split(' ')[0];
+
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
 
@@ -140,7 +142,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             className="w-full flex items-center justify-between bg-black/40 border border-gold-core/20 hover:border-gold-core/50 px-2 py-1.5 rounded text-[10px] text-gold-core font-mono transition-colors"
           >
             <span className="truncate tracking-wider text-left pr-1 font-bold">
-              {REGIONS[playingRegionIdx] ? REGIONS[playingRegionIdx].split(' ')[0] : 'Ashwood'}
+              {currentRegionName}
             </span>
             <ChevronDown size={12} className={`transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
           </button>
