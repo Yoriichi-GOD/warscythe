@@ -5,14 +5,14 @@ export const BUNDLE_CONFIG = {
     name: 'Regions',
     items: {
       2: { name: 'Ashwood Frontier', size: '4.5 MB', files: ['maps/campaign-map-2.png', 'trophies/trophy-dragon-lava.png'] },
-      3: { name: 'The Crucible', size: '14.2 MB', files: ['crests/region-crest-3.png', 'maps/campaign-map-3.png', 'fairies/empress-3-caged.png', 'fairies/empress-3-liberated.png', 'dragons/dragon-frost.png', 'trophies/trophy-dragon-frost.png'] },
-      4: { name: 'Ironveil Fortress', size: '14.0 MB', files: ['crests/region-crest-4.png', 'maps/campaign-map-4.png', 'fairies/empress-4-caged.png', 'fairies/empress-4-liberated.png', 'dragons/dragon-shadow.png', 'trophies/trophy-dragon-shadow.png'] },
-      5: { name: 'The Obsidian March', size: '14.5 MB', files: ['crests/region-crest-5.png', 'maps/campaign-map-5.png', 'fairies/empress-5-caged.png', 'fairies/empress-5-liberated.png', 'dragons/dragon-wyvern.png', 'trophies/trophy-dragon-wyvern.png'] },
-      6: { name: 'Dreadspire Academy', size: '14.1 MB', files: ['crests/region-crest-6.png', 'maps/campaign-map-6.png', 'fairies/empress-6-caged.png', 'fairies/empress-6-liberated.png', 'dragons/dragon-celestial.png', 'trophies/trophy-dragon-celestial.png'] },
-      7: { name: 'The Forge Eternal', size: '14.8 MB', files: ['crests/region-crest-7.png', 'maps/campaign-map-7.png', 'fairies/empress-7-caged.png', 'fairies/empress-7-liberated.png', 'dragons/dragon-skeletal.png', 'trophies/trophy-dragon-skeletal.png'] },
-      8: { name: 'Shadowmere Depths', size: '14.3 MB', files: ['crests/region-crest-8.png', 'maps/campaign-map-8.png', 'fairies/empress-8-caged.png', 'fairies/empress-8-liberated.png', 'dragons/dragon-storm.png', 'trophies/trophy-dragon-storm.png'] },
-      9: { name: 'Crimson Summit', size: '13.9 MB', files: ['crests/region-crest-9.png', 'maps/campaign-map-9.png', 'fairies/empress-9-caged.png', 'fairies/empress-9-liberated.png', 'dragons/dragon-abyssal.png', 'trophies/trophy-dragon-abyssal.png'] },
-      10: { name: 'The War Council', size: '14.7 MB', files: ['crests/region-crest-10.png', 'maps/campaign-map-10.png', 'fairies/empress-10-caged.png', 'fairies/empress-10-liberated.png', 'dragons/dragon-ancient.png', 'trophies/trophy-dragon-ancient.png'] }
+      3: { name: 'The Crucible', size: '14.2 MB', files: ['crests/region-crest-3.png', 'maps/campaign-map-3.png', 'fairies/empress-3-caged.png', 'fairies/empress-3-liberated.png', 'dragons/dragon-frost.png', 'trophies/trophy-dragon-frost.png', 'soundscapes/region-3-frostmere.mp3.mp3'] },
+      4: { name: 'Ironveil Fortress', size: '14.0 MB', files: ['crests/region-crest-4.png', 'maps/campaign-map-4.png', 'fairies/empress-4-caged.png', 'fairies/empress-4-liberated.png', 'dragons/dragon-shadow.png', 'trophies/trophy-dragon-shadow.png', 'soundscapes/region-4-shadowfen.mp3.mp3'] },
+      5: { name: 'The Obsidian March', size: '14.5 MB', files: ['crests/region-crest-5.png', 'maps/campaign-map-5.png', 'fairies/empress-5-caged.png', 'fairies/empress-5-liberated.png', 'dragons/dragon-wyvern.png', 'trophies/trophy-dragon-wyvern.png', 'soundscapes/region-5-oasis.mp3.mp3'] },
+      6: { name: 'Dreadspire Academy', size: '14.1 MB', files: ['crests/region-crest-6.png', 'maps/campaign-map-6.png', 'fairies/empress-6-caged.png', 'fairies/empress-6-liberated.png', 'dragons/dragon-celestial.png', 'trophies/trophy-dragon-celestial.png', 'soundscapes/region-6-aureliuskeep.mp3.mp3'] },
+      7: { name: 'The Forge Eternal', size: '14.8 MB', files: ['crests/region-crest-7.png', 'maps/campaign-map-7.png', 'fairies/empress-7-caged.png', 'fairies/empress-7-liberated.png', 'dragons/dragon-skeletal.png', 'trophies/trophy-dragon-skeletal.png', 'soundscapes/region-7-bonehollow.mp3.mp3'] },
+      8: { name: 'Shadowmere Depths', size: '14.3 MB', files: ['crests/region-crest-8.png', 'maps/campaign-map-8.png', 'fairies/empress-8-caged.png', 'fairies/empress-8-liberated.png', 'dragons/dragon-storm.png', 'trophies/trophy-dragon-storm.png', 'soundscapes/region-8-stormspire.mp3.mp3'] },
+      9: { name: 'Crimson Summit', size: '13.9 MB', files: ['crests/region-crest-9.png', 'maps/campaign-map-9.png', 'fairies/empress-9-caged.png', 'fairies/empress-9-liberated.png', 'dragons/dragon-abyssal.png', 'trophies/trophy-dragon-abyssal.png', 'soundscapes/region-9-abyss.mp3.mp3'] },
+      10: { name: 'The War Council', size: '14.7 MB', files: ['crests/region-crest-10.png', 'maps/campaign-map-10.png', 'fairies/empress-10-caged.png', 'fairies/empress-10-liberated.png', 'dragons/dragon-ancient.png', 'trophies/trophy-dragon-ancient.png', 'soundscapes/region-10-titansrest.mp3.mp3'] }
     }
   },
   premium_scythes: {
@@ -38,8 +38,8 @@ export const BUNDLE_CONFIG = {
   themes: {
     name: 'Visual Environment Themes',
     items: {
-      shiva: { name: 'Kailash Ascension', size: '4.2 MB', files: ['themes/kailash/scythe-dormant.png', 'themes/kailash/scythe-neophyte.png', 'themes/kailash/scythe-acolyte.png', 'themes/kailash/scythe-reaper.png', 'themes/kailash/scythe-executioner.png', 'themes/kailash/scythe-sovereign.png', 'themes/kailash/scythe-void-walker.png', 'themes/kailash/scythe-eternal.png', 'themes/kailash/scythe-death-lord.png'] },
-      lava: { name: 'Lava Citadel', size: '4.2 MB', files: ['themes/lava/scythe-dormant.png', 'themes/lava/scythe-neophyte.png', 'themes/lava/scythe-acolyte.png', 'themes/lava/scythe-reaper.png', 'themes/lava/scythe-executioner.png', 'themes/lava/scythe-sovereign.png', 'themes/lava/scythe-void-walker.png', 'themes/lava/scythe-eternal.png', 'themes/lava/scythe-death-lord.png'] }
+      shiva: { name: 'Kailash Ascension', size: '4.2 MB', files: ['themes/kailash/scythe-dormant.png', 'themes/kailash/scythe-neophyte.png', 'themes/kailash/scythe-acolyte.png', 'themes/kailash/scythe-reaper.png', 'themes/kailash/scythe-executioner.png', 'themes/kailash/scythe-sovereign.png', 'themes/kailash/scythe-void-walker.png', 'themes/kailash/scythe-eternal.png', 'themes/kailash/scythe-death-lord.png', 'soundscapes/theme-shiva.mp3.mp3'] },
+      lava: { name: 'Lava Citadel', size: '4.2 MB', files: ['themes/lava/scythe-dormant.png', 'themes/lava/scythe-neophyte.png', 'themes/lava/scythe-acolyte.png', 'themes/lava/scythe-reaper.png', 'themes/lava/scythe-executioner.png', 'themes/lava/scythe-sovereign.png', 'themes/lava/scythe-void-walker.png', 'themes/lava/scythe-eternal.png', 'themes/lava/scythe-death-lord.png', 'soundscapes/theme-lava.mp3.mp3'] }
     }
   },
   legion: {
@@ -122,6 +122,9 @@ export const isBundled = (path) => {
   // Region 1 campaign map is bundled
   if (path.includes('maps/campaign-map-1.png')) return true;
   if (path.includes('bg-region-1.png') || path.includes('bg/bg-region-1.png')) return true;
+  
+  // Bundled soundscapes for Region 1 & 2
+  if (path.includes('soundscapes/region-1-ashwood.mp3.mp3') || path.includes('soundscapes/region-2-ashenveil.mp3.mp3')) return true;
 
   // Anything else (e.g. higher maps, dragons, fairies, trophies) is remote (CDN)
   return false;

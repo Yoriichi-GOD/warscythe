@@ -15,7 +15,7 @@ const generateUUID = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
@@ -39,11 +39,6 @@ const getRedirectUrl = () => {
 
 let isSyncingFromServer = false;
 let lastState = null;
-let initialLoadDone = false;
-let initialFetchDone = false;
-let pendingWeeklyXp = 0;
-let pendingOpsCompleted = 0;
-let leaderboardTimeout = null;
 
 const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
   const map = new Map();
@@ -98,7 +93,7 @@ const mergeState = (local, saved) => {
   const currentLevelProgress = Math.max(local.currentLevelProgress || 0, saved.currentLevelProgress || 0);
 
   // Notes
-  const notes = local.notes !== saved.notes 
+  const notes = local.notes !== saved.notes
     ? ((local.notes || '').length >= (saved.notes || '').length ? local.notes : saved.notes)
     : local.notes;
 
@@ -123,11 +118,11 @@ const mergeState = (local, saved) => {
     : (saved.activeTheme || 'default');
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
-  const downloadedRegions = isMobileApp 
+  const downloadedRegions = isMobileApp
     ? Array.from(new Set([
-        ...(local.downloadedRegions || []),
-        ...(saved.downloadedRegions || [])
-      ]))
+      ...(local.downloadedRegions || []),
+      ...(saved.downloadedRegions || [])
+    ]))
     : [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   // Daily Log
@@ -400,21 +395,21 @@ export const useWarscytheStore = create(
         set({ user: data.user });
         ph.identify(data.user.id, { email });
         ph.capture('warscythe_sign_in');
-        
+
         // Load state from profiles
         await get().fetchUserState(data.user.id);
       },
 
       signUp: async (email, password) => {
-        const { data, error } = await supabase.auth.signUp({ 
-          email, 
+        const { data, error } = await supabase.auth.signUp({
+          email,
           password,
           options: {
             emailRedirectTo: getRedirectUrl()
           }
         });
         if (error) throw error;
-        
+
         // If email confirmation is enabled, session is null, so we DO NOT log them in.
         // If email confirmation is disabled, session is populated, so we log them in.
         if (data.session) {
@@ -473,20 +468,20 @@ export const useWarscytheStore = create(
       deleteAccount: async () => {
         const u = get().user?.id;
         if (!u) return;
-        
+
         try {
           const { error } = await supabase.rpc('delete_user_account');
           if (error) console.error('RPC delete account failed:', error.message);
         } catch (err) {
           console.error('RPC delete account exception:', err);
         }
-        
+
         try {
           await supabase.auth.signOut();
         } catch (err) {
           console.warn('Supabase signOut failed during account deletion:', err);
         }
-        
+
         get().clearClientState();
         ph.capture('warscythe_delete_account');
       },
@@ -545,21 +540,12 @@ export const useWarscytheStore = create(
 
       signOut: async () => {
         try {
-          // Trigger remote signout in background; do not block local UI cleanup
-          supabase.auth.signOut().catch(err => {
-            console.warn('Supabase remote signOut failed:', err);
-          });
+          await supabase.auth.signOut();
         } catch (err) {
-          console.warn('Supabase signOut call failed:', err);
+          console.warn('Supabase signOut failed, clearing local state anyway:', err);
         }
         get().clearClientState();
-        if (ph && typeof ph.capture === 'function') {
-          try {
-            ph.capture('warscythe_sign_out');
-          } catch (err) {
-            console.warn('Telemetry event capture failed:', err);
-          }
-        }
+        ph.capture('warscythe_sign_out');
       },
 
       checkEntitlement: async () => {
@@ -665,13 +651,12 @@ export const useWarscytheStore = create(
             .select('state, username')
             .eq('id', userId)
             .single();
-            
+
           if (error) {
             // If no profile row exists, create one with the current store state
             if (error.code === 'PGRST116') {
               isSyncingFromServer = false;
               await get().saveUserState(userId);
-              initialFetchDone = true;
             } else {
               console.error('Error fetching user state:', error.message);
             }
@@ -706,11 +691,11 @@ export const useWarscytheStore = create(
                 .from('user_unlocks')
                 .select('item_id, item_type')
                 .eq('user_id', userId);
-              
+
               if (!unlocksError && unlocksData) {
                 const dbScythes = unlocksData.filter(u => u.item_type === 'scythe').map(u => u.item_id);
                 const dbThemes = unlocksData.filter(u => u.item_type === 'theme').map(u => u.item_id);
-                
+
                 set(state => ({
                   unlockedScythes: Array.from(new Set([...(state.unlockedScythes || ['neophyte']), ...dbScythes])),
                   unlockedThemes: Array.from(new Set([...(state.unlockedThemes || ['default']), ...dbThemes]))
@@ -722,7 +707,6 @@ export const useWarscytheStore = create(
 
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
-            initialFetchDone = true;
           }
         } finally {
           isSyncingFromServer = false;
@@ -757,7 +741,7 @@ export const useWarscytheStore = create(
       saveUserState: async (userId) => {
         const u = userId || get().user?.id;
         if (!u) return;
-        
+
         set({ syncStatus: 'pending' });
         const state = get();
         const payload = {
@@ -844,7 +828,7 @@ export const useWarscytheStore = create(
           target.setHours(0, 0, 0, 0);
           const diffMs = target - today;
           const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-          
+
           if (effort === 'Low' && diffDays < 1) {
             return "Low effort tasks must have a minimum limit of 1 day.";
           }
@@ -1026,7 +1010,7 @@ export const useWarscytheStore = create(
         const regionIdx = level - 1;
         const loreArr = getLore(regionIdx);
         const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
-        const fragment = isTutorialTask 
+        const fragment = isTutorialTask
           ? "Tactical tutorial completed successfully. Ashwood gateway threat evaluated."
           : loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
 
@@ -1084,7 +1068,7 @@ export const useWarscytheStore = create(
             ...reward.artifact,
             rarity: reward.rarity,
             date: new Date().toISOString(),
-            context: isTutorialTask 
+            context: isTutorialTask
               ? "Forged during your Tactical Onboarding. Your journey has begun."
               : `Forged on Day ${state.streakCount} of the Quest.`,
             effortContext: isTutorialTask
@@ -1566,7 +1550,7 @@ export const useWarscytheStore = create(
 
       downloadRegionBundle: async (subItemId) => {
         const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-        
+
         let itemConfig = null;
         for (const cat of Object.values(BUNDLE_CONFIG)) {
           if (cat.items && cat.items[subItemId]) {
@@ -1601,7 +1585,7 @@ export const useWarscytheStore = create(
 
       deleteRegionBundle: async (subItemId) => {
         const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-        
+
         let itemConfig = null;
         for (const cat of Object.values(BUNDLE_CONFIG)) {
           if (cat.items && cat.items[subItemId]) {
@@ -1730,7 +1714,7 @@ export const useWarscytheStore = create(
             }
             return m;
           });
-          
+
           return {
             activeWorkout: {
               ...state.activeWorkout,
@@ -1839,7 +1823,7 @@ export const useWarscytheStore = create(
           { id: 'hercules', name: 'Hercules', threshold: 150000, nextThreshold: 400000, buff: '+20% Raw Strength', desc: 'The Champion of Olympia. Unbroken fortitude, infinite strength.' },
           { id: 'zeus', name: 'Zeus', threshold: 400000, nextThreshold: null, buff: '+25% Godlike Power', desc: 'The King of Olympus. Cosmic authority, supreme power.' }
         ];
-        
+
         let activeDeityIndex = 0;
         for (let i = DEITIES.length - 1; i >= 0; i--) {
           if (totalTonnage >= DEITIES[i].threshold) {
@@ -1847,17 +1831,17 @@ export const useWarscytheStore = create(
             break;
           }
         }
-        
+
         const activeDeity = DEITIES[activeDeityIndex];
         const nextDeity = activeDeityIndex < DEITIES.length - 1 ? DEITIES[activeDeityIndex + 1] : null;
-        
+
         let progressPercent = 100;
         if (nextDeity) {
           const range = nextDeity.threshold - activeDeity.threshold;
           const currentProgress = totalTonnage - activeDeity.threshold;
           progressPercent = Math.min(100, Math.max(0, (currentProgress / range) * 100));
         }
-        
+
         return {
           totalTonnage,
           activeDeity,
@@ -1889,7 +1873,7 @@ export const useWarscytheStore = create(
         try {
           const cache = await caches.open('warscythe-region-assets');
           const urlsToCache = config.files.map(file => getAssetUrl(file));
-          
+
           await Promise.all(
             urlsToCache.map(async (url) => {
               const response = await fetch(url);
@@ -1920,7 +1904,7 @@ export const useWarscytheStore = create(
         try {
           const cache = await caches.open('warscythe-region-assets');
           const urlsToDelete = config.files.map(file => getAssetUrl(file));
-          
+
           await Promise.all(
             urlsToDelete.map(url => cache.delete(url))
           );
@@ -2044,7 +2028,7 @@ export const useWarscytheStore = create(
 
           if (!memberRowsErr && memberRows && memberRows.length > 0) {
             const legionId = memberRows[0].legion_id;
-            
+
             const { data: legionData } = await supabase
               .from('legions')
               .select('*')
@@ -2431,9 +2415,9 @@ export const useWarscytheStore = create(
               .select('completion_status')
               .eq('legion_operation_id', sub.legion_operation_id);
 
-            const allFinished = siblings.every(s => 
-              s.completion_status === 'completed' || 
-              s.completion_status === 'covered' || 
+            const allFinished = siblings.every(s =>
+              s.completion_status === 'completed' ||
+              s.completion_status === 'covered' ||
               s.completion_status === 'restrained'
             );
 
@@ -2463,7 +2447,7 @@ export const useWarscytheStore = create(
                 if (sItem.completion_status === 'completed' || sItem.completion_status === 'covered') {
                   const winner = sItem.completed_by || sItem.assigned_to;
                   cumulativeOperationXp += sItem.xp_value;
-                  
+
                   if (winner === u) {
                     set(state => ({
                       executionScore: state.executionScore + sItem.xp_value,
@@ -2626,51 +2610,38 @@ export const useWarscytheStore = create(
         }
       },
 
-      updateWeeklyLeaderboard: (ptsEarned) => {
+      updateWeeklyLeaderboard: async (ptsEarned) => {
         const u = get().user?.id;
         if (!u) return;
 
-        pendingWeeklyXp += ptsEarned;
-        if (ptsEarned > 0) {
-          pendingOpsCompleted += 1;
-        }
+        try {
+          const weekStart = getWeekStart();
+          const { data, error } = await supabase
+            .from('leaderboard_snapshots')
+            .select('weekly_xp, operations_completed')
+            .eq('user_id', u)
+            .eq('week_start', weekStart)
+            .maybeSingle();
 
-        if (leaderboardTimeout) clearTimeout(leaderboardTimeout);
-        leaderboardTimeout = setTimeout(async () => {
-          const xpToSave = pendingWeeklyXp;
-          const opsToSave = pendingOpsCompleted;
-          pendingWeeklyXp = 0;
-          pendingOpsCompleted = 0;
-
-          try {
-            const weekStart = getWeekStart();
-            const { data, error } = await supabase
-              .from('leaderboard_snapshots')
-              .select('weekly_xp, operations_completed')
-              .eq('user_id', u)
-              .eq('week_start', weekStart)
-              .maybeSingle();
-
-            let currentWeeklyXp = 0;
-            let currentOpsCompleted = 0;
-            if (!error && data) {
-              currentWeeklyXp = data.weekly_xp;
-              currentOpsCompleted = data.operations_completed;
-            }
-
-            const streak = get().streakCount || 0;
-
-            await supabase.from('leaderboard_snapshots').upsert({
-              user_id: u,
-              week_start: weekStart,
-              weekly_xp: currentWeeklyXp + xpToSave,
-              streak_days: streak,
-              operations_completed: currentOpsCompleted + opsToSave
-            }, { onConflict: 'user_id,week_start' });
-          } catch (err) {
-            console.error("Failed to update weekly leaderboard:", err);
+          let currentWeeklyXp = 0;
+          let currentOpsCompleted = 0;
+          if (!error && data) {
+            currentWeeklyXp = data.weekly_xp;
+            currentOpsCompleted = data.operations_completed;
           }
-        }, 2000);
+
+          const streak = get().streakCount || 0;
+
+          await supabase.from('leaderboard_snapshots').upsert({
+            user_id: u,
+            week_start: weekStart,
+            weekly_xp: currentWeeklyXp + ptsEarned,
+            streak_days: streak,
+            operations_completed: currentOpsCompleted + (ptsEarned > 0 ? 1 : 0)
+          }, { onConflict: 'user_id,week_start' });
+        } catch (err) {
+          console.error("Failed to update weekly leaderboard:", err);
+        }
       }
     }),
     {
@@ -2681,8 +2652,8 @@ export const useWarscytheStore = create(
         return {
           ...currentState,
           ...persistedState,
-          downloadedRegions: isMobile 
-            ? (persistedState?.downloadedRegions || []) 
+          downloadedRegions: isMobile
+            ? (persistedState?.downloadedRegions || [])
             : [2, 3, 4, 5, 6, 7, 8, 9, 10]
         };
       }
@@ -2698,8 +2669,8 @@ useWarscytheStore.subscribe((state) => {
     return;
   }
 
-  // If currently pulling data from server or initial fetch has not completed, keep lastState aligned and skip save
-  if (isSyncingFromServer || !initialFetchDone) {
+  // If currently pulling data from server, keep lastState aligned and skip save
+  if (isSyncingFromServer) {
     lastState = {
       tasks: state.tasks,
       rituals: state.rituals,
@@ -2789,20 +2760,18 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
   if (session?.user) {
     const isNewSignIn = event === 'SIGNED_IN' && (!currentUser || currentUser.id !== session.user.id);
-    const isInitialLoad = !initialLoadDone;
 
     // If a different user is logging in, wipe current client state first to prevent crossover
     if (currentUser && currentUser.id !== session.user.id) {
       state.clearClientState();
-      initialFetchDone = false;
     }
 
     useWarscytheStore.setState({ user: session.user });
 
     // Only fetch user state from the server on new sign-in or initial app load.
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
+    const isInitialLoad = !currentUser;
     if (isNewSignIn || isInitialLoad) {
-      initialLoadDone = true;
       await useWarscytheStore.getState().fetchUserState(session.user.id);
       await useWarscytheStore.getState().fetchSocialData();
     }
@@ -2810,8 +2779,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
     if (currentUser) {
       state.clearClientState();
-      initialLoadDone = false;
-      initialFetchDone = false;
     }
   }
 });

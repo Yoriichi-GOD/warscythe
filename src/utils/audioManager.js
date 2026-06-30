@@ -1,4 +1,5 @@
 import { getAssetUrl } from './assetResolver';
+import { useWarscytheStore } from '../store/useWarscytheStore';
 
 class AudioManager {
   constructor() {
@@ -11,18 +12,31 @@ class AudioManager {
   }
 
   getTrackForRegion(regionIdx) {
-    // Map regions dynamically based on index and visual theme
-    const idx = Number(regionIdx);
-    if (idx === 0 || idx === 1) {
-      return 'soundscape-ashwood.ogg';
-    } else if (idx === 2 || idx === 6 || idx === 10 || idx === 23) {
-      return 'soundscape-lava.ogg';
-    } else if (idx === 3 || idx === 5 || idx === 21) {
-      return 'soundscape-cathedral.ogg';
-    } else if (idx === 4 || idx === 8 || idx === 20) {
-      return 'soundscape-kailash.ogg';
-    } else {
-      return 'soundscape-sanctuary.ogg';
+    const state = useWarscytheStore.getState();
+    const activeTheme = state.activeTheme;
+
+    // Premium themes override standard regional soundscapes
+    if (activeTheme === 'shiva') {
+      return 'theme-shiva.mp3.mp3';
+    }
+    if (activeTheme === 'lava') {
+      return 'theme-lava.mp3.mp3';
+    }
+
+    // Standard regional soundscapes (regionIdx is 0-indexed, level is 1-indexed)
+    const levelNum = Number(regionIdx) + 1;
+    switch (levelNum) {
+      case 1: return 'region-1-ashwood.mp3.mp3';
+      case 2: return 'region-2-ashenveil.mp3.mp3';
+      case 3: return 'region-3-frostmere.mp3.mp3';
+      case 4: return 'region-4-shadowfen.mp3.mp3';
+      case 5: return 'region-5-oasis.mp3.mp3';
+      case 6: return 'region-6-aureliuskeep.mp3.mp3';
+      case 7: return 'region-7-bonehollow.mp3.mp3';
+      case 8: return 'region-8-stormspire.mp3.mp3';
+      case 9: return 'region-9-abyss.mp3.mp3';
+      case 10: return 'region-10-titansrest.mp3.mp3';
+      default: return 'region-1-ashwood.mp3.mp3';
     }
   }
 
