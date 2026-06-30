@@ -1,7 +1,6 @@
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Network } from '@capacitor/network';
-import { useWarscytheStore } from '../store/useWarscytheStore';
 
 // Helper to show custom high-fantasy notifications/toasts in UI
 export const triggerToast = (message, type = 'info') => {
@@ -104,9 +103,10 @@ export const scheduleStreakAlert = async (hoursRemaining = 4) => {
 // 3. OFFLINE DETECTION & NETWORK LISTENERS
 export const initNetworkMonitoring = () => {
   try {
-    const handleNetworkChange = (status) => {
+    const handleNetworkChange = async (status) => {
       const isOnline = status.connected;
       if (isOnline) {
+        const { useWarscytheStore } = await import('../store/useWarscytheStore');
         const store = useWarscytheStore.getState();
         if (store.hasPendingChanges) {
           store.forceSync();
