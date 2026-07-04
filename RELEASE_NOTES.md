@@ -1,3 +1,29 @@
+# Release Notes - Warscythe v4.1.0 (Build 21)
+
+Welcome to **Warscythe v4.1.0**! This release introduces **Dynamic Audio Soundscapes**, interactive region selectors, custom deep-linking social logins, and critical data synchronization protections.
+
+## What's New
+
+### 1. Immersive Atmospheric Soundscapes
+* **12 Custom Music Themes**: Integrated slow, peaceful, and immersive ambient loops for all 10 regions, plus Mount Kailash (Shiva) and Industrial Core (Lava) premium themes.
+* **Smart Crossfades**: Seamless crossfading transitions between tracks as you level up or switch themes.
+* **On-Demand CDN Streaming**: Configured mobile assets to download and cache audio files dynamically from the CDN (Supabase Storage) to keep the app footprint small, while Region 1 & 2 music is pre-bundled for instant startup.
+
+### 2. CommandCenter Jukebox & Selector
+* **Region Theme Selector**: Added an elite-style dropdown below the Jukebox image in the Command Center. You can now select and preview any region's soundscape directly.
+* **Atmosphere Descriptions**: Shows a 5-6 word description matching the emotional tone and instrumentation of each region's soundscape.
+* **Interactive Jukebox**: Click on the spinning Jukebox PNG to toggle the Soundscape ON/OFF directly.
+
+### 3. Native Deep-Linking OAuth (Google Login)
+* **Custom Scheme Redirection**: Configured intent filters to catch `warscythe://login-callback` redirects from social OAuth browser sessions and route them back into the native app.
+* **Robust Token Parser**: Upgraded token parser to manually extract session parameters from query/hash fragments, ensuring compatibility across all native webviews.
+
+### 4. Data Safety & Asset Fixes
+* **Startup Sync Protection**: Implemented a two-stage startup handshake to prevent old local storage states on legacy devices from overwriting newer progress saved in the cloud.
+* **Themed Platform Assets**: Fixed a path-matching bug where themed ritual platforms (`ritual-platform.png`) for Shiva and Lava would fail to load because they were mistakenly categorized as bundled assets. They now resolve to the CDN correctly.
+
+---
+
 # Release Notes - Warscythe v4.0.0 (Build 20)
 
 Welcome to **Warscythe v4.0.0**! This major release introduces the **Info Icon Navigation System**, cosmetic custom overrides, and multiple Quality of Life improvements across all modules.
