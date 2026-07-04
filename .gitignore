@@ -143,3 +143,17 @@ dist
 *.aab
 app-release.aab
 *.aab
+
+# ── Secrets & signing material (NEVER commit) ──────────────────────────────
+# Android signing keystores and their passwords
+*.jks
+*.keystore
+android/keystore.properties
+keystore.properties
+# Google services config (contains project/client keys)
+google-services.json
+**/google-services.json
+# Local environment files (already covered above, kept explicit)
+.env
+.env.*
+!.env.example

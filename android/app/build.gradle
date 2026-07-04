@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+// Load signing credentials from an untracked keystore.properties file so that the
+// keystore password is NOT committed to source control. Create android/keystore.properties
+// (gitignored) with: storeFile, storePassword, keyAlias, keyPassword.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def hasKeystoreProperties = keystorePropertiesFile.exists()
+if (hasKeystoreProperties) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace "com.warscythe.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,17 +28,23 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("warscythe.jks")
-            storePassword "warscythe123"
-            keyAlias "warscythe"
-            keyPassword "warscythe123"
+            if (hasKeystoreProperties) {
+                storeFile file(keystoreProperties['storeFile'] ?: "warscythe.jks")
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            // Only attach the release signing config when credentials are present.
+            // (Otherwise Gradle would fail with an empty signingConfig.)
+            if (hasKeystoreProperties) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

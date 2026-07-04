@@ -1,0 +1,81 @@
+================================================================================
+WARSCYTHE — SECURITY HARDENING (what changed & how to deploy it)
+================================================================================
+
+Pushing this branch fixes the SOURCE. The LIVE app stays vulnerable until you run
+the deploy steps below. Do them in order.
+
+--------------------------------------------------------------------------------
+WHAT WAS FIXED IN THIS BRANCH
+--------------------------------------------------------------------------------
+[CRITICAL] Free premium / free cosmetics
+  - Removed the world-open "Service role can manage" RLS policies on
+    user_entitlements and user_unlocks. Any signed-in user could previously write
+    these tables via the anon key and unlock everything for free.
+  Files: supabase/schema.sql, supabase/SECURITY_HARDENING.sql
+
+[CRITICAL] Leaked Android signing key
+  - Removed android/app/warscythe.jks from git tracking.
+  - Moved signing passwords out of build.gradle into android/keystore.properties
+    (gitignored). See android/keystore.properties.example.
+  - .gitignore now blocks *.jks, *.keystore, keystore.properties, google-services.json.
+  NOTE: the key is ALREADY public in git history — it MUST be rotated. See step 4.
+
+[HIGH] Payment webhook could be forged
+  - razorpay-webhook now FAILS CLOSED: if the webhook secret is missing, or the
+    signature is missing/invalid, it rejects and grants nothing. Also uses a
+    constant-time signature comparison and no longer grants ad-free on item-less
+    payments.
+  File: supabase/functions/razorpay-webhook/index.ts
+
+[HIGH] Every user's email was readable by everyone
+  - profiles.email is no longer selectable by anon/authenticated (column-level).
+  - Friend search moved to a SECURITY DEFINER RPC (search_profiles) that returns
+    only id + username on an exact match.
+  - Client no longer requests email in any query.
+  Files: supabase_schema.sql, src/store/useWarscytheStore.js,
+         src/pages/Social.jsx
+
+[MEDIUM] Leaderboard rows could be written under another identity
+  - Added WITH CHECK (auth.uid() = user_id) to leaderboard_snapshots.
+
+[MEDIUM] Android app data backup
+  - AndroidManifest: allowBackup=false, fullBackupContent=false.
+
+--------------------------------------------------------------------------------
+DEPLOY STEPS (in order)
+--------------------------------------------------------------------------------
+1) DATABASE — apply RLS/policy/grant/function changes to the LIVE db:
+   Supabase Dashboard -> SQL Editor -> paste supabase/SECURITY_HARDENING.sql -> Run.
+
+2) EDGE FUNCTION — redeploy the webhook and confirm the secret is set:
+   supabase secrets set RAZORPAY_WEBHOOK_SECRET=<your razorpay webhook secret>
+   supabase functions deploy razorpay-webhook
+   (Verify RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / SUPABASE_SERVICE_ROLE_KEY are set.)
+
+3) WEB APP — rebuild & redeploy (Vercel) so the client stops fetching emails and
+   uses the search RPC.
+
+4) ANDROID SIGNING KEY — treat as compromised (it is public in git history):
+   - If you use Google Play App Signing: rotate the UPLOAD key in
+     Play Console -> Setup -> App integrity -> Upload key certificate -> Request key reset.
+   - Create android/keystore.properties from the .example with your (new) key + passwords.
+   - Rebuild the AAB and upload the next release signed with the new upload key.
+   - Also CHANGE the keystore password (the old one, "warscythe123", is public).
+
+--------------------------------------------------------------------------------
+KNOWN RESIDUALS / FOLLOW-UPS (not in this branch — need testing)
+--------------------------------------------------------------------------------
+- Self-inflated XP: a user can still set their OWN weekly_xp. True anti-cheat needs
+  server-side XP calculation (edge function / RPC), not client-supplied values.
+- Game 'state' JSON is still readable per-row by any authed user (needed today for
+  displaying peers' level/stats). Move public stats into leaderboard_snapshots or a
+  public_profiles view, then lock state to owner-only.
+- Legion intra-member actions (rename, XP writes, role) are not owner-restricted at
+  the RLS layer because members legitimately write legion XP. Low severity
+  (requires being an accepted member); needs a column-scoped policy + co-op testing.
+- The keystore remains in git history. Rotating the key (step 4) is the real fix;
+  a history purge (git filter-repo + force push) is optional and destructive.
+- app-release.aab (~100MB) is still tracked; consider `git rm --cached app-release.aab`
+  for repo hygiene (not a security issue).
+================================================================================

@@ -246,8 +246,12 @@ CREATE POLICY friendships_delete ON public.friendships
 CREATE POLICY leaderboard_select_all ON public.leaderboard_snapshots
   FOR SELECT USING (true); -- Public/Friend reading
 
+-- WITH CHECK prevents a user from writing/altering rows for OTHER user_ids
+-- (leaderboard row forgery under someone else's identity). NOTE: this does not stop
+-- a user from inflating their OWN weekly_xp — the value is client-supplied. Fully
+-- preventing self-inflation requires computing XP server-side (see SECURITY_HARDENING.sql).
 CREATE POLICY leaderboard_upsert_own ON public.leaderboard_snapshots
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- Leaderboard Events Policies
 CREATE POLICY leaderboard_events_select ON public.leaderboard_events
@@ -331,3 +335,37 @@ CREATE POLICY legion_events_insert ON public.legion_events
 -- War Terminal Log Policies
 CREATE POLICY war_terminal_log_all ON public.war_terminal_log
   FOR ALL USING (auth.uid() = user_id);
+
+-- ----------------------------------------------------
+-- Profile PII protection (emails)
+-- ----------------------------------------------------
+-- Problem: profiles_read_all lets any signed-in user SELECT every row, and the
+-- profiles.email column is synced from auth.users. With table-wide SELECT that meant
+-- `select('email')` could dump EVERY user's email address (PII / GDPR exposure).
+--
+-- Fix: revoke the table-wide SELECT grant and re-grant SELECT only on the non-sensitive
+-- columns. Column privileges are separate from RLS: RLS filters rows, column grants
+-- filter columns. The app never reads profiles.email from the client (owner email comes
+-- from the auth session; email is written only by the SECURITY DEFINER sync trigger),
+-- so blocking column-level read of email breaks nothing.
+REVOKE SELECT ON public.profiles FROM anon, authenticated;
+GRANT SELECT (id, username, state, updated_at) ON public.profiles TO anon, authenticated;
+
+-- Friend search by exact email/username without exposing the email column.
+-- SECURITY DEFINER so it can match on email internally, but it only ever RETURNS
+-- id + username, and only for an EXACT match (no wildcard = no bulk scraping).
+CREATE OR REPLACE FUNCTION public.search_profiles(search_term text)
+RETURNS TABLE (id uuid, username text)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT p.id, p.username
+  FROM public.profiles p
+  WHERE p.username = search_term
+     OR lower(p.email) = lower(search_term)
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.search_profiles(text) FROM public;
+GRANT EXECUTE ON FUNCTION public.search_profiles(text) TO authenticated;
