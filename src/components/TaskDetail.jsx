@@ -54,7 +54,6 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   return (
     <div className="modal-backdrop" onClick={handleClose}>
       <motion.div 
-        layoutId={taskId}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
