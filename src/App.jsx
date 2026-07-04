@@ -417,24 +417,33 @@ export default function App() {
       try {
         appUrlListener = await CapacitorApp.addListener('appUrlOpen', async (event) => {
           console.log('App opened with URL:', event.url);
-          // Standard verify URL: https://warscythe.xyz/#access_token=...&refresh_token=...&type=recovery
-          const urlStr = event.url.replace('#', '?');
-          const urlObj = new URL(urlStr);
-          const accessToken = urlObj.searchParams.get('access_token');
-          const refreshToken = urlObj.searchParams.get('refresh_token');
-          const type = urlObj.searchParams.get('type');
+          
+          // Parse parameters safely even if the custom scheme is non-standard
+          let query = '';
+          if (event.url.includes('#')) {
+            query = event.url.split('#')[1];
+          } else if (event.url.includes('?')) {
+            query = event.url.split('?')[1];
+          }
 
-          if (accessToken && refreshToken) {
-            const { error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
-            if (error) {
-              console.error('Failed to set deep link session:', error.message);
-            } else {
-              console.log('Deep link login successful, type:', type);
-              if (type === 'recovery') {
-                useWarscytheStore.setState({ showResetPasswordModal: true });
+          if (query) {
+            const params = new URLSearchParams(query);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            const type = params.get('type');
+
+            if (accessToken && refreshToken) {
+              const { error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+              });
+              if (error) {
+                console.error('Failed to set deep link session:', error.message);
+              } else {
+                console.log('Deep link login successful, type:', type);
+                if (type === 'recovery') {
+                  useWarscytheStore.setState({ showResetPasswordModal: true });
+                }
               }
             }
           }
