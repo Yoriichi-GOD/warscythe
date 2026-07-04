@@ -1967,8 +1967,8 @@ export const useWarscytheStore = create(
               requester_id,
               receiver_id,
               status,
-              requester:profiles!friendships_requester_id_fkey(id, email, state, username),
-              receiver:profiles!friendships_receiver_id_fkey(id, email, state, username)
+              requester:profiles!friendships_requester_id_fkey(id, username, state),
+              receiver:profiles!friendships_receiver_id_fkey(id, username, state)
             `)
             .or(`requester_id.eq.${u},receiver_id.eq.${u}`);
 
@@ -1991,7 +1991,7 @@ export const useWarscytheStore = create(
               weekly_xp,
               streak_days,
               operations_completed,
-              profile:profiles(id, email, state, username)
+              profile:profiles(id, username, state)
             `)
             .eq('week_start', weekStart)
             .in('user_id', targetUserIds)
@@ -2009,7 +2009,7 @@ export const useWarscytheStore = create(
               event_type,
               event_description,
               created_at,
-              profile:profiles(id, email, state, username)
+              profile:profiles(id, username, state)
             `)
             .order('created_at', { ascending: false })
             .limit(10);
@@ -2043,7 +2043,7 @@ export const useWarscytheStore = create(
                 user_id,
                 role,
                 joined_at,
-                profile:profiles(id, email, state, username)
+                profile:profiles(id, username, state)
               `)
               .eq('legion_id', legionId)
               .eq('status', 'active');
@@ -2061,7 +2061,7 @@ export const useWarscytheStore = create(
                 .from('legion_subtasks')
                 .select(`
                   *,
-                  assignee:profiles(id, email, state, username)
+                  assignee:profiles(id, username, state)
                 `)
                 .in('legion_operation_id', opIds);
               if (subData) subtasks = subData;
@@ -2099,14 +2099,12 @@ export const useWarscytheStore = create(
         const u = get().user?.id;
         if (!u) return;
 
-        let query = supabase.from('profiles').select('id');
-        if (identifier.includes('@')) {
-          query = query.eq('email', identifier);
-        } else {
-          query = query.eq('username', identifier);
-        }
+        // Search via SECURITY DEFINER RPC so the email column is never exposed to the
+        // client. Accepts an exact email or username and returns only { id, username }.
+        const { data: matches, error: searchErr } = await supabase
+          .rpc('search_profiles', { search_term: identifier });
 
-        const { data: targetProfile, error: searchErr } = await query.maybeSingle();
+        const targetProfile = Array.isArray(matches) ? matches[0] : matches;
 
         if (searchErr || !targetProfile) {
           throw new Error('User with this email or username not found.');

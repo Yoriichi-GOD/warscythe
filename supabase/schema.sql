@@ -14,10 +14,14 @@ DROP POLICY IF EXISTS "Users can view own entitlement" ON public.user_entitlemen
 CREATE POLICY "Users can view own entitlement" ON public.user_entitlements
     FOR SELECT USING (auth.uid() = user_id);
 
--- Allow service role (like Edge Functions) to perform all operations
+-- NOTE: The service_role key (used by Edge Functions) BYPASSES RLS entirely,
+-- so no write policy is needed for it. Previously a policy `USING (true) WITH
+-- CHECK (true)` existed here with no role restriction, which meant it applied to
+-- EVERY role (anon + authenticated). That let any signed-in user write their own
+-- entitlement and grant themselves free ad-free/premium via the public anon key.
+-- We drop it. Writes now happen ONLY through the razorpay-webhook (service_role).
 DROP POLICY IF EXISTS "Service role can manage entitlements" ON public.user_entitlements;
-CREATE POLICY "Service role can manage entitlements" ON public.user_entitlements
-    USING (true) WITH CHECK (true);
+-- (intentionally no INSERT/UPDATE/DELETE policy for anon/authenticated => deny)
 
 -- Create user_unlocks table to store purchased cosmetics (Scythes / Themes)
 CREATE TABLE IF NOT EXISTS public.user_unlocks (
@@ -37,10 +41,12 @@ DROP POLICY IF EXISTS "Users can view own unlocks" ON public.user_unlocks;
 CREATE POLICY "Users can view own unlocks" ON public.user_unlocks
     FOR SELECT USING (auth.uid() = user_id);
 
--- Allow service role (like Edge Functions) to perform all operations
+-- Same fix as entitlements: the previous world-open write policy let any signed-in
+-- user insert rows into user_unlocks and unlock every paid cosmetic for free.
+-- service_role (the webhook) bypasses RLS, so unlocks are still written on real
+-- purchases. Regular users get read-only access to their own unlocks.
 DROP POLICY IF EXISTS "Service role can manage unlocks" ON public.user_unlocks;
-CREATE POLICY "Service role can manage unlocks" ON public.user_unlocks
-    USING (true) WITH CHECK (true);
+-- (intentionally no INSERT/UPDATE/DELETE policy for anon/authenticated => deny)
 
 -- ═══════════════ SUPABASE STORAGE SETUP ═══════════════
 -- 1. Create a public bucket for cosmetic and offline assets (maps, crests, dragons, fairies)
@@ -54,9 +60,10 @@ CREATE POLICY "Allow Public Access"
 ON storage.objects FOR SELECT 
 USING (bucket_id = 'cosmetics');
 
--- 3. Allow developers/authenticated users to manage files in the bucket
+-- 3. Uploads are NOT allowed from the app. Previously any authenticated user could
+-- upload arbitrary files (any type/size) into this PUBLIC bucket via the anon key —
+-- an abuse/hosting/cost vector. The app only READS cosmetics; assets are uploaded by
+-- the developer through the Supabase dashboard or a service_role script (both bypass
+-- RLS), so no authenticated INSERT policy is required.
 DROP POLICY IF EXISTS "Allow Authenticated Uploads" ON storage.objects;
-CREATE POLICY "Allow Authenticated Uploads" 
-ON storage.objects FOR INSERT 
-TO authenticated 
-WITH CHECK (bucket_id = 'cosmetics');
+-- (intentionally no INSERT/UPDATE/DELETE policy on the cosmetics bucket => deny)

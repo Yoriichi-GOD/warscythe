@@ -462,7 +462,7 @@ export default function Social() {
                       ) : (
                         leaderboardEvents.map((evt) => (
                           <div key={evt.id} className="feed-item font-serif text-[11px] leading-relaxed">
-                            <span className="text-gold-core font-mono mr-1">[{evt.profile?.username || evt.profile?.email.split('@')[0]}]</span>
+                            <span className="text-gold-core font-mono mr-1">[{evt.profile?.username || evt.profile?.email?.split('@')[0] || 'Operative'}]</span>
                             {evt.event_description}
                           </div>
                         ))
@@ -514,7 +514,7 @@ export default function Social() {
                               <tr key={row.id} className={isSelf ? 'self-row font-bold text-gold-core' : ''}>
                                 <td className="rank-num">#{idx + 1}</td>
                                 <td className="user-email text-left truncate max-w-[120px]">
-                                  {row.profile?.username || row.profile?.email.split('@')[0]}
+                                  {row.profile?.username || row.profile?.email?.split('@')[0] || 'Operative'}
                                 </td>
                                 <td className="text-right">{row.streak_days} DAYS</td>
                                 <td className="text-right">{row.weekly_xp}</td>
@@ -576,7 +576,7 @@ export default function Social() {
                   <div className="requests-list mt-3 flex flex-col gap-2">
                     {pendingRequests.map(req => (
                       <div key={req.id} className="request-card font-mono text-[10px] flex justify-between items-center">
-                        <span className="truncate max-w-[120px]">{req.requester?.username || req.requester?.email.split('@')[0]}</span>
+                        <span className="truncate max-w-[120px]">{req.requester?.username || req.requester?.email?.split('@')[0] || 'Operative'}</span>
                         <div className="flex gap-2">
                           <button onClick={() => acceptFriendRequest(req.id)} className="accept-req-btn">
                             <Check size={12} />
@@ -599,7 +599,7 @@ export default function Social() {
                   <div className="requests-list mt-3 flex flex-col gap-2">
                     {sentRequests.map(req => (
                       <div key={req.id} className="request-card font-mono text-[10px] flex justify-between items-center opacity-65">
-                        <span className="truncate max-w-[120px]">{req.receiver?.username || req.receiver?.email.split('@')[0]}</span>
+                        <span className="truncate max-w-[120px]">{req.receiver?.username || req.receiver?.email?.split('@')[0] || 'Operative'}</span>
                         <span className="text-[7px] uppercase tracking-widest text-gold-core">PENDING</span>
                       </div>
                     ))}
@@ -632,7 +632,7 @@ export default function Social() {
                           <span className="friend-level-num">Lvl {friend.stats.level}</span>
                         </div>
                         <div className="flex flex-col text-left">
-                          <span className="friend-email font-mono font-bold text-xs">{friend.profile?.username || friend.profile?.email.split('@')[0]}</span>
+                          <span className="friend-email font-mono font-bold text-xs">{friend.profile?.username || friend.profile?.email?.split('@')[0] || 'Operative'}</span>
                           <span className="friend-title text-[9px] uppercase tracking-widest text-gold-core">{friend.stats.currentTitle}</span>
                         </div>
                       </div>

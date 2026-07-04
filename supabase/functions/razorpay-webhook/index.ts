@@ -19,12 +19,22 @@ async function verifySignature(body: string, signature: string, secret: string):
   )
   const bodyData = encoder.encode(body)
   const signatureBuffer = await crypto.subtle.sign("HMAC", key, bodyData)
-  
+
   // Convert signature to Hex string
   const hashArray = Array.from(new Uint8Array(signatureBuffer))
   const calculatedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  
-  return calculatedSignature === signature
+
+  return timingSafeEqual(calculatedSignature, signature)
+}
+
+// Constant-time string comparison to avoid leaking the signature via timing.
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let mismatch = 0
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return mismatch === 0
 }
 
 serve(async (req) => {
@@ -42,26 +52,32 @@ serve(async (req) => {
     const signature = req.headers.get('x-razorpay-signature')
     const webhookSecret = Deno.env.get('RAZORPAY_WEBHOOK_SECRET')
 
-    // 1. Verify webhook signature if secret is configured
-    if (webhookSecret) {
-      if (!signature) {
-        console.error('Signature verification failed: Missing x-razorpay-signature header')
-        return new Response(JSON.stringify({ error: 'Missing signature header' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
-      }
-      
-      const isValid = await verifySignature(rawBody, signature, webhookSecret)
-      if (!isValid) {
-        console.error('Signature verification failed: Calculated signature does not match header')
-        return new Response(JSON.stringify({ error: 'Invalid signature' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
-      }
-    } else {
-      console.warn('Webhook signature check skipped because RAZORPAY_WEBHOOK_SECRET is not set.')
+    // 1. Verify webhook signature. FAIL CLOSED: if the secret is not configured, or
+    // the signature header is missing/invalid, we reject and grant nothing. Previously
+    // a missing RAZORPAY_WEBHOOK_SECRET caused the check to be SKIPPED, which meant
+    // anyone who knew the webhook URL could POST a forged "payment.captured" event with
+    // their own user_id in notes and be granted free premium.
+    if (!webhookSecret) {
+      console.error('SECURITY: RAZORPAY_WEBHOOK_SECRET is not set. Refusing to process webhook.')
+      return new Response(JSON.stringify({ error: 'Webhook not configured' }), {
+        status: 503,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+    if (!signature) {
+      console.error('Signature verification failed: Missing x-razorpay-signature header')
+      return new Response(JSON.stringify({ error: 'Missing signature header' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+    const isValid = await verifySignature(rawBody, signature, webhookSecret)
+    if (!isValid) {
+      console.error('Signature verification failed: Calculated signature does not match header')
+      return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
     }
 
     // 2. Parse event payload
@@ -89,14 +105,11 @@ serve(async (req) => {
       isAdFree = false
       shouldUpdate = true
     } else if (eventType === 'payment.captured') {
-      if (itemId && itemType) {
-        // This is a shop/cosmetic order purchase!
-        shouldUpdate = false
-      } else {
-        // Fallback for ad-free raw payments
-        isAdFree = true
-        shouldUpdate = true
-      }
+      // Cosmetic/shop purchase (item metadata present) -> handled by the unlock branch
+      // below. A payment.captured WITHOUT item metadata is NOT treated as an ad-free
+      // grant: ad-free is granted exclusively via subscription.charged/activated. This
+      // removes the old fragile fallback that turned any item-less payment into premium.
+      shouldUpdate = false
     }
 
     if (userId && (shouldUpdate || (eventType === 'payment.captured' && itemId && itemType))) {
