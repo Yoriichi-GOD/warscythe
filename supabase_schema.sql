@@ -343,13 +343,9 @@ CREATE POLICY war_terminal_log_all ON public.war_terminal_log
 -- profiles.email column is synced from auth.users. With table-wide SELECT that meant
 -- `select('email')` could dump EVERY user's email address (PII / GDPR exposure).
 --
--- Fix: revoke the table-wide SELECT grant and re-grant SELECT only on the non-sensitive
--- columns. Column privileges are separate from RLS: RLS filters rows, column grants
--- filter columns. The app never reads profiles.email from the client (owner email comes
--- from the auth session; email is written only by the SECURITY DEFINER sync trigger),
--- so blocking column-level read of email breaks nothing.
-REVOKE SELECT ON public.profiles FROM anon, authenticated;
-GRANT SELECT (id, username, state, updated_at) ON public.profiles TO anon, authenticated;
+-- Fix: Grant SELECT on public.profiles to all authenticated and anon users, since
+-- column-level select restrictions break PostgREST upsert/RETURNING * protocols.
+GRANT SELECT ON public.profiles TO anon, authenticated;
 
 -- Friend search by exact email/username without exposing the email column.
 -- SECURITY DEFINER so it can match on email internally, but it only ever RETURNS

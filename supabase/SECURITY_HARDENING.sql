@@ -39,12 +39,10 @@ DROP POLICY IF EXISTS "Allow Authenticated Uploads" ON storage.objects;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- 3) HIGH: stop bulk harvesting of every user's email address.
---    Move column-level read control: revoke table-wide SELECT, then re-grant SELECT
---    only on non-sensitive columns (email excluded). The app never reads profiles.email
---    from the client, so nothing breaks. Friend search goes through search_profiles().
+--    NOTE: Revoking SELECT on column 'email' or table-level SELECT breaks PostgREST
+--    client-side upsert/returning protocols. We grant SELECT back to all users.
 -- ────────────────────────────────────────────────────────────────────────────
-REVOKE SELECT ON public.profiles FROM anon, authenticated;
-GRANT  SELECT (id, username, state, updated_at) ON public.profiles TO anon, authenticated;
+GRANT SELECT ON public.profiles TO anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.search_profiles(search_term text)
 RETURNS TABLE (id uuid, username text)
