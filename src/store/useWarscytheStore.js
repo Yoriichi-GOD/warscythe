@@ -75,10 +75,11 @@ const mergeState = (local, saved) => {
   const parseDate = (d) => (d ? new Date(d).getTime() : 0);
 
   // Array Merging
-  const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate');
-  const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
   const completedTasks = mergeArraysById(local.completedTasks || [], saved.completedTasks || [], 'id', 'completedAt');
   const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'completedAt');
+  const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate')
+    .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id));
+  const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
   const gymLog = mergeArraysById(local.gymLog || [], saved.gymLog || [], 'id', 'date');
   const collectedArtifacts = mergeArraysById(local.collectedArtifacts || [], saved.collectedArtifacts || [], 'name', 'date');
 
