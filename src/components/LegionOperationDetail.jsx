@@ -196,7 +196,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                     <div className="flex justify-between items-center w-full pt-2 border-t border-white/[0.03]">
                       {!isLocked ? (
                         // Reassignment for Owner during acceptance phase
-                        activeLegion.owner_id === user?.id ? (
+                        activeLegion?.owner_id === user?.id ? (
                           <div className="flex items-center gap-2 w-full justify-between">
                             <div className="flex items-center gap-1.5">
                               <span className="text-[8px] text-gray-500 uppercase">REASSIGN:</span>
@@ -259,7 +259,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                                 >
                                   COVER FOR OP
                                 </button>
-                                {activeLegion.owner_id === user?.id && (
+                                {activeLegion?.owner_id === user?.id && (
                                   <button 
                                     onClick={() => restrainLegionMember(s.id)}
                                     className="text-[8px] border border-red-500/20 text-red-500 px-2 py-1 rounded hover:border-red-500 hover:bg-red-500/5 cursor-pointer transition-colors"
@@ -327,7 +327,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
             </div>
           )}
 
-          {operation.status === 'acceptance_open' && activeLegion.owner_id === user?.id && (
+          {operation.status === 'acceptance_open' && activeLegion?.owner_id === user?.id && (
             <button 
               type="button"
               onClick={() => lockLegionOperation(operation.id)}

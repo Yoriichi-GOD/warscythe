@@ -38,6 +38,7 @@ const getRedirectUrl = () => {
 };
 
 let isSyncingFromServer = false;
+let hasFetchedInitialState = false;
 let lastState = null;
 
 const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
@@ -2769,8 +2770,9 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
     // Only fetch user state from the server on new sign-in or initial app load.
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
-    const isInitialLoad = !currentUser;
+    const isInitialLoad = !hasFetchedInitialState;
     if (isNewSignIn || isInitialLoad) {
+      hasFetchedInitialState = true;
       await useWarscytheStore.getState().fetchUserState(session.user.id);
       await useWarscytheStore.getState().fetchSocialData();
     }
