@@ -2204,12 +2204,13 @@ export const useWarscytheStore = create(
 
         const { error } = await supabase
           .from('legion_members')
-          .insert({
+          .upsert({
             legion_id: legionId,
             user_id: friendId,
             role: 'member',
-            status: 'active'
-          });
+            status: 'active',
+            joined_at: new Date().toISOString()
+          }, { onConflict: 'legion_id,user_id' });
 
         if (error) throw error;
 
