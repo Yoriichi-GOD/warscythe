@@ -77,7 +77,7 @@ export default function RitualModal({ onClose }) {
         )}
 
         <form onSubmit={handleSubmit} className="tactical-form">
-          <div className="form-group full" style={{ position: 'relative' }}>
+          <div className="form-group full" style={{ position: 'relative', zIndex: presetOpen ? 200 : 10 }}>
             <label><Zap size={10} /> TEMPLATE PRESETS</label>
             <div className="custom-select-container">
               <button 
@@ -117,7 +117,7 @@ export default function RitualModal({ onClose }) {
           </div>
 
           <div className="form-grid">
-            <div className="form-group" style={{ position: 'relative' }}>
+            <div className="form-group" style={{ position: 'relative', zIndex: frequencyOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> FREQUENCY</label>
               <div className="custom-select-container">
                 <button 
@@ -144,7 +144,7 @@ export default function RitualModal({ onClose }) {
               </div>
             </div>
 
-            <div className="form-group" style={{ position: 'relative' }}>
+            <div className="form-group" style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
                 <button 
@@ -326,7 +326,7 @@ export default function RitualModal({ onClose }) {
           border: 1px solid #fff;
           border-radius: 4px;
           margin-top: 4px;
-          z-index: 100;
+          z-index: 500;
           max-height: 200px;
           overflow-y: auto;
           box-shadow: 0 10px 30px rgba(0,0,0,0.8);

@@ -956,7 +956,7 @@ export default function Social() {
                               />
                             </div>
 
-                            <div className="form-group" style={{ position: 'relative', zIndex: 100 }}>
+                            <div className="form-group" style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
                               <label><Activity size={12} className="text-gold-core" /> Resistance Level</label>
                               <div className="custom-select-container">
                                 <button 
@@ -983,7 +983,7 @@ export default function Social() {
                               </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" style={{ position: 'relative', zIndex: 5 }}>
                               <label><Calendar size={12} className="text-gold-core" /> Target Deadline</label>
                               <CustomDatePicker 
                                 value={opDeadline} 
@@ -1008,7 +1008,7 @@ export default function Social() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                              <div className="form-group" style={{ position: 'relative', zIndex: 90 }}>
+                              <div className="form-group" style={{ position: 'relative', zIndex: assigneeDropdownOpen ? 200 : 10 }}>
                                 <label>Assignee</label>
                                 <div className="custom-select-container">
                                   <button 
@@ -1046,7 +1046,7 @@ export default function Social() {
                                 </div>
                               </div>
 
-                              <div className="form-group" style={{ position: 'relative', zIndex: 90 }}>
+                              <div className="form-group" style={{ position: 'relative', zIndex: priorityDropdownOpen ? 200 : 9 }}>
                                 <label>Priority</label>
                                 <div className="custom-select-container">
                                   <button 
@@ -1075,7 +1075,7 @@ export default function Social() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                              <div className="form-group">
+                              <div className="form-group" style={{ position: 'relative', zIndex: 5 }}>
                                 <label>Deadline</label>
                                 <CustomDatePicker 
                                   value={draftSubDeadline} 
@@ -1805,7 +1805,7 @@ export default function Social() {
           border: 1px solid rgba(197, 160, 89, 0.3);
           border-radius: 4px;
           margin-top: 4px;
-          z-index: 100;
+          z-index: 500;
           max-height: 160px;
           overflow-y: auto;
           box-shadow: 0 10px 35px rgba(0,0,0,0.9);
