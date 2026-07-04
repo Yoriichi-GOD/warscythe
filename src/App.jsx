@@ -619,11 +619,15 @@ export default function App() {
             initialEffort={taskModalInitialEffort}
           />
         )}
-        
+      </AnimatePresence>
+      
+      <AnimatePresence>
         {showRitualModal && (
           <RitualModal onClose={() => setShowRitualModal(false)} />
         )}
-        
+      </AnimatePresence>
+      
+      <AnimatePresence>
         {selectedTaskId && !showRealityLock && !isValidating && (
           <TaskDetail 
             taskId={selectedTaskId} 
@@ -631,11 +635,15 @@ export default function App() {
             onComplete={() => setShowRealityLock(true)}
           />
         )}
-
+      </AnimatePresence>
+      
+      <AnimatePresence>
         {showAuth && (
           <AuthModal onClose={() => setShowAuth(false)} />
         )}
-
+      </AnimatePresence>
+      
+      <AnimatePresence>
         {showResetPasswordModal && (
           <AuthModal 
             initialScreen="reset_password" 
@@ -643,7 +651,9 @@ export default function App() {
             isMandatory={true} 
           />
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
         {showRealityLock && (
           <div className="modal-backdrop" style={{ zIndex: 1100 }}>
              <motion.div 
@@ -682,7 +692,9 @@ export default function App() {
              </motion.div>
           </div>
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
         {isValidating && (
           <div className="modal-backdrop validating-overlay">
             <motion.div 
@@ -711,8 +723,9 @@ export default function App() {
             </AnimatePresence>
           </div>
         )}
+      </AnimatePresence>
 
-        {/* STEP 1 — Victory liberation flash (fires first on level-up) */}
+      <AnimatePresence>
         {pendingVictoryScreen && (
           <RegionFlashScreen
             key="victory-screen"
@@ -721,8 +734,9 @@ export default function App() {
             onClose={clearPendingVictoryScreen}
           />
         )}
+      </AnimatePresence>
 
-        {/* STEP 2 — LevelUpModal (fires after victory screen dismissed) */}
+      <AnimatePresence>
         {pendingLevelUp && !pendingVictoryScreen && (
           <LevelUpModal 
             data={pendingLevelUp} 
@@ -736,8 +750,9 @@ export default function App() {
             }} 
           />
         )}
+      </AnimatePresence>
 
-        {/* STEP 3 — Region entry screen (fires after level-up modal dismissed) */}
+      <AnimatePresence>
         {pendingEntryScreen && !pendingLevelUp && !pendingVictoryScreen && (
           <RegionFlashScreen
             key="entry-screen"
@@ -746,8 +761,9 @@ export default function App() {
             onClose={() => setPendingEntryScreen(null)}
           />
         )}
+      </AnimatePresence>
 
-        {/* STEP 4 — Boss flash screen (fires after entry screen / level transitions) */}
+      <AnimatePresence>
         {activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
           <BossFlashScreen 
             key="boss-flash-screen"
@@ -755,7 +771,9 @@ export default function App() {
             onClose={clearBossFlash} 
           />
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
         {pendingReward && !activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
           <ScratchCard 
             data={pendingReward} 
