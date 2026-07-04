@@ -68,7 +68,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
   const isLocked = operation.status !== 'acceptance_open';
   const firstSub = subtasks[0];
   const parts = (firstSub?.title || '').split(' // ');
-  const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
+  const parentTitle = parts.length > 1 && parts[0] ? parts[0] : (firstSub?.title || 'Unnamed Operation');
   
   const userSubtask = subtasks.find(s => s.assigned_to === user?.id);
 
@@ -84,7 +84,6 @@ export default function LegionOperationDetail({ operationId, onClose }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <motion.div 
-        layoutId={operationId}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}

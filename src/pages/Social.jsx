@@ -913,7 +913,7 @@ export default function Social() {
                               const subtasksForOp = (legionSubtasks || []).filter(s => s.legion_operation_id === op.id && s.acceptance_status !== 'removed_pre_start');
                               const firstSub = subtasksForOp[0];
                               const parts = (firstSub?.title || '').split(' // ');
-                              const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
+                              const parentTitle = parts.length > 1 && parts[0] ? parts[0] : (firstSub?.title || 'Unnamed Operation');
                               
                               return (
                                 <div 
@@ -1188,7 +1188,7 @@ export default function Social() {
 
                         const firstSub = subtasksForOp[0];
                         const parts = (firstSub?.title || '').split(' // ');
-                        const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
+                        const parentTitle = parts.length > 1 && parts[0] ? parts[0] : (firstSub?.title || 'Unnamed Operation');
 
                         return (
                           <div 
