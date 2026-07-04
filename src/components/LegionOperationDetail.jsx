@@ -1,0 +1,348 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useWarscytheStore } from '../store/useWarscytheStore';
+import { X, CheckCircle, Zap, Target, Calendar, User, ShieldAlert, Award, Clock } from 'lucide-react';
+
+function useCountdown(deadlineIso) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!deadlineIso) return;
+    
+    const calculateTime = () => {
+      const difference = +new Date(deadlineIso) - +new Date();
+      if (difference <= 0) {
+        setTimeLeft('EXPIRED');
+        return;
+      }
+      
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+      
+      let str = '';
+      if (days > 0) str += `${days}d `;
+      if (hours > 0 || days > 0) str += `${hours}h `;
+      str += `${minutes}m ${seconds}s`;
+      setTimeLeft(str);
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [deadlineIso]);
+
+  return timeLeft;
+}
+
+export default function LegionOperationDetail({ operationId, onClose }) {
+  const user = useWarscytheStore(state => state.user);
+  const activeLegion = useWarscytheStore(state => state.activeLegion);
+  const legionMembers = useWarscytheStore(state => state.legionMembers || []);
+  const operation = useWarscytheStore(state => 
+    (state.legionOperations || []).find(op => op.id === operationId)
+  );
+  
+  const subtasks = useWarscytheStore(state => 
+    (state.legionSubtasks || []).filter(
+      s => s.legion_operation_id === operationId && s.acceptance_status !== 'removed_pre_start'
+    )
+  );
+
+  const legionEvents = useWarscytheStore(state => 
+    (state.legionEvents || []).filter(e => e.metadata?.operation_id === operationId)
+  );
+
+  const respondToSubtask = useWarscytheStore(state => state.respondToSubtask);
+  const lockLegionOperation = useWarscytheStore(state => state.lockLegionOperation);
+  const restrainLegionMember = useWarscytheStore(state => state.restrainLegionMember);
+  const completeLegionSubtask = useWarscytheStore(state => state.completeLegionSubtask);
+  const reassignOperationSubtask = useWarscytheStore(state => state.reassignOperationSubtask);
+  const removeOperationSubtask = useWarscytheStore(state => state.removeOperationSubtask);
+
+  const countdown = useCountdown(operation?.deadline);
+
+  if (!operation) return null;
+
+  const isLocked = operation.status !== 'acceptance_open';
+  const firstSub = subtasks[0];
+  const parts = (firstSub?.title || '').split(' // ');
+  const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
+  
+  const userSubtask = subtasks.find(s => s.assigned_to === user?.id);
+
+  // Calculate overall operation progress
+  const total = subtasks.length;
+  const completed = subtasks.filter(
+    s => s.completion_status === 'completed' || s.completion_status === 'covered'
+  ).length;
+  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  const trackColor = 'var(--gold-core)';
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <motion.div 
+        layoutId={operationId}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="task-detail-panel"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="td-header">
+          <div className="td-title-group text-left">
+            <div className="flex gap-2 items-center mb-1">
+              <span className="td-category">LEGION OPERATION</span>
+              <span className={`priority-badge ${operation.status === 'active' ? 'priority-medium' : 'priority-low'}`}>
+                {operation.status.toUpperCase()}
+              </span>
+            </div>
+            <h2 className="td-title">{parentTitle}</h2>
+          </div>
+          <button className="td-close" onClick={onClose}><X size={20} /></button>
+        </div>
+
+        <div className="td-body custom-scrollbar">
+          
+          {/* Progress Slider (Read-Only) */}
+          <div className="td-section">
+            <div className="td-section-header">
+              <label>OPERATION PROGRESS: {progress}%</label>
+              <span className="td-stage" style={{ color: trackColor }}>
+                {progress < 50 ? 'INFILTRATE' : progress < 100 ? 'ASSAULT' : 'SECURED'}
+              </span>
+            </div>
+            
+            <div className="td-slider-container">
+              <div className="td-slider-track">
+                <div className="td-slider-fill" style={{ width: `${progress}%`, background: trackColor }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Time Remaining Clock */}
+          <div className="td-section">
+            <div className="td-section-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
+                <label>TIME TO DEADLINE</label>
+              </div>
+              <span className="text-xs font-mono font-bold text-gold-bright">{countdown}</span>
+            </div>
+            <div className="p-3 border border-white/5 bg-white/[0.01] rounded text-[10px] font-mono text-gray-500 uppercase flex justify-between">
+              <span>TARGET DATE:</span>
+              <span className="text-white">{new Date(operation.deadline).toLocaleString()}</span>
+            </div>
+          </div>
+
+          {/* Sub-tasks assignment details */}
+          <div className="td-section">
+            <div className="td-section-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Target size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
+                <label>ASSIGNED TASKS & STATUS</label>
+              </div>
+            </div>
+
+            <div className="td-steps-list">
+              {subtasks.map(s => {
+                const assigneeName = s.assignee?.username || s.assignee?.email?.split('@')[0] || 'Unknown';
+                const sParts = (s.title || '').split(' // ');
+                const cleanSubtaskTitle = sParts.length > 1 ? sParts[1] : s.title;
+                const isUserAssigned = s.assigned_to === user?.id;
+
+                return (
+                  <div key={s.id} className="td-step-item" style={{ flexDirection: 'column', gap: '0.8rem', cursor: 'default' }}>
+                    <div className="flex justify-between items-start w-full">
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold text-white text-[11px] uppercase tracking-wider">{cleanSubtaskTitle || 'UNNAMED OBJECTIVE'}</span>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[8px] text-gray-500 mt-1 uppercase">
+                          <span className="flex items-center gap-1"><User size={8} /> ASSIGNEE: {assigneeName}</span>
+                          <span>•</span>
+                          <span className={`font-bold ${
+                            s.priority === 'boss' || s.priority === 'high' ? 'text-red-500' :
+                            s.priority === 'medium' ? 'text-amber-500' : 'text-green-500'
+                          }`}>PRIORITY: {s.priority || 'medium'}</span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1"><Award size={8} /> REWARD: {s.xp_value} XP</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        {/* Status badging */}
+                        {!isLocked ? (
+                          <span className={`text-[8px] uppercase font-bold px-1.5 py-0.5 border rounded ${
+                            s.acceptance_status === 'accepted' ? 'border-green-500/20 bg-green-500/5 text-green-500' : 
+                            s.acceptance_status === 'declined' ? 'border-red-500/20 bg-red-500/5 text-red-500' : 'border-amber-500/20 bg-amber-500/5 text-amber-500'
+                          }`}>
+                            {s.acceptance_status.toUpperCase()}
+                          </span>
+                        ) : (
+                          <span className={`text-[8px] uppercase font-bold px-1.5 py-0.5 border rounded ${
+                            s.completion_status === 'completed' || s.completion_status === 'covered' ? 'border-gold-core/20 bg-gold-core/5 text-gold-core' : 
+                            s.completion_status === 'restrained' ? 'border-red-500/20 bg-red-500/5 text-red-500' : 'border-gray-500/20 bg-gray-500/5 text-gray-500'
+                          }`}>
+                            {s.completion_status.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Operational controls during prep or run phase */}
+                    <div className="flex justify-between items-center w-full pt-2 border-t border-white/[0.03]">
+                      {!isLocked ? (
+                        // Reassignment for Owner during acceptance phase
+                        activeLegion.owner_id === user?.id ? (
+                          <div className="flex items-center gap-2 w-full justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[8px] text-gray-500 uppercase">REASSIGN:</span>
+                              <select
+                                value={s.assigned_to}
+                                onChange={async (e) => {
+                                  const val = e.target.value;
+                                  if (val && val !== s.assigned_to) {
+                                    try {
+                                      await reassignOperationSubtask(s.id, val);
+                                    } catch (err) {
+                                      alert('Reassignment failed: ' + err.message);
+                                    }
+                                  }
+                                }}
+                                className="bg-black/80 border border-white/10 text-white text-[8px] font-mono rounded px-1.5 py-0.5 outline-none hover:border-gold-core/40 transition-colors"
+                              >
+                                {legionMembers.map(m => (
+                                  <option key={m.user_id} value={m.user_id}>
+                                    {m.profile?.username || m.profile?.email?.split('@')[0] || 'Unknown'}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (window.confirm(`Remove this subtask assigned to ${assigneeName}?`)) {
+                                  try {
+                                    await removeOperationSubtask(s.id);
+                                  } catch (err) {
+                                    alert('Removal failed: ' + err.message);
+                                  }
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-400 text-[8px] border border-red-500/20 px-1.5 py-0.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-colors uppercase font-mono"
+                            >
+                              Remove Assignment
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[8px] text-gray-500 uppercase italic">Waiting for prep phase lock...</span>
+                        )
+                      ) : (
+                        // Actions during active operation run phase
+                        operation.status === 'active' && s.completion_status === 'incomplete' ? (
+                          <div className="flex gap-2 w-full justify-end">
+                            {isUserAssigned ? (
+                              <button 
+                                onClick={() => completeLegionSubtask(s.id, 'completed')}
+                                className="text-[9px] font-mono font-bold tracking-widest bg-gold-core/25 border border-gold-core text-gold-bright px-3 py-1.5 rounded flex items-center gap-1 hover:bg-gold-core/45 hover:scale-[1.02] active:scale-100 transition-all cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.1)]"
+                              >
+                                <CheckCircle size={10} /> VALIDATE EXECUTION
+                              </button>
+                            ) : (
+                              <>
+                                <button 
+                                  onClick={() => completeLegionSubtask(s.id, 'covered')}
+                                  className="text-[8px] border border-white/20 text-white/60 px-2 py-1 rounded hover:border-gold-core hover:text-gold-core cursor-pointer transition-colors"
+                                >
+                                  COVER FOR OP
+                                </button>
+                                {activeLegion.owner_id === user?.id && (
+                                  <button 
+                                    onClick={() => restrainLegionMember(s.id)}
+                                    className="text-[8px] border border-red-500/20 text-red-500 px-2 py-1 rounded hover:border-red-500 hover:bg-red-500/5 cursor-pointer transition-colors"
+                                  >
+                                    RESTRAIN MEMBER
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[8px] text-gray-500 uppercase">
+                            {s.completion_status === 'completed' || s.completion_status === 'covered' ? 'Task execution completed' : 'Operation phase ended'}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Operation Events Logs / Operations Trail */}
+          <div className="td-section text-left">
+            <div className="td-section-header">
+              <label>OPERATIONS INTEL TRAIL</label>
+            </div>
+            <div className="p-4 border border-white/5 bg-black/50 rounded flex flex-col gap-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+              {legionEvents.length === 0 ? (
+                <span className="text-[8px] font-mono text-gray-600 uppercase">No logs recorded for this operation.</span>
+              ) : (
+                legionEvents.map((evt, idx) => (
+                  <div key={idx} className="flex gap-2 text-[9px] font-mono leading-relaxed border-b border-white/[0.02] pb-1.5 text-left">
+                    <span className="text-gold-core flex-shrink-0">
+                      [{new Date(evt.created_at).toLocaleTimeString()}]
+                    </span>
+                    <span className="text-gray-300">
+                      {evt.event_description || `Operation event: ${evt.event_type}`}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Footer Actions */}
+        <div className="td-footer">
+          {operation.status === 'acceptance_open' && userSubtask && userSubtask.acceptance_status === 'pending' && (
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => respondToSubtask(userSubtask.id, 'accepted')}
+                className="flex-1 py-2.5 font-mono text-[9px] font-bold border border-green-500 text-green-500 rounded hover:bg-green-500/10 transition-colors cursor-pointer"
+              >
+                ACCEPT ASSIGNMENT
+              </button>
+              <button 
+                onClick={() => respondToSubtask(userSubtask.id, 'declined')}
+                className="flex-1 py-2.5 font-mono text-[9px] font-bold border border-red-500 text-red-500 rounded hover:bg-red-500/10 transition-colors cursor-pointer"
+              >
+                DECLINE ASSIGNMENT
+              </button>
+            </div>
+          )}
+
+          {operation.status === 'acceptance_open' && activeLegion.owner_id === user?.id && (
+            <button 
+              type="button"
+              onClick={() => lockLegionOperation(operation.id)}
+              className="flex-1 py-3 font-mono text-[9px] font-bold border border-gold-core/40 text-gold-core rounded text-center block hover:bg-gold-core/10 transition-colors cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.05)]"
+            >
+              LOCK PREP & START TACTICAL RUN
+            </button>
+          )}
+
+          <button className="td-btn-danger" style={{ width: 'auto', padding: '0 1.5rem' }} onClick={onClose}>
+            CLOSE
+          </button>
+        </div>
+
+      </motion.div>
+    </div>
+  );
+}

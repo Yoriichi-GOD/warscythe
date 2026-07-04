@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap, Clock } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
+import LegionOperationDetail from '../components/LegionOperationDetail';
 
 const parseUserState = (profile) => {
   const defaults = { level: 1, streakCount: 0, currentTitle: 'Recruit', xp: 0 };
@@ -22,6 +23,48 @@ const parseUserState = (profile) => {
     xp: state.xp || defaults.xp
   };
 };
+
+function useCountdown(deadlineIso) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!deadlineIso) return;
+    
+    const calculateTime = () => {
+      const difference = +new Date(deadlineIso) - +new Date();
+      if (difference <= 0) {
+        setTimeLeft('EXPIRED');
+        return;
+      }
+      
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+      
+      let str = '';
+      if (days > 0) str += `${days}d `;
+      if (hours > 0 || days > 0) str += `${hours}h `;
+      str += `${minutes}m ${seconds}s`;
+      setTimeLeft(str);
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [deadlineIso]);
+
+  return timeLeft;
+}
+
+function LegionOpCountdown({ deadline }) {
+  const countdown = useCountdown(deadline);
+  return (
+    <span className="text-[9px] font-mono text-gold-bright bg-gold-core/10 px-2 py-0.5 border border-gold-core/20 rounded shadow-[0_0_8px_rgba(197,160,89,0.15)] flex items-center gap-1 flex-shrink-0">
+      <Clock size={8} /> {countdown}
+    </span>
+  );
+}
 
 function CustomDatePicker({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -208,6 +251,9 @@ export default function Social() {
   // Failure note state
   const [failureNoteSubtaskId, setFailureNoteSubtaskId] = useState(null);
   const [failureNoteText, setFailureNoteText] = useState('');
+  
+  // Selected Legion Operation details modal
+  const [selectedLegionOpId, setSelectedLegionOpId] = useState(null);
 
   // Opt-in Competitive Mode (solo tranquility vs social comparison)
   const [leaderboardMode, setLeaderboardMode] = useState('friends');
@@ -331,6 +377,7 @@ export default function Social() {
       const parentId = generateUUID(); // generated parent key
       const mappedSubtasks = subtasks.map(s => ({
         ...s,
+        title: `${opTaskTitle.trim()} // ${s.title}`,
         xpValue: automatedXp,
         deadline: new Date(s.deadline).toISOString()
       }));
@@ -871,7 +918,8 @@ export default function Social() {
                               return (
                                 <div 
                                   key={op.id}
-                                  className="p-3 border border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent rounded flex flex-col gap-2"
+                                  className="p-3 border border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent rounded flex flex-col gap-2 cursor-pointer hover:border-gold-core/40 transition-all"
+                                  onClick={() => setSelectedLegionOpId(op.id)}
                                 >
                                   <div className="flex items-start gap-2.5 justify-between">
                                     <div className="flex items-start gap-2 min-w-0 flex-1">
@@ -1143,14 +1191,21 @@ export default function Social() {
                         const parentTitle = parts.length > 1 && parts[0] ? parts[0] : 'Unnamed Operation';
 
                         return (
-                          <div key={op.id} className="op-run-card glass-panel p-4 border border-white/5 rounded">
+                          <div 
+                            key={op.id} 
+                            className="op-run-card glass-panel p-4 border border-white/5 rounded cursor-pointer hover:border-gold-core/30 hover:shadow-[0_0_15px_rgba(197,160,89,0.05)] transition-all"
+                            onClick={() => setSelectedLegionOpId(op.id)}
+                          >
                             <div className="flex justify-between items-start mb-3">
                               <div className="flex flex-col">
                                 <span className="text-[7px] font-mono text-gold-core uppercase tracking-wider">Active Legion Run</span>
                                 <h4 className="font-serif text-[13px] text-white uppercase">{parentTitle}</h4>
                                 <span className="text-[8px] font-mono text-gray-500 uppercase mt-0.5">Status: {(op.status || '').toUpperCase()}</span>
                               </div>
-                              <span className="text-[8px] font-mono text-gold-core">Deadline: {new Date(op.deadline).toLocaleDateString()}</span>
+                              <div className="flex flex-col items-end gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                                <LegionOpCountdown deadline={op.deadline} />
+                                <span className="text-[7px] font-mono text-gray-500">DEADLINE: {new Date(op.deadline).toLocaleDateString()}</span>
+                              </div>
                             </div>
 
                             {/* Subtask Status board */}
@@ -1178,7 +1233,7 @@ export default function Social() {
                                     <div className="flex gap-3 items-center">
                                       {/* Acceptance display */}
                                       {!isLocked ? (
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                                           <span className={`text-[8px] uppercase font-bold ${
                                             s.acceptance_status === 'accepted' ? 'text-green-500' : 
                                             s.acceptance_status === 'declined' ? 'text-red-500' : 'text-amber-500'
@@ -1189,6 +1244,7 @@ export default function Social() {
                                             <div className="flex items-center gap-1.5 ml-2">
                                               <select
                                                 value={s.assigned_to}
+                                                onClick={e => e.stopPropagation()}
                                                 onChange={async (e) => {
                                                   const val = e.target.value;
                                                   if (val && val !== s.assigned_to) {
@@ -1209,7 +1265,8 @@ export default function Social() {
                                               </select>
                                               <button
                                                 type="button"
-                                                onClick={async () => {
+                                                onClick={async (e) => {
+                                                  e.stopPropagation();
                                                   if (confirm(`Remove this subtask assigned to ${assigneeName}?`)) {
                                                     try {
                                                       await removeOperationSubtask(s.id);
@@ -1239,8 +1296,8 @@ export default function Social() {
                                       {/* Action options */}
                                       {op.status === 'active' && s.assigned_to === user?.id && s.completion_status === 'incomplete' && (
                                         <button 
-                                          onClick={() => completeLegionSubtask(s.id, 'completed')}
-                                          className="text-[8px] border border-gold-core/40 text-gold-core px-1.5 py-0.5 rounded"
+                                          onClick={(e) => { e.stopPropagation(); completeLegionSubtask(s.id, 'completed'); }}
+                                          className="text-[8px] border border-gold-core/40 text-gold-core px-1.5 py-0.5 rounded cursor-pointer"
                                         >
                                           CONQUER
                                         </button>
@@ -1248,8 +1305,8 @@ export default function Social() {
 
                                       {op.status === 'active' && s.assigned_to !== user?.id && s.completion_status === 'incomplete' && (
                                         <button 
-                                          onClick={() => completeLegionSubtask(s.id, 'covered')}
-                                          className="text-[8px] border border-white/20 text-white/60 px-1.5 py-0.5 rounded hover:border-gold-core hover:text-gold-core"
+                                          onClick={(e) => { e.stopPropagation(); completeLegionSubtask(s.id, 'covered'); }}
+                                          className="text-[8px] border border-white/20 text-white/60 px-1.5 py-0.5 rounded hover:border-gold-core hover:text-gold-core cursor-pointer"
                                         >
                                           COVER
                                         </button>
@@ -1257,8 +1314,8 @@ export default function Social() {
 
                                       {op.status === 'active' && activeLegion.owner_id === user?.id && s.completion_status === 'incomplete' && (
                                         <button 
-                                          onClick={() => restrainLegionMember(s.id)}
-                                          className="text-[8px] border border-red-500/20 text-red-500 px-1.5 py-0.5 rounded hover:border-red-500 hover:bg-red-500/5"
+                                          onClick={(e) => { e.stopPropagation(); restrainLegionMember(s.id); }}
+                                          className="text-[8px] border border-red-500/20 text-red-500 px-1.5 py-0.5 rounded hover:border-red-500 hover:bg-red-500/5 cursor-pointer"
                                         >
                                           RESTRAIN
                                         </button>
@@ -1271,16 +1328,16 @@ export default function Social() {
 
                             {/* Acceptance response for current user */}
                             {op.status === 'acceptance_open' && userSubtask && userSubtask.acceptance_status === 'pending' && (
-                              <div className="acceptance-actions flex gap-3 mt-4">
+                              <div className="acceptance-actions flex gap-3 mt-4" onClick={e => e.stopPropagation()}>
                                 <button 
                                   onClick={() => respondToSubtask(userSubtask.id, 'accepted')}
-                                  className="accept-op-btn flex-1 py-2 font-mono text-[9px] border border-green-500 text-green-500 rounded"
+                                  className="accept-op-btn flex-1 py-2 font-mono text-[9px] border border-green-500 text-green-500 rounded cursor-pointer"
                                 >
                                   ACCEPT ASSIGNMENT
                                 </button>
                                 <button 
                                   onClick={() => respondToSubtask(userSubtask.id, 'declined')}
-                                  className="decline-op-btn flex-1 py-2 font-mono text-[9px] border border-red-500 text-red-500 rounded"
+                                  className="decline-op-btn flex-1 py-2 font-mono text-[9px] border border-red-500 text-red-500 rounded cursor-pointer"
                                 >
                                   DECLINE ASSIGNMENT
                                 </button>
@@ -1289,11 +1346,11 @@ export default function Social() {
 
                             {/* Lock Operation trigger for creator */}
                             {op.status === 'acceptance_open' && activeLegion.owner_id === user?.id && (
-                              <div className="flex gap-3 mt-4">
+                              <div className="flex gap-3 mt-4" onClick={e => e.stopPropagation()}>
                                 <button 
                                   type="button"
                                   onClick={() => lockLegionOperation(op.id)}
-                                  className="lock-op-btn flex-1 py-2 font-mono text-[9px] border border-gold-core/40 text-gold-core rounded text-center block hover:bg-gold-core/10 transition-colors"
+                                  className="lock-op-btn flex-1 py-2 font-mono text-[9px] border border-gold-core/40 text-gold-core rounded text-center block hover:bg-gold-core/10 transition-colors cursor-pointer"
                                 >
                                   LOCK & START RUN
                                 </button>
@@ -1308,7 +1365,7 @@ export default function Social() {
                                       }
                                     }
                                   }}
-                                  className="cancel-op-btn flex-1 py-2 font-mono text-[9px] border border-red-500/40 text-red-500 rounded text-center block hover:bg-red-500/10 transition-colors"
+                                  className="cancel-op-btn flex-1 py-2 font-mono text-[9px] border border-red-500/40 text-red-500 rounded text-center block hover:bg-red-500/10 transition-colors cursor-pointer"
                                 >
                                   CANCEL RUN
                                 </button>
@@ -1317,7 +1374,7 @@ export default function Social() {
 
                             {/* Failure note prompt */}
                             {op.status === 'failed' && userSubtask && userSubtask.completion_status === 'incomplete' && !userSubtask.note && (
-                              <div className="failure-note-prompt mt-4 p-3 border border-red-500/20 rounded bg-red-500/5">
+                              <div className="failure-note-prompt mt-4 p-3 border border-red-500/20 rounded bg-red-500/5" onClick={e => e.stopPropagation()}>
                                 <span className="text-[9px] font-mono text-red-400 block mb-1">LOG EXPLANATION (MANDATORY NOTE)</span>
                                 <form onSubmit={handleFailureNoteSubmit} className="flex gap-2">
                                   <input 
@@ -1327,7 +1384,7 @@ export default function Social() {
                                     onChange={e => { setFailureNoteText(e.target.value); setFailureNoteSubtaskId(userSubtask.id); }}
                                     className="flex-1 font-mono bg-black text-white border border-white/10 px-2 py-1 rounded text-[9px]"
                                   />
-                                  <button type="submit" className="p-1 border border-gold-core text-gold-core rounded">
+                                  <button type="submit" className="p-1 border border-gold-core text-gold-core rounded cursor-pointer">
                                     <Send size={10} />
                                   </button>
                                 </form>
@@ -1345,6 +1402,13 @@ export default function Social() {
 
         </AnimatePresence>
       </div>
+
+      {selectedLegionOpId && (
+        <LegionOperationDetail 
+          operationId={selectedLegionOpId} 
+          onClose={() => setSelectedLegionOpId(null)} 
+        />
+      )}
 
       <style jsx global>{`
         .social-page-container {
