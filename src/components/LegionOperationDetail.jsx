@@ -55,6 +55,11 @@ export default function LegionOperationDetail({ operationId, onClose }) {
     (state.legionEvents || []).filter(e => e.metadata?.operation_id === operationId)
   ));
 
+  const personalTasks = useWarscytheStore(useShallow(state => state.tasks || []));
+  const updateProgress = useWarscytheStore(state => state.updateProgress);
+  const updateNotes = useWarscytheStore(state => state.updateTaskNotes);
+  const completeTask = useWarscytheStore(state => state.completeTask);
+
   const respondToSubtask = useWarscytheStore(state => state.respondToSubtask);
   const lockLegionOperation = useWarscytheStore(state => state.lockLegionOperation);
   const restrainLegionMember = useWarscytheStore(state => state.restrainLegionMember);
@@ -154,6 +159,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                 const sParts = (s.title || '').split(' // ');
                 const cleanSubtaskTitle = sParts.length > 1 ? sParts[1] : s.title;
                 const isUserAssigned = s.assigned_to === user?.id;
+                const linkedTask = personalTasks.find(t => t.id === s.task_id);
 
                 return (
                   <div key={s.id} className="td-step-item" style={{ flexDirection: 'column', gap: '0.8rem', cursor: 'default' }}>
@@ -191,6 +197,42 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                         )}
                       </div>
                     </div>
+
+                    {isUserAssigned && operation.status === 'active' && s.completion_status === 'incomplete' && linkedTask && (
+                      <div className="w-full flex flex-col gap-3 pt-2 border-t border-white/[0.03]">
+                        {/* Progress Slider */}
+                        <div className="td-section !gap-1.5 w-full">
+                          <div className="td-section-header">
+                            <label className="!text-[8px] !font-mono !tracking-widest">OBJECTIVE PROGRESS: {linkedTask.progress}%</label>
+                          </div>
+                          <div className="td-slider-container !mt-1">
+                            <div className="td-slider-track">
+                              <div className="td-slider-fill" style={{ width: `${linkedTask.progress}%`, background: 'var(--gold-core)' }} />
+                            </div>
+                            <input 
+                              type="range" 
+                              min="0" max="100" step="5"
+                              value={linkedTask.progress}
+                              onChange={e => updateProgress(linkedTask.id, parseInt(e.target.value))}
+                              className="td-native-slider"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Field Notes */}
+                        <div className="td-section !gap-1.5 w-full">
+                          <div className="td-section-header">
+                            <label className="!text-[8px] !font-mono !tracking-widest">FIELD NOTES</label>
+                          </div>
+                          <textarea 
+                            className="td-textarea !min-h-[60px] !p-2"
+                            placeholder="Record strategic observations, roadblocks, or intelligence..."
+                            value={linkedTask.notes || ''}
+                            onChange={e => updateNotes(linkedTask.id, e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Operational controls during prep or run phase */}
                     <div className="flex justify-between items-center w-full pt-2 border-t border-white/[0.03]">
@@ -337,6 +379,24 @@ export default function LegionOperationDetail({ operationId, onClose }) {
             </button>
           )}
 
+          {operation.status === 'active' && userSubtask && userSubtask.completion_status === 'incomplete' && userSubtask.acceptance_status === 'accepted' && (
+            <button 
+              onClick={async () => {
+                try {
+                  await completeLegionSubtask(userSubtask.id, 'completed');
+                  await completeTask(userSubtask.task_id);
+                  alert('Objective execution validated! Tactical logs updated.');
+                } catch (err) {
+                  alert('Validation failed: ' + err.message);
+                }
+              }}
+              className="td-btn-validate"
+            >
+              <CheckCircle size={16} />
+              <span>VALIDATE EXECUTION</span>
+            </button>
+          )}
+
           <button className="td-btn-danger" style={{ width: 'auto', padding: '0 1.5rem' }} onClick={onClose}>
             CLOSE
           </button>
@@ -426,6 +486,27 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           .td-btn-danger:hover {
             background: rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.6); color: #ef4444; transform: translateY(-2px);
           }
+
+          .td-btn-validate {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(197, 160, 89, 0.05) 100%);
+            border: 1px solid var(--gold-core); border-radius: 8px;
+            color: var(--gold-bright); font-family: var(--font-mono); font-weight: 900; font-size: 0.85rem; letter-spacing: 0.15em;
+            padding: 1rem; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+          }
+          .td-btn-validate:hover {
+            background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
+          }
+
+          .td-textarea {
+            width: 100%; min-height: 100px; 
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; color: #fff; padding: 1rem; 
+            font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.5;
+            resize: vertical; transition: 0.2s;
+          }
+          .td-textarea:focus { outline: none; border-color: rgba(197, 160, 89, 0.4); background: rgba(0,0,0,0.5); }
         `}</style>
 
       </motion.div>

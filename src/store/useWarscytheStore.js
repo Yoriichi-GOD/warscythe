@@ -2074,7 +2074,7 @@ export const useWarscytheStore = create(
                 .from('legion_subtasks')
                 .select(`
                   *,
-                  assignee:profiles(id, username, state)
+                  assignee:profiles!legion_subtasks_assigned_to_fkey(id, username, state)
                 `)
                 .in('legion_operation_id', opIds);
               if (subData) subtasks = subData;
@@ -2272,6 +2272,28 @@ export const useWarscytheStore = create(
 
         if (subErr) throw subErr;
 
+        // Auto-add the creator's own assigned subtask to their personal tasks array
+        const creatorSub = subtasksToInsert.find(s => s.assigned_to === u);
+        if (creatorSub) {
+          const newTask = {
+            id: creatorSub.task_id,
+            title: creatorSub.title,
+            category: 'LEGION',
+            effort: 'Medium',
+            deadline: creatorSub.deadline,
+            priority: creatorSub.priority,
+            progress: 0,
+            microSteps: [],
+            notes: '',
+            lastProgressUpdate: new Date().toISOString(),
+            created_at: new Date().toISOString()
+          };
+          set(state => ({
+            tasks: [...state.tasks, newTask]
+          }));
+          await get().saveUserState(u);
+        }
+
         await supabase.from('legion_events').insert({
           legion_id: legionId,
           event_type: 'operation_started',
@@ -2297,7 +2319,7 @@ export const useWarscytheStore = create(
 
         const { data: sub } = await supabase
           .from('legion_subtasks')
-          .select('legion_operation_id')
+          .select('legion_operation_id, title, deadline, priority, task_id')
           .eq('id', subtaskId)
           .single();
 
@@ -2314,6 +2336,30 @@ export const useWarscytheStore = create(
               event_type: acceptStatus === 'accepted' ? 'subtask_accepted' : 'subtask_declined',
               actor_id: u
             });
+          }
+
+          // If accepted, also insert a personal task on the user's side
+          if (acceptStatus === 'accepted') {
+            const exists = get().tasks.some(t => t.id === sub.task_id);
+            if (!exists) {
+              const newTask = {
+                id: sub.task_id,
+                title: sub.title || 'Unnamed Objective',
+                category: 'LEGION',
+                effort: 'Medium',
+                deadline: sub.deadline || new Date().toISOString(),
+                priority: sub.priority || 'medium',
+                progress: 0,
+                microSteps: [],
+                notes: '',
+                lastProgressUpdate: new Date().toISOString(),
+                created_at: new Date().toISOString()
+              };
+              set(state => ({
+                tasks: [...state.tasks, newTask]
+              }));
+              await get().saveUserState(u);
+            }
           }
         }
 
