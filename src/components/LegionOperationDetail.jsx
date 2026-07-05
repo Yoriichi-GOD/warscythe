@@ -399,6 +399,8 @@ export default function LegionOperationDetail({ operationId, onClose }) {
               onClick={async () => {
                 try {
                   await completeLegionSubtask(userSubtask.id, 'completed');
+                  // 2-second delay to isolate legion database updates from personal sync payload writes
+                  await new Promise(resolve => setTimeout(resolve, 2000));
                   await completeTask(userSubtask.task_id);
                   alert('Objective execution validated! Tactical logs updated.');
                 } catch (err) {

@@ -2293,7 +2293,6 @@ export const useWarscytheStore = create(
           set(state => ({
             tasks: [...state.tasks, newTask]
           }));
-          await get().saveUserState(u);
         }
 
         await supabase.from('legion_events').insert({
@@ -2360,7 +2359,6 @@ export const useWarscytheStore = create(
               set(state => ({
                 tasks: [...state.tasks, newTask]
               }));
-              await get().saveUserState(u);
             }
           }
         }
