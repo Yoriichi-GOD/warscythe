@@ -118,13 +118,13 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
              </div>
              
              <div className="td-steps-list">
-               {task.microSteps.length === 0 ? (
+               {!(task.microSteps && task.microSteps.length > 0) ? (
                  <div className="td-empty-state">
                    <p>No tactical steps generated.</p>
                    <span>Resistance is high? Recalculate your approach.</span>
                  </div>
                ) : (
-                 task.microSteps.map(step => (
+                 (task.microSteps || []).map(step => (
                    <div 
                     key={step.id} 
                     className={`td-step-item ${step.checked ? 'checked' : ''}`}

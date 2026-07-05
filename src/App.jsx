@@ -837,17 +837,23 @@ export default function App() {
             onOpenAuth={() => setShowAuth(true)} 
           />
         )}
+      </AnimatePresence>
+      <AnimatePresence>
         {showShopModal && (
           <ShopModal 
             onClose={() => setShowShopModal(false)} 
             onOpenAuth={() => setShowAuth(true)} 
           />
         )}
+      </AnimatePresence>
+      <AnimatePresence>
         {showDownloaderModal && (
           <AssetDownloaderModal 
             onClose={() => setShowDownloaderModal(false)} 
           />
         )}
+      </AnimatePresence>
+      <AnimatePresence>
         {cacheAlertRegionId && (
           <CacheAlertPopup 
             regionId={cacheAlertRegionId}
@@ -855,6 +861,8 @@ export default function App() {
             onOpenDownloader={() => setShowDownloaderModal(true)}
           />
         )}
+      </AnimatePresence>
+      <AnimatePresence>
         {showLoreModal && (
           <LoreModal 
             onClose={() => setShowLoreModal(false)} 
