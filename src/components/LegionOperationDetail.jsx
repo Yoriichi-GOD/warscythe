@@ -78,12 +78,18 @@ export default function LegionOperationDetail({ operationId, onClose }) {
   
   const userSubtask = subtasks.find(s => s.assigned_to === user?.id);
 
-  // Calculate overall operation progress
+  const parentTask = personalTasks.find(t => t.id === operation.parent_task_id);
+
+  // Calculate overall operation progress as the average progress of all subtasks
   const total = subtasks.length;
-  const completed = subtasks.filter(
-    s => s.completion_status === 'completed' || s.completion_status === 'covered'
-  ).length;
-  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const totalProgress = subtasks.reduce((acc, s) => {
+    const linked = personalTasks.find(t => t.id === s.task_id);
+    if (s.completion_status === 'completed' || s.completion_status === 'covered') return acc + 100;
+    return acc + (linked ? linked.progress : 0);
+  }, 0);
+  const progress = total > 0 ? Math.round(totalProgress / total) : 0;
+  
+  const displayProgress = parentTask ? parentTask.progress : progress;
 
   const trackColor = 'var(--gold-core)';
 
@@ -113,19 +119,28 @@ export default function LegionOperationDetail({ operationId, onClose }) {
 
         <div className="td-body custom-scrollbar">
           
-          {/* Progress Slider (Read-Only) */}
+          {/* Progress Slider */}
           <div className="td-section">
             <div className="td-section-header">
-              <label>OPERATION PROGRESS: {progress}%</label>
+              <label>OPERATION PROGRESS: {displayProgress}%</label>
               <span className="td-stage" style={{ color: trackColor }}>
-                {progress < 50 ? 'INFILTRATE' : progress < 100 ? 'ASSAULT' : 'SECURED'}
+                {displayProgress < 50 ? 'INFILTRATE' : displayProgress < 100 ? 'ASSAULT' : 'SECURED'}
               </span>
             </div>
             
             <div className="td-slider-container">
               <div className="td-slider-track">
-                <div className="td-slider-fill" style={{ width: `${progress}%`, background: trackColor }} />
+                <div className="td-slider-fill" style={{ width: `${displayProgress}%`, background: trackColor }} />
               </div>
+              {parentTask && (
+                <input 
+                  type="range" 
+                  min="0" max="100" step="5"
+                  value={parentTask.progress}
+                  onChange={e => updateProgress(parentTask.id, parseInt(e.target.value))}
+                  className="td-native-slider"
+                />
+              )}
             </div>
           </div>
 
@@ -449,6 +464,21 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           .td-slider-container { position: relative; height: 24px; display: flex; align-items: center; margin-top: 0.5rem; }
           .td-slider-track { position: absolute; left: 0; right: 0; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: visible; }
           .td-slider-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease, background 0.3s ease; position: relative; }
+          .td-slider-fill::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: var(--gold-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--gold-core);
+          }
+          .td-native-slider {
+            position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; margin: 0;
+          }
 
           /* MICRO STEPS */
           .td-steps-list { display: flex; flex-direction: column; gap: 0.5rem; }
