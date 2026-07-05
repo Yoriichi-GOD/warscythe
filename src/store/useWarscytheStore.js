@@ -41,6 +41,16 @@ let isSyncingFromServer = false;
 let hasFetchedInitialState = false;
 let lastState = null;
 
+const normalizeTask = (task) => {
+  if (!task) return task;
+  return {
+    ...task,
+    microSteps: task.microSteps ?? [],
+    priority: task.priority ?? 'none',
+    progress: task.progress ?? 0
+  };
+};
+
 const mergeArraysById = (arrA = [], arrB = [], idKey = 'id', timeKey = 'updatedAt') => {
   const map = new Map();
   const parseDate = (d) => (d ? new Date(d).getTime() : 0);
@@ -75,10 +85,11 @@ const mergeState = (local, saved) => {
   const parseDate = (d) => (d ? new Date(d).getTime() : 0);
 
   // Array Merging
-  const completedTasks = mergeArraysById(local.completedTasks || [], saved.completedTasks || [], 'id', 'completedAt');
-  const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'completedAt');
+  const completedTasks = mergeArraysById(local.completedTasks || [], saved.completedTasks || [], 'id', 'completedAt').map(normalizeTask);
+  const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'completedAt').map(normalizeTask);
   const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate')
-    .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id));
+    .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id))
+    .map(normalizeTask);
   const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
   const gymLog = mergeArraysById(local.gymLog || [], saved.gymLog || [], 'id', 'date');
   const collectedArtifacts = mergeArraysById(local.collectedArtifacts || [], saved.collectedArtifacts || [], 'name', 'date');
@@ -2079,8 +2090,15 @@ export const useWarscytheStore = create(
             set({
               activeLegion: legionData,
               legionMembers: members || [],
-              legionOperations: ops || [],
-              legionSubtasks: subtasks || [],
+              legionOperations: (ops || []).map(o => ({
+                ...o,
+                status: o.status ?? 'acceptance_open'
+              })),
+              legionSubtasks: (subtasks || []).map(s => ({
+                ...s,
+                acceptance_status: s.acceptance_status ?? 'pending',
+                completion_status: s.completion_status ?? 'incomplete'
+              })),
               legionEvents: lEvents || []
             });
           } else {
@@ -2650,13 +2668,17 @@ export const useWarscytheStore = create(
       storage: createJSONStorage(() => localStorage),
       merge: (persistedState, currentState) => {
         const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
-        return {
+        const merged = {
           ...currentState,
           ...persistedState,
           downloadedRegions: isMobile
             ? (persistedState?.downloadedRegions || [])
             : [2, 3, 4, 5, 6, 7, 8, 9, 10]
         };
+        if (merged.tasks) merged.tasks = merged.tasks.map(normalizeTask);
+        if (merged.completedTasks) merged.completedTasks = merged.completedTasks.map(normalizeTask);
+        if (merged.abandonedTasks) merged.abandonedTasks = merged.abandonedTasks.map(normalizeTask);
+        return merged;
       }
     }
   )

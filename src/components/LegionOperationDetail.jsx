@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
+import { useShallow } from 'zustand/react/shallow';
 import { X, CheckCircle, Zap, Target, Calendar, User, ShieldAlert, Award, Clock } from 'lucide-react';
 
 function useCountdown(deadlineIso) {
@@ -38,21 +39,21 @@ function useCountdown(deadlineIso) {
 
 export default function LegionOperationDetail({ operationId, onClose }) {
   const user = useWarscytheStore(state => state.user);
-  const activeLegion = useWarscytheStore(state => state.activeLegion);
-  const legionMembers = useWarscytheStore(state => state.legionMembers || []);
+  const activeLegion = useWarscytheStore(state => state.activeLegion) || {};
+  const legionMembers = useWarscytheStore(useShallow(state => state.legionMembers || []));
   const operation = useWarscytheStore(state => 
     (state.legionOperations || []).find(op => op.id === operationId)
   );
   
-  const subtasks = useWarscytheStore(state => 
+  const subtasks = useWarscytheStore(useShallow(state => 
     (state.legionSubtasks || []).filter(
       s => s.legion_operation_id === operationId && s.acceptance_status !== 'removed_pre_start'
     )
-  );
+  ));
 
-  const legionEvents = useWarscytheStore(state => 
+  const legionEvents = useWarscytheStore(useShallow(state => 
     (state.legionEvents || []).filter(e => e.metadata?.operation_id === operationId)
-  );
+  ));
 
   const respondToSubtask = useWarscytheStore(state => state.respondToSubtask);
   const lockLegionOperation = useWarscytheStore(state => state.lockLegionOperation);
@@ -97,7 +98,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
             <div className="flex gap-2 items-center mb-1">
               <span className="td-category">LEGION OPERATION</span>
               <span className={`priority-badge ${operation.status === 'active' ? 'priority-medium' : 'priority-low'}`}>
-                {operation.status.toUpperCase()}
+                {operation.status?.toUpperCase()}
               </span>
             </div>
             <h2 className="td-title">{parentTitle}</h2>
@@ -178,14 +179,14 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                             s.acceptance_status === 'accepted' ? 'border-green-500/20 bg-green-500/5 text-green-500' : 
                             s.acceptance_status === 'declined' ? 'border-red-500/20 bg-red-500/5 text-red-500' : 'border-amber-500/20 bg-amber-500/5 text-amber-500'
                           }`}>
-                            {s.acceptance_status.toUpperCase()}
+                            {s.acceptance_status?.toUpperCase()}
                           </span>
                         ) : (
                           <span className={`text-[8px] uppercase font-bold px-1.5 py-0.5 border rounded ${
                             s.completion_status === 'completed' || s.completion_status === 'covered' ? 'border-gold-core/20 bg-gold-core/5 text-gold-core' : 
                             s.completion_status === 'restrained' ? 'border-red-500/20 bg-red-500/5 text-red-500' : 'border-gray-500/20 bg-gray-500/5 text-gray-500'
                           }`}>
-                            {s.completion_status.toUpperCase()}
+                            {s.completion_status?.toUpperCase()}
                           </span>
                         )}
                       </div>
