@@ -342,6 +342,92 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           </button>
         </div>
 
+        <style jsx>{`
+          .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; z-index: 2000;
+            padding: 1rem;
+          }
+
+          .task-detail-panel {
+            width: 100%; max-width: 500px; max-height: 90vh;
+            background: #0a0a0d;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          }
+
+          /* HEADER */
+          .td-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02);
+          }
+          .td-title-group { display: flex; flex-direction: column; gap: 0.4rem; }
+          .td-category { font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-core); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 900; }
+          .td-title { font-family: var(--font-display); font-size: 1.25rem; color: #fff; letter-spacing: 0.05em; line-height: 1.3; margin: 0; }
+          .td-close { color: rgba(255,255,255,0.4); cursor: pointer; transition: 0.2s; padding: 0.25rem; background: transparent; border: none; }
+          .td-close:hover { color: #fff; transform: rotate(90deg); }
+
+          /* BODY */
+          .td-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 2rem;
+          }
+          
+          .td-section { display: flex; flex-direction: column; gap: 0.75rem; }
+          .td-section-header { display: flex; justify-content: space-between; align-items: center; }
+          .td-section-header label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 900; color: rgba(255,255,255,0.6); letter-spacing: 0.15em; margin: 0; }
+          .td-stage { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.2em; text-shadow: 0 0 10px currentColor; }
+
+          /* SLIDER */
+          .td-slider-container { position: relative; height: 24px; display: flex; align-items: center; margin-top: 0.5rem; }
+          .td-slider-track { position: absolute; left: 0; right: 0; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: visible; }
+          .td-slider-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease, background 0.3s ease; position: relative; }
+
+          /* MICRO STEPS */
+          .td-steps-list { display: flex; flex-direction: column; gap: 0.5rem; }
+          .td-step-item { 
+            display: flex; align-items: flex-start; gap: 0.8rem; 
+            background: rgba(255,255,255,0.02); padding: 1rem; 
+            border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; transition: 0.2s;
+          }
+          .td-step-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+
+          .priority-badge {
+            font-family: var(--font-mono);
+            font-size: 0.55rem;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+          }
+          .priority-badge.priority-low { background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; color: #2ecc71; }
+          .priority-badge.priority-medium { background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f; color: #f1c40f; }
+          .priority-badge.priority-high { background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; }
+
+          /* FOOTER ACTIONS */
+          .td-footer {
+            display: flex; gap: 0.75rem; padding: 1.5rem;
+            background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05);
+          }
+
+          .td-btn-danger {
+            width: 54px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px;
+            color: rgba(220, 38, 38, 0.8); cursor: pointer; transition: 0.2s;
+          }
+          .td-btn-danger:hover {
+            background: rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.6); color: #ef4444; transform: translateY(-2px);
+          }
+        `}</style>
+
       </motion.div>
     </div>
   );
