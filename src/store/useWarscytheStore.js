@@ -86,7 +86,9 @@ const mergeState = (local, saved) => {
 
   // Array Merging
   const completedTasks = mergeArraysById(local.completedTasks || [], saved.completedTasks || [], 'id', 'completedAt').map(normalizeTask);
-  const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'completedAt').map(normalizeTask);
+  const abandonedTasks = mergeArraysById(local.abandonedTasks || [], saved.abandonedTasks || [], 'id', 'abandonedAt')
+    .map(normalizeTask)
+    .filter(at => !completedTasks.some(ct => ct.id === at.id));
   const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate')
     .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id))
     .map(normalizeTask);
