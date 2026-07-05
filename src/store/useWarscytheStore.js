@@ -1440,10 +1440,7 @@ export const useWarscytheStore = create(
             coins: state.coins - cost,
             unlockedScythes: [...state.unlockedScythes, scytheId]
           });
-          const u = get().user?.id;
-          if (u) {
-            get().saveUserState(u);
-          }
+
           return true;
         }
         return false;
@@ -1451,10 +1448,7 @@ export const useWarscytheStore = create(
 
       equipScythe: (scytheId) => {
         set({ activeScytheSkin: scytheId });
-        const u = get().user?.id;
-        if (u) {
-          get().saveUserState(u);
-        }
+
       },
 
       applyTheme: (themeId) => {
@@ -1463,26 +1457,17 @@ export const useWarscytheStore = create(
         if (themeId && themeId !== 'default') {
           document.body.classList.add(`theme-${themeId}`);
         }
-        const u = get().user?.id;
-        if (u) {
-          get().saveUserState(u);
-        }
+
       },
 
       setSoundscapeEnabled: (enabled) => {
         set({ soundscapeEnabled: enabled });
-        const u = get().user?.id;
-        if (u) {
-          get().saveUserState(u);
-        }
+
       },
 
       setSoundscapeVolume: (volume) => {
         set({ soundscapeVolume: volume });
-        const u = get().user?.id;
-        if (u) {
-          get().saveUserState(u);
-        }
+
       },
 
       buyCosmetic: async (itemId, itemType) => {
@@ -1588,10 +1573,7 @@ export const useWarscytheStore = create(
             };
           });
 
-          const u = get().user?.id;
-          if (u) {
-            get().saveUserState(u);
-          }
+
         } catch (err) {
           console.error(`Failed to download bundle for ${subItemId}:`, err);
           throw err;
@@ -1625,10 +1607,7 @@ export const useWarscytheStore = create(
             };
           });
 
-          const u = get().user?.id;
-          if (u) {
-            get().saveUserState(u);
-          }
+
         } catch (err) {
           console.error(`Failed to delete bundle for ${subItemId}:`, err);
           throw err;
@@ -2753,6 +2732,28 @@ useWarscytheStore.subscribe((state) => {
       collectedArtifacts: state.collectedArtifacts,
       gymLog: state.gymLog,
       activeWorkout: state.activeWorkout,
+      activeScytheSkin: state.activeScytheSkin,
+      activeTheme: state.activeTheme,
+      unlockedScythes: state.unlockedScythes,
+      unlockedThemes: state.unlockedThemes,
+      downloadedRegions: state.downloadedRegions,
+      coins: state.coins,
+      soundscapeEnabled: state.soundscapeEnabled,
+      soundscapeVolume: state.soundscapeVolume,
+      isAdFree: state.isAdFree,
+      referralSource: state.referralSource,
+      tutorialStep: state.tutorialStep,
+      hasCompletedTutorial: state.hasCompletedTutorial,
+      scytheMigrationDone: state.scytheMigrationDone,
+      bossKills: state.bossKills,
+      customGymWorkouts: state.customGymWorkouts,
+      weeklyPoints: state.weeklyPoints,
+      lastActiveDate: state.lastActiveDate,
+      lastResetDate: state.lastResetDate,
+      firstTaskCompleted: state.firstTaskCompleted,
+      scytheLevel: state.scytheLevel,
+      dailyPoints: state.dailyPoints,
+      rescuedFairies: state.rescuedFairies,
     };
     return;
   }
@@ -2772,6 +2773,28 @@ useWarscytheStore.subscribe((state) => {
       collectedArtifacts: state.collectedArtifacts,
       gymLog: state.gymLog,
       activeWorkout: state.activeWorkout,
+      activeScytheSkin: state.activeScytheSkin,
+      activeTheme: state.activeTheme,
+      unlockedScythes: state.unlockedScythes,
+      unlockedThemes: state.unlockedThemes,
+      downloadedRegions: state.downloadedRegions,
+      coins: state.coins,
+      soundscapeEnabled: state.soundscapeEnabled,
+      soundscapeVolume: state.soundscapeVolume,
+      isAdFree: state.isAdFree,
+      referralSource: state.referralSource,
+      tutorialStep: state.tutorialStep,
+      hasCompletedTutorial: state.hasCompletedTutorial,
+      scytheMigrationDone: state.scytheMigrationDone,
+      bossKills: state.bossKills,
+      customGymWorkouts: state.customGymWorkouts,
+      weeklyPoints: state.weeklyPoints,
+      lastActiveDate: state.lastActiveDate,
+      lastResetDate: state.lastResetDate,
+      firstTaskCompleted: state.firstTaskCompleted,
+      scytheLevel: state.scytheLevel,
+      dailyPoints: state.dailyPoints,
+      rescuedFairies: state.rescuedFairies,
     };
     return;
   }
@@ -2790,6 +2813,28 @@ useWarscytheStore.subscribe((state) => {
   if (state.collectedArtifacts !== lastState.collectedArtifacts) changedFields.push('collectedArtifacts');
   if (state.gymLog !== lastState.gymLog) changedFields.push('gymLog');
   if (state.activeWorkout !== lastState.activeWorkout) changedFields.push('activeWorkout');
+  if (state.activeScytheSkin !== lastState.activeScytheSkin) changedFields.push('activeScytheSkin');
+  if (state.activeTheme !== lastState.activeTheme) changedFields.push('activeTheme');
+  if (state.unlockedScythes !== lastState.unlockedScythes) changedFields.push('unlockedScythes');
+  if (state.unlockedThemes !== lastState.unlockedThemes) changedFields.push('unlockedThemes');
+  if (state.downloadedRegions !== lastState.downloadedRegions) changedFields.push('downloadedRegions');
+  if (state.coins !== lastState.coins) changedFields.push('coins');
+  if (state.soundscapeEnabled !== lastState.soundscapeEnabled) changedFields.push('soundscapeEnabled');
+  if (state.soundscapeVolume !== lastState.soundscapeVolume) changedFields.push('soundscapeVolume');
+  if (state.isAdFree !== lastState.isAdFree) changedFields.push('isAdFree');
+  if (state.referralSource !== lastState.referralSource) changedFields.push('referralSource');
+  if (state.tutorialStep !== lastState.tutorialStep) changedFields.push('tutorialStep');
+  if (state.hasCompletedTutorial !== lastState.hasCompletedTutorial) changedFields.push('hasCompletedTutorial');
+  if (state.scytheMigrationDone !== lastState.scytheMigrationDone) changedFields.push('scytheMigrationDone');
+  if (state.bossKills !== lastState.bossKills) changedFields.push('bossKills');
+  if (state.customGymWorkouts !== lastState.customGymWorkouts) changedFields.push('customGymWorkouts');
+  if (state.weeklyPoints !== lastState.weeklyPoints) changedFields.push('weeklyPoints');
+  if (state.lastActiveDate !== lastState.lastActiveDate) changedFields.push('lastActiveDate');
+  if (state.lastResetDate !== lastState.lastResetDate) changedFields.push('lastResetDate');
+  if (state.firstTaskCompleted !== lastState.firstTaskCompleted) changedFields.push('firstTaskCompleted');
+  if (state.scytheLevel !== lastState.scytheLevel) changedFields.push('scytheLevel');
+  if (state.dailyPoints !== lastState.dailyPoints) changedFields.push('dailyPoints');
+  if (state.rescuedFairies !== lastState.rescuedFairies) changedFields.push('rescuedFairies');
 
   const hasChanged = changedFields.length > 0;
 
@@ -2810,6 +2855,28 @@ useWarscytheStore.subscribe((state) => {
       collectedArtifacts: state.collectedArtifacts,
       gymLog: state.gymLog,
       activeWorkout: state.activeWorkout,
+      activeScytheSkin: state.activeScytheSkin,
+      activeTheme: state.activeTheme,
+      unlockedScythes: state.unlockedScythes,
+      unlockedThemes: state.unlockedThemes,
+      downloadedRegions: state.downloadedRegions,
+      coins: state.coins,
+      soundscapeEnabled: state.soundscapeEnabled,
+      soundscapeVolume: state.soundscapeVolume,
+      isAdFree: state.isAdFree,
+      referralSource: state.referralSource,
+      tutorialStep: state.tutorialStep,
+      hasCompletedTutorial: state.hasCompletedTutorial,
+      scytheMigrationDone: state.scytheMigrationDone,
+      bossKills: state.bossKills,
+      customGymWorkouts: state.customGymWorkouts,
+      weeklyPoints: state.weeklyPoints,
+      lastActiveDate: state.lastActiveDate,
+      lastResetDate: state.lastResetDate,
+      firstTaskCompleted: state.firstTaskCompleted,
+      scytheLevel: state.scytheLevel,
+      dailyPoints: state.dailyPoints,
+      rescuedFairies: state.rescuedFairies,
     };
 
     // Set status to pending and mark unsynced changes immediately
