@@ -2777,21 +2777,25 @@ useWarscytheStore.subscribe((state) => {
   }
 
   // Check if relevant game progress state has changed
-  const hasChanged =
-    state.tasks !== lastState.tasks ||
-    state.rituals !== lastState.rituals ||
-    state.completedTasks !== lastState.completedTasks ||
-    state.abandonedTasks !== lastState.abandonedTasks ||
-    state.xp !== lastState.xp ||
-    state.level !== lastState.level ||
-    state.streakCount !== lastState.streakCount ||
-    state.notes !== lastState.notes ||
-    state.executionScore !== lastState.executionScore ||
-    state.collectedArtifacts !== lastState.collectedArtifacts ||
-    state.gymLog !== lastState.gymLog ||
-    state.activeWorkout !== lastState.activeWorkout;
+  const changedFields = [];
+  if (state.tasks !== lastState.tasks) changedFields.push('tasks');
+  if (state.rituals !== lastState.rituals) changedFields.push('rituals');
+  if (state.completedTasks !== lastState.completedTasks) changedFields.push('completedTasks');
+  if (state.abandonedTasks !== lastState.abandonedTasks) changedFields.push('abandonedTasks');
+  if (state.xp !== lastState.xp) changedFields.push('xp');
+  if (state.level !== lastState.level) changedFields.push('level');
+  if (state.streakCount !== lastState.streakCount) changedFields.push('streakCount');
+  if (state.notes !== lastState.notes) changedFields.push('notes');
+  if (state.executionScore !== lastState.executionScore) changedFields.push('executionScore');
+  if (state.collectedArtifacts !== lastState.collectedArtifacts) changedFields.push('collectedArtifacts');
+  if (state.gymLog !== lastState.gymLog) changedFields.push('gymLog');
+  if (state.activeWorkout !== lastState.activeWorkout) changedFields.push('activeWorkout');
+
+  const hasChanged = changedFields.length > 0;
 
   if (hasChanged) {
+    console.error('[Warscythe Sync Debug] State change detected in fields:', changedFields);
+    
     // Update local snapshot immediately to prevent duplicate triggers
     lastState = {
       tasks: state.tasks,
