@@ -755,8 +755,12 @@ export const useWarscytheStore = create(
 
       saveUserState: async (userId) => {
         const u = userId || get().user?.id;
-        if (!u) return;
+        if (!u) {
+          console.error('[Warscythe Sync Debug] saveUserState returned early: no user ID');
+          return;
+        }
 
+        console.error('[Warscythe Sync Debug] saveUserState started for user:', u);
         set({ syncStatus: 'pending' });
         const state = get();
         const payload = {
@@ -800,19 +804,21 @@ export const useWarscytheStore = create(
         };
 
         try {
+          console.error('[Warscythe Sync Debug] Executing Supabase profiles upsert query...');
           const { error } = await supabase.from('profiles').upsert({
             id: u,
             state: payload,
             updated_at: new Date().toISOString()
           });
           if (error) {
-            console.error('Save error:', error.message);
+            console.error('[Warscythe Sync Debug] Save query returned error:', error.message);
             set({ syncStatus: 'failed' });
           } else {
+            console.error('[Warscythe Sync Debug] Save query successful!');
             set({ syncStatus: 'synced', hasPendingChanges: false });
           }
         } catch (err) {
-          console.error('Exception in saveUserState:', err);
+          console.error('[Warscythe Sync Debug] Exception thrown during upsert execution:', err);
           set({ syncStatus: 'failed' });
         }
       },
