@@ -5,13 +5,13 @@ import { Lock, Unlock, Sparkles, Swords, Eye, Shield, CloudDownload, Loader2 } f
 import { getAssetUrl } from '../utils/assetResolver';
 
 export default function ScytheCenter({ onOpenShop }) {
-  const { 
-    streakCount, 
-    unlockedScythes, 
+  const {
+    streakCount,
+    unlockedScythes,
     unlockedThemes,
-    coins, 
-    scytheLevel, 
-    activeScytheSkin, 
+    coins,
+    scytheLevel,
+    activeScytheSkin,
     activeTheme,
     equipScythe,
     applyTheme,
@@ -108,7 +108,7 @@ export default function ScytheCenter({ onOpenShop }) {
     'void-walker': 'rgba(138,43,226,0.6)',
     eternal: 'rgba(255,60,60,0.7)',
     'death-lord': 'rgba(30,30,30,0.8)',
-    
+
     cosmic_harvester: 'rgba(52, 152, 219, 0.75)',
     hellfire_reaper: 'rgba(231, 76, 60, 0.75)',
     soul_eater_prime: 'rgba(142, 68, 173, 0.75)',
@@ -174,33 +174,30 @@ export default function ScytheCenter({ onOpenShop }) {
 
         {/* Category Selector Tabs */}
         <div className="flex gap-4 border-b border-white/5 pb-3 mb-6">
-          <button 
-            onClick={() => handleTabChange('streak')} 
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
-              activeTab === 'streak' 
-                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
-                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
-            }`}
+          <button
+            onClick={() => handleTabChange('streak')}
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'streak'
+              ? 'bg-gold-core/10 border-gold-core text-gold-core'
+              : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+              }`}
           >
             Streak Weapons
           </button>
-          <button 
-            onClick={() => handleTabChange('shop')} 
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
-              activeTab === 'shop' 
-                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
-                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
-            }`}
+          <button
+            onClick={() => handleTabChange('shop')}
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'shop'
+              ? 'bg-gold-core/10 border-gold-core text-gold-core'
+              : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+              }`}
           >
             Acquired Skins
           </button>
-          <button 
-            onClick={() => handleTabChange('theme')} 
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${
-              activeTab === 'theme' 
-                ? 'bg-gold-core/10 border-gold-core text-gold-core' 
-                : 'bg-transparent border-transparent text-gray-400 hover:text-white'
-            }`}
+          <button
+            onClick={() => handleTabChange('theme')}
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'theme'
+              ? 'bg-gold-core/10 border-gold-core text-gold-core'
+              : 'bg-transparent border-transparent text-gray-400 hover:text-white'
+              }`}
           >
             Acquired Themes
           </button>
@@ -225,9 +222,9 @@ export default function ScytheCenter({ onOpenShop }) {
               const downloaded = isAssetDownloaded(item);
 
               return (
-                <div 
-                  key={item.id} 
-                  onClick={() => setSelectedItemId(item.id)} 
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedItemId(item.id)}
                   className={`evo-item ${unlocked ? 'active' : 'locked'} ${selectedItemId === item.id ? 'selected' : ''} relative`}
                 >
                   <div className="flex items-center gap-3">
@@ -249,45 +246,45 @@ export default function ScytheCenter({ onOpenShop }) {
 
           {/* Preview/Action Column */}
           <div className="flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
-            
+
             {/* Scythe Slash Render */}
             {selectedItem.type !== 'theme' ? (
-              <motion.div 
-                onClick={triggerSlash} 
-                className="relative cursor-pointer" 
+              <motion.div
+                onClick={triggerSlash}
+                className="relative cursor-pointer"
                 style={{ filter: `drop-shadow(0 0 30px ${auraColor})` }}
               >
                 <AnimatePresence>
                   {isSlashing && (
-                    <motion.div 
-                      className="absolute inset-0 border-2 border-white/50 rounded-full" 
-                      initial={{ scale: 0.5, opacity: 0 }} 
-                      animate={{ scale: 1.5, opacity: 0 }} 
-                      exit={{ opacity: 0 }} 
+                    <motion.div
+                      className="absolute inset-0 border-2 border-white/50 rounded-full"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1.5, opacity: 0 }}
+                      exit={{ opacity: 0 }}
                     />
                   )}
                 </AnimatePresence>
                 <div className="w-32 h-56 flex items-center justify-center">
-                  <img 
+                  <img
                     src={getWeaponImage(selectedItem)}
-                    className="w-full h-full object-contain scythe-img" 
+                    className="w-full h-full object-contain scythe-img"
                     onError={(e) => {
                       e.target.src = getAssetUrl('/scythe/DORMANT.png');
-                    }} 
+                    }}
                     alt={selectedItem.name}
                   />
                 </div>
               </motion.div>
             ) : (
               /* Theme Render Preview */
-              <div 
+              <div
                 className="w-48 h-32 rounded border border-white/10 flex flex-col justify-end p-4 relative overflow-hidden"
                 style={{
-                  backgroundImage: selectedItem.id === 'shiva' 
+                  backgroundImage: selectedItem.id === 'shiva'
                     ? `url(${getAssetUrl('/themes/kailash/shiva_preview.png')})`
-                    : selectedItem.id === 'lava' 
-                    ? `url(${getAssetUrl('/themes/lava/Lava_preview .png')})`
-                    : 'linear-gradient(135deg, #111, #222)',
+                    : selectedItem.id === 'lava'
+                      ? `url(${getAssetUrl('/themes/lava/lava_preview.png')})`
+                      : 'linear-gradient(135deg, #111, #222)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
                 }}
@@ -315,7 +312,7 @@ export default function ScytheCenter({ onOpenShop }) {
                   /* Weapon Action */
                   owned ? (
                     activeScytheSkin === selectedItem.id ? (
-                      <button 
+                      <button
                         onClick={() => equipScythe('default')}
                         className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/10 hover:bg-gold-core/20 text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
                         title="Click to unequip"
@@ -323,86 +320,86 @@ export default function ScytheCenter({ onOpenShop }) {
                         EQUIPPED (UNEQUIP)
                       </button>
                     ) : (
-                    !isAssetDownloaded(selectedItem) ? (
-                      <button 
-                        disabled={isDownloading}
-                        onClick={async () => {
-                          setIsDownloading(true);
-                          try {
-                            await downloadRegionBundle(selectedItem.id);
-                          } catch (err) {
-                            alert('Download failed. Check connection.');
-                          } finally {
-                            setIsDownloading(false);
-                          }
-                        }}
-                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
-                        <span>DOWNLOAD & EQUIP</span>
-                      </button>
+                      !isAssetDownloaded(selectedItem) ? (
+                        <button
+                          disabled={isDownloading}
+                          onClick={async () => {
+                            setIsDownloading(true);
+                            try {
+                              await downloadRegionBundle(selectedItem.id);
+                            } catch (err) {
+                              alert('Download failed. Check connection.');
+                            } finally {
+                              setIsDownloading(false);
+                            }
+                          }}
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                          <span>DOWNLOAD & EQUIP</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => equipScythe(selectedItem.id)}
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                        >
+                          EQUIP WEAPON
+                        </button>
+                      )
+                    )
+                  ) : (
+                    /* Locked Weapon */
+                    selectedItem.type === 'streak' ? (
+                      <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
+                        <Lock size={10} />
+                        <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
+                      </div>
                     ) : (
-                      <button 
-                        onClick={() => equipScythe(selectedItem.id)}
-                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                      <button
+                        onClick={onOpenShop}
+                        className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
                       >
-                        EQUIP WEAPON
+                        ACQUIRE IN SHOP
                       </button>
                     )
                   )
                 ) : (
-                  /* Locked Weapon */
-                  selectedItem.type === 'streak' ? (
-                    <div className="flex items-center gap-1.5 text-red-500 font-mono text-[8px] uppercase tracking-wider">
-                      <Lock size={10} />
-                      <span>Requires {selectedItem.req} Day Streak (Current: {streakCount})</span>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={onOpenShop}
-                      className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
-                    >
-                      ACQUIRE IN SHOP
-                    </button>
-                  )
-                )
-              ) : (
-                /* Theme Action */
-                owned ? (
-                  activeTheme === selectedItem.id ? (
-                    <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
-                      APPLIED
-                    </button>
-                  ) : (
-                    !isAssetDownloaded(selectedItem) ? (
-                      <button 
-                        disabled={isDownloading}
-                        onClick={async () => {
-                          setIsDownloading(true);
-                          try {
-                            await downloadRegionBundle(selectedItem.id);
-                          } catch (err) {
-                            alert('Download failed. Check connection.');
-                          } finally {
-                            setIsDownloading(false);
-                          }
-                        }}
-                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
-                        <span>DOWNLOAD & APPLY</span>
+                  /* Theme Action */
+                  owned ? (
+                    activeTheme === selectedItem.id ? (
+                      <button disabled className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/5 text-[9px] font-mono rounded font-bold tracking-widest cursor-default">
+                        APPLIED
                       </button>
                     ) : (
-                      <button 
-                        onClick={() => applyTheme(selectedItem.id)}
-                        className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
-                      >
-                        APPLY THEME
-                      </button>
-                    )
-                  ) ) : (
+                      !isAssetDownloaded(selectedItem) ? (
+                        <button
+                          disabled={isDownloading}
+                          onClick={async () => {
+                            setIsDownloading(true);
+                            try {
+                              await downloadRegionBundle(selectedItem.id);
+                            } catch (err) {
+                              alert('Download failed. Check connection.');
+                            } finally {
+                              setIsDownloading(false);
+                            }
+                          }}
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
+                          <span>DOWNLOAD & APPLY</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => applyTheme(selectedItem.id)}
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                        >
+                          APPLY THEME
+                        </button>
+                      )
+                    )) : (
                     /* Locked Theme */
-                    <button 
+                    <button
                       onClick={onOpenShop}
                       className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
                     >
