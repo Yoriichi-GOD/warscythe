@@ -277,8 +277,9 @@ export default function ScytheCenter({ onOpenShop }) {
               </motion.div>
             ) : (
               /* Theme Render Preview */
-              <div
-                className="w-48 h-32 rounded border border-white/10 flex flex-col justify-end p-4 relative overflow-hidden"
+              /* Theme Render Preview */
+              <div 
+                className="w-80 h-52 rounded border border-white/10 flex flex-col justify-end p-5 relative overflow-hidden"
                 style={{
                   backgroundImage: selectedItem.id === 'shiva'
                     ? `url(${getAssetUrl('/themes/kailash/shiva_preview.png')})`
@@ -289,12 +290,12 @@ export default function ScytheCenter({ onOpenShop }) {
                   backgroundPosition: 'center'
                 }}
               >
-                <div className="absolute top-3 right-3 text-gold-core font-mono text-[9px] uppercase tracking-wider">
+                <div className="absolute top-3 right-3 text-gold-core font-mono text-[10px] uppercase tracking-wider bg-black/60 px-1.5 py-0.5 rounded border border-white/5">
                   {selectedItem.id === 'shiva' ? 'ॐ' : selectedItem.id === 'lava' ? '🌋' : 'Genesis'}
                 </div>
-                <div className="relative z-10 text-left font-mono">
-                  <span className="text-[7px] text-gray-400 uppercase tracking-widest block">Environment Scroll</span>
-                  <span className="text-white text-xs font-bold font-sans uppercase">{selectedItem.name}</span>
+                <div className="relative z-10 text-left font-mono bg-black/40 p-2.5 rounded border border-white/5 backdrop-blur-[2px] max-w-[85%]">
+                  <span className="text-[7.5px] text-gray-400 uppercase tracking-widest block mb-0.5">Environment Scroll</span>
+                  <span className="text-white text-[13px] font-bold font-sans uppercase tracking-wider">{selectedItem.name}</span>
                 </div>
               </div>
             )}
