@@ -279,7 +279,7 @@ export default function ScytheCenter({ onOpenShop }) {
               /* Theme Render Preview */
               /* Theme Render Preview */
               <div 
-                className="w-80 h-52 rounded border border-white/10 flex flex-col justify-end p-5 relative overflow-hidden"
+                className="w-[380px] h-[209px] rounded border border-white/10 flex flex-col justify-end p-5 relative overflow-hidden"
                 style={{
                   backgroundImage: selectedItem.id === 'shiva'
                     ? `url(${getAssetUrl('/themes/kailash/shiva_preview.png')})`
