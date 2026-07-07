@@ -284,9 +284,9 @@ export default function ScytheCenter({ onOpenShop }) {
                 className="w-48 h-32 rounded border border-white/10 flex flex-col justify-end p-4 relative overflow-hidden"
                 style={{
                   backgroundImage: selectedItem.id === 'shiva' 
-                    ? `url(${getAssetUrl('/themes/shiva_preview.png')})`
+                    ? `url(${getAssetUrl('/themes/kailash/shiva_preview.png')})`
                     : selectedItem.id === 'lava' 
-                    ? `url(${getAssetUrl('/themes/lava_preview.png')})`
+                    ? `url(${getAssetUrl('/themes/lava/Lava_preview .png')})`
                     : 'linear-gradient(135deg, #111, #222)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
