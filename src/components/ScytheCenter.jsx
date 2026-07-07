@@ -245,7 +245,7 @@ export default function ScytheCenter({ onOpenShop }) {
           </div>
 
           {/* Preview/Action Column */}
-          <div className="flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
+          <div className="flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8 lg:pr-8 pr-4">
 
             {/* Scythe Slash Render */}
             {selectedItem.type !== 'theme' ? (
