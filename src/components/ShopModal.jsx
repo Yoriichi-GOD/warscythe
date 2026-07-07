@@ -217,6 +217,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 </button>
               </div>
               <p className="font-mono text-[8px] text-gold-core tracking-[0.25em] uppercase">MONETARY EXCHANGE & REQUISITIONS</p>
+              <p className="font-mono text-[6.5px] text-gold-bright/60 tracking-[0.18em] uppercase mt-0.5 animate-pulse">GO TO FORGE TAB TO PREVIEW PAID SCYTHES</p>
             </div>
           </div>
           <div className="flex items-center gap-4">

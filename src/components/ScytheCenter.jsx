@@ -283,11 +283,13 @@ export default function ScytheCenter({ onOpenShop }) {
               <div 
                 className="w-48 h-32 rounded border border-white/10 flex flex-col justify-end p-4 relative overflow-hidden"
                 style={{
-                  background: selectedItem.id === 'shiva' 
-                    ? 'linear-gradient(135deg, #1b4f72, #0e2f44)' 
+                  backgroundImage: selectedItem.id === 'shiva' 
+                    ? `url(${getAssetUrl('/themes/shiva_preview.png')})`
                     : selectedItem.id === 'lava' 
-                    ? 'linear-gradient(135deg, #78281f, #1b0000)' 
-                    : 'linear-gradient(135deg, #111, #222)'
+                    ? `url(${getAssetUrl('/themes/lava_preview.png')})`
+                    : 'linear-gradient(135deg, #111, #222)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
                 }}
               >
                 <div className="absolute top-3 right-3 text-gold-core font-mono text-[9px] uppercase tracking-wider">
