@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
-import { triggerHaptics, scheduleStreakAlert } from '../utils/nativeTriggers';
+import { triggerHaptics, scheduleStreakAlert, scheduleRitualReminders, cancelRitualReminders } from '../utils/nativeTriggers';
 import { Capacitor } from '@capacitor/core';
 import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 import {
@@ -917,7 +917,7 @@ export const useWarscytheStore = create(
         return true;
       },
 
-      addRitual: (title, frequency, effort) => {
+      addRitual: (title, frequency, effort, targetTime = null) => {
         const newRitual = {
           id: genId(),
           title,
@@ -926,15 +926,21 @@ export const useWarscytheStore = create(
           streak: 0,
           bestStreak: 0,
           lastCompletedAt: null,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          targetTime,
+          lastNotifiedInterval: null
         };
         set(state => ({
           rituals: [...(state.rituals || []), newRitual]
         }));
+        if (targetTime) {
+          scheduleRitualReminders(newRitual);
+        }
         return true;
       },
 
       deleteRitual: (id) => {
+        cancelRitualReminders(id);
         set(state => ({
           rituals: (state.rituals || []).filter(r => r.id !== id)
         }));
@@ -1168,6 +1174,7 @@ export const useWarscytheStore = create(
         const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === today;
         if (isCompletedToday) return;
 
+        cancelRitualReminders(id);
         ritual.lastCompletedAt = new Date().toISOString();
         const newStreak = (ritual.streak || 0) + 1;
         ritual.streak = newStreak;
@@ -1286,13 +1293,14 @@ export const useWarscytheStore = create(
         const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
         const updatedRituals = (state.rituals || []).map(r => {
+          const updated = { ...r, lastNotifiedInterval: null };
           if (r.frequency === 'daily') {
             const lastCompDate = r.lastCompletedAt ? r.lastCompletedAt.slice(0, 10) : null;
             if (lastCompDate !== yesterdayStr && lastCompDate !== today) {
-              return { ...r, streak: 0 };
+              updated.streak = 0;
             }
           }
-          return r;
+          return updated;
         });
 
         set({

@@ -8,6 +8,7 @@ export default function RitualModal({ onClose }) {
   const [title, setTitle] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [effort, setEffort] = useState('Medium');
+  const [targetTime, setTargetTime] = useState('');
   
   const [presetOpen, setPresetOpen] = useState(false);
   const [frequencyOpen, setFrequencyOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function RitualModal({ onClose }) {
     e.preventDefault();
     if (!title) return;
     
-    const success = addRitual(title, frequency, effort);
+    const success = addRitual(title, frequency, effort, targetTime || null);
     if (success) {
       if (effort === 'Boss') {
         triggerBossFlash('initiate');
@@ -170,6 +171,20 @@ export default function RitualModal({ onClose }) {
                 )}
               </div>
             </div>
+          </div>
+          
+          <div className="form-group full mt-4">
+            <label><Zap size={10} /> TARGET TIME (OPTIONAL ALERT CUE)</label>
+            <input 
+              type="time" 
+              className="tactical-time-input w-full bg-black/40 border border-gold-core/20 hover:border-gold-core/50 focus:border-gold-bright text-white px-3 py-2 rounded text-xs font-mono focus:outline-none transition-colors"
+              value={targetTime} 
+              onChange={e => setTargetTime(e.target.value)}
+              style={{ colorScheme: 'dark' }}
+            />
+            <span className="text-[9px] text-gray-500 font-mono mt-1 block tracking-wider">
+              SET A SPECIFIC HOUR TO RECEIVE DISPATCH REMINDERS (1HR, 30MIN, 15MIN, AND EXACT).
+            </span>
           </div>
 
           <div className="modal-footer">

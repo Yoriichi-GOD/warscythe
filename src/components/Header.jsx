@@ -27,7 +27,8 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
     tasks,
     legionEvents,
     leaderboardEvents,
-    activeLegion
+    activeLegion,
+    rituals
   } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
@@ -122,6 +123,55 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         action: onOpenSocial,
         timestamp: evt.created_at || new Date().toISOString()
       });
+    }
+  });
+
+  // 5. Ritual time-of-day reminders
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  (rituals || []).forEach(ritual => {
+    const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === todayStr;
+    if (!isCompletedToday && ritual.targetTime) {
+      const [targetHrs, targetMins] = ritual.targetTime.split(':').map(Number);
+      const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetHrs, targetMins, 0);
+      const diffMs = targetDate - now;
+      const diffMins = diffMs / (1000 * 60);
+
+      let title = '';
+      let message = '';
+      let notificationKey = '';
+
+      if (diffMins <= 0 && diffMins > -15) {
+        title = 'Ritual Due Now';
+        message = `"${ritual.title}" is due now (${ritual.targetTime}). Execute the discipline!`;
+        notificationKey = 'exact';
+      } else if (diffMins > 0 && diffMins <= 15) {
+        title = 'Ritual Warning (15m)';
+        message = `"${ritual.title}" begins in 15 minutes. Prepare yourself.`;
+        notificationKey = '15m';
+      } else if (diffMins > 15 && diffMins <= 30) {
+        title = 'Ritual Warning (30m)';
+        message = `"${ritual.title}" begins in 30 minutes. Clear active focus.`;
+        notificationKey = '30m';
+      } else if (diffMins > 30 && diffMins <= 60) {
+        title = 'Ritual Warning (1h)';
+        message = `"${ritual.title}" is scheduled in 1 hour (${ritual.targetTime}).`;
+        notificationKey = '60m';
+      }
+
+      if (message) {
+        notifications.push({
+          id: `ritual-${ritual.id}-${notificationKey}`,
+          type: 'ritual_reminder',
+          title: title,
+          message: message,
+          action: () => {
+            // Can redirect to rituals page if needed or onOpenSocial or main tab changes.
+            // Since setActiveTab isn't passed to Header, we keep it simple or empty.
+          },
+          timestamp: new Date(targetDate.getTime() - (diffMins > 0 ? 0 : diffMs)).toISOString()
+        });
+      }
     }
   });
 

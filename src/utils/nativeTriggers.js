@@ -130,3 +130,97 @@ export const initNetworkMonitoring = () => {
     console.warn('Network monitoring initialization failed:', err);
   }
 };
+
+// 4. RITUAL TIME-OF-DAY NOTIFICATIONS
+const hashCode = (str) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash) % 10000000;
+};
+
+export const scheduleRitualReminders = async (ritual) => {
+  if (!ritual || !ritual.targetTime) return;
+  try {
+    const isGranted = await requestNotificationPermission();
+    if (!isGranted) return;
+
+    const baseId = hashCode(ritual.id);
+    const [targetHrs, targetMins] = ritual.targetTime.split(':').map(Number);
+    const now = new Date();
+    
+    let targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetHrs, targetMins, 0);
+    if (targetDate <= now) {
+      targetDate.setDate(targetDate.getDate() + 1);
+    }
+
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      await cancelRitualReminders(ritual.id);
+
+      const notifications = [];
+      const intervals = [
+        { key: '60m', offsetMs: 60 * 60 * 1000, label: 'begins in 1 hour', suffixId: 1 },
+        { key: '30m', offsetMs: 30 * 60 * 1000, label: 'begins in 30 minutes', suffixId: 2 },
+        { key: '15m', offsetMs: 15 * 60 * 1000, label: 'begins in 15 minutes', suffixId: 3 },
+        { key: 'exact', offsetMs: 0, label: 'is due now!', suffixId: 4 }
+      ];
+
+      intervals.forEach(interval => {
+        const scheduleTime = new Date(targetDate.getTime() - interval.offsetMs);
+        if (scheduleTime > now) {
+          notifications.push({
+            title: `RITUAL REMINDER`,
+            body: `"${ritual.title}" ${interval.label}. Execute the discipline!`,
+            id: baseId + interval.suffixId,
+            schedule: { at: scheduleTime },
+            sound: null,
+            attachments: null,
+            actionTypeId: "",
+            extra: null
+          });
+        }
+      });
+
+      if (notifications.length > 0) {
+        await LocalNotifications.schedule({ notifications });
+      }
+    } else if ('Notification' in window) {
+      const intervals = [
+        { offsetMs: 60 * 60 * 1000, label: 'begins in 1 hour' },
+        { offsetMs: 30 * 60 * 1000, label: 'begins in 30 minutes' },
+        { offsetMs: 15 * 60 * 1000, label: 'begins in 15 minutes' },
+        { offsetMs: 0, label: 'is due now!' }
+      ];
+
+      intervals.forEach(interval => {
+        const scheduleTime = new Date(targetDate.getTime() - interval.offsetMs);
+        const delay = scheduleTime - now;
+        if (delay > 0) {
+          setTimeout(() => {
+            try {
+              new Notification("RITUAL REMINDER", {
+                body: `"${ritual.title}" ${interval.label}. Execute the discipline!`,
+                icon: '/favicon.ico'
+              });
+            } catch (err) {}
+          }, delay);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to schedule ritual reminders:', err);
+  }
+};
+
+export const cancelRitualReminders = async (ritualId) => {
+  try {
+    const baseId = hashCode(ritualId);
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      const ids = [baseId + 1, baseId + 2, baseId + 3, baseId + 4];
+      await LocalNotifications.cancel({ notifications: ids.map(id => ({ id })) });
+    }
+  } catch (err) {
+    console.warn('Failed to cancel ritual reminders:', err);
+  }
+};

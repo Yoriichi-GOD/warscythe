@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Flame, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Flame, Trash2, CheckCircle2, Circle, Clock } from "lucide-react";
 import { useWarscytheStore } from "../../store/useWarscytheStore";
 
 export default function RitualCard({ ritual, onComplete }) {
@@ -51,8 +51,16 @@ export default function RitualCard({ ritual, onComplete }) {
             {ritual.title}
           </h3>
           <div className="flex items-center gap-3">
-            <span className="text-[7px] font-mono text-gray-500 uppercase tracking-widest">
+            <span className="text-[7px] font-mono text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
               {ritual.frequency} // {effortLabels[ritual.effort] || ritual.effort}
+              {ritual.targetTime && (
+                <>
+                  <span className="text-white/10">//</span>
+                  <span className="flex items-center gap-0.5 text-gold-core/70 font-bold">
+                    <Clock size={8} /> {ritual.targetTime}
+                  </span>
+                </>
+              )}
             </span>
             {ritual.streak > 0 && (
               <span className="flex items-center gap-0.5 text-[8px] font-mono text-gold-core font-bold uppercase tracking-wider">
