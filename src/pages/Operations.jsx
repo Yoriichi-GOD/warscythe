@@ -6,10 +6,11 @@ import MissionCard from '../components/operations/MissionCard';
 import RitualCard from '../components/operations/RitualCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
-import { Zap, Lock, Info } from 'lucide-react';
+import { Zap, Lock, Info, Play } from 'lucide-react';
 
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOpenGymLog }) {
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
@@ -84,14 +85,24 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             <Zap size={14} className="text-gold-core" />
             <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
           </div>
-          <button 
-            type="button"
-            onClick={() => openInfoModal('operations')}
-            className="text-gray-500 hover:text-gold-core transition-colors"
-            title="Operations Info"
-          >
-            <Info size={14} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              type="button"
+              onClick={() => openVideoModal('operations')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+              title="Play Walkthrough Guide"
+            >
+              <Play size={12} fill="currentColor" className="text-gold-core" />
+            </button>
+            <button 
+              type="button"
+              onClick={() => openInfoModal('operations')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+              title="Operations Info"
+            >
+              <Info size={14} />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-8">

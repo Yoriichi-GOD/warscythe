@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Lock, Unlock, Sparkles, Swords, Eye, Shield, CloudDownload, Loader2 } from 'lucide-react';
+import { Lock, Unlock, Sparkles, Swords, Eye, Shield, CloudDownload, Loader2, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 export default function ScytheCenter({ onOpenShop }) {
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const {
     streakCount,
     unlockedScythes,
@@ -158,9 +159,19 @@ export default function ScytheCenter({ onOpenShop }) {
       <div className="elite-panel">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <span className="panel-tag">WEAPON FORGE & COSMETICS</span>
-            <h4 className="text-white font-display text-lg">THE OPERATIVE\'S ARMORY</h4>
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="panel-tag">WEAPON FORGE & COSMETICS</span>
+              <h4 className="text-white font-display text-lg">THE OPERATIVE\'S ARMORY</h4>
+            </div>
+            <button 
+              type="button"
+              onClick={() => openVideoModal('forge')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer mt-3"
+              title="Play Walkthrough Guide"
+            >
+              <Play size={12} fill="currentColor" className="text-gold-core" />
+            </button>
           </div>
           <div className="flex gap-3">
             <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">

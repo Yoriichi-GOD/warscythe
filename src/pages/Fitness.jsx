@@ -192,8 +192,16 @@ export default function Fitness() {
                   <h3 className="font-display text-lg text-white tracking-wider uppercase">THE IRON LEDGER</h3>
                   <button 
                     type="button"
+                    onClick={() => useWarscytheStore.getState().openVideoModal('fitness')}
+                    className="text-gold-core/70 hover:text-gold-bright transition-colors ml-1.5 cursor-pointer"
+                    title="Play Walkthrough Guide"
+                  >
+                    <Play size={12} fill="currentColor" />
+                  </button>
+                  <button 
+                    type="button"
                     onClick={() => useWarscytheStore.getState().openInfoModal('fitness')}
-                    className="text-gold-core/70 hover:text-gold-bright transition-colors ml-1.5"
+                    className="text-gold-core/70 hover:text-gold-bright transition-colors ml-1"
                     title="Fitness Info"
                   >
                     <Info size={14} />

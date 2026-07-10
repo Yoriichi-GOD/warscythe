@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Unlock,
-  Trophy
+  Trophy,
+  Play
 } from 'lucide-react';
 import { REGIONS, TASKS_PER_LEVEL } from '../store/constants';
 import { getAssetUrl } from '../utils/assetResolver';
@@ -133,6 +134,7 @@ const getRegionNodeInfo = (mapIdx, nodeId) => {
 };
 
 export default function MapSection({ onTabChange }) {
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const { 
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
@@ -382,10 +384,20 @@ export default function MapSection({ onTabChange }) {
             </p>
           </div>
         </div>
-        <button className="btn-gothic-gold scout-report-btn">
-          <Info size={14} />
-          <span>SCOUT REPORT</span>
-        </button>
+        <div className="flex gap-2">
+          <button 
+            type="button"
+            onClick={() => openVideoModal('quest_map')}
+            className="btn-gothic-gold scout-report-btn !px-3 hover:text-gold-bright transition-colors cursor-pointer"
+            title="Play Walkthrough Guide"
+          >
+            <Play size={12} fill="currentColor" className="text-gold-core" />
+          </button>
+          <button className="btn-gothic-gold scout-report-btn">
+            <Info size={14} />
+            <span>SCOUT REPORT</span>
+          </button>
+        </div>
       </header>
 
       {/* 2. Main 3-Column Content */}

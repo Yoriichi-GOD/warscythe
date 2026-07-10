@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell } from 'lucide-react';
+import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 const EMPRESS_NAMES = [
@@ -335,6 +335,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const currentTitle = useWarscytheStore(state => state.currentTitle) || 'Recruit';
   const bossKills = useWarscytheStore(state => state.bossKills) || 0;
   const rescuedFairies = useWarscytheStore(state => state.rescuedFairies) || {};
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const [selectedArtifact, setSelectedArtifact] = useState(null);
   const [selectedTrophy, setSelectedTrophy] = useState(null);
   const [selectedFairy, setSelectedFairy] = useState(null);
@@ -355,7 +356,17 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
         <div className="flex flex-col gap-1">
           <span className="text-[9px] font-mono text-gold-core/60 tracking-[0.4em] uppercase font-bold">Unified Archives</span>
-          <h2 className="text-3xl font-display text-white tracking-[0.1em] uppercase">THE LEDGER</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-display text-white tracking-[0.1em] uppercase">THE LEDGER</h2>
+            <button 
+              type="button"
+              onClick={() => openVideoModal('ledger')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer mt-1"
+              title="Play Walkthrough Guide"
+            >
+              <Play size={12} fill="currentColor" className="text-gold-core" />
+            </button>
+          </div>
         </div>
 
         {/* Sub-Tab Navigation */}

@@ -14,7 +14,7 @@ import PremiumModal from './components/PremiumModal';
 import ShopModal from './components/ShopModal';
 import AssetDownloaderModal from './components/AssetDownloaderModal';
 import CacheAlertPopup from './components/CacheAlertPopup';
-import { ShieldAlert, X, Lock, Terminal } from 'lucide-react';
+import { ShieldAlert, X, Lock, Terminal, Play } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Operations from './pages/Operations';
@@ -25,6 +25,7 @@ import Forge from './pages/Forge';
 import Ledger from './pages/Ledger';
 import Social from './pages/Social';
 import InfoModal from './components/InfoModal';
+import VideoGuideModal from './components/VideoGuideModal';
 import { infoData } from './data/infoDescriptions';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
@@ -87,6 +88,9 @@ export default function App() {
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
   const activeTheme = useWarscytheStore(state => state.activeTheme);
+  const guideBannerDismissed = useWarscytheStore(state => state.guideBannerDismissed);
+  const dismissGuideBanner = useWarscytheStore(state => state.dismissGuideBanner);
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
@@ -535,6 +539,30 @@ export default function App() {
         onOpenLore={() => setShowLoreModal(true)}
         onOpenSocial={() => setActiveTab('social')}
       />
+
+      {/* Sticky Walkthrough Guide Banner */}
+      {!guideBannerDismissed && (
+        <div className="w-full bg-zinc-950/90 border-b border-gold-core/25 backdrop-blur-md px-4 py-2 flex items-center justify-between z-40 text-left relative">
+          <div 
+            onClick={() => openVideoModal('global_intro')}
+            className="flex items-center gap-2.5 text-gold-core hover:text-white transition-colors cursor-pointer group flex-1 mr-4"
+          >
+            <div className="w-5 h-5 rounded-full border border-gold-core/40 flex items-center justify-center group-hover:border-white shrink-0 bg-gold-core/5 transition-all">
+              <Play size={8} className="ml-0.5" fill="currentColor" />
+            </div>
+            <span className="text-[9px] md:text-[10px] font-mono tracking-widest uppercase font-bold text-gold-core group-hover:text-gold-bright transition-colors">
+              [NEW OPERATIVE INSTRUCTION] PLAY GENERAL TRANSMISSION & WALKTHROUGH
+            </span>
+          </div>
+          <button 
+            onClick={dismissGuideBanner}
+            className="text-gray-500 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded cursor-pointer shrink-0"
+            title="Dismiss Guide Banner"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
       
       <main className="flex-1 w-full overflow-hidden relative">
         {/* Persistent Tab Pages for Smooth Mobile Switching */}
@@ -882,6 +910,7 @@ export default function App() {
       <WarTerminal isOpen={showTerminal} onClose={() => setShowTerminal(false)} />
 
       <InfoModal />
+      <VideoGuideModal />
 
       <TutorialModal />
       <StreakScrollModal />

@@ -350,3 +350,15 @@ export const HABIT_TEMPLATES = [
   { title: 'Write Code', category: 'Creative', effort: 'Medium' },
   { title: 'Read 10 Pages', category: 'Intellect', effort: 'Low' }
 ];
+
+export const VIDEO_GUIDE_MAP = {
+  global_intro: "dQw4w9WgXcQ",
+  operations: "dQw4w9WgXcQ",
+  fitness: "dQw4w9WgXcQ",
+  rituals: "dQw4w9WgXcQ",
+  forge: "dQw4w9WgXcQ",
+  quest_map: "dQw4w9WgXcQ",
+  ledger: "dQw4w9WgXcQ",
+  legion: "dQw4w9WgXcQ",
+};
+

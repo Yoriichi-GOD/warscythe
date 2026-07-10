@@ -4,10 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RitualCard from '../components/operations/RitualCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
-import { Flame, Lock, Zap, Info } from 'lucide-react';
+import { Flame, Lock, Zap, Info, Play } from 'lucide-react';
 
 export default function Rituals({ onAddTask }) {
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
+  const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
@@ -62,14 +63,24 @@ export default function Rituals({ onAddTask }) {
             <Flame size={14} className="text-gold-core" />
             <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Rituals</h2>
           </div>
-          <button 
-            type="button"
-            onClick={() => openInfoModal('rituals')}
-            className="text-gray-500 hover:text-gold-core transition-colors"
-            title="Rituals Info"
-          >
-            <Info size={14} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              type="button"
+              onClick={() => openVideoModal('rituals')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+              title="Play Walkthrough Guide"
+            >
+              <Play size={12} fill="currentColor" className="text-gold-core" />
+            </button>
+            <button 
+              type="button"
+              onClick={() => openInfoModal('rituals')}
+              className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+              title="Rituals Info"
+            >
+              <Info size={14} />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-8">

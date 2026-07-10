@@ -388,6 +388,24 @@ export const useWarscytheStore = create(
       showInfoModal: false,
       infoSectionId: null,
       infoFeatureId: null,
+      showVideoModal: false,
+      videoKey: null,
+      guideBannerDismissed: typeof window !== 'undefined' && localStorage.getItem('warscythe_guide_banner_dismissed') === 'true',
+
+      openVideoModal: (key) => set({
+        showVideoModal: true,
+        videoKey: key
+      }),
+      closeVideoModal: () => set({
+        showVideoModal: false,
+        videoKey: null
+      }),
+      dismissGuideBanner: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('warscythe_guide_banner_dismissed', 'true');
+        }
+        set({ guideBannerDismissed: true });
+      },
 
       openInfoModal: (sectionId, featureId = null) => set({
         showInfoModal: true,
@@ -547,6 +565,8 @@ export const useWarscytheStore = create(
           syncStatus: 'synced',
           hasPendingChanges: false,
           isMerging: false,
+          showVideoModal: false,
+          videoKey: null,
           rescuedFairies: {},
           pendingVictoryScreen: null,
           receivedProphecies: [],

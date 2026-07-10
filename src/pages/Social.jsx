@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap, Clock } from 'lucide-react';
+import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap, Clock, Play } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 import LegionOperationDetail from '../components/LegionOperationDetail';
 
@@ -451,14 +451,27 @@ export default function Social() {
             <span>LEGION COMMAND</span>
           </button>
         </div>
-        <button 
-          type="button"
-          onClick={() => useWarscytheStore.getState().openInfoModal('social')}
-          className="text-gray-500 hover:text-gold-core transition-colors px-2 absolute right-4"
-          title="Social Info"
-        >
-          <Info size={14} />
-        </button>
+        <div className="flex items-center gap-2 absolute right-4">
+          <button 
+            type="button"
+            onClick={() => {
+              const key = activeSubTab === 'legion' ? 'legion' : 'global_intro';
+              useWarscytheStore.getState().openVideoModal(key);
+            }}
+            className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+            title="Play Walkthrough Guide"
+          >
+            <Play size={12} fill="currentColor" className="text-gold-core" />
+          </button>
+          <button 
+            type="button"
+            onClick={() => useWarscytheStore.getState().openInfoModal('social')}
+            className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+            title="Social Info"
+          >
+            <Info size={14} />
+          </button>
+        </div>
       </div>
 
       <div className="social-tab-content">
