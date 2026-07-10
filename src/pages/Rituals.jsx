@@ -40,9 +40,9 @@ export default function Rituals({ onAddTask }) {
     'PLATINUM': '100'
   };
 
-  const activeDisplayLevel = preview.level || (currentTier ? currentTier.name : scytheLevel);
-  const activeDisplayType = preview.type || (currentTier ? 'ultimate' : 'standard');
-  const activeDisplayPwr = preview.pwr || (currentTier ? (100 + streakTiers.indexOf(currentTier) * 50).toString() : (standardPwrs[scytheLevel.toUpperCase()] || '10'));
+  const activeDisplayLevel = preview.level || scytheLevel;
+  const activeDisplayType = preview.type || 'standard';
+  const activeDisplayPwr = preview.pwr || (standardPwrs[scytheLevel.toUpperCase()] || '10');
 
   const evolutionStages = [
     { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },

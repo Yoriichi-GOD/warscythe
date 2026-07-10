@@ -61,10 +61,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     'PLATINUM': '100'
   };
 
-  const isTutorialActive = tutorialStep !== 'completed';
-  const activeDisplayLevel = preview.level || (isTutorialActive ? 'DORMANT' : (currentTier ? currentTier.name : scytheLevel));
-  const activeDisplayType = preview.type || (isTutorialActive ? 'standard' : (currentTier ? 'ultimate' : 'standard'));
-  const activeDisplayPwr = preview.pwr || (isTutorialActive ? '10' : (currentTier ? (100 + streakTiers.indexOf(currentTier) * 50).toString() : (standardPwrs[scytheLevel.toUpperCase()] || '10')));
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+  const activeDisplayLevel = preview.level || (isTutorialActive ? 'DORMANT' : scytheLevel);
+  const activeDisplayType = preview.type || 'standard';
+  const activeDisplayPwr = preview.pwr || (isTutorialActive ? '10' : (standardPwrs[scytheLevel.toUpperCase()] || '10'));
 
   const evolutionStages = [
     { id: 'DORMANT', label: 'DORMANT', desc: 'The scythe sleeps, its edge dull. It awaits the first spark of will.', pwr: '10 PWR' },
