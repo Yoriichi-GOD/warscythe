@@ -455,8 +455,7 @@ export default function Social() {
           <button 
             type="button"
             onClick={() => {
-              const key = activeSubTab === 'legion' ? 'legion' : 'global_intro';
-              useWarscytheStore.getState().openVideoModal(key);
+              useWarscytheStore.getState().openVideoModal('legion');
             }}
             className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
             title="Play Walkthrough Guide"
