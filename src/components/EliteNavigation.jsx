@@ -15,7 +15,7 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
     if (tutorialStep === 'ops_guide' && tabName === 'ops') return true;
     if (tutorialStep === 'ledger_guide' && tabName === 'ledger') return true;
     if (tutorialStep === 'task_creation_prompt' && tabName === 'ops') return true;
-    if (tutorialStep === 'task_creation' && tabName === 'ops') return true;
+    if (['task_creation', 'task_modal_open', 'click_task', 'task_detail_tutorial', 'validate_execution', 'scratch_card'].includes(tutorialStep) && tabName === 'ops') return true;
     return false;
   };
 

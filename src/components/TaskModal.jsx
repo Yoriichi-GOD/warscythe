@@ -135,6 +135,11 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
     }
   };
 
+  const isDimmed = (stepIdx) => {
+    if (error) return false;
+    return tutorialStep === 'task_modal_open' && formTutorialStep !== stepIdx;
+  };
+
   useEffect(() => {
     if (tutorialStep === 'task_creation') {
       setTutorialStep('task_modal_open');
@@ -248,13 +253,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               </p>
             </div>
           )}
-          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 0 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`form-group full transition-all duration-300 ${isDimmed(0) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
               type="text" 
               placeholder="ENTER TASK PROTOCOL..." 
               value={title} 
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => { setTitle(e.target.value); setError(null); }}
               onKeyDown={e => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -282,7 +287,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           </div>
 
           <div className="form-grid">
-            <div className={`form-group transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 1 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
+            <div className={`form-group transition-all duration-300 ${isDimmed(1) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> CATEGORY</label>
               <div className="custom-select-container">
                 <button 
@@ -299,7 +304,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setCategory(opt.value); setCategoryOpen(false); advanceTutorial(1); }}
+                        onClick={() => { setCategory(opt.value); setCategoryOpen(false); setError(null); advanceTutorial(1); }}
                       >
                         {opt.label}
                       </div>
@@ -315,7 +320,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               )}
             </div>
 
-            <div className={`form-group transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 2 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
+            <div className={`form-group transition-all duration-300 ${isDimmed(2) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
                 <button 
@@ -332,7 +337,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setEffort(opt.value); setEffortOpen(false); advanceTutorial(2); }}
+                        onClick={() => { setEffort(opt.value); setEffortOpen(false); setError(null); advanceTutorial(2); }}
                       >
                         {opt.label}
                       </div>
@@ -349,11 +354,11 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             </div>
           </div>
 
-          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 3 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`form-group full transition-all duration-300 ${isDimmed(3) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Calendar size={10} /> TARGET DEADLINE</label>
             <CustomDatePicker 
               value={deadline} 
-              onChange={(val) => { setDeadline(val); advanceTutorial(3); }} 
+              onChange={(val) => { setDeadline(val); setError(null); advanceTutorial(3); }} 
             />
             {tutorialStep === 'task_modal_open' && formTutorialStep === 3 && (
               <div className="onboarding-pointer left-pointer select-pointer">
@@ -370,7 +375,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             )}
           </div>
 
-          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 4 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`form-group full transition-all duration-300 ${isDimmed(4) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><ShieldAlert size={10} /> PRIORITY BEACON</label>
             <div className="priority-toggle-group">
               {[
@@ -388,7 +393,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                     color: p.color,
                     boxShadow: priority === p.id ? `0 0 10px ${p.color}33` : 'none'
                   }}
-                  onClick={() => { setPriority(p.id); advanceTutorial(4); }}
+                  onClick={() => { setPriority(p.id); setError(null); advanceTutorial(4); }}
                 >
                   {p.label}
                 </button>
@@ -409,7 +414,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             )}
           </div>
 
-          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' ? 'opacity-20 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`form-group full transition-all duration-300 ${isDimmed(-1) ? 'opacity-20 pointer-events-none filter grayscale' : ''}`}>
             <label><Plus size={10} /> ADD TACTICAL SUB-TASKS</label>
             <div className="flex gap-2">
               <input 
@@ -437,7 +442,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             )}
           </div>
 
-          <div className={`modal-footer transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 5 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`modal-footer transition-all duration-300 ${isDimmed(5) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <button type="submit" className="btn-primary deploy-btn">
               <span>{isSubmitting ? "LOCKING IT IN..." : "CONFIRM DEPLOYMENT"}</span>
             </button>

@@ -812,7 +812,7 @@ export default function App() {
             data={pendingReward} 
             onClose={() => {
               clearPendingReward();
-              if (tutorialStep === 'scratch_card') {
+              if (tutorialStep && tutorialStep !== 'completed') {
                 useWarscytheStore.getState().completeTutorial();
               }
             }} 
