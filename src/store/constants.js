@@ -176,7 +176,7 @@ export const BASE_ARTIFACTS = [
     name: 'Scroll of Intent',
     icon: '📜',
     hook: 'You started. The rest follows.',
-    lore: 'Starting is where ADHD stalls. The friction of initiating paralysis is real. You broke it. Five minutes became ten. Ten became an hour. The scroll commemorates the moment you crossed the wall.'
+    lore: 'Starting is where low motivation stalls. The friction of task initiation paralysis is real. You broke it. Five minutes became ten. Ten became an hour. The scroll commemorates the moment you crossed the wall.'
   },
   {
     name: 'Scroll of Momentum',
@@ -194,13 +194,13 @@ export const BASE_ARTIFACTS = [
     name: 'Chalice of Resolve',
     icon: '🏆',
     hook: 'You finished. Most don\'t.',
-    lore: 'Completion is where ADHD fails most people. You didn\'t. You saw the end and ran through it. The chalice marks the work—not potential, not plans, not wishes. *Work*.'
+    lore: 'Completion is where low motivation fails most people. You didn\'t. You saw the end and ran through it. The chalice marks the work—not potential, not plans, not wishes. *Work*.'
   },
   {
     name: 'Blade of Persistence',
     icon: '🗡️',
     hook: 'The urge to quit peaked. You accelerated instead.',
-    lore: 'ADHD hyperfocus has a pattern: slow start, rapid acceleration, then a moment of resistance where the task *feels* done but isn\'t. Most players stop there. You pushed through. That moment of acceleration past the false finish is where the blade gets forged.'
+    lore: 'High potential focus has a pattern: slow start, rapid acceleration, then a moment of resistance where the task *feels* done but isn\'t. Most players stop there. You pushed through. That moment of acceleration past the false finish is where the blade gets forged.'
   },
   {
     name: 'Shield of No Retreat',
@@ -224,67 +224,67 @@ export const BASE_ARTIFACTS = [
     name: 'Staff of Deadlines',
     icon: '🏑',
     hook: 'You halved the time. Work filled the space you left.',
-    lore: 'Parkinson\'s Law isn\'t philosophy to ADHD brains—it\'s a lifeline. You set shorter deadlines because you know the ADHD multiplier: artificial constraint = hyper-focus activation. The staff measures not time, but the pressure that forces execution.'
+    lore: 'Parkinson\'s Law isn\'t philosophy to high potential brains—it\'s a lifeline. You set shorter deadlines because you know the execution multiplier: artificial constraint = focus activation. The staff measures not time, but the pressure that forces execution.'
   },
   {
     name: 'Rune of Iteration',
     icon: '🪨',
     hook: 'You remixed it. Every version sharper.',
-    lore: 'Most people lock in their approach and execute. Your ADHD brain can\'t—and doesn\'t need to. You iterate in real-time, learning as you move. Your "inefficiency" is actually a rapid-feedback loop most brains can\'t access. The rune is etched from that adaptive speed.'
+    lore: 'Most people lock in their approach and execute. Your high potential brain can\'t—and doesn\'t need to. You iterate in real-time, learning as you move. Your "inefficiency" is actually a rapid-feedback loop most brains can\'t access. The rune is etched from that adaptive speed.'
   },
   {
     name: 'Idol of the Dragon',
     icon: '🗿',
     hook: 'Criticism used to break you. Now it sharpens you.',
-    lore: 'Shame and hypersensitivity to criticism are ADHD classics. You fought that wiring and won. External feedback no longer derails your focus—it inputs data. The idol is carved from feedback that would have broken you six months ago.'
+    lore: 'Shame and hypersensitivity to friction are classic traits. You fought that wiring and won. External feedback no longer derails your focus—it inputs data. The idol is carved from feedback that would have broken you six months ago.'
   },
   {
     name: 'Eye of the Strategist',
     icon: '👁️',
     hook: 'You stopped doing everything. You conquered what mattered.',
-    lore: 'ADHD hyperfocus can be scattered or targeted. You learned to *target* it. You stopped context-switching and started *strategic depth*. The eye sees the full board, but commands only where your intensity will compound.'
+    lore: 'High potential focus can be scattered or targeted. You learned to *target* it. You stopped context-switching and started *strategic depth*. The eye sees the full board, but commands only where your intensity will compound.'
   },
   {
     name: 'Chain of the Void Walker',
     icon: '⛓️',
     hook: 'You acted before the plan was perfect.',
-    lore: 'Perfectionism isn\'t your weakness—impulsivity is. But impulsivity without direction is chaos. You flipped it: you *act fast without needing certainty*. That\'s not recklessness—that\'s the ADHD speed advantage, weaponized. Each chain link is a step taken between worlds most people never see.'
+    lore: 'Perfectionism isn\'t your weakness—impulsivity is. But impulsivity without direction is chaos. You flipped it: you *act fast without needing certainty*. That\'s not recklessness—that\'s the cognitive speed advantage, weaponized. Each chain link is a step taken between worlds most people never see.'
   },
   {
     name: 'Crown of Completion',
     icon: '👑',
     hook: 'The final 1% cost 50% of the effort. You paid it.',
-    lore: 'ADHD kills projects in the last 10%. Finishing is where you differ. You didn\'t abandon it at 95%—you ran through the wall to completion. The crown isn\'t for starting well. It\'s for finishing *despite* the ADHD resistance that peaks at the end.'
+    lore: 'Inertia kills projects in the last 10%. Finishing is where you differ. You didn\'t abandon it at 95%—you ran through the wall to completion. The crown isn\'t for starting well. It\'s for finishing *despite* the resistance that peaks at the end.'
   },
   {
     name: 'Gauntlet of the Warscythe',
     icon: '🧤',
     hook: 'Your hands are calloused. The friction is your language.',
-    lore: 'You stopped trying to protect your hands from the work. Resistance, friction, pressure—these are no longer obstacles. They\'re the only language your ADHD brain trusts. The gauntlet marks the moment you stopped *managing* difficulty and started *weaponizing* it.'
+    lore: 'You stopped trying to protect your hands from the work. Resistance, friction, pressure—these are no longer obstacles. They\'re the only language your high potential brain trusts. The gauntlet marks the moment you stopped *managing* difficulty and started *weaponizing* it.'
   },
   {
     name: 'Blade of the Finisher',
     icon: '⚔️',
     hook: 'You finished what most people quit.',
-    lore: 'The world doesn\'t measure potential. It measures finished work. ADHD is an expert at potential. You became the exception: the ADHD player who finishes. That\'s not normal. That\'s not evolution. That\'s transcendence.'
+    lore: 'The world doesn\'t measure potential. It measures finished work. Low motivation is an expert at raw potential. You became the exception: the player who finishes. That\'s not normal. That\'s not evolution. That\'s transcendence.'
   },
   {
     name: 'Idol of the Throne',
     icon: '🗿',
     hook: 'You own the chaos. You rule it now.',
-    lore: 'Most ADHD players spend their lives fighting their wiring. You stopped fighting and started *commanding*. Your inconsistency, your restarts, your hyperfocus spirals—you own them completely. That ownership is sovereignty.'
+    lore: 'Most players spend their lives fighting their wiring. You stopped fighting and started *commanding*. Your inconsistency, your restarts, your focus spirals—you own them completely. That ownership is sovereignty.'
   },
   {
     name: 'Mirror of Reality',
     icon: '🪞',
     hook: 'You measured yourself ruthlessly. You showed up anyway.',
-    lore: 'ADHD hides in avoidance of metrics. You confronted them—daily completion rates, streak counts, velocity trends. And knowing you were failing in real-time, you executed anyway. That\'s not discipline. That\'s the final evolution: acceptance + action.'
+    lore: 'Low motivation hides in avoidance of metrics. You confronted them—daily completion rates, streak counts, velocity trends. And knowing you were failing in real-time, you executed anyway. That\'s not discipline. That\'s the final evolution: acceptance + action.'
   },
   {
     name: 'Skull of the Reaper',
     icon: '💀',
-    hook: 'Your ADHD isn\'t a disability. It\'s your weapon.',
-    lore: 'You stopped apologizing. Stopped managing. Stopped explaining. You execute at velocities neurotypical brains cannot sustain, see patterns most will never notice, and hyperfocus with intensity that looks like magic. You\'ve hacked your own neurology. You are not disabled. You are different. And different has won.'
+    hook: 'Your wiring isn\'t a weakness. It\'s your weapon.',
+    lore: 'You stopped apologizing. Stopped managing. Stopped explaining. You execute at velocities standard brains cannot sustain, see patterns most will never notice, and focus with intensity that looks like magic. You\'ve hacked your own neurology. You are not limited. You are different. And different has won.'
   },
   {
     name: 'Orb of Sovereignty',
@@ -296,7 +296,7 @@ export const BASE_ARTIFACTS = [
     name: 'Hourglass of the Omega',
     icon: '⏳',
     hook: 'The distraction died. The focus remains.',
-    lore: 'For those who have conquered the ADHD storm. The hourglass channels hyperfocus into a single laser-thin line that cuts through any obstacle.'
+    lore: 'For those who have conquered the internal storm. The hourglass channels focus into a single laser-thin line that cuts through any obstacle.'
   },
   {
     name: 'Gauntlet of the Void',
@@ -314,7 +314,7 @@ export const BASE_ARTIFACTS = [
     name: 'Amulet of the Relentless',
     icon: '📿',
     hook: 'You kept going when logic said stop.',
-    lore: 'The ADHD brain burns out faster than most. Dopamine crashes hard. And yet you came back. Again. The amulet is charged by each return—not by streaks, but by the refusal to quit permanently.'
+    lore: 'A high potential brain burns out faster than most when motivation crashes. And yet you came back. Again. The amulet is charged by each return—not by streaks, but by the refusal to quit permanently.'
   },
   {
     name: 'Coin of the Conquered',
@@ -332,13 +332,13 @@ export const BASE_ARTIFACTS = [
     name: 'Horn of the Siege',
     icon: '📯',
     hook: 'You called the charge. You led.',
-    lore: 'Leadership isn\'t about control. It\'s about decisiveness under chaos. Your ADHD makes chaos feel native—so when others freeze, you move. The horn was sounded at the moment you stopped waiting for permission and started.'
+    lore: 'Leadership isn\'t about control. It\'s about decisiveness under chaos. Your high potential makes chaos feel native—so when others freeze, you move. The horn was sounded at the moment you stopped waiting for permission and started.'
   },
   {
     name: 'Map of the Uncharted',
     icon: '🗺️',
     hook: 'You went where there was no path.',
-    lore: 'No one handed you a manual. The ADHD brain doesn\'t follow maps—it draws them. You navigated uncertainty by moving through it, not around it. This map is the record of the territory you personally conquered.'
+    lore: 'No one handed you a manual. The high potential brain doesn\'t follow maps—it draws them. You navigated uncertainty by moving through it, not around it. This map is the record of the territory you personally conquered.'
   }
 ];
 

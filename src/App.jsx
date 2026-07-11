@@ -46,12 +46,18 @@ import { REGIONS } from './store/constants';
 const PROPHECIES = [
   "Your brain accelerates when stakes are high. The chaos you feel is your processor scaling. Trust it.",
   "Fatigue is data, not failure.",
-  "You're hitting a wall. This is normal. Your neurochemistry needs recalibration. Take 3 minutes. Breathe. Return. Your velocity will resume.",
-  "Your mind is synthesizing. You just switched focus three times in 2 minutes. This isn't distraction. Your brain is making connections. Trust the process. One of those connections will reshape the work.",
+  "You're hitting a wall. This is normal. Your neurochemistry needs recalibration. Take a short pause. Breathe. Return. Your velocity will resume.",
+  "Your mind is synthesizing. The shifting thoughts are not distraction; your brain is forging connections. Trust the process. One of those connections will reshape the work.",
   "Pressure sharpens you. Your clock is accelerating. Most people panic. You sharpen. Your peak velocity is approaching. Ride it.",
-  "You are the type who finishes. You've started 47 tasks this month. You're completing this one. That's not luck. That's your architecture. Keep moving.",
+  "You are the type who finishes. You've set this objective, and you are completing it. That's not luck. That's your architecture. Keep moving.",
   "The final 1% costs 50% of effort. You're close. The remaining work feels impossible. It's not. It's just the final 1%. It always costs this much. You always pay it. Continue.",
-  "You've been hyperfocused for 90 minutes. Your body needs water. Stand up. Come back in 3 minutes. Your flow will resume."
+  "Your system needs recalibration. Stand up, hydrate, and take a brief pause. Your flow will resume.",
+  "Distraction is only resistance in disguise. Acknowledge the friction, but do not drop your weapon. The momentum you build now is yours to keep.",
+  "Your potential is vast, but unapplied force is silent. Every execution, no matter how small, is a strike against inertia.",
+  "Inaction feels safe because it lacks risk. But your architecture was built for action, not self-preservation. Shift focus, reset, and strike.",
+  "The voice that tells you to wait for inspiration is a trap. Flow does not precede action; it follows it. Initiate the first step and let velocity catch up.",
+  "Progress is not a smooth climb. It is a series of restarts. Each time you return to the command board, you are stronger than when you left. Stand fast.",
+  "You are not behind. You are exactly where your execution brought you. The next decision resets the trajectory. Command your focus now."
 ];
 
 const TIPS = {
