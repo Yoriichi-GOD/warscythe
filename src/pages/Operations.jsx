@@ -106,7 +106,9 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </div>
 
         <div className="flex flex-col gap-8">
-          <ObjectiveRitual onClick={onAddTask} />
+          <div className={tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''}>
+            <ObjectiveRitual onClick={onAddTask} />
+          </div>
           
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
 
@@ -120,29 +122,36 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
               {tasks.map((task, idx) => {
                 const isTarget = tutorialStep === 'click_task' && idx === 0;
                 return (
-                  <div key={task.id} className={isTarget ? 'gold-glow-ring' : ''}>
+                  <div key={task.id} className={isTarget ? 'gold-glow-ring relative' : ''}>
                     <MissionCard task={task} onOpen={onOpenTask} />
                     {isTarget && (
-                      <div className="onboarding-pointer">
-                        <span className="pointer-tag">GUIDE</span>
-                        <h4>Target Acquired</h4>
-                        <p>Your strike operation is ready on the command board. Click the mission card to inspect details and begin execution.</p>
+                      <div className="onboarding-pointer left-pointer select-pointer mt-4">
+                        <span className="pointer-tag">GUARDIAN</span>
+                        <p className="text-[11px] font-serif text-white">There's your strike. Tap it when you've moved.</p>
                       </div>
                     )}
                   </div>
                 );
               })}
 
-              <button
-                onClick={onAddTask}
-                className={`w-full py-10 border border-dashed rounded flex items-center justify-center transition-all ${
-                  tutorialStep === 'task_creation'
-                    ? 'border-gold-core text-gold-core gold-glow-ring'
-                    : 'border-white/20 text-white/40 hover:border-gold-core/40 hover:text-gold-core bg-white/[0.02]'
-                }`}
-              >
-                <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={onAddTask}
+                  className={`w-full py-10 border border-dashed rounded flex items-center justify-center transition-all ${
+                    tutorialStep === 'task_creation'
+                      ? 'border-gold-core text-gold-core gold-glow-ring'
+                      : 'border-white/20 text-white/40 hover:border-gold-core/40 hover:text-gold-core bg-white/[0.02]'
+                  }`}
+                >
+                  <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
+                </button>
+                {tutorialStep === 'task_creation' && (
+                  <div className="onboarding-pointer left-pointer select-pointer mt-4">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">Every legend starts with one strike. Tap it.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -151,8 +160,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         {/* RECALCULATE PROTOCOL */}
         <button 
           onClick={handleRecalculate}
-          disabled={isRecalculating}
-          className="mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60"
+          disabled={isRecalculating || tutorialStep === 'task_creation'}
+          className={`mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
+            tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''
+          }`}
         >
           <div className="flex items-center justify-center gap-3">
             <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />

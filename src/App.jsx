@@ -36,7 +36,6 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 
-import TutorialModal from './components/TutorialModal';
 import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
 import RegionFlashScreen from './components/RegionFlashScreen';
@@ -814,7 +813,7 @@ export default function App() {
             onClose={() => {
               clearPendingReward();
               if (tutorialStep === 'scratch_card') {
-                useWarscytheStore.setState({ tutorialStep: 'fairy_intro' });
+                useWarscytheStore.getState().completeTutorial();
               }
             }} 
           />
@@ -918,7 +917,6 @@ export default function App() {
       <InfoModal />
       <VideoGuideModal />
 
-      <TutorialModal />
       <StreakScrollModal />
 
       <div id="toast-container" />

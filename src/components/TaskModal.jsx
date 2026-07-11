@@ -120,12 +120,20 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [effortOpen, setEffortOpen] = useState(false);
+  const [formTutorialStep, setFormTutorialStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const addTask = useWarscytheStore(state => state.addTask);
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+
+  const advanceTutorial = (fromStep) => {
+    if (tutorialStep === 'task_modal_open' && formTutorialStep === fromStep) {
+      setFormTutorialStep(fromStep + 1);
+    }
+  };
 
   useEffect(() => {
     if (tutorialStep === 'task_creation') {
@@ -169,11 +177,23 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
     setError(null);
     if (!title || !deadline) return;
     
+    if (tutorialStep === 'task_modal_open') {
+      setIsSubmitting(true);
+      setTimeout(() => {
+        const success = addTask(title, category, effort, deadline, priority, subTasks);
+        if (success === true) {
+          setTutorialStep('click_task');
+          onClose();
+        } else {
+          setError(success || "Operation failed.");
+          setIsSubmitting(false);
+        }
+      }, 600);
+      return;
+    }
+
     const success = addTask(title, category, effort, deadline, priority, subTasks);
     if (success === true) {
-      if (tutorialStep === 'task_modal_open') {
-        setTutorialStep('click_task');
-      }
       if (effort === 'Boss') {
         triggerBossFlash('initiate');
       }
@@ -228,27 +248,41 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               </p>
             </div>
           )}
-          <div className="form-group full">
+          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 0 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
               type="text" 
               placeholder="ENTER TASK PROTOCOL..." 
               value={title} 
               onChange={e => setTitle(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (title.trim().length > 0) {
+                    advanceTutorial(0);
+                  }
+                }
+              }}
               autoFocus
               required
             />
-            {tutorialStep === 'task_modal_open' && (
-              <div className="onboarding-pointer left-pointer">
-                <span className="pointer-tag">GUIDE</span>
-                <h4>Objective</h4>
-                <p>Define your strike target. Frame it as an action to force momentum.</p>
+            {tutorialStep === 'task_modal_open' && formTutorialStep === 0 && (
+              <div className="onboarding-pointer left-pointer select-pointer mt-4">
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">Name your target.</p>
+                <button 
+                  type="button" 
+                  onClick={() => title.trim() && advanceTutorial(0)}
+                  className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
+                >
+                  Next →
+                </button>
               </div>
             )}
           </div>
 
           <div className="form-grid">
-            <div className="form-group" style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
+            <div className={`form-group transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 1 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> CATEGORY</label>
               <div className="custom-select-container">
                 <button 
@@ -265,7 +299,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setCategory(opt.value); setCategoryOpen(false); }}
+                        onClick={() => { setCategory(opt.value); setCategoryOpen(false); advanceTutorial(1); }}
                       >
                         {opt.label}
                       </div>
@@ -273,16 +307,15 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && !categoryOpen && (
+              {tutorialStep === 'task_modal_open' && formTutorialStep === 1 && !categoryOpen && (
                 <div className="onboarding-pointer left-pointer select-pointer">
-                  <span className="pointer-tag">GUIDE</span>
-                  <h4>Intel Category</h4>
-                  <p>Classify your operation to align with your neural specialization.</p>
+                  <span className="pointer-tag">GUARDIAN</span>
+                  <p className="text-[11px] font-serif text-white">Where does this strike belong?</p>
                 </div>
               )}
             </div>
 
-            <div className="form-group" style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
+            <div className={`form-group transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 2 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
                 <button 
@@ -299,7 +332,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setEffort(opt.value); setEffortOpen(false); }}
+                        onClick={() => { setEffort(opt.value); setEffortOpen(false); advanceTutorial(2); }}
                       >
                         {opt.label}
                       </div>
@@ -307,32 +340,37 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && !effortOpen && (
+              {tutorialStep === 'task_modal_open' && formTutorialStep === 2 && !effortOpen && (
                 <div className="onboarding-pointer right-pointer select-pointer">
-                  <span className="pointer-tag">GUIDE</span>
-                  <h4>Resistance Level</h4>
-                  <p>Choose the scale of effort. Boss raids award legendary drops.</p>
+                  <span className="pointer-tag">GUARDIAN</span>
+                  <p className="text-[11px] font-serif text-white">How hard will it fight back?</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="form-group full">
+          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 3 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Calendar size={10} /> TARGET DEADLINE</label>
             <CustomDatePicker 
               value={deadline} 
-              onChange={setDeadline} 
+              onChange={(val) => { setDeadline(val); advanceTutorial(3); }} 
             />
-            {tutorialStep === 'task_modal_open' && (
-              <div className="onboarding-pointer left-pointer">
-                <span className="pointer-tag">GUIDE</span>
-                <h4>Target Deadline</h4>
-                <p>Set a boundary. Boundaries create urgency, forcing focus.</p>
+            {tutorialStep === 'task_modal_open' && formTutorialStep === 3 && (
+              <div className="onboarding-pointer left-pointer select-pointer">
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">Set the clock. No clock, no strike.</p>
+                <button 
+                  type="button" 
+                  onClick={() => deadline && advanceTutorial(3)}
+                  className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
+                >
+                  Next →
+                </button>
               </div>
             )}
           </div>
 
-          <div className="form-group full">
+          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 4 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><ShieldAlert size={10} /> PRIORITY BEACON</label>
             <div className="priority-toggle-group">
               {[
@@ -350,22 +388,28 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                     color: p.color,
                     boxShadow: priority === p.id ? `0 0 10px ${p.color}33` : 'none'
                   }}
-                  onClick={() => setPriority(p.id)}
+                  onClick={() => { setPriority(p.id); advanceTutorial(4); }}
                 >
                   {p.label}
                 </button>
               ))}
             </div>
-            {tutorialStep === 'task_modal_open' && (
-              <div className="onboarding-pointer right-pointer">
-                <span className="pointer-tag">GUIDE</span>
-                <h4>Priority Beacon</h4>
-                <p>Focus your energy. High priority beacon colors the interface with warning heat.</p>
+            {tutorialStep === 'task_modal_open' && formTutorialStep === 4 && (
+              <div className="onboarding-pointer right-pointer select-pointer">
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">How loud does this scream?</p>
+                <button 
+                  type="button" 
+                  onClick={() => advanceTutorial(4)}
+                  className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
+                >
+                  Next →
+                </button>
               </div>
             )}
           </div>
 
-          <div className="form-group full">
+          <div className={`form-group full transition-all duration-300 ${tutorialStep === 'task_modal_open' ? 'opacity-20 pointer-events-none filter grayscale' : ''}`}>
             <label><Plus size={10} /> ADD TACTICAL SUB-TASKS</label>
             <div className="flex gap-2">
               <input 
@@ -391,19 +435,18 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                 ))}
               </div>
             )}
-            {tutorialStep === 'task_modal_open' && (
-              <div className="onboarding-pointer right-pointer">
-                <span className="pointer-tag">GUIDE</span>
-                <h4>Tactical Sub-Tasks</h4>
-                <p>Decompose the objective into micro steps. Chop the wall down.</p>
-              </div>
-            )}
           </div>
 
-          <div className="modal-footer">
+          <div className={`modal-footer transition-all duration-300 ${tutorialStep === 'task_modal_open' && formTutorialStep !== 5 ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <button type="submit" className="btn-primary deploy-btn">
-              <span>CONFIRM DEPLOYMENT</span>
+              <span>{isSubmitting ? "LOCKING IT IN..." : "CONFIRM DEPLOYMENT"}</span>
             </button>
+            {tutorialStep === 'task_modal_open' && formTutorialStep === 5 && (
+              <div className="onboarding-pointer left-pointer select-pointer mt-4">
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">Confirm. There's no walking this back.</p>
+              </div>
+            )}
           </div>
         </form>
       </motion.div>

@@ -170,16 +170,19 @@ export default function ScratchCard({ data, onClose }) {
 
         {tutorialStep === 'scratch_card' && !isRevealed && (
           <div className="onboarding-scratch-hint" style={{ position: 'relative' }}>
-             <span>DRAG TO SCRATCH AND REVEAL REWARD</span>
-             <div className="onboarding-pointer" style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '1rem', width: '250px' }}>
-                <span className="pointer-tag">GUIDE</span>
-                <h4>Decrypt Reward</h4>
-                <p>Scratch the card in the center of the screen to decrypt your guaranteed Epic Artifact loot! Scratch the card to claim your reward!</p>
+             <div className="onboarding-pointer select-pointer" style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '1.5rem', width: '250px', zIndex: 100 }}>
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">Claim it.</p>
              </div>
           </div>
         )}
 
         <div className="scratch-container" ref={containerRef}>
+          {tutorialStep === 'scratch_card' && !isRevealed && (
+            <div className="scratch-gesture-overlay pointer-events-none absolute inset-0 flex items-center justify-center z-30">
+              <div className="scratch-finger-icon" />
+            </div>
+          )}
           <div className={`loot-content ${isRevealed ? 'revealed' : ''}`}>
              <div className="flex items-center justify-center gap-6 z-10">
                {/* Artifact Visual */}
@@ -377,8 +380,6 @@ export default function ScratchCard({ data, onClose }) {
         }
 
         .onboarding-scratch-hint {
-          background: rgba(197, 160, 89, 0.15);
-          border: 1px solid var(--gold-core);
           color: var(--gold-bright);
           font-family: var(--font-mono);
           font-size: 0.7rem;
@@ -386,11 +387,30 @@ export default function ScratchCard({ data, onClose }) {
           border-radius: 4px;
           margin-top: 0.5rem;
           letter-spacing: 0.05em;
-          animation: scratchPulseGlow 2s infinite ease-in-out;
         }
-        @keyframes scratchPulseGlow {
-          0%, 100% { opacity: 0.8; box-shadow: 0 0 5px rgba(197, 160, 89, 0.2); }
-          50% { opacity: 1; box-shadow: 0 0 15px rgba(197, 160, 89, 0.4); }
+
+        .scratch-gesture-overlay {
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          pointer-events: none;
+        }
+
+        .scratch-finger-icon {
+          position: absolute;
+          width: 40px;
+          height: 40px;
+          background: radial-gradient(circle, var(--gold-core) 0%, rgba(197, 160, 89, 0) 70%);
+          border-radius: 50%;
+          box-shadow: 0 0 20px var(--gold-core);
+          animation: scratchSwipe 1.8s infinite ease-in-out;
+        }
+
+        @keyframes scratchSwipe {
+          0% { transform: translate(-80px, -60px) scale(1); opacity: 0.8; }
+          25% { transform: translate(80px, -20px) scale(0.9); opacity: 0.9; }
+          50% { transform: translate(-60px, 20px) scale(1.1); opacity: 0.8; }
+          75% { transform: translate(90px, 60px) scale(0.9); opacity: 0.9; }
+          100% { transform: translate(-80px, -60px) scale(1); opacity: 0.8; }
         }
       `}</style>
     </div>

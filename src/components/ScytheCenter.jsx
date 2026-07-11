@@ -17,7 +17,10 @@ export default function ScytheCenter({ onOpenShop }) {
     equipScythe,
     applyTheme,
     downloadedRegions,
-    downloadRegionBundle
+    downloadRegionBundle,
+    hasSeenForgeGuide,
+    setHasSeenForgeGuide,
+    tutorialStep
   } = useWarscytheStore();
 
   const [isSlashing, setIsSlashing] = useState(false);
@@ -154,8 +157,28 @@ export default function ScytheCenter({ onOpenShop }) {
     else setSelectedItemId('default');
   };
 
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+
   return (
-    <section className="scythe-center-section">
+    <section className="scythe-center-section relative">
+      {!hasSeenForgeGuide && !isTutorialActive && (
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
+            <span className="pointer-tag">GUARDIAN</span>
+            <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Forge Cores</h4>
+            <p className="text-[11px] font-serif text-white">
+              Upgrade your Scythes here. Higher level Scythes scale your level frame and boost focus yields.
+            </p>
+            <button 
+              type="button" 
+              onClick={() => setHasSeenForgeGuide(true)}
+              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
       <div className="elite-panel">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">

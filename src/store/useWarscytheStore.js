@@ -206,8 +206,12 @@ const mergeState = (local, saved) => {
     local.firstTaskCompleted ||
     saved.firstTaskCompleted
   );
-  const tutorialStep = hasCompletedTutorial ? 'completed' : (local.tutorialStep || saved.tutorialStep || 'not_started');
+  const tutorialStep = hasCompletedTutorial ? 'completed' : (local.tutorialStep || saved.tutorialStep || 'task_creation');
   const firstTaskCompleted = !!(local.firstTaskCompleted || saved.firstTaskCompleted);
+  const hasSeenMapGuide = !!(local.hasSeenMapGuide || saved.hasSeenMapGuide);
+  const hasSeenLedgerGuide = !!(local.hasSeenLedgerGuide || saved.hasSeenLedgerGuide);
+  const hasSeenForgeGuide = !!(local.hasSeenForgeGuide || saved.hasSeenForgeGuide);
+  const hasSeenRitualsGuide = !!(local.hasSeenRitualsGuide || saved.hasSeenRitualsGuide);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
     ? local.lastActiveDate
     : saved.lastActiveDate;
@@ -253,6 +257,10 @@ const mergeState = (local, saved) => {
     hasCompletedTutorial,
     tutorialStep,
     firstTaskCompleted,
+    hasSeenMapGuide,
+    hasSeenLedgerGuide,
+    hasSeenForgeGuide,
+    hasSeenRitualsGuide,
     lastActiveDate,
     lastResetDate,
     rescuedFairies,
@@ -360,8 +368,12 @@ export const useWarscytheStore = create(
       gymLog: [],
       activeWorkout: null,
       hasCompletedTutorial: false,
-      tutorialStep: 'not_started',
+      tutorialStep: 'task_creation',
       firstTaskCompleted: false,
+      hasSeenMapGuide: false,
+      hasSeenLedgerGuide: false,
+      hasSeenForgeGuide: false,
+      hasSeenRitualsGuide: false,
       dailyPoints: 0,
       lastResetDate: null,
       syncStatus: 'synced',
@@ -558,8 +570,12 @@ export const useWarscytheStore = create(
           gymLog: [],
           activeWorkout: null,
           hasCompletedTutorial: false,
-          tutorialStep: 'not_started',
+          tutorialStep: 'task_creation',
           firstTaskCompleted: false,
+          hasSeenMapGuide: false,
+          hasSeenLedgerGuide: false,
+          hasSeenForgeGuide: false,
+          hasSeenRitualsGuide: false,
           dailyPoints: 0,
           lastResetDate: null,
           syncStatus: 'synced',
@@ -1894,6 +1910,22 @@ export const useWarscytheStore = create(
         set({ hasCompletedTutorial: true, tutorialStep: 'completed' });
       },
 
+      setHasSeenMapGuide: (val) => {
+        set({ hasSeenMapGuide: val });
+      },
+
+      setHasSeenLedgerGuide: (val) => {
+        set({ hasSeenLedgerGuide: val });
+      },
+
+      setHasSeenForgeGuide: (val) => {
+        set({ hasSeenForgeGuide: val });
+      },
+
+      setHasSeenRitualsGuide: (val) => {
+        set({ hasSeenRitualsGuide: val });
+      },
+
       downloadRegionBundle: async (regionId) => {
         const config = BUNDLE_CONFIG[regionId];
         if (!config) return;
@@ -2788,6 +2820,10 @@ useWarscytheStore.subscribe((state) => {
       scytheLevel: state.scytheLevel,
       dailyPoints: state.dailyPoints,
       rescuedFairies: state.rescuedFairies,
+      hasSeenMapGuide: state.hasSeenMapGuide,
+      hasSeenLedgerGuide: state.hasSeenLedgerGuide,
+      hasSeenForgeGuide: state.hasSeenForgeGuide,
+      hasSeenRitualsGuide: state.hasSeenRitualsGuide,
     };
     return;
   }
@@ -2829,6 +2865,10 @@ useWarscytheStore.subscribe((state) => {
       scytheLevel: state.scytheLevel,
       dailyPoints: state.dailyPoints,
       rescuedFairies: state.rescuedFairies,
+      hasSeenMapGuide: state.hasSeenMapGuide,
+      hasSeenLedgerGuide: state.hasSeenLedgerGuide,
+      hasSeenForgeGuide: state.hasSeenForgeGuide,
+      hasSeenRitualsGuide: state.hasSeenRitualsGuide,
     };
     return;
   }

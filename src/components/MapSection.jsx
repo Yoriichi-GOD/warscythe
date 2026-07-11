@@ -139,7 +139,8 @@ export default function MapSection({ onTabChange }) {
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
     currentLevelProgress, unlockedLore, collectedArtifacts,
     scytheLevel, coins, streakCount, rescuedFairies, user, tutorialStep,
-    downloadedRegions, downloadRegionBundle
+    downloadedRegions, downloadRegionBundle,
+    hasSeenMapGuide, setHasSeenMapGuide
   } = useWarscytheStore();
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
@@ -332,8 +333,26 @@ export default function MapSection({ onTabChange }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="campaign-theater"
+      className="campaign-theater relative"
     >
+      {!hasSeenMapGuide && !isTutorialActive && (
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
+            <span className="pointer-tag">GUARDIAN</span>
+            <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Theater of War</h4>
+            <p className="text-[11px] font-serif text-white">
+              Earn keys by completing operations to unlock regions and rescue fairies. Rescued fairies reward you with stats and multiplier relics.
+            </p>
+            <button 
+              type="button" 
+              onClick={() => setHasSeenMapGuide(true)}
+              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
       {/* Floating Fire Embers / Ashes */}
       <div className="ember-field">
         {[...Array(15)].map((_, i) => (

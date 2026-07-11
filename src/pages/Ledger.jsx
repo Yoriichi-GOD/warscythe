@@ -336,6 +336,11 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const bossKills = useWarscytheStore(state => state.bossKills) || 0;
   const rescuedFairies = useWarscytheStore(state => state.rescuedFairies) || {};
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
+  const hasSeenLedgerGuide = useWarscytheStore(state => state.hasSeenLedgerGuide);
+  const setHasSeenLedgerGuide = useWarscytheStore(state => state.setHasSeenLedgerGuide);
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+
   const [selectedArtifact, setSelectedArtifact] = useState(null);
   const [selectedTrophy, setSelectedTrophy] = useState(null);
   const [selectedFairy, setSelectedFairy] = useState(null);
@@ -351,7 +356,25 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-6">
+    <div className="w-full max-w-7xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-6 relative">
+      {!hasSeenLedgerGuide && !isTutorialActive && (
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
+            <span className="pointer-tag">GUARDIAN</span>
+            <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Vault of Records</h4>
+            <p className="text-[11px] font-serif text-white">
+              Review your metrics. This records your streak history, trophy artifacts, and weekly execution velocity.
+            </p>
+            <button 
+              type="button" 
+              onClick={() => setHasSeenLedgerGuide(true)}
+              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
         <div className="flex flex-col gap-1">

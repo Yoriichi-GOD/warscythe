@@ -13,6 +13,10 @@ export default function Rituals({ onAddTask }) {
   const completeRitual = useWarscytheStore(state => state.completeRitual);
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
+  const hasSeenRitualsGuide = useWarscytheStore(state => state.hasSeenRitualsGuide);
+  const setHasSeenRitualsGuide = useWarscytheStore(state => state.setHasSeenRitualsGuide);
+  const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
   
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
 
@@ -54,7 +58,25 @@ export default function Rituals({ onAddTask }) {
   ];
 
   return (
-    <div className="elite-grid-container">
+    <div className="elite-grid-container relative">
+      {!hasSeenRitualsGuide && !isTutorialActive && (
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
+            <span className="pointer-tag">GUARDIAN</span>
+            <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Altar of Rituals</h4>
+            <p className="text-[11px] font-serif text-white">
+              Establish daily and weekly habit routines. Completing them builds momentum; neglecting them breaks your streak.
+            </p>
+            <button 
+              type="button" 
+              onClick={() => setHasSeenRitualsGuide(true)}
+              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* ═══ LEFT COLUMN: ACTIVE RITUALS ═══ */}
       <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">

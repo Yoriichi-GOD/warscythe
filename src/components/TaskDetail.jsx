@@ -20,10 +20,11 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+  const [hasTouchedSlider, setHasTouchedSlider] = useState(false);
 
   useEffect(() => {
     if (tutorialStep === 'click_task') {
-      setTutorialStep('validate_execution');
+      setTutorialStep('task_detail_tutorial');
     }
   }, [tutorialStep]);
 
@@ -31,13 +32,13 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
 
   const handleComplete = () => {
     if (tutorialStep === 'validate_execution') {
-      setTutorialStep('reality_check');
+      setTutorialStep('scratch_card');
     }
     onComplete();
   };
 
   const handleClose = () => {
-    if (tutorialStep === 'validate_execution') {
+    if (tutorialStep === 'task_detail_tutorial' || tutorialStep === 'validate_execution') {
       setTutorialStep('click_task');
     }
     onClose();
@@ -96,7 +97,12 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
                 type="range" 
                 min="0" max="100" step="5"
                 value={task.progress}
-                onChange={e => updateProgress(task.id, parseInt(e.target.value))}
+                onChange={e => {
+                  updateProgress(task.id, parseInt(e.target.value));
+                  if (!hasTouchedSlider) {
+                    setHasTouchedSlider(true);
+                  }
+                }}
                 className="td-native-slider"
               />
             </div>
@@ -163,6 +169,26 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
                  </div>
                )}
              </div>
+             {tutorialStep === 'task_detail_tutorial' && (
+              <div className="onboarding-pointer left-pointer select-pointer mt-4" style={{ position: 'relative', width: '100%', pointerEvents: 'auto' }}>
+                <span className="pointer-tag">GUARDIAN</span>
+                <p className="text-[11px] font-serif text-white">
+                  Break it down here if it's fighting you. Check them off — the bar moves on its own.
+                </p>
+                {hasTouchedSlider && (
+                  <p className="text-[11px] font-serif text-gold-core mt-2">
+                    Or drag it yourself. Your call.
+                  </p>
+                )}
+                <button 
+                  type="button" 
+                  onClick={() => setTutorialStep('validate_execution')}
+                  className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Field Notes */}
@@ -185,20 +211,26 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
 
         {/* Action Bar */}
         <div className="td-footer" style={{ position: 'relative' }}>
-          <button className={`td-btn-validate ${tutorialStep === 'validate_execution' ? 'gold-glow-ring' : ''}`} onClick={handleComplete}>
+          <button className={`td-btn-validate ${tutorialStep === 'validate_execution' ? 'gold-glow-ring' : 'opacity-40'}`} onClick={handleComplete}>
             <CheckCircle size={18} /> 
             <span>VALIDATE EXECUTION</span>
           </button>
 
           {tutorialStep === 'validate_execution' && (
-            <div className="onboarding-pointer" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '1rem', width: '250px' }}>
-              <span className="pointer-tag">GUIDE</span>
-              <h4>Validate Execution</h4>
-              <p>Once you complete the work in real life, you must validate your execution. Click 'VALIDATE EXECUTION'.</p>
+            <div className="onboarding-pointer select-pointer" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '1rem', width: '250px' }}>
+              <span className="pointer-tag">GUARDIAN</span>
+              <p className="text-[11px] font-serif text-white">Confirm it's done.</p>
             </div>
           )}
           
-          <button className="td-btn-danger" onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); handleClose(); }}}>
+          <button 
+            className={`td-btn-danger transition-all duration-300 ${
+              (tutorialStep === 'task_detail_tutorial' || tutorialStep === 'validate_execution')
+                ? 'w-0 opacity-0 overflow-hidden p-0 m-0 pointer-events-none'
+                : ''
+            }`} 
+            onClick={() => { if(window.confirm("Abandon mission?")) { abandonTask(task.id); handleClose(); }}}
+          >
             <Trash2 size={18} />
           </button>
         </div>
