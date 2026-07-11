@@ -1877,14 +1877,14 @@ export default function Social() {
           top: 100%;
           left: 0;
           width: 100%;
-          background: #000;
-          border: 1px solid rgba(197, 160, 89, 0.3);
+          background: #08080a !important;
+          border: 1px solid rgba(197, 160, 89, 0.3) !important;
           border-radius: 4px;
           margin-top: 4px;
-          z-index: 500;
+          z-index: 5000;
           max-height: 160px;
           overflow-y: auto;
-          box-shadow: 0 10px 35px rgba(0,0,0,0.9);
+          box-shadow: 0 10px 35px rgba(0,0,0,0.95);
         }
 
         .collective-ops-form .custom-select-option {

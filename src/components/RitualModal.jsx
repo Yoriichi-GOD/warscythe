@@ -337,14 +337,14 @@ export default function RitualModal({ onClose }) {
           top: 100%;
           left: 0;
           width: 100%;
-          background: #000;
-          border: 1px solid #fff;
+          background: #08080a !important;
+          border: 1px solid rgba(197, 160, 89, 0.3) !important;
           border-radius: 4px;
           margin-top: 4px;
-          z-index: 500;
+          z-index: 5000;
           max-height: 200px;
           overflow-y: auto;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.95);
         }
         .custom-select-option {
           padding: 0.8rem 1rem;
