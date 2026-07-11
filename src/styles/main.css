@@ -1071,11 +1071,12 @@
 
 /* ═══════════════ ONBOARDING POINTERS ═══════════════ */
 .onboarding-pointer {
-  background: #08080a;
-  border: 1px solid var(--gold-core);
+  background: #08080a !important;
+  background-color: #08080a !important;
+  border: 1px solid var(--gold-core) !important;
   padding: 0.8rem;
   border-radius: 4px;
-  box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
+  box-shadow: 0 0 15px rgba(197, 160, 89, 0.3) !important;
   z-index: 100;
   pointer-events: none;
   display: flex;
@@ -1083,8 +1084,6 @@
   gap: 0.25rem;
   text-align: left;
   margin-top: 0.5rem;
-  border-color: rgba(197, 160, 89, 0.3);
-  background: rgba(197, 160, 89, 0.03);
 }
 .pointer-tag {
   font-family: var(--font-mono);
@@ -1234,5 +1233,35 @@ body.theme-lava .elite-panel::after {
 .custom-select-option:hover {
   background: #ffffff !important;
   color: #000000 !important;
+}
+
+/* Floating Tooltip Onboarding Layout for Desktop Viewports */
+@media (min-width: 1025px) {
+  .modal-onboarding-open {
+    max-width: 500px !important;
+  }
+  .modal-onboarding-open .form-group {
+    position: relative !important;
+  }
+  .modal-onboarding-open .onboarding-pointer {
+    position: absolute !important;
+    width: 280px !important;
+    margin-top: 0 !important;
+    background: #08080a !important;
+    background-color: #08080a !important;
+    border: 1px solid var(--gold-core) !important;
+    box-shadow: 0 0 25px rgba(197, 160, 89, 0.35) !important;
+    z-index: 100000 !important;
+  }
+  .modal-onboarding-open .left-pointer {
+    right: 108% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+  .modal-onboarding-open .right-pointer {
+    left: 108% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
 }
 

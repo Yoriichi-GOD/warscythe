@@ -273,7 +273,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && (
+              {tutorialStep === 'task_modal_open' && !categoryOpen && (
                 <div className="onboarding-pointer left-pointer select-pointer">
                   <span className="pointer-tag">GUIDE</span>
                   <h4>Intel Category</h4>
@@ -307,7 +307,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && (
+              {tutorialStep === 'task_modal_open' && !effortOpen && (
                 <div className="onboarding-pointer right-pointer select-pointer">
                   <span className="pointer-tag">GUIDE</span>
                   <h4>Resistance Level</h4>
