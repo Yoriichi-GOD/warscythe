@@ -108,7 +108,7 @@ export default function LandingPage({ onLaunch }) {
         },
         {
           title: 'What are Artifacts?',
-          philosophy: 'Artifacts are not loot. They\'re mementos. Each artifact tells a story about a specific ADHD execution truth. When you complete an operation, you receive an artifact that celebrates what you just proved about yourself.',
+          philosophy: 'Artifacts are not loot. They\'re mementos. Each artifact tells a story about a specific execution truth. When you complete an operation, you receive an artifact that celebrates what you just proved about yourself.',
           useCase: 'Every operation completion awards an artifact from a pool of 125 unique pieces, categorized by rarity (Common, Uncommon, Rare, Epic, Legendary).',
           details: [
             'CROWN: You stopped doing everything. You conquered what mattered.',
@@ -248,7 +248,7 @@ export default function LandingPage({ onLaunch }) {
       topics: [
         {
           title: 'What is the Guardian Angel?',
-          philosophy: 'Not motivation. Not a cheerleader. The Guardian Angel is a witness who speaks ADHD truth. It appears during execution, validates your neurology, and occasionally asks you to rest.',
+          philosophy: 'Not motivation. Not a cheerleader. The Guardian Angel is a witness who speaks the truth of execution. It appears during execution, validates your focus, and occasionally asks you to rest.',
           useCase: 'Every 5-15 minutes during task execution, a prophecy appears on screen to align your context. At 200 days, the Angel triggers a letter questioning if you are playing for the number or for actual growth.'
         }
       ]

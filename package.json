@@ -2,7 +2,7 @@
   "name": "warscythe",
   "private": true,
   "version": "2.1.0",
-  "description": "A high-fantasy, generational execution engine. Built to crush ADHD paralysis through gamified micro-operations and tactical focus modes.",
+  "description": "A high-fantasy, generational execution engine. Built to crush execution paralysis for low-motivation, high-potential individuals through gamified micro-operations and tactical focus modes.",
   "type": "module",
   "scripts": {
     "dev": "vite",

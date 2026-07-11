@@ -268,7 +268,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
 
           <div className="focus-micro-steps">
             <div className="steps-header">
-              <label>TACTICAL CHUNKS (ADHD SPECIAL)</label>
+              <label>TACTICAL CHUNKS (INERTIA BREAK)</label>
               <button className="recalc-btn" onClick={() => generateMicroSteps(task.id)}>
                 <Zap size={10} /> RECALCULATE
               </button>

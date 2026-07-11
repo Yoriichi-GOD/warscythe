@@ -95,8 +95,8 @@ export const infoData = {
       {
         id: "artifacts",
         title: "What are Artifacts?",
-        philosophy: "Artifacts are not loot. They're mementos. Each artifact tells a story about a specific ADHD execution truth. When you complete an operation, you receive an artifact that celebrates what you just proved about yourself.",
-        useCase: "Every operation completion awards an artifact from a pool of 125 unique pieces. Each has:\n- A visual design (gorgeous, thematic, meaningful)\n- Rarity tier (Common, Uncommon, Rare, Epic, Legendary)\n- Lore (a short, ADHD-specific philosophy)\n\nExamples:\n- \"CROWN: You stopped doing everything. You conquered what mattered.\"\n- \"BLADE: Criticism used to break you. Now it sharpens you.\"\n- \"LANTERN: You carried light into darkness. For yourself first.\"",
+        philosophy: "Artifacts are not loot. They're mementos. Each artifact tells a story about a specific execution truth. When you complete an operation, you receive an artifact that celebrates what you just proved about yourself.",
+        useCase: "Every operation completion awards an artifact from a pool of 125 unique pieces. Each has:\n- A visual design (gorgeous, thematic, meaningful)\n- Rarity tier (Common, Uncommon, Rare, Epic, Legendary)\n- Lore (a short, execution-focused philosophy)\n\nExamples:\n- \"CROWN: You stopped doing everything. You conquered what mattered.\"\n- \"BLADE: Criticism used to break you. Now it sharpens you.\"\n- \"LANTERN: You carried light into darkness. For yourself first.\"",
         scratchMechanic: "Artifacts don't drop instantly. You physically scratch an encrypted overlay to reveal them. This micro-pause lets the win register emotionally. The scratch action is the celebration.",
         collecting: "Artifacts live in your Ledger. You're building a museum of proof. Every artifact is a moment you refused to break."
       },
@@ -206,8 +206,8 @@ export const infoData = {
       {
         id: "guardian-angel",
         title: "What is the Guardian Angel?",
-        philosophy: "Not motivation. Not a cheerleader. The Guardian Angel is a witness who speaks ADHD truth. It appears during execution, validates your neurology, and occasionally asks you to rest.",
-        useCase: "Every 5-15 minutes during task execution, a prophecy appears.\n\nExamples:\n- \"Your brain accelerates when stakes are high. The chaos you feel is your processor scaling.\"\n- \"You've switched focus three times. This isn't distraction. Your brain is making connections.\"\n- \"You've started 47 tasks this month. You're completing this one. That's not luck. That's your architecture.\"\n- \"Y minutes left. Your clock is accelerating. Most people panic. You sharpen.\"\n\nThese prophecies are contextual. The Angel reads your actual data and speaks to what you're doing right now.",
+        philosophy: "Not motivation. Not a cheerleader. The Guardian Angel is a witness who speaks the truth of execution. It appears during execution, validates your focus, and occasionally asks you to rest.",
+        useCase: "Every 5-15 minutes during task execution, a prophecy appears.\n\nExamples:\n- \"Your brain accelerates when stakes are high. The chaos you feel is your processor scaling.\"\n- \"The shifting thoughts are not distraction; your brain is forging connections.\"\n- \"You've set this objective, and you are completing it. That's not luck. That's your architecture.\"\n- \"Pressure sharpens you. Your clock is accelerating. Most people panic. You sharpen.\"\n\nThese prophecies are contextual. The Angel reads your active focus and speaks to what you're doing right now.",
         crucialMoment: "At 200 days, the Angel sends a letter. Not congratulations. A warning. A psychological checkpoint: \"Are you doing this for you, or are you trapped?\" It gives you permission to break the streak if you need to.",
         whyItMatters: "You're not broken. You're wired differently. The Angel speaks in your language."
       },
@@ -308,9 +308,9 @@ export const infoData = {
       {
         id: "about",
         title: "About Warscythe",
-        philosophy: "This app exists because standard ADHD tools are broken. They treat your neurology as a problem to fix. Warscythe treats it as a specific operating system that works brilliantly—if you respect how it actually works.\n\nYou hyperfocus when stakes are high. You need constraints to thrive. Paralysis is real, but so is your capacity to move when execution is framed as sacred.\n\nThis app honors that.",
+        philosophy: "This app exists because standard productivity tools are broken. They treat your focus and energy as a problem to fix. Warscythe treats it as a specific operating system that works brilliantly—if you respect how it actually works.\n\nYou hyperfocus when stakes are high. You need constraints to thrive. Paralysis is real, but so is your capacity to move when execution is framed as sacred.\n\nThis app honors that.",
         whatWeBelieve: [
-          "Your ADHD isn't broken",
+          "Your wiring isn't broken",
           "Execution is sacred",
           "Hyperfocus is power",
           "Rest is wisdom",
