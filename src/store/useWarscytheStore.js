@@ -38,6 +38,7 @@ const getRedirectUrl = () => {
 };
 
 let isSyncingFromServer = false;
+let isSavingUserState = false;
 let hasFetchedInitialState = false;
 let lastState = null;
 
@@ -379,6 +380,7 @@ export const useWarscytheStore = create(
       syncStatus: 'synced',
       hasPendingChanges: false,
       isMerging: false,
+      isInitialFetchComplete: false,
       user: null,
       isAdFree: false,
       showResetPasswordModal: false,
@@ -535,6 +537,7 @@ export const useWarscytheStore = create(
         set({
           user: null,
           isAdFree: false,
+          isInitialFetchComplete: false,
           tasks: [],
           rituals: [],
           completedTasks: [],
@@ -697,16 +700,23 @@ export const useWarscytheStore = create(
         set({ isMerging: true });
         try {
           isSyncingFromServer = true;
-          const { data, error } = await supabase
+          const fetchPromise = supabase
             .from('profiles')
             .select('state, username')
             .eq('id', userId)
             .single();
 
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase database request timed out after 10 seconds')), 10000)
+          );
+
+          const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
           if (error) {
             // If no profile row exists, create one with the current store state
             if (error.code === 'PGRST116') {
               isSyncingFromServer = false;
+              set({ isInitialFetchComplete: true });
               await get().saveUserState(userId);
             } else {
               console.error('Error fetching user state:', error.message);
@@ -718,7 +728,8 @@ export const useWarscytheStore = create(
               ...merged,
               username: data.username || null,
               syncStatus: 'synced',
-              hasPendingChanges: false
+              hasPendingChanges: false,
+              isInitialFetchComplete: true
             });
             // Fetch entitlements to update isAdFree
             try {
@@ -748,8 +759,8 @@ export const useWarscytheStore = create(
                 const dbThemes = unlocksData.filter(u => u.item_type === 'theme').map(u => u.item_id);
 
                 set(state => ({
-                  unlockedScythes: Array.from(new Set([...(state.unlockedScythes || ['neophyte']), ...dbScythes])),
-                  unlockedThemes: Array.from(new Set([...(state.unlockedThemes || ['default']), ...dbThemes]))
+                   unlockedScythes: Array.from(new Set([...(state.unlockedScythes || ['neophyte']), ...dbScythes])),
+                   unlockedThemes: Array.from(new Set([...(state.unlockedThemes || ['default']), ...dbThemes]))
                 }));
               }
             } catch (unlocksErr) {
@@ -759,6 +770,8 @@ export const useWarscytheStore = create(
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
           }
+        } catch (err) {
+          console.error('[Warscythe Sync Debug] fetchUserState failed:', err);
         } finally {
           isSyncingFromServer = false;
           set({ isMerging: false });
@@ -796,6 +809,12 @@ export const useWarscytheStore = create(
           return;
         }
 
+        if (isSavingUserState) {
+          console.warn('[Warscythe Sync Debug] saveUserState returned early: save already in progress');
+          return;
+        }
+
+        isSavingUserState = true;
         console.error('[Warscythe Sync Debug] saveUserState started for user:', u);
         set({ syncStatus: 'pending' });
         const state = get();
@@ -841,11 +860,18 @@ export const useWarscytheStore = create(
 
         try {
           console.error('[Warscythe Sync Debug] Executing Supabase profiles upsert query...');
-          const { error } = await supabase.from('profiles').upsert({
+          const upsertPromise = supabase.from('profiles').upsert({
             id: u,
             state: payload,
             updated_at: new Date().toISOString()
           });
+
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase database request timed out after 10 seconds')), 10000)
+          );
+
+          const { error } = await Promise.race([upsertPromise, timeoutPromise]);
+
           if (error) {
             console.error('[Warscythe Sync Debug] Save query returned error:', error.message);
             set({ syncStatus: 'failed' });
@@ -856,6 +882,8 @@ export const useWarscytheStore = create(
         } catch (err) {
           console.error('[Warscythe Sync Debug] Exception thrown during upsert execution:', err);
           set({ syncStatus: 'failed' });
+        } finally {
+          isSavingUserState = false;
         }
       },
 
@@ -2953,13 +2981,15 @@ useWarscytheStore.subscribe((state) => {
       rescuedFairies: state.rescuedFairies,
     };
 
-    // Set status to pending and mark unsynced changes immediately
-    useWarscytheStore.setState({ syncStatus: 'pending', hasPendingChanges: true });
+    if (state.isInitialFetchComplete && state.user?.id) {
+      // Set status to pending and mark unsynced changes immediately
+      useWarscytheStore.setState({ syncStatus: 'pending', hasPendingChanges: true });
 
-    if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-      useWarscytheStore.getState().saveUserState(state.user.id);
-    }, 1500); // 1.5 second debounce to prevent spamming queries
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        useWarscytheStore.getState().saveUserState(state.user.id);
+      }, 1500); // 1.5 second debounce to prevent spamming queries
+    }
   }
 });
 

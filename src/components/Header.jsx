@@ -279,7 +279,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           <div style={{ position: 'relative' }}>
             <button 
               className={`nav-btn ${user ? 'active' : ''}`} 
-              onClick={user ? () => { setShowDropdown(!showDropdown); setShowAtlasDropdown(false); } : () => onOpenAuth()}
+              onClick={user ? () => { setShowDropdown(!showDropdown); } : () => onOpenAuth()}
               title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
             >
               {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}

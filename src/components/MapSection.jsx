@@ -336,7 +336,7 @@ export default function MapSection({ onTabChange }) {
       className="campaign-theater relative"
     >
       {!hasSeenMapGuide && !isTutorialActive && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
           <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
             <span className="pointer-tag">GUARDIAN</span>
             <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Theater of War</h4>
