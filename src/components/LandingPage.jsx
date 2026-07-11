@@ -285,17 +285,17 @@ export default function LandingPage({ onLaunch }) {
         {
           title: 'What is Ad-Free?',
           philosophy: 'Ads appear only on transition screens—between operations, during loading. Never during execution. Execution is sacred.',
-          useCase: 'Remove all banner and full-screen transition ads with a premium subscription of ₹100/month or $3.60/month.'
+          useCase: 'Remove all banner and full-screen transition ads with a premium subscription.'
         },
         {
           title: 'What are Cosmetics?',
           philosophy: 'Cosmetics are emotional attachment. They don\'t make you stronger. They make the journey feel more personal.',
-          useCase: 'Unlock visual variants of your Scythe (₹50) or region-specific themes (₹200) that switch visuals and soundscapes simultaneously.'
+          useCase: 'Unlock visual variants of your Scythe or region-specific themes that switch visuals and soundscapes simultaneously.'
         },
         {
           title: 'What is the Bundle?',
           philosophy: 'The bundle bundles value. You want ad-free + themes? The bundle costs less than buying them separately.',
-          useCase: 'The Genesis Bundle includes 2 cosmetic scythes, 1 region theme, and 1 month of ad-free subscription for ₹350 or $8.00.'
+          useCase: 'The Genesis Bundle includes 2 cosmetic scythes, 1 region theme, and 1 month of ad-free subscription.'
         }
       ]
     }
