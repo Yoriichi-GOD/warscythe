@@ -263,11 +263,11 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           {user && (
             <button 
               className={`nav-btn sync-btn status-${syncStatus} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
-              onClick={syncStatus === 'failed' ? () => onOpenAuth() : forceSync}
+              onClick={forceSync}
               title={
                 syncStatus === 'synced' ? 'All progress synced with command core' :
                 syncStatus === 'pending' ? 'Synchronizing with command core...' :
-                'Sync failure! Click to re-authenticate and resolve.'
+                'Sync failure! Click to retry synchronizing.'
               }
             >
               {syncStatus === 'synced' && <RefreshCw size={14} className="text-gold-core/60" />}
