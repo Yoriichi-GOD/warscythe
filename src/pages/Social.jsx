@@ -427,7 +427,7 @@ export default function Social() {
   return (
     <div className="social-page-container">
       {/* 🧭 SOCIAL SUB-NAVBAR */}
-      <div className="social-sub-nav relative flex items-center justify-center">
+      <div className="social-sub-nav flex items-center justify-center">
         <div className="flex gap-8 justify-center flex-1">
           <button 
             onClick={() => setActiveSubTab('leaderboard')}
@@ -451,24 +451,33 @@ export default function Social() {
             <span>LEGION COMMAND</span>
           </button>
         </div>
-        <div className="flex items-center gap-2 absolute right-4">
+      </div>
+
+      {/* 📖 INTEL & WALKTHROUGH BAR */}
+      <div className="social-guide-bar flex justify-between items-center px-4 py-2 border-b border-white/[0.03] bg-black/20 shrink-0">
+        <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">
+          COMMUNICATIONS CORE // INTEL SNAPSHOT
+        </span>
+        <div className="flex items-center gap-2">
           <button 
             type="button"
             onClick={() => {
               useWarscytheStore.getState().openVideoModal('legion');
             }}
-            className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gold-core hover:text-gold-bright border border-gold-core/20 hover:border-gold-core/40 bg-gold-core/5 hover:bg-gold-core/10 rounded transition-all cursor-pointer"
             title="Play Walkthrough Guide"
           >
-            <Play size={12} fill="currentColor" className="text-gold-core" />
+            <Play size={10} fill="currentColor" className="text-gold-core" />
+            <span>WALKTHROUGH GUIDE</span>
           </button>
           <button 
             type="button"
             onClick={() => useWarscytheStore.getState().openInfoModal('social')}
-            className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
+            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] rounded transition-all cursor-pointer"
             title="Social Info"
           >
-            <Info size={14} />
+            <Info size={11} />
+            <span>INTEL MANUAL</span>
           </button>
         </div>
       </div>
