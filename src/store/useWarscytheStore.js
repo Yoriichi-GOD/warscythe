@@ -39,6 +39,7 @@ const getRedirectUrl = () => {
 
 let isSyncingFromServer = false;
 let isSavingUserState = false;
+let isSavePending = false;
 let hasFetchedInitialState = false;
 let lastState = null;
 
@@ -810,7 +811,8 @@ export const useWarscytheStore = create(
         }
 
         if (isSavingUserState) {
-          console.warn('[Warscythe Sync Debug] saveUserState returned early: save already in progress');
+          console.warn('[Warscythe Sync Debug] saveUserState: save already in progress, queuing next save');
+          isSavePending = true;
           return;
         }
 
@@ -884,6 +886,13 @@ export const useWarscytheStore = create(
           set({ syncStatus: 'failed' });
         } finally {
           isSavingUserState = false;
+          if (isSavePending) {
+            isSavePending = false;
+            setTimeout(() => {
+              const currentUserId = get().user?.id;
+              if (currentUserId) get().saveUserState(currentUserId);
+            }, 500);
+          }
         }
       },
 
