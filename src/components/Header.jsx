@@ -263,11 +263,11 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           {user && (
             <button 
               className={`nav-btn sync-btn status-${syncStatus} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
-              onClick={forceSync}
+              onClick={syncStatus === 'failed' ? () => onOpenAuth() : forceSync}
               title={
                 syncStatus === 'synced' ? 'All progress synced with command core' :
                 syncStatus === 'pending' ? 'Synchronizing with command core...' :
-                'Sync failure! Click to retry synchronizing.'
+                'Sync failure! Click to re-authenticate and resolve.'
               }
             >
               {syncStatus === 'synced' && <RefreshCw size={14} className="text-gold-core/60" />}
@@ -279,7 +279,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           <div style={{ position: 'relative' }}>
             <button 
               className={`nav-btn ${user ? 'active' : ''}`} 
-              onClick={user ? () => { setShowDropdown(!showDropdown); } : () => onOpenAuth()}
+              onClick={user ? () => { setShowDropdown(!showDropdown); setShowAtlasDropdown(false); } : () => onOpenAuth()}
               title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
             >
               {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
