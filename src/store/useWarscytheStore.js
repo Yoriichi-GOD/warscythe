@@ -3099,6 +3099,7 @@ useWarscytheStore.subscribe((state) => {
 
 // Listen to auth state changes to fetch latest user state on app initialization/refresh
 supabase.auth.onAuthStateChange(async (event, session) => {
+  console.log(`[AUTH TRACE] onAuthStateChange fired with event: ${event}, user ID: ${session?.user?.id || 'none'}`);
   const state = useWarscytheStore.getState();
   const currentUser = state.user;
 
@@ -3108,25 +3109,29 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
   if (session?.user) {
     const isNewSignIn = event === 'SIGNED_IN' && (!currentUser || currentUser.id !== session.user.id);
+    const isInitialLoad = !hasFetchedInitialState;
+    console.log(`[AUTH TRACE] User found. isNewSignIn: ${isNewSignIn}, isInitialLoad: ${isInitialLoad}, hasFetchedInitialState: ${hasFetchedInitialState}`);
 
     // If a different user is logging in, wipe current client state first to prevent crossover
     if (currentUser && currentUser.id !== session.user.id) {
+      console.log(`[AUTH TRACE] Wiping client state because user switched from ${currentUser.id} to ${session.user.id}`);
       state.clearClientState();
     }
 
     useWarscytheStore.setState({ user: session.user });
 
-    // Only fetch user state from the server on new sign-in or initial app load.
-    // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
-    const isInitialLoad = !hasFetchedInitialState;
     if (isNewSignIn || isInitialLoad) {
+      console.log(`[AUTH TRACE] Triggering initial server load...`);
       await useWarscytheStore.getState().fetchUserState(session.user.id);
       await useWarscytheStore.getState().fetchSocialData();
       hasFetchedInitialState = true;
+      console.log(`[AUTH TRACE] Initial server load completed. hasFetchedInitialState is now: ${hasFetchedInitialState}`);
     }
   } else {
+    console.log(`[AUTH TRACE] No user session found.`);
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
     if (currentUser) {
+      console.log(`[AUTH TRACE] Wiping client state because logged-in user signed out.`);
       state.clearClientState();
     }
   }
