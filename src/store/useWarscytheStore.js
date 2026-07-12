@@ -698,25 +698,34 @@ export const useWarscytheStore = create(
       },
 
       fetchUserState: async (userId) => {
-        if (get().isMerging) return;
+        console.log(`[SYNC TRACE] fetchUserState started for user: ${userId}`);
+        if (get().isMerging) {
+          console.log(`[SYNC TRACE] fetchUserState aborted: isMerging is already true`);
+          return;
+        }
         set({ isMerging: true });
         try {
           isSyncingFromServer = true;
+          console.log('[LOAD TRACE] fetchUserState: about to call supabase...');
           const { data, error } = await supabase
             .from('profiles')
             .select('state, username')
             .eq('id', userId)
             .single();
 
+          console.log('[LOAD TRACE] fetchUserState: call returned', { data, error });
+
           if (error) {
             // If no profile row exists, create one with the current store state
             if (error.code === 'PGRST116') {
+              console.log(`[SYNC TRACE] fetchUserState: no profile found. Creating a new one...`);
               isSyncingFromServer = false;
               await get().saveUserState(userId);
             } else {
               console.error('Error fetching user state:', error.message);
             }
           } else if (data && data.state) {
+            console.log(`[SYNC TRACE] fetchUserState: profile state found. Merging...`);
             const saved = data.state;
             const merged = mergeState(get(), saved);
             set({
@@ -725,6 +734,8 @@ export const useWarscytheStore = create(
               syncStatus: 'synced',
               hasPendingChanges: false
             });
+            
+            console.log(`[SYNC TRACE] fetchUserState: querying user_entitlements...`);
             // Fetch entitlements to update isAdFree
             try {
               const { data: entData, error: entError } = await supabase
@@ -732,6 +743,7 @@ export const useWarscytheStore = create(
                 .select('is_ad_free')
                 .eq('user_id', userId)
                 .maybeSingle();
+              console.log(`[SYNC TRACE] fetchUserState: user_entitlements query returned. data:`, entData, `error:`, entError);
               if (!entError && entData) {
                 set({ isAdFree: !!entData.is_ad_free });
               } else {
@@ -741,12 +753,14 @@ export const useWarscytheStore = create(
               console.warn('Failed to fetch user entitlements:', entErr);
             }
 
+            console.log(`[SYNC TRACE] fetchUserState: querying user_unlocks...`);
             // Fetch unlocks from user_unlocks
             try {
               const { data: unlocksData, error: unlocksError } = await supabase
                 .from('user_unlocks')
                 .select('item_id, item_type')
                 .eq('user_id', userId);
+              console.log(`[SYNC TRACE] fetchUserState: user_unlocks query returned. data:`, unlocksData, `error:`, unlocksError);
 
               if (!unlocksError && unlocksData) {
                 const dbScythes = unlocksData.filter(u => u.item_type === 'scythe').map(u => u.item_id);
@@ -761,12 +775,19 @@ export const useWarscytheStore = create(
               console.warn('Failed to fetch user unlocks:', unlocksErr);
             }
 
+            console.log(`[SYNC TRACE] fetchUserState: triggering parity write back to database...`);
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
+            console.log(`[SYNC TRACE] fetchUserState: parity write completed.`);
+          } else {
+            console.log(`[SYNC TRACE] fetchUserState: profile row exists but state is empty or null.`);
           }
+        } catch (err) {
+          console.error(`[SYNC TRACE] fetchUserState exception caught:`, err);
         } finally {
           isSyncingFromServer = false;
           set({ isMerging: false });
+          console.log(`[SYNC TRACE] fetchUserState completed and isMerging reset to false.`);
         }
       },
 
