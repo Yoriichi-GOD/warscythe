@@ -41,6 +41,7 @@ import BossFlashScreen from './components/BossFlashScreen';
 import RegionFlashScreen from './components/RegionFlashScreen';
 import LoreModal from './components/LoreModal';
 import WarTerminal from './components/command/WarTerminal';
+import TutorialEndFlash from './components/TutorialEndFlash';
 import { REGIONS } from './store/constants';
 const PROPHECIES = [
   "Your brain accelerates when stakes are high. The chaos you feel is your processor scaling. Trust it.",
@@ -154,6 +155,7 @@ export default function App() {
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(false);
+  const [showTutorialEndFlash, setShowTutorialEndFlash] = useState(false);
   
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
 
@@ -813,8 +815,19 @@ export default function App() {
             onClose={() => {
               clearPendingReward();
               if (tutorialStep && tutorialStep !== 'completed') {
-                useWarscytheStore.getState().completeTutorial();
+                setShowTutorialEndFlash(true);
               }
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTutorialEndFlash && (
+          <TutorialEndFlash 
+            onClose={() => {
+              setShowTutorialEndFlash(false);
+              useWarscytheStore.getState().completeTutorial();
             }} 
           />
         )}
