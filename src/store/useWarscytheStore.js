@@ -388,7 +388,6 @@ export const useWarscytheStore = create(
       isMerging: false,
       user: null,
       isAdFree: false,
-      authStale: false,
       showResetPasswordModal: false,
       rescuedFairies: {},
       pendingVictoryScreen: null,
@@ -797,10 +796,6 @@ export const useWarscytheStore = create(
 
       saveUserState: async (userId) => {
         console.log(`[SYNC TRACE] saveUserState CALLED at ${performance.now().toFixed(1)}ms — lock=${currentSyncPromise !== null} — caller stack:`, new Error().stack);
-        if (get().authStale) {
-          console.warn('[SYNC] Blocked — auth not yet revalidated post-load');
-          return;
-        }
         const u = userId || get().user?.id;
         if (!u) {
           console.error('[Warscythe Sync Debug] saveUserState returned early: no user ID');
@@ -2832,28 +2827,11 @@ export const useWarscytheStore = create(
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: (state) => {
         console.log(`[SYNC TRACE] Store hydration started at ${performance.now().toFixed(1)}ms`);
-        return async (hydratedState, error) => {
+        return (state, error) => {
           if (error) {
             console.log(`[SYNC TRACE] Store hydration failed at ${performance.now().toFixed(1)}ms:`, error);
           } else {
             console.log(`[SYNC TRACE] Store hydrated at ${performance.now().toFixed(1)}ms`);
-            if (hydratedState?.user?.id) {
-              console.log('[AUTH] Persisted user session found. Refreshing session to validate...');
-              if (storeSet) storeSet({ authStale: true });
-              try {
-                const { data, error: refreshError } = await supabase.auth.refreshSession();
-                if (refreshError || !data.session) {
-                  console.error('[AUTH] Session refresh failed on load:', refreshError);
-                  if (storeSet) storeSet({ authStale: true });
-                } else {
-                  console.log('[AUTH] Session successfully refreshed and validated on load');
-                  if (storeSet) storeSet({ authStale: false });
-                }
-              } catch (err) {
-                console.error('[AUTH] Session refresh exception on load:', err);
-                if (storeSet) storeSet({ authStale: true });
-              }
-            }
           }
         };
       },
@@ -3126,7 +3104,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       state.clearClientState();
     }
 
-    useWarscytheStore.setState({ user: session.user, authStale: false });
+    useWarscytheStore.setState({ user: session.user });
 
     // Only fetch user state from the server on new sign-in or initial app load.
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
@@ -3141,6 +3119,5 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     if (currentUser) {
       state.clearClientState();
     }
-    useWarscytheStore.setState({ authStale: false });
   }
 });
