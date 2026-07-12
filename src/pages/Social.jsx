@@ -182,7 +182,7 @@ const generateUUID = () => {
   });
 };
 
-export default function Social({ isActive }) {
+export default function Social() {
   const {
     user,
     friendships,
@@ -259,11 +259,10 @@ export default function Social({ isActive }) {
   const [leaderboardMode, setLeaderboardMode] = useState('friends');
 
   useEffect(() => {
-    if (!isActive) return;
     fetchSocialData();
-    const interval = setInterval(fetchSocialData, 60000); // Poll every 60 seconds when active
+    const interval = setInterval(fetchSocialData, 10000); // Poll every 10 seconds for real-time states
     return () => clearInterval(interval);
-  }, [isActive]);
+  }, []);
 
   const handleSendRequest = async (e) => {
     e.preventDefault();
