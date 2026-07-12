@@ -707,11 +707,18 @@ export const useWarscytheStore = create(
         try {
           isSyncingFromServer = true;
           console.log('[LOAD TRACE] fetchUserState: about to call supabase...');
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('state, username')
-            .eq('id', userId)
-            .single();
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Fetch request timed out after 8 seconds')), 8000)
+          );
+
+          const { data, error } = await Promise.race([
+            supabase
+              .from('profiles')
+              .select('state, username')
+              .eq('id', userId)
+              .single(),
+            timeoutPromise
+          ]);
 
           console.log('[LOAD TRACE] fetchUserState: call returned', { data, error });
 
@@ -3147,10 +3154,15 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
     if (isNewSignIn || isInitialLoad) {
       console.log(`[AUTH TRACE] Triggering initial server load...`);
-      await useWarscytheStore.getState().fetchUserState(session.user.id);
-      await useWarscytheStore.getState().fetchSocialData();
-      hasFetchedInitialState = true;
-      console.log(`[AUTH TRACE] Initial server load completed. hasFetchedInitialState is now: ${hasFetchedInitialState}`);
+      try {
+        await useWarscytheStore.getState().fetchUserState(session.user.id);
+        await useWarscytheStore.getState().fetchSocialData();
+      } catch (loadErr) {
+        console.error(`[AUTH TRACE] Error during initial server load:`, loadErr);
+      } finally {
+        hasFetchedInitialState = true;
+        console.log(`[AUTH TRACE] Initial server load completed. hasFetchedInitialState is now: ${hasFetchedInitialState}`);
+      }
     }
   } else {
     console.log(`[AUTH TRACE] No user session found.`);
