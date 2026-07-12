@@ -783,7 +783,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           border-radius: 4px;
           box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
           z-index: 100;
-          pointer-events: none;
+          pointer-events: auto;
           display: flex;
           flex-direction: column;
           gap: 0.25rem;
