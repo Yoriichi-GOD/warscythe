@@ -2863,6 +2863,10 @@ export const useWarscytheStore = create(
             console.log(`[SYNC TRACE] Store hydration failed at ${performance.now().toFixed(1)}ms:`, error);
           } else {
             console.log(`[SYNC TRACE] Store hydrated at ${performance.now().toFixed(1)}ms`);
+            if (storeSet) {
+              console.log('[SYNC TRACE] Forcing isMerging to false on hydration load');
+              storeSet({ isMerging: false });
+            }
           }
         };
       },
