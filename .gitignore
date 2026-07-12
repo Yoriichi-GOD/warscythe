@@ -159,3 +159,4 @@ google-services.json
 !.env.example
 *.jks
 *.aab
+*.aab

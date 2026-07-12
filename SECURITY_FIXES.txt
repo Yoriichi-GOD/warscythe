@@ -50,7 +50,7 @@ DEPLOY STEPS (in order)
 
 2) EDGE FUNCTION — redeploy the webhook and confirm the secret is set:
    supabase secrets set RAZORPAY_WEBHOOK_SECRET=<your razorpay webhook secret>
-   supabase functions deploy razorpay-webhook
+   supabase functions deploy razorpay-webhook --no-verify-jwt
    (Verify RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / SUPABASE_SERVICE_ROLE_KEY are set.)
 
 3) WEB APP — rebuild & redeploy (Vercel) so the client stops fetching emails and
