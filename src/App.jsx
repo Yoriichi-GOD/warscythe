@@ -638,7 +638,7 @@ export default function App() {
           style={{ display: activeTab === 'social' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
-          <Social />
+          <Social isActive={activeTab === 'social'} />
         </div>
       </main>
 
