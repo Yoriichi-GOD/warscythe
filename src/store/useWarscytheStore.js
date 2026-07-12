@@ -333,9 +333,13 @@ const loadRazorpayScript = () => {
   });
 };
 
+let storeSet = null;
+
 export const useWarscytheStore = create(
   persist(
-    (set, get) => ({
+    (set, get) => {
+      storeSet = set;
+      return {
       tasks: [],
       rituals: [],
       completedTasks: [],
@@ -2821,7 +2825,8 @@ export const useWarscytheStore = create(
           console.error("Failed to update weekly leaderboard:", err);
         }
       }
-    }),
+      };
+    },
     {
       name: 'Warscythe-storage',
       storage: createJSONStorage(() => localStorage),
@@ -2834,19 +2839,19 @@ export const useWarscytheStore = create(
             console.log(`[SYNC TRACE] Store hydrated at ${performance.now().toFixed(1)}ms`);
             if (hydratedState?.user?.id) {
               console.log('[AUTH] Persisted user session found. Refreshing session to validate...');
-              useWarscytheStore.setState({ authStale: true });
+              if (storeSet) storeSet({ authStale: true });
               try {
                 const { data, error: refreshError } = await supabase.auth.refreshSession();
                 if (refreshError || !data.session) {
                   console.error('[AUTH] Session refresh failed on load:', refreshError);
-                  useWarscytheStore.setState({ authStale: true });
+                  if (storeSet) storeSet({ authStale: true });
                 } else {
                   console.log('[AUTH] Session successfully refreshed and validated on load');
-                  useWarscytheStore.setState({ authStale: false });
+                  if (storeSet) storeSet({ authStale: false });
                 }
               } catch (err) {
                 console.error('[AUTH] Session refresh exception on load:', err);
-                useWarscytheStore.setState({ authStale: true });
+                if (storeSet) storeSet({ authStale: true });
               }
             }
           }
@@ -2875,6 +2880,51 @@ let saveTimeout = null;
 useWarscytheStore.subscribe((state) => {
   if (!state.user?.id) {
     lastState = null;
+    return;
+  }
+
+  // If initial server sync has not completed yet, keep lastState aligned and skip save
+  if (!hasFetchedInitialState) {
+    lastState = {
+      tasks: state.tasks,
+      rituals: state.rituals,
+      completedTasks: state.completedTasks,
+      abandonedTasks: state.abandonedTasks,
+      xp: state.xp,
+      level: state.level,
+      streakCount: state.streakCount,
+      notes: state.notes,
+      executionScore: state.executionScore,
+      collectedArtifacts: state.collectedArtifacts,
+      gymLog: state.gymLog,
+      activeWorkout: state.activeWorkout,
+      activeScytheSkin: state.activeScytheSkin,
+      activeTheme: state.activeTheme,
+      unlockedScythes: state.unlockedScythes,
+      unlockedThemes: state.unlockedThemes,
+      downloadedRegions: state.downloadedRegions,
+      coins: state.coins,
+      soundscapeEnabled: state.soundscapeEnabled,
+      soundscapeVolume: state.soundscapeVolume,
+      isAdFree: state.isAdFree,
+      referralSource: state.referralSource,
+      tutorialStep: state.tutorialStep,
+      hasCompletedTutorial: state.hasCompletedTutorial,
+      scytheMigrationDone: state.scytheMigrationDone,
+      bossKills: state.bossKills,
+      customGymWorkouts: state.customGymWorkouts,
+      weeklyPoints: state.weeklyPoints,
+      lastActiveDate: state.lastActiveDate,
+      lastResetDate: state.lastResetDate,
+      firstTaskCompleted: state.firstTaskCompleted,
+      scytheLevel: state.scytheLevel,
+      dailyPoints: state.dailyPoints,
+      rescuedFairies: state.rescuedFairies,
+      hasSeenMapGuide: state.hasSeenMapGuide,
+      hasSeenLedgerGuide: state.hasSeenLedgerGuide,
+      hasSeenForgeGuide: state.hasSeenForgeGuide,
+      hasSeenRitualsGuide: state.hasSeenRitualsGuide,
+    };
     return;
   }
 
@@ -3082,9 +3132,9 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     // Do NOT fetch state on USER_UPDATED (e.g. password resets/token refreshes) to avoid database conflicts and race conditions.
     const isInitialLoad = !hasFetchedInitialState;
     if (isNewSignIn || isInitialLoad) {
-      hasFetchedInitialState = true;
       await useWarscytheStore.getState().fetchUserState(session.user.id);
       await useWarscytheStore.getState().fetchSocialData();
+      hasFetchedInitialState = true;
     }
   } else {
     // If session is null, but we had a logged-in user, they signed out - wipe state to default template
