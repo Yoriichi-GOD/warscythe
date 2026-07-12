@@ -154,11 +154,11 @@ export default function MapSection({ onTabChange }) {
   const [showFog, setShowFog] = useState(false);
   const prevLevelRef = useRef(level);
 
-  const mapIndex = ((level - 1) % 10) + 1;
+  const mapIndex = level === 0 ? 1 : ((level - 1) % 10) + 1;
   const [activeMapIndex, setActiveMapIndex] = useState(mapIndex);
 
   useEffect(() => {
-    setActiveMapIndex(((level - 1) % 10) + 1);
+    setActiveMapIndex(level === 0 ? 1 : ((level - 1) % 10) + 1);
   }, [level]);
 
   useEffect(() => {

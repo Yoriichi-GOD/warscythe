@@ -791,6 +791,7 @@ export const useWarscytheStore = create(
       },
 
       saveUserState: async (userId) => {
+        console.log(`[SYNC TRACE] saveUserState CALLED at ${performance.now().toFixed(1)}ms — lock=${currentSyncPromise !== null} — caller stack:`, new Error().stack);
         const u = userId || get().user?.id;
         if (!u) {
           console.error('[Warscythe Sync Debug] saveUserState returned early: no user ID');
@@ -2819,6 +2820,16 @@ export const useWarscytheStore = create(
     {
       name: 'Warscythe-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: (state) => {
+        console.log(`[SYNC TRACE] Store hydration started at ${performance.now().toFixed(1)}ms`);
+        return (state, error) => {
+          if (error) {
+            console.log(`[SYNC TRACE] Store hydration failed at ${performance.now().toFixed(1)}ms:`, error);
+          } else {
+            console.log(`[SYNC TRACE] Store hydrated at ${performance.now().toFixed(1)}ms`);
+          }
+        };
+      },
       merge: (persistedState, currentState) => {
         const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
         const merged = {
@@ -2975,6 +2986,7 @@ useWarscytheStore.subscribe((state) => {
   const hasChanged = changedFields.length > 0;
 
   if (hasChanged) {
+    console.log(`[SYNC TRACE] Subscriber fired at ${performance.now().toFixed(1)}ms for fields:`, changedFields);
     console.error('[Warscythe Sync Debug] State change detected in fields:', changedFields);
     
     // Update local snapshot immediately to prevent duplicate triggers
