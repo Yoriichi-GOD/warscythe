@@ -3132,6 +3132,16 @@ useWarscytheStore.subscribe((state) => {
 // Listen to auth state changes to fetch latest user state on app initialization/refresh
 supabase.auth.onAuthStateChange(async (event, session) => {
   console.log(`[AUTH TRACE] onAuthStateChange fired with event: ${event}, user ID: ${session?.user?.id || 'none'}`);
+  
+  // Standalone diagnostic probe to isolate getSession hangs
+  try {
+    console.log('[PROBE] calling getSession at', performance.now());
+    const result = await supabase.auth.getSession();
+    console.log('[PROBE] getSession returned at', performance.now(), result);
+  } catch (err) {
+    console.error('[PROBE] getSession threw an error:', err);
+  }
+
   const state = useWarscytheStore.getState();
   const currentUser = state.user;
 
@@ -3154,9 +3164,17 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
     if (isNewSignIn || isInitialLoad) {
       console.log(`[AUTH TRACE] Triggering initial server load...`);
+      const loadTimeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Initial server load timed out after 8 seconds')), 8000)
+      );
       try {
-        await useWarscytheStore.getState().fetchUserState(session.user.id);
-        await useWarscytheStore.getState().fetchSocialData();
+        await Promise.race([
+          (async () => {
+            await useWarscytheStore.getState().fetchUserState(session.user.id);
+            await useWarscytheStore.getState().fetchSocialData();
+          })(),
+          loadTimeoutPromise
+        ]);
       } catch (loadErr) {
         console.error(`[AUTH TRACE] Error during initial server load:`, loadErr);
       } finally {

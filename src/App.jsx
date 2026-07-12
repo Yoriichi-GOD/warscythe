@@ -401,21 +401,6 @@ export default function App() {
       }
     };
     
-    const handleBeforeUnload = () => {
-      const store = useWarscytheStore.getState();
-      if (store.hasPendingChanges) {
-        store.forceSync();
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        const store = useWarscytheStore.getState();
-        if (store.hasPendingChanges) {
-          store.forceSync();
-        }
-      }
-    };
 
     // Navigation handler for 'Access Full Vault' -> Ledger Relics & Lore
     const handleNavToLedgerVault = () => {
@@ -470,15 +455,11 @@ export default function App() {
     };
 
     window.addEventListener('keydown', handleEsc);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('navToLedgerVault', handleNavToLedgerVault);
     window.addEventListener('triggerProphecy', handleTriggerProphecy);
 
     return () => {
       window.removeEventListener('keydown', handleEsc);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('navToLedgerVault', handleNavToLedgerVault);
       window.removeEventListener('triggerProphecy', handleTriggerProphecy);
       if (appUrlListener) {
