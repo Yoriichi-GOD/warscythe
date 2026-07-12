@@ -1,6 +1,6 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Settings, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL } from '../store/constants';
 
@@ -282,11 +282,11 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               onClick={user ? () => setShowDropdown(!showDropdown) : () => onOpenAuth()}
               title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
             >
-              {user ? <ShieldCheck size={18} /> : <Fingerprint size={18} />}
+              {user ? <Settings size={18} /> : <Fingerprint size={18} />}
             </button>
             
             {showDropdown && user && (
-              <div className="header-dropdown-menu">
+              <div className="header-dropdown-menu settings-dropdown">
                 <button 
                   onClick={() => { 
                     setShowDropdown(false); 
@@ -664,6 +664,10 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(197,160,89,0.05);
           z-index: 100;
           overflow: hidden;
+        }
+        .settings-dropdown {
+          right: auto;
+          left: 0;
         }
         .header-dropdown-menu button {
           background: transparent;
