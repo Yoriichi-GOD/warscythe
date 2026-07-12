@@ -802,6 +802,11 @@ export const useWarscytheStore = create(
           return;
         }
 
+        if (!hasFetchedInitialState && !isSyncingFromServer) {
+          console.warn('[SYNC] Blocked saveUserState - initial load not completed');
+          return;
+        }
+
         // 1. Single-Flight / Mutex Lock Guard
         if (currentSyncPromise) {
           if (!nextSyncQueued) {
@@ -929,6 +934,11 @@ export const useWarscytheStore = create(
       forceSync: async () => {
         const u = get().user?.id;
         if (!u) return;
+
+        if (!hasFetchedInitialState) {
+          console.warn('[SYNC] Blocked forceSync - initial load not completed');
+          return;
+        }
 
         set({ syncStatus: 'pending' });
         try {
