@@ -295,8 +295,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             />
             {tutorialStep === 'task_modal_open' && formTutorialStep === 0 && (
               <div className="onboarding-pointer left-pointer select-pointer mt-4">
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">Name your target.</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">Name your target.</p>
+                  </div>
+                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                </div>
                 <button 
                   type="button" 
                   onClick={() => title.trim() && advanceTutorial(0)}
@@ -336,8 +341,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               </div>
               {tutorialStep === 'task_modal_open' && formTutorialStep === 1 && !categoryOpen && (
                 <div className="onboarding-pointer left-pointer select-pointer">
-                  <span className="pointer-tag">GUARDIAN</span>
-                  <p className="text-[11px] font-serif text-white">Where does this strike belong?</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <span className="pointer-tag">GUARDIAN</span>
+                      <p className="text-[11px] font-serif text-white">Where does this strike belong?</p>
+                    </div>
+                    <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  </div>
                 </div>
               )}
             </div>
@@ -369,8 +379,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
               </div>
               {tutorialStep === 'task_modal_open' && formTutorialStep === 2 && !effortOpen && (
                 <div className="onboarding-pointer right-pointer select-pointer">
-                  <span className="pointer-tag">GUARDIAN</span>
-                  <p className="text-[11px] font-serif text-white">How hard will it fight back?</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <span className="pointer-tag">GUARDIAN</span>
+                      <p className="text-[11px] font-serif text-white">How hard will it fight back?</p>
+                    </div>
+                    <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  </div>
                 </div>
               )}
             </div>
@@ -384,8 +399,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             />
             {tutorialStep === 'task_modal_open' && formTutorialStep === 3 && (
               <div className="onboarding-pointer left-pointer select-pointer">
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">Set the clock. No clock, no strike.</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">Set the clock. No clock, no strike.</p>
+                  </div>
+                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                </div>
                 <button 
                   type="button" 
                   onClick={() => deadline && advanceTutorial(3)}
@@ -423,8 +443,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             </div>
             {tutorialStep === 'task_modal_open' && formTutorialStep === 4 && (
               <div className="onboarding-pointer right-pointer select-pointer">
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">How loud does this scream?</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">How loud does this scream?</p>
+                  </div>
+                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                </div>
                 <button 
                   type="button" 
                   onClick={() => advanceTutorial(4)}
@@ -470,8 +495,13 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
             </button>
             {tutorialStep === 'task_modal_open' && formTutorialStep === 5 && (
               <div className="onboarding-pointer left-pointer select-pointer mt-4">
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">Confirm. There's no walking this back.</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">Confirm. There's no walking this back.</p>
+                  </div>
+                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                </div>
               </div>
             )}
           </div>

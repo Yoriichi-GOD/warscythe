@@ -62,11 +62,16 @@ export default function Rituals({ onAddTask }) {
       {!hasSeenRitualsGuide && !isTutorialActive && (
         <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
           <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
-            <span className="pointer-tag">GUARDIAN</span>
-            <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Altar of Rituals</h4>
-            <p className="text-[11px] font-serif text-white">
-              Establish daily and weekly habit routines. Completing them builds momentum; neglecting them breaks your streak.
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <span className="pointer-tag">GUARDIAN</span>
+                <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Altar of Rituals</h4>
+                <p className="text-[11px] font-serif text-white">
+                  Establish daily and weekly habit routines. Completing them builds momentum; neglecting them breaks your streak.
+                </p>
+              </div>
+              <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+            </div>
             <button 
               type="button" 
               onClick={() => setHasSeenRitualsGuide(true)}

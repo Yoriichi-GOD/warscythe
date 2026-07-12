@@ -171,8 +171,13 @@ export default function ScratchCard({ data, onClose }) {
         {tutorialStep === 'scratch_card' && !isRevealed && (
           <div className="onboarding-scratch-hint" style={{ position: 'relative' }}>
              <div className="onboarding-pointer select-pointer" style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '1.5rem', width: '250px', zIndex: 100 }}>
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">Claim it.</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <span className="pointer-tag">GUARDIAN</span>
+                    <p className="text-[11px] font-serif text-white">Claim it.</p>
+                  </div>
+                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                </div>
              </div>
           </div>
         )}

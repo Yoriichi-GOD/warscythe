@@ -170,25 +170,30 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
                )}
              </div>
              {tutorialStep === 'task_detail_tutorial' && (
-              <div className="onboarding-pointer left-pointer select-pointer mt-4" style={{ position: 'relative', width: '100%', pointerEvents: 'auto' }}>
-                <span className="pointer-tag">GUARDIAN</span>
-                <p className="text-[11px] font-serif text-white">
-                  Break it down here if it's fighting you. Check them off — the bar moves on its own.
-                </p>
-                {hasTouchedSlider && (
-                  <p className="text-[11px] font-serif text-gold-core mt-2">
-                    Or drag it yourself. Your call.
-                  </p>
-                )}
-                <button 
-                  type="button" 
-                  onClick={() => setTutorialStep('validate_execution')}
-                  className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
-                >
-                  Next →
-                </button>
-              </div>
-            )}
+               <div className="onboarding-pointer left-pointer select-pointer mt-4" style={{ position: 'relative', width: '100%', pointerEvents: 'auto' }}>
+                 <div className="flex items-center gap-3">
+                   <div className="flex-1">
+                     <span className="pointer-tag">GUARDIAN</span>
+                     <p className="text-[11px] font-serif text-white">
+                       Break it down here if it's fighting you. Check them off — the bar moves on its own.
+                     </p>
+                     {hasTouchedSlider && (
+                       <p className="text-[11px] font-serif text-gold-core mt-2">
+                         Or drag it yourself. Your call.
+                       </p>
+                     )}
+                   </div>
+                   <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                 </div>
+                 <button 
+                   type="button" 
+                   onClick={() => setTutorialStep('validate_execution')}
+                   className="mt-2 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-2 py-0.5 rounded cursor-pointer self-start"
+                 >
+                   Next →
+                 </button>
+               </div>
+             )}
           </div>
 
           {/* Field Notes */}
@@ -218,8 +223,13 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
 
           {tutorialStep === 'validate_execution' && (
             <div className="onboarding-pointer select-pointer" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '1rem', width: '250px' }}>
-              <span className="pointer-tag">GUARDIAN</span>
-              <p className="text-[11px] font-serif text-white">Confirm it's done.</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <span className="pointer-tag">GUARDIAN</span>
+                  <p className="text-[11px] font-serif text-white">Confirm it's done.</p>
+                </div>
+                <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+              </div>
             </div>
           )}
           

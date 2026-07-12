@@ -126,8 +126,13 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                     <MissionCard task={task} onOpen={onOpenTask} />
                     {isTarget && (
                       <div className="onboarding-pointer left-pointer select-pointer mt-4">
-                        <span className="pointer-tag">GUARDIAN</span>
-                        <p className="text-[11px] font-serif text-white">There's your strike. Tap it when you've moved.</p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <span className="pointer-tag">GUARDIAN</span>
+                            <p className="text-[11px] font-serif text-white">There's your strike. Tap it when you've moved.</p>
+                          </div>
+                          <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -147,8 +152,13 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                 </button>
                 {tutorialStep === 'task_creation' && (
                   <div className="onboarding-pointer left-pointer select-pointer mt-4">
-                    <span className="pointer-tag">GUARDIAN</span>
-                    <p className="text-[11px] font-serif text-white">Every legend starts with one strike. Tap it.</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <span className="pointer-tag">GUARDIAN</span>
+                        <p className="text-[11px] font-serif text-white">Every legend starts with one strike. Tap it.</p>
+                      </div>
+                      <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                    </div>
                   </div>
                 )}
               </div>
