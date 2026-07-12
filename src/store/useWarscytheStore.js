@@ -40,6 +40,9 @@ const getRedirectUrl = () => {
 let isSyncingFromServer = false;
 let hasFetchedInitialState = false;
 let lastState = null;
+let currentSyncPromise = null;
+let nextSyncQueued = false;
+let watchdogTimeout = null;
 
 const normalizeTask = (task) => {
   if (!task) return task;
@@ -590,11 +593,9 @@ export const useWarscytheStore = create(
       },
 
       signOut: async () => {
-        try {
-          await supabase.auth.signOut();
-        } catch (err) {
-          console.warn('Supabase signOut failed, clearing local state anyway:', err);
-        }
+        supabase.auth.signOut().catch((err) => {
+          console.warn('Supabase signOut failed in background, cleared local state anyway:', err);
+        });
         get().clearClientState();
         ph.capture('warscythe_sign_out');
       },
@@ -796,66 +797,127 @@ export const useWarscytheStore = create(
           return;
         }
 
-        console.error('[Warscythe Sync Debug] saveUserState started for user:', u);
-        set({ syncStatus: 'pending' });
-        const state = get();
-        const payload = {
-          tasks: state.tasks,
-          rituals: state.rituals,
-          completedTasks: state.completedTasks,
-          abandonedTasks: state.abandonedTasks,
-          executionScore: state.executionScore,
-          dailyLog: state.dailyLog,
-          notes: state.notes,
-          level: state.level,
-          totalCompletions: state.totalCompletions,
-          currentLevelProgress: state.currentLevelProgress,
-          collectedArtifacts: state.collectedArtifacts,
-          unlockedLore: state.unlockedLore,
-          currentTitle: state.currentTitle,
-          consecutiveLow: state.consecutiveLow,
-          streakCount: state.streakCount,
-          xp: state.xp,
-          scytheLevel: state.scytheLevel,
-          lastActiveDate: state.lastActiveDate,
-          bossKills: state.bossKills,
-          unlockedScythes: state.unlockedScythes,
-          unlockedThemes: state.unlockedThemes,
-          activeScytheSkin: state.activeScytheSkin,
-          activeTheme: state.activeTheme,
-          downloadedRegions: state.downloadedRegions,
-          scytheMigrationDone: state.scytheMigrationDone,
-          coins: state.coins,
-          gymLog: state.gymLog,
-          activeWorkout: state.activeWorkout,
-          hasCompletedTutorial: state.hasCompletedTutorial,
-          tutorialStep: state.tutorialStep,
-          firstTaskCompleted: state.firstTaskCompleted,
-          dailyPoints: state.dailyPoints,
-          lastResetDate: state.lastResetDate,
-          rescuedFairies: state.rescuedFairies,
-          soundscapeEnabled: state.soundscapeEnabled,
-          soundscapeVolume: state.soundscapeVolume,
-          referralSource: state.referralSource
+        // 1. Single-Flight / Mutex Lock Guard
+        if (currentSyncPromise) {
+          if (!nextSyncQueued) {
+            console.log('[Warscythe Sync Debug] Sync is currently in-flight. Queueing next sync...');
+            nextSyncQueued = true;
+            await currentSyncPromise;
+            nextSyncQueued = false;
+            await get().saveUserState(userId);
+          }
+          return;
+        }
+
+        // Establish current sync run lock
+        let resolveSync;
+        currentSyncPromise = new Promise((resolve) => {
+          resolveSync = resolve;
+        });
+
+        // 2. Watchdog Safety Net
+        if (watchdogTimeout) clearTimeout(watchdogTimeout);
+        watchdogTimeout = setTimeout(() => {
+          if (useWarscytheStore.getState().syncStatus === 'pending') {
+            console.error('[Warscythe Sync Debug] Watchdog triggered: forcing syncStatus to failed.');
+            useWarscytheStore.setState({ syncStatus: 'failed' });
+          }
+        }, 10000); // 10 second safety watchdog
+
+        // 3. Upsert Wrapper with Timeout Race & 401 Token Refresh
+        const performUpsert = async (retryOn401 = true) => {
+          const state = get();
+          const payload = {
+            tasks: state.tasks,
+            rituals: state.rituals,
+            completedTasks: state.completedTasks,
+            abandonedTasks: state.abandonedTasks,
+            executionScore: state.executionScore,
+            dailyLog: state.dailyLog,
+            notes: state.notes,
+            level: state.level,
+            totalCompletions: state.totalCompletions,
+            currentLevelProgress: state.currentLevelProgress,
+            collectedArtifacts: state.collectedArtifacts,
+            unlockedLore: state.unlockedLore,
+            currentTitle: state.currentTitle,
+            consecutiveLow: state.consecutiveLow,
+            streakCount: state.streakCount,
+            xp: state.xp,
+            scytheLevel: state.scytheLevel,
+            lastActiveDate: state.lastActiveDate,
+            bossKills: state.bossKills,
+            unlockedScythes: state.unlockedScythes,
+            unlockedThemes: state.unlockedThemes,
+            activeScytheSkin: state.activeScytheSkin,
+            activeTheme: state.activeTheme,
+            downloadedRegions: state.downloadedRegions,
+            scytheMigrationDone: state.scytheMigrationDone,
+            coins: state.coins,
+            gymLog: state.gymLog,
+            activeWorkout: state.activeWorkout,
+            hasCompletedTutorial: state.hasCompletedTutorial,
+            tutorialStep: state.tutorialStep,
+            firstTaskCompleted: state.firstTaskCompleted,
+            dailyPoints: state.dailyPoints,
+            lastResetDate: state.lastResetDate,
+            rescuedFairies: state.rescuedFairies,
+            soundscapeEnabled: state.soundscapeEnabled,
+            soundscapeVolume: state.soundscapeVolume,
+            referralSource: state.referralSource
+          };
+
+          // Wrap database upsert inside a promise
+          const upsertPromise = (async () => {
+            const { error } = await supabase.from('profiles').upsert({
+              id: u,
+              state: payload,
+              updated_at: new Date().toISOString()
+            });
+            return { error };
+          })();
+
+          // 8 second timeout promise
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Sync request timed out after 8 seconds')), 8000);
+          });
+
+          // Race the upsert call against the 8 second timeout
+          const { error } = await Promise.race([upsertPromise, timeoutPromise]);
+
+          if (error) {
+            // Check for 401 Unauthorized / stale token error
+            const is401 = error.status === 401 || error.code === '401' || error.message?.includes('JWT') || error.message?.includes('expired');
+            if (is401 && retryOn401) {
+              console.warn('[Warscythe Sync Debug] Stale token (401) detected. Forcing manual session refresh...');
+              const { error: refreshError } = await supabase.auth.refreshSession();
+              if (!refreshError) {
+                console.log('[Warscythe Sync Debug] Session refreshed successfully. Retrying upsert...');
+                return await performUpsert(false); // Retry exactly once
+              } else {
+                console.error('[Warscythe Sync Debug] Session refresh failed:', refreshError.message);
+              }
+            }
+            throw error;
+          }
         };
 
+        console.error('[Warscythe Sync Debug] saveUserState started for user:', u);
+        set({ syncStatus: 'pending' });
+
         try {
-          console.error('[Warscythe Sync Debug] Executing Supabase profiles upsert query...');
-          const { error } = await supabase.from('profiles').upsert({
-            id: u,
-            state: payload,
-            updated_at: new Date().toISOString()
-          });
-          if (error) {
-            console.error('[Warscythe Sync Debug] Save query returned error:', error.message);
-            set({ syncStatus: 'failed' });
-          } else {
-            console.error('[Warscythe Sync Debug] Save query successful!');
-            set({ syncStatus: 'synced', hasPendingChanges: false });
-          }
+          await performUpsert(true);
+          if (watchdogTimeout) clearTimeout(watchdogTimeout);
+          console.error('[Warscythe Sync Debug] Save query successful!');
+          set({ syncStatus: 'synced', hasPendingChanges: false });
         } catch (err) {
-          console.error('[Warscythe Sync Debug] Exception thrown during upsert execution:', err);
+          if (watchdogTimeout) clearTimeout(watchdogTimeout);
+          console.error('[Warscythe Sync Debug] Exception/failure during upsert execution:', err.message || err);
           set({ syncStatus: 'failed' });
+        } finally {
+          // Release lock and resolve promise
+          currentSyncPromise = null;
+          resolveSync();
         }
       },
 
