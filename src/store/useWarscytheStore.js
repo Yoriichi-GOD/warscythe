@@ -706,17 +706,83 @@ export const useWarscytheStore = create(
         set({ isMerging: true });
         try {
           isSyncingFromServer = true;
-          console.log('[LOAD TRACE] fetchUserState: about to call supabase...');
+          
+          let session = null;
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+          // Dynamically parse project ref from supabaseUrl
+          let projectRef = 'yrxchjontmgkjaazrybh';
+          if (supabaseUrl) {
+            const match = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/);
+            if (match) {
+              projectRef = match[1];
+            }
+          }
+          const storageKey = `sb-${projectRef}-auth-token`;
+          const rawSession = localStorage.getItem(storageKey);
+
+          if (rawSession) {
+            try {
+              const parsed = JSON.parse(rawSession);
+              const now = Math.floor(Date.now() / 1000);
+              if (parsed.expires_at > now) {
+                session = parsed; // valid, use directly — skip the hanging getSession() call
+                console.log('[LOAD TRACE] Using valid session parsed directly from localStorage');
+              }
+            } catch (e) {
+              console.error('[AUTH] Failed to parse stored session:', e);
+            }
+          }
+
+          // Fallback: if localStorage read failed or session looks expired, 
+          // still try the real getSession() but under an 8s timeout race
+          if (!session) {
+            console.log('[LOAD TRACE] No valid session in localStorage, falling back to getSession...');
+            const getSessionTimeout = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('getSession timed out')), 8000)
+            );
+            try {
+              const result = await Promise.race([supabase.auth.getSession(), getSessionTimeout]);
+              session = result?.data?.session ?? null;
+            } catch (e) {
+              console.error('[AUTH] getSession fallback failed or timed out:', e);
+            }
+          }
+
+          const jwt = session?.access_token;
+          if (!jwt) {
+            throw new Error('No valid session token available');
+          }
+
+          console.log('[LOAD TRACE] fetchUserState: about to call profiles API directly...');
+          
+          // Direct fetch to bypass client-side library hangs/locks
+          const fetchPromise = (async () => {
+            const response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=state,username`, {
+              method: 'GET',
+              headers: {
+                'apikey': supabaseAnonKey,
+                'Authorization': `Bearer ${jwt}`
+              }
+            });
+            if (!response.ok) {
+              const errBody = await response.text();
+              throw new Error(`PostgREST error ${response.status}: ${errBody}`);
+            }
+            const arr = await response.json();
+            if (arr.length === 0) {
+              return { data: null, error: { code: 'PGRST116', message: 'Profile not found' } };
+            }
+            return { data: arr[0], error: null };
+          })();
+
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Fetch request timed out after 8 seconds')), 8000)
           );
 
           const { data, error } = await Promise.race([
-            supabase
-              .from('profiles')
-              .select('state, username')
-              .eq('id', userId)
-              .single(),
+            fetchPromise,
             timeoutPromise
           ]);
 
@@ -743,15 +809,18 @@ export const useWarscytheStore = create(
             });
             
             console.log(`[SYNC TRACE] fetchUserState: querying user_entitlements...`);
-            // Fetch entitlements to update isAdFree
+            // Fetch entitlements to update isAdFree via direct fetch
             try {
-              const { data: entData, error: entError } = await supabase
-                .from('user_entitlements')
-                .select('is_ad_free')
-                .eq('user_id', userId)
-                .maybeSingle();
-              console.log(`[SYNC TRACE] fetchUserState: user_entitlements query returned. data:`, entData, `error:`, entError);
-              if (!entError && entData) {
+              const entRes = await fetch(`${supabaseUrl}/rest/v1/user_entitlements?user_id=eq.${userId}&select=is_ad_free`, {
+                method: 'GET',
+                headers: {
+                  'apikey': supabaseAnonKey,
+                  'Authorization': `Bearer ${jwt}`
+                }
+              });
+              const entArr = entRes.ok ? await entRes.json() : [];
+              const entData = entArr.length > 0 ? entArr[0] : null;
+              if (entData) {
                 set({ isAdFree: !!entData.is_ad_free });
               } else {
                 set({ isAdFree: false });
@@ -761,15 +830,17 @@ export const useWarscytheStore = create(
             }
 
             console.log(`[SYNC TRACE] fetchUserState: querying user_unlocks...`);
-            // Fetch unlocks from user_unlocks
+            // Fetch unlocks from user_unlocks via direct fetch
             try {
-              const { data: unlocksData, error: unlocksError } = await supabase
-                .from('user_unlocks')
-                .select('item_id, item_type')
-                .eq('user_id', userId);
-              console.log(`[SYNC TRACE] fetchUserState: user_unlocks query returned. data:`, unlocksData, `error:`, unlocksError);
-
-              if (!unlocksError && unlocksData) {
+              const unlocksRes = await fetch(`${supabaseUrl}/rest/v1/user_unlocks?user_id=eq.${userId}&select=item_id,item_type`, {
+                method: 'GET',
+                headers: {
+                  'apikey': supabaseAnonKey,
+                  'Authorization': `Bearer ${jwt}`
+                }
+              });
+              const unlocksData = unlocksRes.ok ? await unlocksRes.json() : [];
+              if (unlocksData && unlocksData.length > 0) {
                 const dbScythes = unlocksData.filter(u => u.item_type === 'scythe').map(u => u.item_id);
                 const dbThemes = unlocksData.filter(u => u.item_type === 'theme').map(u => u.item_id);
 
