@@ -3203,15 +3203,6 @@ useWarscytheStore.subscribe((state) => {
 // Listen to auth state changes to fetch latest user state on app initialization/refresh
 supabase.auth.onAuthStateChange(async (event, session) => {
   console.log(`[AUTH TRACE] onAuthStateChange fired with event: ${event}, user ID: ${session?.user?.id || 'none'}`);
-  
-  // Standalone diagnostic probe to isolate getSession hangs
-  try {
-    console.log('[PROBE] calling getSession at', performance.now());
-    const result = await supabase.auth.getSession();
-    console.log('[PROBE] getSession returned at', performance.now(), result);
-  } catch (err) {
-    console.error('[PROBE] getSession threw an error:', err);
-  }
 
   const state = useWarscytheStore.getState();
   const currentUser = state.user;
