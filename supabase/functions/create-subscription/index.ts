@@ -49,7 +49,7 @@ serve(async (req) => {
     }
 
     // 4. Send request to Razorpay to generate a Subscription ID
-    const planId = 'plan_T2IFi1FXInud5L'
+    const planId = Deno.env.get('RAZORPAY_PLAN_ID') ?? 'plan_T2IFi1FXInud5L'
     const subscriptionBody = {
       plan_id: planId,
       total_count: 120, // 120 cycles (10 years) to represent a long-term active subscription
