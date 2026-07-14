@@ -193,7 +193,14 @@ const mergeState = (local, saved) => {
   const scytheLevels = ["DORMANT", "AWAKENED", "HARDENED", "REFINED", "ASCENDED", "PLATINUM"];
   const levelLocal = scytheLevels.indexOf(local.scytheLevel || "DORMANT");
   const levelServer = scytheLevels.indexOf(saved.scytheLevel || "DORMANT");
-  const scytheLevel = scytheLevels[Math.max(levelLocal, levelServer)];
+  let scytheLevel;
+  if (parseDate(local.lastResetDate) > parseDate(saved.lastResetDate)) {
+    scytheLevel = local.scytheLevel || "DORMANT";
+  } else if (parseDate(saved.lastResetDate) > parseDate(local.lastResetDate)) {
+    scytheLevel = saved.scytheLevel || "DORMANT";
+  } else {
+    scytheLevel = scytheLevels[Math.max(levelLocal, levelServer)];
+  }
 
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
