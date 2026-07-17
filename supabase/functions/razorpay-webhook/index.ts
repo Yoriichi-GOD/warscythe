@@ -73,14 +73,33 @@ serve(async (req) => {
     }
     const isValid = await verifySignature(rawBodyBytes, signature, webhookSecret)
     if (!isValid) {
-      console.error('Signature verification failed: Calculated signature does not match header')
+      const calculated = await (async () => {
+        const encoder = new TextEncoder()
+        const key = await crypto.subtle.importKey(
+          "raw",
+          encoder.encode(webhookSecret),
+          { name: "HMAC", hash: "SHA-256" },
+          false,
+          ["sign"]
+        )
+        const buf = await crypto.subtle.sign("HMAC", key, rawBodyBytes)
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+      })()
+
+      console.error(`Signature verification failed: Calculated signature does not match header.
+Received Signature: "${signature}"
+Calculated Signature: "${calculated}"
+Webhook Secret Length: ${webhookSecret.length}
+Webhook Secret Starts/Ends: "${webhookSecret.slice(0, 4)}...${webhookSecret.slice(-4)}"`)
 
       // DIAGNOSTIC CHECK: Check if the mismatch occurred because they set Webhook Secret to their API Key Secret
       const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
       if (keySecret) {
         const isValidWithKeySecret = await verifySignature(rawBodyBytes, signature, keySecret)
         if (isValidWithKeySecret) {
-          console.error('DIAGNOSTIC ERROR: Signature verification succeeded using RAZORPAY_KEY_SECRET! This confirms that the RAZORPAY_WEBHOOK_SECRET secret in Supabase is currently set to the Razorpay API Key Secret (rzp_live_...) instead of the specific Webhook Secret generated on the Razorpay Webhooks settings page. To fix this, go to Razorpay Dashboard -> Settings -> Webhooks, view or edit your webhook to see the Secret, and set it in Supabase using: `supabase secrets set RAZORPAY_WEBHOOK_SECRET=your_actual_webhook_secret`')
+          console.error(`DIAGNOSTIC ERROR: Signature verification succeeded using RAZORPAY_KEY_SECRET! This confirms that the RAZORPAY_WEBHOOK_SECRET secret in Supabase is currently set to the Razorpay API Key Secret (rzp_live_...) instead of the specific Webhook Secret generated on the Razorpay Webhooks settings page. To fix this, go to Razorpay Dashboard -> Settings -> Webhooks, view or edit your webhook to see the Secret, and set it in Supabase using: \`supabase secrets set RAZORPAY_WEBHOOK_SECRET=your_actual_webhook_secret\``)
+        } else {
+          console.log(`Diagnostic: Signature also did not match with RAZORPAY_KEY_SECRET (length: ${keySecret.length}, starts/ends: "${keySecret.slice(0, 4)}...${keySecret.slice(-4)}")`)
         }
       }
 
