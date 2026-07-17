@@ -7,7 +7,7 @@ const corsHeaders = {
 }
 
 // HMAC-SHA256 Verification using standard Web Crypto API
-async function verifySignature(body: string, signature: string, secret: string): Promise<boolean> {
+async function verifySignature(bodyBytes: Uint8Array, signature: string, secret: string): Promise<boolean> {
   const encoder = new TextEncoder()
   const keyData = encoder.encode(secret)
   const key = await crypto.subtle.importKey(
@@ -17,14 +17,13 @@ async function verifySignature(body: string, signature: string, secret: string):
     false,
     ["sign"]
   )
-  const bodyData = encoder.encode(body)
-  const signatureBuffer = await crypto.subtle.sign("HMAC", key, bodyData)
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, bodyBytes)
 
   // Convert signature to Hex string
   const hashArray = Array.from(new Uint8Array(signatureBuffer))
   const calculatedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 
-  return timingSafeEqual(calculatedSignature, signature)
+  return timingSafeEqual(calculatedSignature.toLowerCase(), signature.trim().toLowerCase())
 }
 
 // Constant-time string comparison to avoid leaking the signature via timing.
@@ -48,7 +47,8 @@ serve(async (req) => {
   }
 
   try {
-    const rawBody = await req.text()
+    const rawBodyBytes = new Uint8Array(await req.arrayBuffer())
+    const rawBody = new TextDecoder().decode(rawBodyBytes)
     const signature = req.headers.get('x-razorpay-signature')
     const webhookSecret = Deno.env.get('RAZORPAY_WEBHOOK_SECRET')
 
@@ -71,9 +71,19 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
-    const isValid = await verifySignature(rawBody, signature, webhookSecret)
+    const isValid = await verifySignature(rawBodyBytes, signature, webhookSecret)
     if (!isValid) {
       console.error('Signature verification failed: Calculated signature does not match header')
+
+      // DIAGNOSTIC CHECK: Check if the mismatch occurred because they set Webhook Secret to their API Key Secret
+      const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
+      if (keySecret) {
+        const isValidWithKeySecret = await verifySignature(rawBodyBytes, signature, keySecret)
+        if (isValidWithKeySecret) {
+          console.error('DIAGNOSTIC ERROR: Signature verification succeeded using RAZORPAY_KEY_SECRET! This confirms that the RAZORPAY_WEBHOOK_SECRET secret in Supabase is currently set to the Razorpay API Key Secret (rzp_live_...) instead of the specific Webhook Secret generated on the Razorpay Webhooks settings page. To fix this, go to Razorpay Dashboard -> Settings -> Webhooks, view or edit your webhook to see the Secret, and set it in Supabase using: `supabase secrets set RAZORPAY_WEBHOOK_SECRET=your_actual_webhook_secret`')
+        }
+      }
+
       return new Response(JSON.stringify({ error: 'Invalid signature' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
