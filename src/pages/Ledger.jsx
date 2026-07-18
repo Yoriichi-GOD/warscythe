@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
+import LockedDoor from '../components/LockedDoor';
 
 const EMPRESS_NAMES = [
   'Empress Dryad of Ashwood',
@@ -340,6 +341,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const setHasSeenLedgerGuide = useWarscytheStore(state => state.setHasSeenLedgerGuide);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+  const onboardingActive = useWarscytheStore(state => state.onboardingActive);
+  const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
 
   const [selectedArtifact, setSelectedArtifact] = useState(null);
   const [selectedTrophy, setSelectedTrophy] = useState(null);
@@ -941,9 +944,19 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             </div>
 
             {/* Right side: Inspector */}
-            <div className="artifact-inspector-page">
+            <div className="artifact-inspector-page relative">
               <AnimatePresence mode="wait">
-                {selectedArtifact ? (
+                {onboardingActive && onboardingProgress < 6 && (selectedTrophy || selectedFairy) ? (
+                  <motion.div
+                    key="ledger-locked"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="inspector-content-page absolute inset-0"
+                  >
+                    <LockedDoor requiredTasks={6} conceptName="Trophies & Chronicles" />
+                  </motion.div>
+                ) : selectedArtifact ? (
                   <motion.div 
                     key={selectedArtifact.name}
                     initial={{ opacity: 0, x: 20 }}

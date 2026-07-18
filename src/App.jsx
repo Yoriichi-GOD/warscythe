@@ -35,6 +35,9 @@ import { initNetworkMonitoring } from './utils/nativeTriggers';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
+import LockedDoor from './components/LockedDoor';
+import GuardianOverlay from './components/GuardianOverlay';
+import RoadmapModal from './components/RoadmapModal';
 
 import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
@@ -89,6 +92,10 @@ const getTaskCategoryType = (category = '') => {
 export default function App() {
   const user = useWarscytheStore(state => state.user);
   const username = useWarscytheStore(state => state.username);
+  const onboardingActive = useWarscytheStore(state => state.onboardingActive);
+  const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
+  const pendingGuardianProgress = useWarscytheStore(state => state.pendingGuardianProgress);
+  const clearPendingGuardian = useWarscytheStore(state => state.clearPendingGuardian);
   const isMerging = useWarscytheStore(state => state.isMerging);
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
@@ -139,6 +146,7 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState('ops');
   const [ledgerSubTab, setLedgerSubTab] = useState('history');
+  const [showRoadmap, setShowRoadmap] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskModalInitialEffort, setTaskModalInitialEffort] = useState('Medium');
   const [showRitualModal, setShowRitualModal] = useState(false);
@@ -526,6 +534,7 @@ export default function App() {
         onOpenDownloader={() => setShowDownloaderModal(true)}
         onOpenLore={() => setShowLoreModal(true)}
         onOpenSocial={() => setActiveTab('social')}
+        onOpenRoadmap={() => setShowRoadmap(true)}
       />
 
       {/* Sticky Walkthrough Guide Banner */}
@@ -581,45 +590,65 @@ export default function App() {
         
         <div 
           style={{ display: activeTab === 'rituals' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Rituals onAddTask={() => setShowRitualModal(true)} />
+          {onboardingActive && onboardingProgress < 3 ? (
+            <LockedDoor requiredTasks={3} conceptName="Rituals" />
+          ) : (
+            <Rituals onAddTask={() => setShowRitualModal(true)} />
+          )}
         </div>
 
         <div 
           style={{ display: activeTab === 'forge' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Forge onOpenShop={() => setShowShopModal(true)} />
+          {onboardingActive && onboardingProgress < 3 ? (
+            <LockedDoor requiredTasks={3} conceptName="The Forge" />
+          ) : (
+            <Forge onOpenShop={() => setShowShopModal(true)} />
+          )}
         </div>
         
         <div 
           style={{ display: activeTab === 'map' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar"
+          className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar relative"
         >
-          <QuestMap onTabChange={(tab, options) => {
-            setActiveTab(tab);
-            if (options?.openAddTask) {
-              setTaskModalInitialEffort(options.defaultEffort || 'Medium');
-              setShowTaskModal(true);
-            } else if (tab === 'ledger' && options?.subTab) {
-              setLedgerSubTab(options.subTab);
-            }
-          }} />
+          {onboardingActive && onboardingProgress < 5 ? (
+            <LockedDoor requiredTasks={5} conceptName="Quest Map" />
+          ) : (
+            <QuestMap onTabChange={(tab, options) => {
+              setActiveTab(tab);
+              if (options?.openAddTask) {
+                setTaskModalInitialEffort(options.defaultEffort || 'Medium');
+                setShowTaskModal(true);
+              } else if (tab === 'ledger' && options?.subTab) {
+                setLedgerSubTab(options.subTab);
+              }
+            }} />
+          )}
         </div>
         
         <div 
           style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
+          {onboardingActive && onboardingProgress < 4 ? (
+            <LockedDoor requiredTasks={4} conceptName="The Ledger" />
+          ) : (
+            <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
+          )}
         </div>
 
         <div 
           style={{ display: activeTab === 'social' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Social />
+          {onboardingActive && onboardingProgress < 7 ? (
+            <LockedDoor requiredTasks={7} conceptName="Social" />
+          ) : (
+            <Social />
+          )}
         </div>
       </main>
 
@@ -912,6 +941,21 @@ export default function App() {
       <VideoGuideModal />
 
       <StreakScrollModal />
+
+      <AnimatePresence>
+        {showRoadmap && (
+          <RoadmapModal onClose={() => setShowRoadmap(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {pendingGuardianProgress !== null && (
+          <GuardianOverlay 
+            progress={pendingGuardianProgress} 
+            onClose={clearPendingGuardian} 
+          />
+        )}
+      </AnimatePresence>
 
       <div id="toast-container" />
     </DashboardLayout>

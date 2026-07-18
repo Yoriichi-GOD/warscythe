@@ -222,6 +222,10 @@ const mergeState = (local, saved) => {
   const hasSeenLedgerGuide = !!(local.hasSeenLedgerGuide || saved.hasSeenLedgerGuide);
   const hasSeenForgeGuide = !!(local.hasSeenForgeGuide || saved.hasSeenForgeGuide);
   const hasSeenRitualsGuide = !!(local.hasSeenRitualsGuide || saved.hasSeenRitualsGuide);
+  const onboardingProgress = Math.max(local.onboardingProgress || 0, saved.onboardingProgress || 0);
+  const onboardingActive = local.onboardingActive !== undefined ? (local.onboardingActive && saved.onboardingActive) : (saved.onboardingActive !== undefined ? saved.onboardingActive : true);
+  const unlockedTitles = Array.from(new Set([...(local.unlockedTitles || ['Recruit']), ...(saved.unlockedTitles || ['Recruit'])]));
+  const pendingGuardianProgress = local.pendingGuardianProgress !== undefined ? (local.pendingGuardianProgress || saved.pendingGuardianProgress) : (saved.pendingGuardianProgress || null);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
     ? local.lastActiveDate
     : saved.lastActiveDate;
@@ -271,6 +275,10 @@ const mergeState = (local, saved) => {
     hasSeenLedgerGuide,
     hasSeenForgeGuide,
     hasSeenRitualsGuide,
+    onboardingProgress,
+    onboardingActive,
+    unlockedTitles,
+    pendingGuardianProgress,
     lastActiveDate,
     lastResetDate,
     rescuedFairies,
@@ -388,6 +396,10 @@ export const useWarscytheStore = create(
       hasSeenLedgerGuide: false,
       hasSeenForgeGuide: false,
       hasSeenRitualsGuide: false,
+      onboardingProgress: 0,
+      onboardingActive: true,
+      unlockedTitles: ['Recruit'],
+      pendingGuardianProgress: null,
       dailyPoints: 0,
       lastResetDate: null,
       syncStatus: 'synced',
@@ -431,6 +443,61 @@ export const useWarscytheStore = create(
           localStorage.setItem('warscythe_guide_banner_dismissed', 'true');
         }
         set({ guideBannerDismissed: true });
+      },
+      equipTitle: (title) => {
+        set({ currentTitle: title });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
+      },
+      unlockTitle: (title) => {
+        set(state => {
+          const unlockedTitles = Array.from(new Set([...state.unlockedTitles, title]));
+          return { unlockedTitles };
+        });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
+      },
+      setOnboardingProgress: (val) => {
+        set({ onboardingProgress: val });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
+      },
+      setOnboardingActive: (val) => {
+        set({ onboardingActive: val });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
+      },
+      clearPendingGuardian: () => {
+        set({ pendingGuardianProgress: null });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
+      },
+      incrementOnboarding: () => {
+        set(state => {
+          const newProgress = state.onboardingProgress + 1;
+          const unlockedTitles = [...state.unlockedTitles];
+          
+          if (newProgress === 5 && !unlockedTitles.includes("Curious Explorer")) {
+            unlockedTitles.push("Curious Explorer");
+          }
+          if (newProgress === 10 && !unlockedTitles.includes("Seasoned Wanderer")) {
+            unlockedTitles.push("Seasoned Wanderer");
+          }
+          
+          const onboardingActive = newProgress < 10;
+          const hasCompletedTutorial = newProgress >= 10 ? true : state.hasCompletedTutorial;
+          const tutorialStep = newProgress >= 10 ? 'completed' : state.tutorialStep;
+          
+          return {
+            onboardingProgress: newProgress,
+            onboardingActive,
+            unlockedTitles,
+            hasCompletedTutorial,
+            tutorialStep
+          };
+        });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
       },
 
       openInfoModal: (sectionId, featureId = null) => set({
@@ -860,6 +927,18 @@ export const useWarscytheStore = create(
               console.warn('Failed to fetch user unlocks:', unlocksErr);
             }
 
+            // Sync unlocked titles based on level if missing
+            set(state => {
+              const currentLvl = state.level || 1;
+              const lvlTitles = [];
+              for (let i = 1; i <= currentLvl; i++) {
+                const titleForLvl = i <= TITLES.length ? TITLES[i - 1] : TITLES[TITLES.length - 1] + ' ' + (i - TITLES.length + 1);
+                lvlTitles.push(titleForLvl);
+              }
+              const unlockedTitles = Array.from(new Set([...state.unlockedTitles, ...lvlTitles]));
+              return { unlockedTitles };
+            });
+
             console.log(`[SYNC TRACE] fetchUserState: triggering parity write back to database...`);
             // Immediately write the merged state back to the server to ensure parity
             await get().saveUserState(userId);
@@ -980,6 +1059,10 @@ export const useWarscytheStore = create(
             rescuedFairies: state.rescuedFairies,
             soundscapeEnabled: state.soundscapeEnabled,
             soundscapeVolume: state.soundscapeVolume,
+            onboardingProgress: state.onboardingProgress,
+            onboardingActive: state.onboardingActive,
+            unlockedTitles: state.unlockedTitles,
+            pendingGuardianProgress: state.pendingGuardianProgress,
             referralSource: state.referralSource
           };
 
@@ -1250,6 +1333,7 @@ export const useWarscytheStore = create(
 
         let level = state.level;
         let currentTitle = state.currentTitle;
+        let unlockedTitles = [...(state.unlockedTitles || ['Recruit'])];
         let pendingLevelUp = null;
 
         // Lore unlock
@@ -1275,11 +1359,21 @@ export const useWarscytheStore = create(
         if (!isTutorialTask && newLevel > state.level) {
           const oldMapIndex = ((state.level - 1) % 10) + 1;
           level = newLevel;
-          currentTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
+          const levelTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
+          const oldLevelTitle = state.level <= TITLES.length ? TITLES[state.level - 1] : TITLES[TITLES.length - 1] + ' ' + (state.level - TITLES.length + 1);
+          
+          if (!unlockedTitles.includes(levelTitle)) {
+            unlockedTitles.push(levelTitle);
+          }
+          
+          if (currentTitle === oldLevelTitle || currentTitle === 'Recruit') {
+            currentTitle = levelTitle;
+          }
+          
           pendingLevelUp = {
             regionIdx: level - 1,
             newLevel: level,
-            newTitle: currentTitle
+            newTitle: levelTitle
           };
           pendingVictoryScreen = {
             regionIdx: state.level - 1,
@@ -1292,6 +1386,29 @@ export const useWarscytheStore = create(
               taskTitle: task.title,
               taskCategory: task.category || 'General'
             };
+          }
+        }
+
+        // Onboarding auto progression logic
+        let onboardingProgress = state.onboardingProgress;
+        let onboardingActive = state.onboardingActive;
+        let hasCompletedTutorial = state.hasCompletedTutorial;
+        let tutorialStep = state.tutorialStep;
+        let pendingGuardianProgress = state.pendingGuardianProgress;
+        
+        if (onboardingActive && !isTutorialTask) {
+          onboardingProgress += 1;
+          pendingGuardianProgress = onboardingProgress;
+          if (onboardingProgress === 5 && !unlockedTitles.includes("Curious Explorer")) {
+            unlockedTitles.push("Curious Explorer");
+          }
+          if (onboardingProgress === 10 && !unlockedTitles.includes("Seasoned Wanderer")) {
+            unlockedTitles.push("Seasoned Wanderer");
+          }
+          if (onboardingProgress >= 10) {
+            onboardingActive = false;
+            hasCompletedTutorial = true;
+            tutorialStep = 'completed';
           }
         }
 
@@ -1309,6 +1426,12 @@ export const useWarscytheStore = create(
           currentLevelProgress: isTutorialTask ? state.currentLevelProgress : finalLevelProgress,
           level,
           currentTitle,
+          unlockedTitles,
+          onboardingProgress,
+          onboardingActive,
+          hasCompletedTutorial,
+          tutorialStep,
+          pendingGuardianProgress,
           consecutiveLow,
           collectedArtifacts: [...state.collectedArtifacts, {
             ...reward.artifact,

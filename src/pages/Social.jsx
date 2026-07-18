@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap, Clock, Play } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 import LegionOperationDetail from '../components/LegionOperationDetail';
+import LockedDoor from '../components/LockedDoor';
 
 const parseUserState = (profile) => {
   const defaults = { level: 1, streakCount: 0, currentTitle: 'Recruit', xp: 0 };
@@ -215,7 +216,9 @@ export default function Social() {
     reassignOperationSubtask,
     streakCount,
     level,
-    executionScore
+    executionScore,
+    onboardingActive,
+    onboardingProgress
   } = useWarscytheStore();
 
   const [activeSubTab, setActiveSubTab] = useState('leaderboard');
@@ -727,13 +730,18 @@ export default function Social() {
 
           {/* ==================== 3. LEGION COMMAND TAB ==================== */}
           {activeSubTab === 'legion' && (
-            <motion.div 
-              key="legion"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="social-grid-layout"
-            >
+            onboardingActive && onboardingProgress < 9 ? (
+              <div className="relative min-h-[450px] w-full">
+                <LockedDoor requiredTasks={9} conceptName="The Legion" />
+              </div>
+            ) : (
+              <motion.div 
+                key="legion"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="social-grid-layout"
+              >
               {!activeLegion ? (
                 /* NO LEGION: CREATE OR JOIN */
                 <div className="no-legion-container elite-panel">
@@ -1419,7 +1427,7 @@ export default function Social() {
                 </>
               )}
             </motion.div>
-          )}
+          ))}
 
         </AnimatePresence>
       </div>

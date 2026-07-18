@@ -2,13 +2,15 @@ import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Settings, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { TASKS_PER_LEVEL } from '../store/constants';
+import { TASKS_PER_LEVEL, TITLES } from '../store/constants';
 
 export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial }) {
   const { 
     executionScore: xp, 
     level, 
     currentTitle, 
+    unlockedTitles,
+    equipTitle,
     user, 
     signOut, 
     deleteAccount, 
@@ -32,6 +34,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
   } = useWarscytheStore();
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   
   const xpForNext = level * 1000;
   const displayProgress = Math.min(currentLevelProgress || 0, TASKS_PER_LEVEL);
@@ -206,12 +209,59 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         
         <div className="divider" />
 
-        <div className="rank-badge">
-          <div className="rank-icon"><ShieldCheck size={14} /></div>
+        <div 
+          className="rank-badge cursor-pointer hover:bg-white/5 rounded px-2 py-1 transition-all select-none relative"
+          onClick={() => setShowTitlePicker(prev => !prev)}
+        >
+          <div className="rank-icon text-gold-core"><ShieldCheck size={14} /></div>
           <div className="rank-info">
-            <span className="rank-label">OPERATIVE STATUS</span>
-            <span className="rank-title">{currentTitle}</span>
+            <span className="rank-label flex items-center gap-1">
+              OPERATIVE STATUS <span className="text-[6px] opacity-40">▼</span>
+            </span>
+            <span className="rank-title text-gold-core">{currentTitle}</span>
           </div>
+
+          {showTitlePicker && (
+            <div 
+              className="absolute top-12 left-0 z-[100] w-52 p-3 bg-zinc-950 border border-white/5 rounded shadow-[0_4px_30px_rgba(0,0,0,0.95)] flex flex-col gap-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-[8px] font-black tracking-widest text-gold-core/80 border-b border-white/5 pb-1 text-left uppercase">
+                Choose Title
+              </div>
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+                {(unlockedTitles || ['Recruit']).map(title => (
+                  <div 
+                    key={title} 
+                    onClick={() => { equipTitle(title); setShowTitlePicker(false); }}
+                    className={`cursor-pointer px-2 py-1 rounded transition-colors text-left uppercase tracking-wider text-[8px] ${
+                      currentTitle === title ? 'bg-gold-core text-black font-black' : 'text-stone-300 hover:bg-white/5'
+                    }`}
+                  >
+                    {title}
+                  </div>
+                ))}
+                {!(unlockedTitles || []).includes("Curious Explorer") && (
+                  <div className="px-2 py-1 text-stone-600 cursor-not-allowed select-none text-left flex justify-between items-center text-[8px]">
+                    <span className="uppercase tracking-wider">Curious Explorer</span>
+                    <Lock size={8} />
+                  </div>
+                )}
+                {!(unlockedTitles || []).includes("Seasoned Wanderer") && (
+                  <div className="px-2 py-1 text-stone-600 cursor-not-allowed select-none text-left flex justify-between items-center text-[8px]">
+                    <span className="uppercase tracking-wider">Seasoned Wanderer</span>
+                    <Lock size={8} />
+                  </div>
+                )}
+                {TITLES.filter(t => !(unlockedTitles || []).includes(t) && t !== 'Recruit').map(t => (
+                  <div key={t} className="px-2 py-1 text-stone-700 cursor-not-allowed select-none text-left flex justify-between items-center text-[8px]">
+                    <span className="uppercase tracking-wider">{t}</span>
+                    <Lock size={8} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
