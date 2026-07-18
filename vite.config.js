@@ -14,6 +14,22 @@ export default defineConfig({
           /^\/robots\.txt$/,
           /^\/\.well-known\/assetlinks\.json$/,
           /^\/privacy\.html$/
+        ],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/yrxchjontmgkjaazrybh\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'supabase-assets-cache',
+              expiration: {
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
         ]
       },
       manifest: {

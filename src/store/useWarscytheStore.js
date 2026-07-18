@@ -1917,7 +1917,7 @@ export const useWarscytheStore = create(
         if (!itemConfig) return;
 
         try {
-          const cache = await caches.open('warscythe-region-assets');
+          const cache = await caches.open('supabase-assets-cache');
           const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
           await cache.addAll(urls);
 
@@ -1949,7 +1949,7 @@ export const useWarscytheStore = create(
         if (!itemConfig) return;
 
         try {
-          const cache = await caches.open('warscythe-region-assets');
+          const cache = await caches.open('supabase-assets-cache');
           const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
           for (const url of urls) {
             await cache.delete(url);
@@ -2230,59 +2230,6 @@ export const useWarscytheStore = create(
 
       setHasSeenRitualsGuide: (val) => {
         set({ hasSeenRitualsGuide: val });
-      },
-
-      downloadRegionBundle: async (regionId) => {
-        const config = BUNDLE_CONFIG[regionId];
-        if (!config) return;
-
-        try {
-          const cache = await caches.open('warscythe-region-assets');
-          const urlsToCache = config.files.map(file => getAssetUrl(file));
-
-          await Promise.all(
-            urlsToCache.map(async (url) => {
-              const response = await fetch(url);
-              if (!response.ok) {
-                throw new Error(`Failed to fetch asset: ${url}`);
-              }
-              await cache.put(url, response);
-            })
-          );
-
-          set(state => {
-            const downloaded = [...(state.downloadedRegions || [])];
-            if (!downloaded.includes(regionId)) {
-              downloaded.push(regionId);
-            }
-            return { downloadedRegions: downloaded, hasPendingChanges: true };
-          });
-        } catch (error) {
-          console.error(`Error downloading region ${regionId} bundle:`, error);
-          throw error;
-        }
-      },
-
-      deleteRegionBundle: async (regionId) => {
-        const config = BUNDLE_CONFIG[regionId];
-        if (!config) return;
-
-        try {
-          const cache = await caches.open('warscythe-region-assets');
-          const urlsToDelete = config.files.map(file => getAssetUrl(file));
-
-          await Promise.all(
-            urlsToDelete.map(url => cache.delete(url))
-          );
-
-          set(state => {
-            const downloaded = (state.downloadedRegions || []).filter(id => id !== regionId);
-            return { downloadedRegions: downloaded, hasPendingChanges: true };
-          });
-        } catch (error) {
-          console.error(`Error deleting region ${regionId} bundle:`, error);
-          throw error;
-        }
       },
 
       recalculateState: () => {
