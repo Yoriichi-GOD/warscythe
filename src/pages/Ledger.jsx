@@ -360,29 +360,6 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-6 relative">
-      {!hasSeenLedgerGuide && !isTutorialActive && (
-        <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
-          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <span className="pointer-tag">GUARDIAN</span>
-                <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Vault of Records</h4>
-                <p className="text-[11px] font-serif text-white">
-                  Review your metrics. This records your streak history, trophy artifacts, and weekly execution velocity.
-                </p>
-              </div>
-              <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
-            </div>
-            <button 
-              type="button" 
-              onClick={() => setHasSeenLedgerGuide(true)}
-              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
-            >
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      )}
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
         <div className="flex flex-col gap-1">
@@ -402,7 +379,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
 
         {/* Sub-Tab Navigation */}
         <div className="flex gap-1 border border-white/5 bg-black/40 p-1 rounded">
-          <button 
+          <button id="ledger-history-tab"
             className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
               subTab === 'history' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
@@ -412,7 +389,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
           >
             History Logs
           </button>
-          <button 
+          <button id="ledger-vault-tab"
             className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
               subTab === 'vault' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
@@ -422,7 +399,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
           >
             Relics & Lore
           </button>
-          <button 
+          <button id="ledger-prophecies-tab"
             className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
               subTab === 'prophecies' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 

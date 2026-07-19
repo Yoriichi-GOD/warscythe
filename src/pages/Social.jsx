@@ -432,21 +432,21 @@ export default function Social() {
       {/* 🧭 SOCIAL SUB-NAVBAR */}
       <div className="social-sub-nav flex items-center justify-center">
         <div className="flex gap-8 justify-center flex-1">
-          <button 
+          <button id="social-leaderboard-tab"
             onClick={() => setActiveSubTab('leaderboard')}
             className={`social-nav-item ${activeSubTab === 'leaderboard' ? 'active' : ''}`}
           >
             <Trophy size={14} />
             <span>LEADERBOARD</span>
           </button>
-          <button 
+          <button id="social-friends-tab"
             onClick={() => setActiveSubTab('friends')}
             className={`social-nav-item ${activeSubTab === 'friends' ? 'active' : ''}`}
           >
             <Users size={14} />
             <span>OPERATIVE GRAPH ({friends.length})</span>
           </button>
-          <button 
+          <button id="social-legion-tab"
             onClick={() => setActiveSubTab('legion')}
             className={`social-nav-item ${activeSubTab === 'legion' ? 'active' : ''}`}
           >
@@ -625,7 +625,7 @@ export default function Social() {
                 </div>
 
                 <form onSubmit={handleSendRequest} className="add-friend-form mt-4">
-                  <div className="input-group">
+                  <div id="social-add-friend" className="input-group">
                     <input 
                       type="text" 
                       placeholder="Operative Username or Email..." 

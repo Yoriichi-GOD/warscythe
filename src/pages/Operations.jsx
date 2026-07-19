@@ -8,6 +8,40 @@ import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
 import { Zap, Lock, Info, Play } from 'lucide-react';
 
+const WidgetLock = ({ requiredTasks, conceptName }) => {
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 2500);
+  };
+
+  return (
+    <div 
+      className="absolute inset-0 z-[50] flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm border border-dashed border-gold-core/20 rounded cursor-pointer select-none"
+      onClick={handleClick}
+    >
+      <img 
+        src="/lock.webp" 
+        alt="Locked" 
+        className="w-[80%] h-[80%] max-w-[75%] max-h-[75%] object-contain filter drop-shadow-[0_0_15px_rgba(236,200,128,0.45)] animate-pulse"
+      />
+      <span className="text-[8px] font-mono tracking-widest text-gold-core uppercase mt-2">
+        LOCKED
+      </span>
+      {showNotification && (
+        <div className="absolute inset-x-4 bottom-12 bg-zinc-950 border border-gold-core/40 px-3 py-2 rounded shadow-2xl z-[100] text-center max-w-xs">
+          <span className="text-[9px] font-mono text-gold-core uppercase tracking-widest leading-normal block">
+            Complete {requiredTasks} Operations to unlock {conceptName}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOpenGymLog }) {
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
@@ -18,6 +52,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
+  const onboardingActive = useWarscytheStore(state => state.onboardingActive);
+  const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -189,6 +225,9 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
       </section>
 
       <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
+        {onboardingActive && onboardingProgress < 1 && (
+          <WidgetLock requiredTasks={1} conceptName="Weapon Evolution" />
+        )}
         
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
@@ -260,7 +299,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         {/* SCYTHE DISPLAY AREA */}
         {/* NOTE: lg:left-64 is coupled to the Weapon Evolution Sidebar's width (lg:w-64 = 256px). */}
         {/* If the sidebar width changes, this offset MUST be adjusted to match. */}
-        <div className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
+        <div id="onboarding-scythe-display" className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}

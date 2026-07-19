@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { REGIONS } from '../store/constants';
 import { getAssetUrl } from '../utils/assetResolver';
+import RealmTransferScreen from './RealmTransferScreen';
 
 // Region-specific accent color palette
 const REGION_COLORS = {
@@ -51,6 +52,10 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
   const empressName = EMPRESS_NAMES[safeMapIndex] || `Empress of ${regionName}`;
 
   const isVictory = type === 'victory';
+
+  if (isVictory) {
+    return <RealmTransferScreen regionData={regionData} onClose={onClose} />;
+  }
 
   // ── VICTORY mode ──────────────────────────────────────────────────────────
   // Desktop: [LIBERATED FAIRY full-color] | [DRAGON grayscale + ELIMINATED]

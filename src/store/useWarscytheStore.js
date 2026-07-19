@@ -6,9 +6,10 @@ import { triggerHaptics, scheduleStreakAlert, scheduleRitualReminders, cancelRit
 import { Capacitor } from '@capacitor/core';
 import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 import {
-  REGIONS, TITLES, LORE_TEMPLATES, BASE_ARTIFACTS,
+  REGIONS, TITLES, BASE_ARTIFACTS,
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
 } from './constants';
+import { REGIONAL_CHRONICLES } from './regionalLore';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const generateUUID = () => {
@@ -222,8 +223,11 @@ const mergeState = (local, saved) => {
   const hasSeenLedgerGuide = !!(local.hasSeenLedgerGuide || saved.hasSeenLedgerGuide);
   const hasSeenForgeGuide = !!(local.hasSeenForgeGuide || saved.hasSeenForgeGuide);
   const hasSeenRitualsGuide = !!(local.hasSeenRitualsGuide || saved.hasSeenRitualsGuide);
+  const hasSeenFitnessPeek = !!(local.hasSeenFitnessPeek || saved.hasSeenFitnessPeek);
   const onboardingProgress = Math.max(local.onboardingProgress || 0, saved.onboardingProgress || 0);
-  const onboardingActive = local.onboardingActive !== undefined ? (local.onboardingActive && saved.onboardingActive) : (saved.onboardingActive !== undefined ? saved.onboardingActive : true);
+  const onboardingActive = saved.onboardingActive !== undefined 
+    ? saved.onboardingActive 
+    : (local.onboardingActive !== undefined ? local.onboardingActive : (onboardingProgress < 10));
   const unlockedTitles = Array.from(new Set([...(local.unlockedTitles || ['Recruit']), ...(saved.unlockedTitles || ['Recruit'])]));
   const pendingGuardianProgress = local.pendingGuardianProgress !== undefined ? (local.pendingGuardianProgress || saved.pendingGuardianProgress) : (saved.pendingGuardianProgress || null);
   const lastActiveDate = parseDate(local.lastActiveDate) >= parseDate(saved.lastActiveDate)
@@ -275,6 +279,7 @@ const mergeState = (local, saved) => {
     hasSeenLedgerGuide,
     hasSeenForgeGuide,
     hasSeenRitualsGuide,
+    hasSeenFitnessPeek,
     onboardingProgress,
     onboardingActive,
     unlockedTitles,
@@ -302,7 +307,7 @@ const getProceduralRegion = (idx) => {
 };
 
 export const getLore = (regionIdx) => {
-  if (regionIdx < LORE_TEMPLATES.length) return LORE_TEMPLATES[regionIdx];
+  if (regionIdx < REGIONAL_CHRONICLES.length) return REGIONAL_CHRONICLES[regionIdx];
   const r = getProceduralRegion(regionIdx);
   return Array.from({ length: 10 }, (_, i) => {
     const templates = [
@@ -369,6 +374,7 @@ export const useWarscytheStore = create(
       unlockedLore: {},
       currentTitle: 'Recruit',
       pendingReward: null,
+      pendingTitleUnlock: null,
       pendingLevelUp: null,
       activeBossFlash: null,
       consecutiveLow: 0,
@@ -396,10 +402,12 @@ export const useWarscytheStore = create(
       hasSeenLedgerGuide: false,
       hasSeenForgeGuide: false,
       hasSeenRitualsGuide: false,
+      hasSeenFitnessPeek: false,
       onboardingProgress: 0,
       onboardingActive: true,
       unlockedTitles: ['Recruit'],
       pendingGuardianProgress: null,
+      postGuardianTutorial: null,
       dailyPoints: 0,
       lastResetDate: null,
       syncStatus: 'synced',
@@ -472,6 +480,8 @@ export const useWarscytheStore = create(
         const u = get().user?.id;
         if (u) get().saveUserState(u);
       },
+      setPostGuardianTutorial: (val) => set({ postGuardianTutorial: val }),
+      clearPostGuardianTutorial: () => set({ postGuardianTutorial: null }),
       incrementOnboarding: () => {
         set(state => {
           const newProgress = state.onboardingProgress + 1;
@@ -630,6 +640,7 @@ export const useWarscytheStore = create(
           unlockedLore: {},
           currentTitle: 'Recruit',
           pendingReward: null,
+          pendingTitleUnlock: null,
           pendingLevelUp: null,
           activeBossFlash: null,
           consecutiveLow: 0,
@@ -657,6 +668,7 @@ export const useWarscytheStore = create(
           hasSeenLedgerGuide: false,
           hasSeenForgeGuide: false,
           hasSeenRitualsGuide: false,
+          hasSeenFitnessPeek: false,
           dailyPoints: 0,
           lastResetDate: null,
           syncStatus: 'synced',
@@ -980,6 +992,10 @@ export const useWarscytheStore = create(
       },
 
       saveUserState: async (userId) => {
+        if (import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true') {
+          set({ syncStatus: 'realm', hasPendingChanges: false });
+          return;
+        }
         console.log(`[SYNC TRACE] saveUserState CALLED at ${performance.now().toFixed(1)}ms — lock=${currentSyncPromise !== null} — caller stack:`, new Error().stack);
         const u = userId || get().user?.id;
         if (!u) {
@@ -1395,15 +1411,26 @@ export const useWarscytheStore = create(
         let hasCompletedTutorial = state.hasCompletedTutorial;
         let tutorialStep = state.tutorialStep;
         let pendingGuardianProgress = state.pendingGuardianProgress;
+        let pendingTitleUnlock = state.pendingTitleUnlock;
         
         if (onboardingActive && !isTutorialTask) {
           onboardingProgress += 1;
           pendingGuardianProgress = onboardingProgress;
           if (onboardingProgress === 5 && !unlockedTitles.includes("Curious Explorer")) {
             unlockedTitles.push("Curious Explorer");
+            pendingTitleUnlock = {
+              title: "Curious Explorer",
+              milestone: 5,
+              description: "Awarded for liberating your first region and opening the road beyond."
+            };
           }
           if (onboardingProgress === 10 && !unlockedTitles.includes("Seasoned Wanderer")) {
             unlockedTitles.push("Seasoned Wanderer");
+            pendingTitleUnlock = {
+              title: "Seasoned Wanderer",
+              milestone: 10,
+              description: "Awarded for completing the guided campaign and opening the road to every realm."
+            };
           }
           if (onboardingProgress >= 10) {
             onboardingActive = false;
@@ -1432,6 +1459,7 @@ export const useWarscytheStore = create(
           hasCompletedTutorial,
           tutorialStep,
           pendingGuardianProgress,
+          pendingTitleUnlock,
           consecutiveLow,
           collectedArtifacts: [...state.collectedArtifacts, {
             ...reward.artifact,
@@ -1652,6 +1680,7 @@ export const useWarscytheStore = create(
       setNotes: (notes) => set({ notes }),
       dismissCloser: () => set({ closerDismissed: true }),
       clearPendingReward: () => set({ pendingReward: null }),
+      clearPendingTitleUnlock: () => set({ pendingTitleUnlock: null }),
       clearPendingLevelUp: () => set({ pendingLevelUp: null }),
       clearPendingVictoryScreen: () => set({ pendingVictoryScreen: null }),
       addReceivedProphecy: (prophecy) => set(state => {
@@ -2230,6 +2259,12 @@ export const useWarscytheStore = create(
 
       setHasSeenRitualsGuide: (val) => {
         set({ hasSeenRitualsGuide: val });
+      },
+
+      setHasSeenFitnessPeek: (val) => {
+        set({ hasSeenFitnessPeek: val });
+        const u = get().user?.id;
+        if (u) get().saveUserState(u);
       },
 
       recalculateState: () => {
@@ -3046,6 +3081,9 @@ export const useWarscytheStore = create(
 // Auto-sync store state to Supabase on state change if user is logged in
 let saveTimeout = null;
 useWarscytheStore.subscribe((state) => {
+  if (import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true') {
+    return;
+  }
   if (!state.user?.id) {
     lastState = null;
     return;
@@ -3092,6 +3130,7 @@ useWarscytheStore.subscribe((state) => {
       hasSeenLedgerGuide: state.hasSeenLedgerGuide,
       hasSeenForgeGuide: state.hasSeenForgeGuide,
       hasSeenRitualsGuide: state.hasSeenRitualsGuide,
+      hasSeenFitnessPeek: state.hasSeenFitnessPeek,
     };
     return;
   }
@@ -3137,6 +3176,7 @@ useWarscytheStore.subscribe((state) => {
       hasSeenLedgerGuide: state.hasSeenLedgerGuide,
       hasSeenForgeGuide: state.hasSeenForgeGuide,
       hasSeenRitualsGuide: state.hasSeenRitualsGuide,
+      hasSeenFitnessPeek: state.hasSeenFitnessPeek,
     };
     return;
   }
@@ -3182,6 +3222,7 @@ useWarscytheStore.subscribe((state) => {
       hasSeenLedgerGuide: state.hasSeenLedgerGuide,
       hasSeenForgeGuide: state.hasSeenForgeGuide,
       hasSeenRitualsGuide: state.hasSeenRitualsGuide,
+      hasSeenFitnessPeek: state.hasSeenFitnessPeek,
     };
     return;
   }

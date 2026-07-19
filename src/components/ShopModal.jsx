@@ -19,12 +19,25 @@ export default function ShopModal({ onClose, onOpenAuth }) {
     downloadedRegions,
     downloadRegionBundle,
     onboardingActive,
-    onboardingProgress
+    onboardingProgress,
+    postGuardianTutorial
   } = useWarscytheStore();
+  const shopTutorialActive = postGuardianTutorial === 'lore_intro' || postGuardianTutorial === 'shop_intro';
+  const [tutorialCanClose, setTutorialCanClose] = useState(!shopTutorialActive);
 
   const [loadingItem, setLoadingItem] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState(null);
+
+  React.useEffect(() => {
+    if (!shopTutorialActive) {
+      setTutorialCanClose(true);
+      return undefined;
+    }
+    const enableClose = () => setTutorialCanClose(true);
+    window.addEventListener('warscythe:shop-tutorial-close-enabled', enableClose);
+    return () => window.removeEventListener('warscythe:shop-tutorial-close-enabled', enableClose);
+  }, [shopTutorialActive]);
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
 
@@ -147,6 +160,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
   ];
 
   const handlePurchase = async (item) => {
+    if (shopTutorialActive) return;
     if (!user) {
       setError('Operative Profile Link required to execute trade.');
       onOpenAuth();
@@ -164,6 +178,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
   };
 
   const handleCoinPurchase = (item) => {
+    if (shopTutorialActive) return;
     setError(null);
     if (coins < item.priceValue) {
       setError(`Requisition failed: Requires ${item.priceValue} coins. You have ${coins} coins.`);
@@ -189,7 +204,11 @@ export default function ShopModal({ onClose, onOpenAuth }) {
   };
 
   return (
-    <div className="modal-backdrop shop-backdrop" onClick={() => { resetThemePreview(); onClose(); }}>
+    <div className="modal-backdrop shop-backdrop" onClick={() => {
+      if (!tutorialCanClose) return;
+      resetThemePreview();
+      onClose();
+    }}>
       <motion.div 
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -224,10 +243,21 @@ export default function ShopModal({ onClose, onOpenAuth }) {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
+            <div id="shop-coins" className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
               🪙 {coins} COINS
             </div>
-            <button className="shop-close" onClick={() => { resetThemePreview(); onClose(); }}><X size={20} /></button>
+            <button
+              id="shop-close"
+              disabled={!tutorialCanClose}
+              className={`shop-close ${!tutorialCanClose ? 'opacity-20 cursor-not-allowed' : ''}`}
+              onClick={() => {
+                if (!tutorialCanClose) return;
+                resetThemePreview();
+                onClose();
+              }}
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
 
@@ -240,14 +270,22 @@ export default function ShopModal({ onClose, onOpenAuth }) {
         )}
 
         {/* Content Body */}
-        <div className="shop-body custom-scrollbar flex-1 overflow-y-auto p-6 flex flex-col gap-8 relative">
+        <div
+          className="shop-body custom-scrollbar flex-1 overflow-y-auto p-6 flex flex-col gap-8 relative"
+          onClickCapture={(event) => {
+            if (shopTutorialActive && event.target.closest('button')) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
+        >
           {onboardingActive && onboardingProgress < 8 ? (
             <LockedDoor requiredTasks={8} conceptName="The Dread Armory" />
           ) : (
             <>
           
           {/* WEAPONS SECTION */}
-          <div className="shop-section">
+          <div id="shop-weapon-skins" className="shop-section">
             <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">WEAPON EVOLUTION SKINS (₹)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scytheSkins.map(item => {
@@ -328,7 +366,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           </div>
 
           {/* PROGRESSION COIN WEAPONS */}
-          <div className="shop-section">
+          <div id="shop-coin-weapons" className="shop-section">
             <h3 className="section-title cinzel-title text-sm font-bold tracking-wider mb-4 text-gold-core">PROGRESSION COIN WEAPONS (🪙)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {coinScythes.map(item => {
@@ -399,7 +437,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           </div>
 
           {/* THEMES SECTION */}
-          <div className="shop-section">
+          <div id="shop-environment-scrolls" className="shop-section">
             <div className="flex justify-between items-center mb-4">
               <h3 className="section-title cinzel-title text-sm font-bold tracking-wider text-gold-core">VISUAL ENVIRONMENT SCROLLS (₹)</h3>
               <button 

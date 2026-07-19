@@ -1,409 +1,60 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarscytheStore } from '../store/useWarscytheStore';
+import { ChevronLeft, ChevronRight, Lock, X } from 'lucide-react';
+import { useWarscytheStore, getLore } from '../store/useWarscytheStore';
 import { REGIONS } from '../store/constants';
-import { X, BookOpen, Lock, ChevronLeft, ChevronRight, Scroll } from 'lucide-react';
-import { getLore } from '../store/useWarscytheStore';
 
 export default function LoreModal({ onClose }) {
   const { level, unlockedLore } = useWarscytheStore();
-  const maxRegionIndex = level - 1;
-
-  const [selectedRegionIdx, setSelectedRegionIdx] = useState(maxRegionIndex);
-  const [selectedPageIdx, setSelectedPageIdx] = useState(0);
-
-  const region = REGIONS[selectedRegionIdx] || REGIONS[0];
-  const regionLore = getLore(selectedRegionIdx) || [];
-  
-  // Unlocked pages for selected region (max 5)
-  const unlockedPages = unlockedLore[selectedRegionIdx] || [];
-
-  const handlePrevRegion = () => {
-    if (selectedRegionIdx > 0) {
-      setSelectedRegionIdx(selectedRegionIdx - 1);
-      setSelectedPageIdx(0);
-    }
+  const maxRegion = Math.max(0, Math.min(9, level - 1));
+  const [regionIdx, setRegionIdx] = useState(maxRegion);
+  const [pageIdx, setPageIdx] = useState(0);
+  const lore = getLore(regionIdx);
+  const unlocked = Math.min(5, unlockedLore[regionIdx]?.length || 0);
+  const pageOpen = pageIdx < unlocked;
+  const changeRegion = delta => {
+    setRegionIdx(value => Math.max(0, Math.min(maxRegion, value + delta)));
+    setPageIdx(0);
   };
-
-  const handleNextRegion = () => {
-    if (selectedRegionIdx < maxRegionIndex) {
-      setSelectedRegionIdx(selectedRegionIdx + 1);
-      setSelectedPageIdx(0);
-    }
-  };
-
-  // 5 pages per region
-  const totalPages = 5;
 
   return (
-    <div className="modal-backdrop scroll-modal-backdrop" onClick={onClose}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="scroll-container"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Scroll Roller Top */}
-        <div className="scroll-roller top-roller">
-          <img src="/scroll-roller-top.png" alt="" onError={(e) => { e.target.style.display = 'none'; }} />
-        </div>
-
-        {/* Scroll Body */}
-        <div className="scroll-body-parchment">
-          {/* Close Button */}
-          <button className="scroll-close" onClick={onClose}>
-            <X size={18} />
-          </button>
-
-          {/* Region Navigator */}
-          <div className="scroll-header-nav">
-            <button 
-              onClick={handlePrevRegion} 
-              disabled={selectedRegionIdx === 0}
-              className="scroll-nav-btn"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <div className="scroll-region-title">
-              <span className="scroll-region-subtitle">Region {selectedRegionIdx + 1}</span>
-              <h2>{selectedRegionIdx > maxRegionIndex ? '???' : region.name.toUpperCase()}</h2>
-            </div>
-            <button 
-              onClick={handleNextRegion} 
-              disabled={selectedRegionIdx === maxRegionIndex}
-              className="scroll-nav-btn"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
-          {/* Page Selector Tabs */}
-          <div className="scroll-page-tabs">
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const isPageUnlocked = idx < unlockedPages.length;
-              const isSelected = idx === selectedPageIdx;
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedPageIdx(idx)}
-                  className={`scroll-tab ${isSelected ? 'active' : ''} ${!isPageUnlocked ? 'locked' : ''}`}
-                >
-                  {isPageUnlocked ? (
-                    <span className="tab-roman">{['I', 'II', 'III', 'IV', 'V'][idx]}</span>
-                  ) : (
-                    <Lock size={10} className="tab-lock-icon" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Lore Scroll Content */}
-          <div className="scroll-content-container">
-            <AnimatePresence mode="wait">
-              {selectedPageIdx < unlockedPages.length ? (
-                <motion.div
-                  key={`${selectedRegionIdx}-${selectedPageIdx}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="scroll-page-text font-serif"
-                >
-                  <div className="text-decor-ornament">❖</div>
-                  <p>
-                    {unlockedPages[selectedPageIdx] || regionLore[selectedPageIdx] || "No records exist."}
-                  </p>
-                  <div className="text-decor-ornament-footer">◇</div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="locked-page"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="scroll-page-locked"
-                >
-                  <Lock size={32} className="scroll-lock-large text-amber-900/40" />
-                  <p className="font-serif">This page remains rolled and sealed.</p>
-                  <span className="font-mono">Execute operations in this region to unlock this section.</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Progress marker */}
-          <div className="scroll-footer-progress font-mono">
-            RECOVERED {unlockedPages.length} / {totalPages} PAGES
-          </div>
-        </div>
-
-        {/* Scroll Roller Bottom */}
-        <div className="scroll-roller bottom-roller">
-          <img src="/scroll-roller-bottom.png" alt="" onError={(e) => { e.target.style.display = 'none'; }} />
-        </div>
-      </motion.div>
-
+    <div className="lore-backdrop" onClick={onClose}>
+      <motion.article initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} className="lore-sheet" onClick={e => e.stopPropagation()}>
+        <button id="lore-close" className="lore-close" onClick={onClose}><X size={20}/></button>
+        <header>
+          <button id="lore-region-prev" onClick={() => changeRegion(-1)} disabled={regionIdx === 0}><ChevronLeft/></button>
+          <div><small>REGION {regionIdx + 1}</small><h2>{REGIONS[regionIdx]?.name}</h2></div>
+          <button id="lore-region-next" onClick={() => changeRegion(1)} disabled={regionIdx === maxRegion}><ChevronRight/></button>
+        </header>
+        <nav id="lore-page-tabs">
+          {[0,1,2,3,4].map(i => <button key={i} className={i === pageIdx ? 'active' : ''} onClick={() => setPageIdx(i)}>{i < unlocked ? ['I','II','III','IV','V'][i] : <Lock size={12}/>}</button>)}
+        </nav>
+        <main>
+          <AnimatePresence mode="wait">
+            <motion.section key={`${regionIdx}-${pageIdx}`} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
+              {pageOpen ? <p>{lore[pageIdx]}</p> : <div className="sealed"><Lock size={34}/><strong>This page remains sealed.</strong><span>Complete another operation in this region.</span></div>}
+            </motion.section>
+          </AnimatePresence>
+        </main>
+        <footer>
+          <button onClick={() => setPageIdx(i => Math.max(0, i - 1))} disabled={pageIdx === 0}><ChevronLeft size={18}/></button>
+          <b>{pageIdx + 1} / 5</b>
+          <button onClick={() => setPageIdx(i => Math.min(4, i + 1))} disabled={pageIdx === 4}><ChevronRight size={18}/></button>
+        </footer>
+      </motion.article>
       <style jsx global>{`
-        .scroll-modal-backdrop {
-          background: rgba(0, 0, 0, 0.85);
-          backdrop-filter: blur(12px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 2rem 1rem;
-          box-sizing: border-box;
-        }
-
-        .scroll-container {
-          position: relative;
-          width: 90vw;
-          max-width: 330px;
-          margin: auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          filter: drop-shadow(0 20px 45px rgba(0,0,0,0.9));
-        }
-
-        @media (max-height: 720px) {
-          .scroll-container {
-            max-width: 270px;
-          }
-        }
-
-        .scroll-roller {
-          width: 114%;
-          aspect-ratio: 5.8 / 1;
-          position: relative;
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          background: transparent;
-          border: none;
-          box-shadow: none;
-        }
-
-        .top-roller {
-          margin-bottom: -18px;
-        }
-
-        .bottom-roller {
-          margin-top: -18px;
-        }
-
-        .scroll-roller img {
-          width: 100%;
-          height: auto;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-        }
-
-        .scroll-body-parchment {
-          position: relative;
-          z-index: 5;
-          width: 100%;
-          aspect-ratio: 9 / 16;
-          background: transparent;
-          background-image: url('/scroll-paper.png');
-          background-size: 100% 100%;
-          background-repeat: no-repeat;
-          background-position: center;
-          padding: 3.5rem 2.2rem 3rem 2.2rem;
-          color: #2b1a10;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          box-sizing: border-box;
-        }
-
-        .scroll-close {
-          position: absolute;
-          top: 1rem;
-          right: 1.25rem;
-          background: none;
-          border: none;
-          color: #5a3c20;
-          opacity: 0.6;
-          cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .scroll-close:hover {
-          opacity: 1;
-          transform: scale(1.1);
-        }
-
-        .scroll-header-nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px double rgba(90, 60, 32, 0.2);
-          padding-bottom: 0.75rem;
-          margin-bottom: 1rem;
-        }
-
-        .scroll-nav-btn {
-          background: rgba(90, 60, 32, 0.05);
-          border: 1px solid rgba(90, 60, 32, 0.15);
-          color: #5a3c20;
-          width: 26px;
-          height: 26px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .scroll-nav-btn:disabled {
-          opacity: 0.25;
-          cursor: not-allowed;
-        }
-
-        .scroll-nav-btn:hover:not(:disabled) {
-          background: rgba(90, 60, 32, 0.1);
-          border-color: #5a3c20;
-        }
-
-        .scroll-region-title {
-          text-align: center;
-        }
-
-        .scroll-region-subtitle {
-          font-family: var(--font-mono);
-          font-size: 8px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: #8c6a4a;
-          display: block;
-        }
-
-        .scroll-region-title h2 {
-          font-family: var(--font-display);
-          font-size: 11px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-          color: #4a2f1b;
-          margin-top: 2px;
-        }
-
-        .scroll-page-tabs {
-          display: flex;
-          justify-content: center;
-          gap: 6px;
-          margin-bottom: 1.5rem;
-        }
-
-        .scroll-tab {
-          background: rgba(90, 60, 32, 0.05);
-          border: 1px solid rgba(90, 60, 32, 0.2);
-          color: #5a3c20;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: 0.2s;
-          border-radius: 4px;
-        }
-
-        .scroll-tab.active {
-          background: #4a2f1b;
-          color: #f2e2ce;
-          border-color: #4a2f1b;
-          box-shadow: 0 2px 6px rgba(74, 47, 27, 0.25);
-        }
-
-        .scroll-tab.locked {
-          opacity: 0.4;
-          background: rgba(90, 60, 32, 0.02);
-          border-style: dashed;
-        }
-
-        .tab-roman {
-          font-family: 'Times New Roman', serif;
-          font-weight: bold;
-          font-size: 12px;
-        }
-
-        .scroll-content-container {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 180px;
-          padding: 0 0.5rem;
-        }
-
-        .scroll-page-text {
-          text-align: center;
-        }
-
-        .text-decor-ornament {
-          font-size: 14px;
-          color: #8c6a4a;
-          margin-bottom: 0.75rem;
-        }
-
-        .text-decor-ornament-footer {
-          font-size: 10px;
-          color: #8c6a4a;
-          margin-top: 0.75rem;
-        }
-
-        .scroll-page-text p {
-          font-size: 14px;
-          line-height: 1.65;
-          font-style: italic;
-          font-weight: 700;
-          color: #1a0b02;
-          text-shadow: 0.5px 0.5px 0px rgba(255, 255, 255, 0.15);
-        }
-
-        .scroll-page-locked {
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .scroll-page-locked p {
-          font-size: 13px;
-          font-weight: 700;
-          color: #4e2e18;
-          margin-top: 0.5rem;
-        }
-
-        .scroll-page-locked span {
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          color: #6b4d36;
-          text-transform: uppercase;
-        }
-
-        .scroll-footer-progress {
-          font-size: 8px;
-          letter-spacing: 0.1em;
-          color: #8c6a4a;
-          text-align: center;
-          margin-top: 1.5rem;
-          border-top: 1px solid rgba(90, 60, 32, 0.1);
-          padding-top: 0.5rem;
-        }
+        .lore-backdrop{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(10px)}
+        .lore-sheet{position:relative;width:min(96vw,1500px);height:min(90vh,844px);padding:clamp(50px,6vw,90px) clamp(58px,8vw,130px);display:flex;flex-direction:column;color:#ecebea;background:url('/lore-codex-wide.png') center/100% 100% no-repeat;filter:drop-shadow(0 24px 45px #000);box-sizing:border-box}
+        .lore-close{position:absolute;z-index:5;right:3.5%;top:5%;width:40px;height:40px;display:grid;place-items:center;border:1px solid #c7c9cc99;border-radius:50%;background:#050607dd;color:#f4f5f6;cursor:pointer;box-shadow:0 0 16px #bfc4cc22}
+        .lore-sheet header{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;border-bottom:1px solid #bbc0c655;padding-bottom:12px}
+        .lore-sheet header button,.lore-sheet footer button{display:grid;place-items:center;border:1px solid #bbc0c666;background:#dce1e611;color:#e6e8eb;cursor:pointer}
+        .lore-sheet button:disabled{opacity:.25}.lore-sheet header small{font:800 9px var(--font-mono);letter-spacing:.3em;color:#aeb3ba}.lore-sheet h2{margin:4px 0 0;font:900 clamp(18px,3vw,30px) var(--font-display);text-transform:uppercase;color:#f5f5f3}
+        .lore-sheet nav{display:flex;justify-content:center;gap:8px;margin:18px 0}.lore-sheet nav button{width:38px;height:32px;display:grid;place-items:center;border:1px solid #bbc0c666;background:#dce1e60b;color:#cfd2d6;font:bold 12px Georgia;cursor:pointer}.lore-sheet nav button.active{background:#dadddf;color:#090a0b;box-shadow:0 0 14px #fff3}
+        .lore-sheet main{flex:1;min-height:0;overflow-y:auto;padding:3% 5%;scrollbar-color:#c7cbd055 transparent}.lore-sheet main section{min-height:100%;display:grid;place-items:center}
+        .lore-sheet main p{margin:0;max-width:900px;color:#e7e5df;font:700 clamp(16px,1.6vw,22px)/1.75 Georgia,serif;text-align:left;text-wrap:pretty;text-shadow:0 2px 7px #000}.lore-sheet main p::first-letter{float:left;margin:4px 8px 0 0;font:900 3.2em/0.8 var(--font-display);color:#f2f3f4}
+        .sealed{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;color:#aeb3b9}.sealed strong{font:800 20px Georgia;color:#eceef0}.sealed span{font:700 9px var(--font-mono);letter-spacing:.15em;text-transform:uppercase}
+        .lore-sheet footer{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;border-top:1px solid #bbc0c655;padding-top:14px;text-align:center}.lore-sheet footer button{height:34px}.lore-sheet footer b{font:900 11px var(--font-mono);letter-spacing:.22em;color:#e6e8eb}
+        @media(max-width:700px),(max-aspect-ratio:3/4){.lore-backdrop{padding:6px}.lore-sheet{width:min(96vw,520px);height:min(94vh,924px);padding:64px 42px 46px;background-image:url('/lore-codex-mobile.png')}.lore-sheet header{grid-template-columns:34px 1fr 34px}.lore-sheet h2{font-size:17px}.lore-sheet nav{gap:5px;margin:12px 0}.lore-sheet nav button{width:31px;height:29px}.lore-sheet main{padding:3% 1%}.lore-sheet main p{font-size:15px;line-height:1.58}.lore-close{right:7%;top:3%;width:36px;height:36px}}
       `}</style>
     </div>
   );

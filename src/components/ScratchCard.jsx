@@ -154,17 +154,22 @@ export default function ScratchCard({ data, onClose }) {
 
   return (
     <div className="modal-backdrop loot-overlay">
+      <div className="loot-atmosphere" />
+      <div className="loot-radiance" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="loot-card-modal glass-panel"
       >
+        <div className="loot-corner loot-corner-tl" />
+        <div className="loot-corner loot-corner-tr" />
         <div className="loot-header">
           <div className="validation-pill">
             <Sparkles size={12} />
-            <span>ENCRYPTION BROKEN</span>
+            <span>{isRevealed ? 'ENCRYPTION BROKEN' : 'SEALED RELIQUARY'}</span>
           </div>
-          <h2>REWARD ACQUIRED</h2>
+          <span className="loot-overline">WARSCYTHE // SPOILS OF EXECUTION</span>
+          <h2>{isRevealed ? 'REWARD ACQUIRED' : 'DECRYPT YOUR TRIBUTE'}</h2>
           <p className="loot-task-ref">{taskTitle}</p>
         </div>
 
@@ -183,6 +188,7 @@ export default function ScratchCard({ data, onClose }) {
         )}
 
         <div className="scratch-container" ref={containerRef}>
+          <div className="reliquary-frame" />
           {tutorialStep === 'scratch_card' && !isRevealed && (
             <div className="scratch-gesture-overlay pointer-events-none absolute inset-0 flex items-center justify-center z-30">
               <div className="scratch-finger-icon" />
@@ -234,6 +240,9 @@ export default function ScratchCard({ data, onClose }) {
                 <span className={`loot-rarity-text ${rarity}`}>{(rarity || '').toUpperCase()} ARTIFACT</span>
                 <h3 className="loot-art-name">{artifactName}</h3>
                 <div className="loot-xp-badge">+{totalPts} XP</div>
+                {basePts && totalPts !== basePts && (
+                  <div className="loot-bonus-copy">BASE {basePts} · EXECUTION BONUS APPLIED</div>
+                )}
                 {keyElement && (
                   <div className="text-[10px] font-mono text-gold-core/85 tracking-widest mt-2 uppercase font-bold animate-pulse">
                     + ACQUIRED {(keyElement || '').toUpperCase()} KEY
@@ -283,10 +292,53 @@ export default function ScratchCard({ data, onClose }) {
           align-items: center;
           justify-content: center;
           z-index: 2000;
-          background: rgba(0, 0, 0, 0.9);
+          background: rgba(0, 0, 0, 0.94);
           backdrop-filter: blur(8px);
+          padding: 1rem;
+          overflow-y: auto;
         }
-        .loot-card-modal { max-width: 440px; width: 100%; padding: 2.5rem; text-align: center; border: 1px solid var(--border-bright); }
+        .loot-atmosphere {
+          position: fixed;
+          inset: 0;
+          background:
+            radial-gradient(circle at 50% 35%, rgba(197,160,89,.14), transparent 38%),
+            linear-gradient(135deg, #050506, #000 70%);
+          pointer-events: none;
+        }
+        .loot-radiance {
+          position: fixed;
+          left: 50%;
+          top: 45%;
+          width: min(760px, 90vw);
+          aspect-ratio: 1;
+          transform: translate(-50%, -50%);
+          background: repeating-conic-gradient(from 0deg, transparent 0 11deg, rgba(236,200,128,.025) 12deg 13deg);
+          mask-image: radial-gradient(circle, black, transparent 68%);
+          animation: reliquaryTurn 45s linear infinite;
+          pointer-events: none;
+        }
+        @keyframes reliquaryTurn { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .loot-card-modal {
+          max-width: 560px;
+          width: 100%;
+          padding: clamp(1.2rem, 3vw, 2.25rem);
+          text-align: center;
+          border: 1px solid rgba(236,200,128,.3);
+          background: linear-gradient(155deg, rgba(13,13,15,.97), rgba(2,2,3,.98));
+          box-shadow: 0 35px 100px rgba(0,0,0,.9), 0 0 60px rgba(197,160,89,.1), inset 0 0 50px rgba(255,255,255,.015);
+          position: relative;
+          margin: auto;
+        }
+        .loot-corner {
+          position: absolute;
+          top: 12px;
+          width: 38px;
+          height: 1px;
+          background: linear-gradient(90deg, #ecc880, transparent);
+        }
+        .loot-corner-tl { left: 12px; }
+        .loot-corner-tr { right: 12px; transform: scaleX(-1); }
         
         .validation-pill {
           display: inline-flex;
@@ -300,16 +352,46 @@ export default function ScratchCard({ data, onClose }) {
           font-size: 0.55rem;
           font-weight: 900;
           letter-spacing: 0.2em;
-          margin-bottom: 1rem;
+          margin-bottom: .65rem;
         }
 
-        h2 { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: 0.1em; }
-        .loot-task-ref { font-size: 0.75rem; color: var(--text-dark); font-family: var(--font-mono); margin-top: 0.5rem; }
+        .loot-overline {
+          display: block;
+          font-family: var(--font-mono);
+          color: rgba(255,255,255,.35);
+          font-size: .48rem;
+          letter-spacing: .35em;
+          margin-bottom: .45rem;
+        }
+        h2 {
+          font-family: var(--font-display);
+          font-size: clamp(1.65rem, 5vw, 2.5rem);
+          color: #f5e7c4;
+          letter-spacing: 0.12em;
+          line-height: 1.05;
+          text-shadow: 0 0 24px rgba(236,200,128,.18);
+        }
+        .loot-task-ref {
+          font-size: 0.68rem;
+          color: rgba(255,255,255,.52);
+          font-family: var(--font-mono);
+          margin-top: 0.55rem;
+          letter-spacing: .08em;
+        }
         
         .scratch-container { 
-          position: relative; width: 100%; aspect-ratio: 1 / 1; 
-          margin: 1.5rem 0; border-radius: 12px; overflow: hidden;
-          background: #050505; border: 1px solid var(--border);
+          position: relative; width: min(100%, 430px); aspect-ratio: 1 / 1;
+          margin: 1.2rem auto; overflow: hidden;
+          background: #050505;
+          border: 0;
+          filter: drop-shadow(0 20px 24px rgba(0,0,0,.8));
+        }
+        .reliquary-frame {
+          position: absolute;
+          inset: 0;
+          background: url('/reward-screens/scratch-reliquary.png') center/100% 100% no-repeat;
+          z-index: 0;
+          pointer-events: none;
         }
         .scratch-container::after {
           content: '';
@@ -325,12 +407,23 @@ export default function ScratchCard({ data, onClose }) {
           z-index: 5;
           pointer-events: none;
         }
-        .scratch-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; cursor: crosshair; }
+        .scratch-canvas {
+          position: absolute;
+          top: 16%;
+          left: 16%;
+          width: 68%;
+          height: 63%;
+          z-index: 2;
+          cursor: crosshair;
+          border-radius: 48% 48% 42% 42%;
+          box-shadow: inset 0 0 30px rgba(0,0,0,.7);
+        }
         
         .loot-content { 
-          position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+          position: absolute; top: 16%; left: 16%; width: 68%; height: 63%;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          gap: 1rem; opacity: 0; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          gap: .75rem; opacity: 0; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1;
         }
         .loot-content.revealed { opacity: 1; }
         
@@ -358,8 +451,9 @@ export default function ScratchCard({ data, onClose }) {
         .loot-rarity-text.epic { color: var(--stage-finish); }
         .loot-rarity-text.mythic { color: #ff3d00; }
         
-        .loot-art-name { font-family: var(--font-display); font-size: 1.1rem; color: #fff; letter-spacing: 0.05em; }
-        .loot-xp-badge { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--gold-core); }
+        .loot-art-name { font-family: var(--font-display); font-size: 1.15rem; color: #fff4db; letter-spacing: 0.05em; }
+        .loot-xp-badge { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 900; color: var(--gold-core); }
+        .loot-bonus-copy { font-family: var(--font-mono); font-size: .42rem; letter-spacing: .14em; color: rgba(255,255,255,.38); }
 
         .loot-footer-area { display: flex; flex-direction: column; gap: 1.5rem; }
         .lore-panel-mini { 
@@ -416,6 +510,23 @@ export default function ScratchCard({ data, onClose }) {
           50% { transform: translate(-60px, 20px) scale(1.1); opacity: 0.8; }
           75% { transform: translate(90px, 60px) scale(0.9); opacity: 0.9; }
           100% { transform: translate(-80px, -60px) scale(1); opacity: 0.8; }
+        }
+
+        @media (max-height: 860px) {
+          .loot-card-modal { max-width: 470px; padding: 1rem 1.4rem; }
+          .scratch-container { width: min(100%, 330px); margin: .7rem auto; }
+          .loot-footer-area { gap: .65rem; }
+          .lore-panel-mini { padding: .8rem 1rem; }
+          .loot-claim-btn { height: 42px; }
+        }
+
+        @media (max-width: 520px) {
+          .loot-card-modal { padding: 1.15rem .85rem; }
+          .loot-overline { font-size: .4rem; }
+          .scratch-container { width: min(100%, 360px); }
+          .loot-visual, .key-visual { transform: scale(.82); }
+          .loot-content { gap: .35rem; }
+          .loot-footer-area { gap: .8rem; }
         }
       `}</style>
     </div>

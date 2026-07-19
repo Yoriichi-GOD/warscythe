@@ -24,6 +24,8 @@ export default function RitualCard({ ritual, onComplete }) {
 
   return (
     <motion.div
+      id={`ritual-${ritual.id}`}
+      data-ritual-id={ritual.id}
       whileHover={!isCompletedToday ? { scale: 1.01 } : {}}
       className={`relative group cursor-pointer rounded-xl border transition-all overflow-hidden ${
         isCompletedToday 
@@ -32,7 +34,7 @@ export default function RitualCard({ ritual, onComplete }) {
       }`}
       onClick={() => !isCompletedToday && onComplete(ritual.id)}
     >
-      <div className="flex items-center gap-4 p-4">
+      <div className="ritual-card-inner flex items-center gap-4 p-4">
         
         {/* CHECKBOX / STATUS INDICATOR */}
         <div className="shrink-0 flex items-center justify-center">
@@ -50,9 +52,9 @@ export default function RitualCard({ ritual, onComplete }) {
           }`}>
             {ritual.title}
           </h3>
-          <div className="flex items-center gap-3">
+          <div className="ritual-card-meta flex items-center gap-3">
             <span className="text-[7px] font-mono text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-              {ritual.frequency} // {effortLabels[ritual.effort] || ritual.effort}
+              <span className="ritual-card-desktop-meta">{ritual.frequency} // {effortLabels[ritual.effort] || ritual.effort}</span>
               {ritual.targetTime && (
                 <>
                   <span className="text-white/10">//</span>
@@ -71,7 +73,7 @@ export default function RitualCard({ ritual, onComplete }) {
         </div>
 
         {/* ACTION / DELETE */}
-        <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+        <div className="ritual-card-actions flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
           {isCompletedToday ? (
             <span className="text-[8px] font-mono text-gold-core/60 uppercase tracking-wider font-bold">
               CONQUERED

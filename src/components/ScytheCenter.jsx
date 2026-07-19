@@ -155,35 +155,15 @@ export default function ScytheCenter({ onOpenShop }) {
     if (tab === 'streak') setSelectedItemId('dormant');
     else if (tab === 'shop') setSelectedItemId('cosmic_harvester');
     else setSelectedItemId('default');
+    if (import.meta.env.DEV || useWarscytheStore.getState().postGuardianTutorial === 'forge_intro') {
+      window.dispatchEvent(new CustomEvent('warscythe:forge-tab', { detail: tab }));
+    }
   };
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
 
   return (
     <section className="scythe-center-section relative">
-      {!hasSeenForgeGuide && !isTutorialActive && (
-        <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
-          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <span className="pointer-tag">GUARDIAN</span>
-                <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Forge Cores</h4>
-                <p className="text-[11px] font-serif text-white">
-                  Upgrade your Scythes here. Higher level Scythes scale your level frame and boost focus yields.
-                </p>
-              </div>
-              <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
-            </div>
-            <button 
-              type="button" 
-              onClick={() => setHasSeenForgeGuide(true)}
-              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
-            >
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      )}
       <div className="elite-panel">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -214,6 +194,7 @@ export default function ScytheCenter({ onOpenShop }) {
         {/* Category Selector Tabs */}
         <div className="flex gap-4 border-b border-white/5 pb-3 mb-6">
           <button
+            id="forge-streak-tab"
             onClick={() => handleTabChange('streak')}
             className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'streak'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'
@@ -223,6 +204,7 @@ export default function ScytheCenter({ onOpenShop }) {
             Streak Weapons
           </button>
           <button
+            id="forge-shop-tab"
             onClick={() => handleTabChange('shop')}
             className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'shop'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'
@@ -232,6 +214,7 @@ export default function ScytheCenter({ onOpenShop }) {
             Acquired Skins
           </button>
           <button
+            id="forge-theme-tab"
             onClick={() => handleTabChange('theme')}
             className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'theme'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'

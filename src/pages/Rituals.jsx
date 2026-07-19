@@ -11,6 +11,16 @@ export default function Rituals({ onAddTask }) {
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const rituals = useWarscytheStore(state => state.rituals) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
+  const deleteRitual = useWarscytheStore(state => state.deleteRitual);
+  const handleRitualComplete = (id) => {
+    const ritual = rituals.find(item => item.id === id);
+    if (ritual?.isTutorialSandbox) {
+      deleteRitual(id);
+      window.dispatchEvent(new CustomEvent('warscythe:sandbox-ritual-complete', { detail: { id } }));
+      return;
+    }
+    completeRitual(id);
+  };
   const scytheLevel = useWarscytheStore(state => state.scytheLevel) || 'DORMANT';
   const streakCount = useWarscytheStore(state => state.streakCount) || 0;
   const hasSeenRitualsGuide = useWarscytheStore(state => state.hasSeenRitualsGuide);
@@ -59,29 +69,6 @@ export default function Rituals({ onAddTask }) {
 
   return (
     <div className="elite-grid-container relative">
-      {!hasSeenRitualsGuide && !isTutorialActive && (
-        <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
-          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <span className="pointer-tag">GUARDIAN</span>
-                <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Altar of Rituals</h4>
-                <p className="text-[11px] font-serif text-white">
-                  Establish daily and weekly habit routines. Completing them builds momentum; neglecting them breaks your streak.
-                </p>
-              </div>
-              <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
-            </div>
-            <button 
-              type="button" 
-              onClick={() => setHasSeenRitualsGuide(true)}
-              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
-            >
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      )}
       
       {/* ═══ LEFT COLUMN: ACTIVE RITUALS ═══ */}
       <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
@@ -119,7 +106,7 @@ export default function Rituals({ onAddTask }) {
             
             <div className="flex flex-col gap-3">
               {rituals.map(ritual => (
-                <RitualCard key={ritual.id} ritual={ritual} onComplete={completeRitual} />
+                <RitualCard key={ritual.id} ritual={ritual} onComplete={handleRitualComplete} />
               ))}
 
               {rituals.length === 0 && (

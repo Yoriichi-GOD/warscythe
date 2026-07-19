@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { REGIONS, LORE_TEMPLATES } from '../store/constants';
+import { REGIONS } from '../store/constants';
+import { REGIONAL_CHRONICLES as LORE_TEMPLATES } from '../store/regionalLore';
 import { X } from 'lucide-react';
 import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 
@@ -37,6 +38,13 @@ export default function LevelUpModal({ data, onClose }) {
 
   return (
     <div className="modal-backdrop levelup-backdrop">
+      <motion.div
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.1, ease: 'easeOut' }}
+        className="ascension-art"
+      />
+      <div className="ascension-veil" />
       {/* Floating Fire Embers / Ashes */}
       <div className="ember-field">
         {[...Array(25)].map((_, i) => (
@@ -66,7 +74,7 @@ export default function LevelUpModal({ data, onClose }) {
         <div className="lvl-header font-times">
           <h2 className="text-gold-gradient">ASCENSION COMPLETE</h2>
           <div className="lvl-header-divider">
-            <span className="overline">♦ YOU ARE EVOLVING ♦</span>
+            <span className="overline">◆ THE OLD FORM HAS BEEN SURPASSED ◆</span>
           </div>
         </div>
 
@@ -164,8 +172,7 @@ export default function LevelUpModal({ data, onClose }) {
 
       <style jsx>{`
         .levelup-backdrop { 
-          background: radial-gradient(circle at center, rgba(10, 10, 15, 0.8) 0%, rgba(0, 0, 0, 0.98) 100%);
-          backdrop-filter: blur(16px); 
+          background: #020203;
           z-index: 2000;
           position: fixed;
           inset: 0;
@@ -173,7 +180,21 @@ export default function LevelUpModal({ data, onClose }) {
           align-items: center;
           justify-content: center;
           overflow-y: auto;
-          padding: 2rem 1rem;
+          padding: 1.5rem 1rem;
+        }
+        .ascension-art {
+          position: fixed;
+          inset: 0;
+          background: url('/reward-screens/ascension-altar.png') center center / cover no-repeat;
+          pointer-events: none;
+        }
+        .ascension-veil {
+          position: fixed;
+          inset: 0;
+          background:
+            linear-gradient(to bottom, rgba(0,0,0,.52), rgba(0,0,0,.05) 44%, rgba(0,0,0,.76)),
+            radial-gradient(circle at 50% 50%, transparent 22%, rgba(0,0,0,.45) 75%);
+          pointer-events: none;
         }
 
         .levelup-wrapper {
@@ -181,7 +202,7 @@ export default function LevelUpModal({ data, onClose }) {
           flex-direction: column;
           align-items: center;
           width: 100%;
-          max-width: 480px;
+          max-width: 760px;
           position: relative;
           z-index: 10;
         }
@@ -207,23 +228,24 @@ export default function LevelUpModal({ data, onClose }) {
 
         .lvl-header {
           text-align: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: .75rem;
           width: 100%;
         }
 
         .lvl-header h2 {
-          font-size: 2.2rem;
+          font-size: clamp(2rem, 4vw, 3.2rem);
           font-weight: 700;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.055em;
           margin: 0;
           text-transform: uppercase;
+          white-space: nowrap;
         }
 
         .lvl-header-divider {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 80%;
+          width: min(82%, 580px);
           margin: 0.5rem auto 0;
           border-top: 1px solid rgba(197, 160, 89, 0.25);
           border-bottom: 1px solid rgba(197, 160, 89, 0.25);
@@ -234,7 +256,7 @@ export default function LevelUpModal({ data, onClose }) {
 
 
         .overline {
-          font-size: 0.75rem;
+          font-size: clamp(.52rem, 1.2vw, .72rem);
           font-weight: 400;
           color: rgba(255, 255, 255, 0.65);
           letter-spacing: 0.35em;
@@ -246,7 +268,7 @@ export default function LevelUpModal({ data, onClose }) {
           align-items: center;
           justify-content: center;
           gap: 1.5rem;
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
           font-size: 1.1rem;
         }
 
@@ -266,7 +288,7 @@ export default function LevelUpModal({ data, onClose }) {
         }
 
         .stat-value {
-          font-size: 1.8rem;
+          font-size: clamp(1.6rem, 3vw, 2.5rem);
           font-weight: 700;
           line-height: 1;
         }
@@ -278,11 +300,37 @@ export default function LevelUpModal({ data, onClose }) {
         }
 
         .gothic-altar-panel {
-          width: 100%;
-          padding: 2.5rem 2rem;
+          width: min(100%, 580px);
+          padding: 1.5rem 2rem 1.7rem;
           text-align: center;
-          margin-bottom: 2.5rem;
-          border-radius: 4px;
+          margin-bottom: 1rem;
+          border: 1px solid rgba(236,200,128,.28);
+          border-radius: 2px;
+          background: linear-gradient(180deg, rgba(3,3,4,.2), rgba(3,3,4,.84));
+          box-shadow: 0 30px 80px rgba(0,0,0,.7), inset 0 0 50px rgba(236,200,128,.03);
+          backdrop-filter: blur(3px);
+          position: relative;
+        }
+        .gothic-altar-panel::before,
+        .gothic-altar-panel::after {
+          content: "";
+          position: absolute;
+          width: 34px;
+          height: 34px;
+          border-color: #ecc880;
+          opacity: .9;
+        }
+        .gothic-altar-panel::before {
+          left: -1px;
+          top: -1px;
+          border-left: 3px solid;
+          border-top: 3px solid;
+        }
+        .gothic-altar-panel::after {
+          right: -1px;
+          bottom: -1px;
+          border-right: 3px solid;
+          border-bottom: 3px solid;
         }
 
         .region-label {
@@ -291,15 +339,15 @@ export default function LevelUpModal({ data, onClose }) {
           color: rgba(255, 255, 255, 0.45);
           letter-spacing: 0.15em;
           display: block;
-          margin-bottom: 1.5rem;
+          margin-bottom: .5rem;
           text-transform: uppercase;
         }
 
         .crest-display-container {
           position: relative;
-          width: 160px;
-          height: 160px;
-          margin: 0 auto 2rem auto;
+          width: 150px;
+          height: 150px;
+          margin: 0 auto .45rem auto;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -328,8 +376,8 @@ export default function LevelUpModal({ data, onClose }) {
         }
 
         .crest-image {
-          width: 90px;
-          height: 90px;
+          width: 104px;
+          height: 104px;
           object-fit: contain;
           position: relative;
           z-index: 5;
@@ -343,10 +391,10 @@ export default function LevelUpModal({ data, onClose }) {
         }
 
         .new-region-name {
-          font-size: 1.8rem;
+          font-size: clamp(1.5rem, 3vw, 2.15rem);
           font-weight: 700;
           color: #ecc880;
-          margin-bottom: 0.8rem;
+          margin-bottom: 0.4rem;
           letter-spacing: 0.05em;
           text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
         }
@@ -357,7 +405,7 @@ export default function LevelUpModal({ data, onClose }) {
           color: rgba(255, 255, 255, 0.75);
           line-height: 1.6;
           margin: 0 auto;
-          max-width: 90%;
+          max-width: 500px;
           text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
         }
 
@@ -379,7 +427,7 @@ export default function LevelUpModal({ data, onClose }) {
 
         .claim-btn {
           width: 100%;
-          max-width: 320px;
+          max-width: 380px;
           height: 52px;
           font-size: 0.85rem;
           font-weight: 700;
@@ -395,6 +443,34 @@ export default function LevelUpModal({ data, onClose }) {
         }
         .levelup-close-btn:hover {
           background: rgba(197, 160, 89, 0.1); border-color: #ecc880; color: #ecc880;
+        }
+
+        @media (max-width: 640px), (max-aspect-ratio: 3/4) {
+          .levelup-backdrop { padding: 1rem .7rem; align-items: flex-start; }
+          .ascension-veil {
+            background: linear-gradient(to bottom, rgba(0,0,0,.72), rgba(0,0,0,.1) 48%, rgba(0,0,0,.86));
+          }
+          .levelup-wrapper { min-height: calc(100dvh - 2rem); justify-content: center; }
+          .levelup-sparkle-icon { display: none; }
+          .lvl-header h2 { font-size: clamp(1.8rem, 9vw, 3rem); }
+          .lvl-stats { margin-bottom: .75rem; }
+          .gothic-altar-panel { padding: 1.1rem .85rem 1.25rem; }
+          .crest-display-container { width: 125px; height: 125px; }
+          .crest-image { width: 82px; height: 82px; }
+          .region-desc { font-size: .76rem; line-height: 1.45; }
+          .levelup-footer { gap: .45rem; }
+          .claim-btn { height: 46px; }
+        }
+
+        @media (max-height: 850px) {
+          .levelup-backdrop { padding: .7rem; }
+          .lvl-header { margin-bottom: .35rem; }
+          .lvl-header h2 { font-size: clamp(1.7rem, 4vw, 2.5rem); }
+          .lvl-stats { margin-bottom: .45rem; }
+          .gothic-altar-panel { padding: .75rem 1rem; margin-bottom: .5rem; }
+          .crest-display-container { width: 105px; height: 105px; margin-bottom: .2rem; }
+          .crest-image { width: 72px; height: 72px; }
+          .region-label { margin-bottom: .15rem; }
         }
       `}</style>
     </div>

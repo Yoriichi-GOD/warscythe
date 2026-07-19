@@ -37,7 +37,10 @@ import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 import LockedDoor from './components/LockedDoor';
 import GuardianOverlay from './components/GuardianOverlay';
+import TabTutorialOverlay from './components/TabTutorialOverlay';
 import RoadmapModal from './components/RoadmapModal';
+import TitleUnlockFlash from './components/TitleUnlockFlash';
+import FitnessOathGate from './components/FitnessOathGate';
 
 import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
@@ -96,6 +99,11 @@ export default function App() {
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
   const pendingGuardianProgress = useWarscytheStore(state => state.pendingGuardianProgress);
   const clearPendingGuardian = useWarscytheStore(state => state.clearPendingGuardian);
+  const postGuardianTutorial = useWarscytheStore(state => state.postGuardianTutorial);
+  const setPostGuardianTutorial = useWarscytheStore(state => state.setPostGuardianTutorial);
+  const clearPostGuardianTutorial = useWarscytheStore(state => state.clearPostGuardianTutorial);
+  const pendingTitleUnlock = useWarscytheStore(state => state.pendingTitleUnlock);
+  const clearPendingTitleUnlock = useWarscytheStore(state => state.clearPendingTitleUnlock);
   const isMerging = useWarscytheStore(state => state.isMerging);
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
@@ -104,6 +112,7 @@ export default function App() {
   const guideBannerDismissed = useWarscytheStore(state => state.guideBannerDismissed);
   const dismissGuideBanner = useWarscytheStore(state => state.dismissGuideBanner);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
+  const hasSeenFitnessPeek = useWarscytheStore(state => state.hasSeenFitnessPeek);
 
   useEffect(() => {
     const state = useWarscytheStore.getState();
@@ -164,6 +173,38 @@ export default function App() {
   const [showTerminal, setShowTerminal] = useState(false);
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(false);
   const [showTutorialEndFlash, setShowTutorialEndFlash] = useState(false);
+  const [tutorialMapNodeClicked, setTutorialMapNodeClicked] = useState(null);
+  const [mapTutorialHighlightNode, setMapTutorialHighlightNode] = useState(null);
+  const [fitnessTutorialActive, setFitnessTutorialActive] = useState(false);
+
+  useEffect(() => {
+    if (activeTab !== 'fitness' || hasSeenFitnessPeek) return;
+    const container = document.getElementById('fitness-scroll-container');
+    if (container) container.scrollTop = 0;
+  }, [activeTab, hasSeenFitnessPeek]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const handleTestTab = (event) => {
+      if (event.detail) setActiveTab(event.detail);
+    };
+    window.addEventListener('warscythe:test-tab', handleTestTab);
+    return () => window.removeEventListener('warscythe:test-tab', handleTestTab);
+  }, []);
+
+  // Auto-switch tabs when postGuardianTutorial fires
+  useEffect(() => {
+    if (!postGuardianTutorial) {
+      setMapTutorialHighlightNode(null);
+      return;
+    }
+    setTutorialMapNodeClicked(null);
+    if (postGuardianTutorial === 'rituals_intro') setActiveTab('rituals');
+    else if (postGuardianTutorial === 'forge_intro') setActiveTab('forge');
+    else if (postGuardianTutorial === 'quest_map_intro') setActiveTab('map');
+    else if (postGuardianTutorial === 'ledger_intro') setActiveTab('ledger');
+    else if (postGuardianTutorial === 'social_intro' || postGuardianTutorial === 'legion_intro') setActiveTab('social');
+  }, [postGuardianTutorial]);
   
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
 
@@ -521,19 +562,24 @@ export default function App() {
   }
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
+  const navigationSealed = fitnessTutorialActive || postGuardianTutorial === 'lore_intro';
+  const guardedTabChange = (tab) => {
+    if (navigationSealed && tab !== activeTab) return;
+    setActiveTab(tab);
+  };
 
   return (
     <DashboardLayout activeTab={activeTab}>
       <Header 
-        onOpenMap={() => setActiveTab('map')} 
-        onOpenVault={() => setActiveTab('ledger')} 
+        onOpenMap={() => guardedTabChange('map')} 
+        onOpenVault={() => guardedTabChange('ledger')} 
         onOpenAuth={() => setShowAuth(true)}
-        onOpenGymLog={() => setActiveTab('fitness')}
+        onOpenGymLog={() => guardedTabChange('fitness')}
         onOpenPremium={() => setShowPremiumModal(true)}
         onOpenShop={() => setShowShopModal(true)}
         onOpenDownloader={() => setShowDownloaderModal(true)}
         onOpenLore={() => setShowLoreModal(true)}
-        onOpenSocial={() => setActiveTab('social')}
+        onOpenSocial={() => guardedTabChange('social')}
         onOpenRoadmap={() => setShowRoadmap(true)}
       />
 
@@ -582,10 +628,22 @@ export default function App() {
         </div>
 
         <div 
+          id="fitness-scroll-container"
           style={{ display: activeTab === 'fitness' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Fitness />
+          <Fitness
+            tutorialActive={fitnessTutorialActive}
+            onTutorialComplete={() => setFitnessTutorialActive(false)}
+          />
+          {onboardingActive && !hasSeenFitnessPeek && (
+            <FitnessOathGate
+              onComplete={() => {
+                useWarscytheStore.getState().setHasSeenFitnessPeek(true);
+                setFitnessTutorialActive(true);
+              }}
+            />
+          )}
         </div>
         
         <div 
@@ -593,7 +651,12 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {onboardingActive && onboardingProgress < 3 ? (
-            <LockedDoor requiredTasks={3} conceptName="Rituals" />
+            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
+              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
+                <Rituals onAddTask={() => {}} />
+              </div>
+              <LockedDoor requiredTasks={3} conceptName="Rituals" />
+            </div>
           ) : (
             <Rituals onAddTask={() => setShowRitualModal(true)} />
           )}
@@ -604,7 +667,12 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {onboardingActive && onboardingProgress < 3 ? (
-            <LockedDoor requiredTasks={3} conceptName="The Forge" />
+            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
+              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
+                <Forge onOpenShop={() => {}} />
+              </div>
+              <LockedDoor requiredTasks={3} conceptName="The Forge" />
+            </div>
           ) : (
             <Forge onOpenShop={() => setShowShopModal(true)} />
           )}
@@ -615,7 +683,12 @@ export default function App() {
           className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar relative"
         >
           {onboardingActive && onboardingProgress < 5 ? (
-            <LockedDoor requiredTasks={5} conceptName="Quest Map" />
+            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
+              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
+                <QuestMap onTabChange={() => {}} />
+              </div>
+              <LockedDoor requiredTasks={5} conceptName="Quest Map" />
+            </div>
           ) : (
             <QuestMap onTabChange={(tab, options) => {
               setActiveTab(tab);
@@ -625,7 +698,11 @@ export default function App() {
               } else if (tab === 'ledger' && options?.subTab) {
                 setLedgerSubTab(options.subTab);
               }
-            }} />
+            }}
+            tutorialHighlightNode={mapTutorialHighlightNode}
+            onTutorialNodeClick={(nodeId) => setTutorialMapNodeClicked(nodeId)}
+            tutorialActive={postGuardianTutorial === 'quest_map_intro'}
+            />
           )}
         </div>
         
@@ -634,7 +711,12 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {onboardingActive && onboardingProgress < 4 ? (
-            <LockedDoor requiredTasks={4} conceptName="The Ledger" />
+            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
+              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
+                <Ledger initialSubTab={ledgerSubTab} onSubTabChange={() => {}} />
+              </div>
+              <LockedDoor requiredTasks={4} conceptName="The Ledger" />
+            </div>
           ) : (
             <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
           )}
@@ -645,7 +727,12 @@ export default function App() {
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {onboardingActive && onboardingProgress < 7 ? (
-            <LockedDoor requiredTasks={7} conceptName="Social" />
+            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
+              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
+                <Social />
+              </div>
+              <LockedDoor requiredTasks={7} conceptName="Social" />
+            </div>
           ) : (
             <Social />
           )}
@@ -654,7 +741,8 @@ export default function App() {
 
       <EliteNavigation 
         activeTab={activeTab} 
-        onTabChange={setActiveTab} 
+        onTabChange={guardedTabChange}
+        navigationLocked={navigationSealed}
       />
 
       <AnimatePresence>
@@ -771,7 +859,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {pendingVictoryScreen && (
+        {pendingVictoryScreen && !activeBossFlash && !pendingReward && (
           <RegionFlashScreen
             key="victory-screen"
             type="victory"
@@ -782,15 +870,10 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {pendingLevelUp && !pendingVictoryScreen && (
+        {pendingLevelUp && !pendingVictoryScreen && !activeBossFlash && !pendingReward && (
           <LevelUpModal 
             data={pendingLevelUp} 
             onClose={() => {
-              const newMapIndex = ((pendingLevelUp.newLevel - 1) % 10) + 1;
-              setPendingEntryScreen({
-                mapIndex: newMapIndex,
-                regionName: REGIONS?.[pendingLevelUp.newLevel - 1]?.name || `Region ${newMapIndex}`,
-              });
               clearPendingLevelUp();
             }} 
           />
@@ -809,7 +892,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
+        {activeBossFlash && (
           <BossFlashScreen 
             key="boss-flash-screen"
             type={activeBossFlash} 
@@ -819,7 +902,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {pendingReward && !activeBossFlash && !pendingVictoryScreen && !pendingLevelUp && !pendingEntryScreen && (
+        {pendingReward && !activeBossFlash && (
           <ScratchCard 
             data={pendingReward} 
             onClose={() => {
@@ -949,13 +1032,51 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {pendingGuardianProgress !== null && (
+        {pendingGuardianProgress !== null
+          && !pendingVictoryScreen
+          && !pendingLevelUp
+          && !pendingEntryScreen
+          && !activeBossFlash
+          && !pendingReward
+          && !pendingTitleUnlock
+          && (
           <GuardianOverlay 
             progress={pendingGuardianProgress} 
-            onClose={clearPendingGuardian} 
+            onClose={clearPendingGuardian}
+            onTutorialAfter={(tutorialId) => {
+              clearPendingGuardian();
+              setPostGuardianTutorial(tutorialId);
+            }}
           />
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {pendingTitleUnlock
+          && !pendingVictoryScreen
+          && !pendingLevelUp
+          && !pendingEntryScreen
+          && !activeBossFlash
+          && !pendingReward
+          && (
+            <TitleUnlockFlash
+              data={pendingTitleUnlock}
+              onClose={clearPendingTitleUnlock}
+            />
+          )}
+      </AnimatePresence>
+
+      {/* Sandboxed tab tutorials — shown after Guardian milestone handoff */}
+      {postGuardianTutorial && !pendingTitleUnlock && (
+        <TabTutorialOverlay
+          tutorialId={postGuardianTutorial}
+          onComplete={clearPostGuardianTutorial}
+          onSwitchTab={(tab) => setActiveTab(tab)}
+          onMapNodeClick={(nodeId) => setTutorialMapNodeClicked(nodeId)}
+          onHighlightChange={(nodeId) => setMapTutorialHighlightNode(nodeId)}
+          tutorialNodeClicked={tutorialMapNodeClicked}
+        />
+      )}
 
       <div id="toast-container" />
     </DashboardLayout>

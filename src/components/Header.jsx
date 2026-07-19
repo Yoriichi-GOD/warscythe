@@ -1,10 +1,10 @@
 import React from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Settings, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info } from 'lucide-react';
+import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Settings, Fingerprint, Map as MapIcon, Dumbbell, RefreshCw, AlertCircle, BookOpen, ShoppingBag, CloudDownload, Users, Bell, Info, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL, TITLES } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial }) {
+export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial, onOpenRoadmap }) {
   const { 
     executionScore: xp, 
     level, 
@@ -312,6 +312,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         <div className="action-buttons">
           {user && (
             <button 
+              id="onboarding-sync"
               className={`nav-btn sync-btn status-${syncStatus} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
               onClick={syncStatus === 'failed' ? () => onOpenAuth() : forceSync}
               title={
@@ -328,6 +329,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           
           <div style={{ position: 'relative' }}>
             <button 
+              id="onboarding-settings"
               className={`nav-btn ${user ? 'active' : ''}`} 
               onClick={user ? () => setShowDropdown(!showDropdown) : () => onOpenAuth()}
               title={user ? `Logged in as ${user.email}` : 'Warscythe Link'}
@@ -417,7 +419,22 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               </div>
             )}
           </div>
+          {/* Onboarding Roadmap */}
           <button 
+            className="nav-btn" 
+            onClick={() => {
+              setShowNotifications(false);
+              setShowDropdown(false);
+              onOpenRoadmap();
+            }} 
+            title="Execution Roadmap"
+            style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
+          >
+            <Trophy size={18} className="text-gold-core animate-pulse" />
+          </button>
+
+          <button 
+            id="onboarding-shop-button"
             className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
             onClick={onOpenShop} 
             title="Dread Armory (Shop)"
@@ -437,6 +454,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
 
           {/* Direct Lore Scrolls Access */}
           <button 
+            id="onboarding-lore-button"
             className={`nav-btn ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
             onClick={() => {
               setShowNotifications(false);
@@ -464,6 +482,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           {/* Notification Bell Dropdown */}
           <div style={{ position: 'relative' }}>
             <button 
+              id="onboarding-notifications"
               className={`nav-btn ${showNotifications ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
               onClick={() => {
                 setShowNotifications(!showNotifications);
@@ -511,6 +530,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           </div>
 
           <button 
+            id="onboarding-focus-mode"
             className={`nav-btn ${isFocusMode ? 'active' : ''} ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`} 
             onClick={() => useWarscytheStore.getState().toggleFocus()} 
             title="Neural Focus"

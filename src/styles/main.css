@@ -103,6 +103,20 @@
   }
 }
 
+@media (max-width: 639px) {
+  .ritual-card-inner {
+    gap: 0.65rem !important;
+    padding: 0.8rem !important;
+  }
+  .ritual-card-actions,
+  .ritual-card-desktop-meta {
+    display: none !important;
+  }
+  .ritual-card-meta {
+    gap: 0.65rem !important;
+  }
+}
+
 @media (min-width: 1024px) {
   .elite-grid-container {
     grid-template-columns: 1fr 1.3fr 0.9fr;

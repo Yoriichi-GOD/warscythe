@@ -4,7 +4,7 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Zap, Activity, ChevronDown } from 'lucide-react';
 import { HABIT_TEMPLATES } from '../store/constants';
 
-export default function RitualModal({ onClose }) {
+export default function RitualModal({ onClose, tutorialMode = false }) {
   const [title, setTitle] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [effort, setEffort] = useState('Medium');
@@ -13,6 +13,7 @@ export default function RitualModal({ onClose }) {
   const [presetOpen, setPresetOpen] = useState(false);
   const [frequencyOpen, setFrequencyOpen] = useState(false);
   const [effortOpen, setEffortOpen] = useState(false);
+  const [tutorialStage, setTutorialStage] = useState(0);
   
   const addRitual = useWarscytheStore(state => state.addRitual);
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
@@ -24,6 +25,7 @@ export default function RitualModal({ onClose }) {
       setEffort(preset.effort);
     }
     setPresetOpen(false);
+    if (tutorialMode) setTutorialStage(1);
   };
 
   const frequencyOptions = [
@@ -41,6 +43,12 @@ export default function RitualModal({ onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title) return;
+
+    if (tutorialMode) {
+      if (tutorialStage < 4) return;
+      onClose({ title, frequency, effort, targetTime: targetTime || null });
+      return;
+    }
     
     const success = addRitual(title, frequency, effort, targetTime || null);
     if (success) {
@@ -53,7 +61,7 @@ export default function RitualModal({ onClose }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={tutorialMode ? undefined : onClose}>
       <motion.div 
         initial={{ opacity: 0, y: 50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -67,8 +75,21 @@ export default function RitualModal({ onClose }) {
             <Crosshair size={18} className="text-gold" />
             <h2>ENSHRINE RITUAL</h2>
           </div>
-          <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>
+          {!tutorialMode && <button className="btn-close-circle" onClick={onClose}><X size={16} /></button>}
         </div>
+
+        {tutorialMode && (
+          <div className="rehearsal-order" aria-live="polite">
+            <span>OATHBOUND REHEARSAL // {tutorialStage + 1} OF 5</span>
+            <strong>
+              {tutorialStage === 0 && 'CHOOSE A PRESET TO GIVE THE RITUAL ITS FIRST FORM.'}
+              {tutorialStage === 1 && 'CHOOSE HOW OFTEN THIS VOW RETURNS.'}
+              {tutorialStage === 2 && 'CHOOSE THE RESISTANCE THIS VOW DEMANDS.'}
+              {tutorialStage === 3 && 'SET THE HOUR AT WHICH THIS VOW CALLS YOU BACK.'}
+              {tutorialStage === 4 && 'THE FORM IS READY. CONFIRM ITS ENSHRINEMENT.'}
+            </strong>
+          </div>
+        )}
 
         {(presetOpen || frequencyOpen || effortOpen) && (
           <div 
@@ -78,13 +99,13 @@ export default function RitualModal({ onClose }) {
         )}
 
         <form onSubmit={handleSubmit} className="tactical-form">
-          <div className="form-group full" style={{ position: 'relative', zIndex: presetOpen ? 200 : 10 }}>
+          <div className={`form-group full tutorial-field ${tutorialMode && tutorialStage !== 0 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: presetOpen ? 200 : 10 }}>
             <label><Zap size={10} /> TEMPLATE PRESETS</label>
             <div className="custom-select-container">
               <button 
                 type="button" 
                 className="custom-select-trigger" 
-                onClick={() => { setPresetOpen(!presetOpen); setFrequencyOpen(false); setEffortOpen(false); }}
+                onClick={() => { if (!tutorialMode || tutorialStage === 0) setPresetOpen(!presetOpen); setFrequencyOpen(false); setEffortOpen(false); }}
               >
                 <span>-- SELECT QUICK HABIT PRESET --</span>
                 <ChevronDown size={12} />
@@ -105,26 +126,26 @@ export default function RitualModal({ onClose }) {
             </div>
           </div>
 
-          <div className="form-group full">
+          <div className={`form-group full ${tutorialMode ? 'tutorial-locked tutorial-derived' : ''}`}>
             <label><Zap size={10} /> RITUAL IDENTIFIER</label>
             <input 
               type="text" 
               placeholder="ENTER HABIT ROUTINE..." 
               value={title} 
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => !tutorialMode && setTitle(e.target.value)}
               autoFocus
               required
             />
           </div>
 
           <div className="form-grid">
-            <div className="form-group" style={{ position: 'relative', zIndex: frequencyOpen ? 200 : 10 }}>
+            <div className={`form-group tutorial-field ${tutorialMode && tutorialStage !== 1 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: frequencyOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> FREQUENCY</label>
               <div className="custom-select-container">
                 <button 
                   type="button" 
                   className="custom-select-trigger" 
-                  onClick={() => { setFrequencyOpen(!frequencyOpen); setPresetOpen(false); setEffortOpen(false); }}
+                  onClick={() => { if (!tutorialMode || tutorialStage === 1) setFrequencyOpen(!frequencyOpen); setPresetOpen(false); setEffortOpen(false); }}
                 >
                   <span>{frequencyOptions.find(o => o.value === frequency)?.label}</span>
                   <ChevronDown size={12} />
@@ -135,7 +156,7 @@ export default function RitualModal({ onClose }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setFrequency(opt.value); setFrequencyOpen(false); }}
+                        onClick={() => { setFrequency(opt.value); setFrequencyOpen(false); if (tutorialMode) setTutorialStage(2); }}
                       >
                         {opt.label}
                       </div>
@@ -145,13 +166,13 @@ export default function RitualModal({ onClose }) {
               </div>
             </div>
 
-            <div className="form-group" style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
+            <div className={`form-group tutorial-field ${tutorialMode && tutorialStage !== 2 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
                 <button 
                   type="button" 
                   className="custom-select-trigger" 
-                  onClick={() => { setEffortOpen(!effortOpen); setPresetOpen(false); setFrequencyOpen(false); }}
+                  onClick={() => { if (!tutorialMode || tutorialStage === 2) setEffortOpen(!effortOpen); setPresetOpen(false); setFrequencyOpen(false); }}
                 >
                   <span>{effortOptions.find(o => o.value === effort)?.label}</span>
                   <ChevronDown size={12} />
@@ -162,7 +183,7 @@ export default function RitualModal({ onClose }) {
                       <div 
                         key={opt.value} 
                         className="custom-select-option" 
-                        onClick={() => { setEffort(opt.value); setEffortOpen(false); }}
+                        onClick={() => { setEffort(opt.value); setEffortOpen(false); if (tutorialMode) setTutorialStage(3); }}
                       >
                         {opt.label}
                       </div>
@@ -173,13 +194,16 @@ export default function RitualModal({ onClose }) {
             </div>
           </div>
           
-          <div className="form-group full mt-4">
+          <div className={`form-group full mt-4 tutorial-field ${tutorialMode && tutorialStage !== 3 ? 'tutorial-locked' : 'tutorial-active'}`}>
             <label><Zap size={10} /> TARGET TIME (OPTIONAL ALERT CUE)</label>
             <input 
               type="time" 
               className="tactical-time-input w-full bg-black/40 border border-gold-core/20 hover:border-gold-core/50 focus:border-gold-bright text-white px-3 py-2 rounded text-xs font-mono focus:outline-none transition-colors"
               value={targetTime} 
-              onChange={e => setTargetTime(e.target.value)}
+              onChange={e => {
+                setTargetTime(e.target.value);
+                if (tutorialMode && e.target.value) setTutorialStage(4);
+              }}
               style={{ colorScheme: 'dark' }}
             />
             <span className="text-[9px] text-gray-500 font-mono mt-1 block tracking-wider">
@@ -187,8 +211,8 @@ export default function RitualModal({ onClose }) {
             </span>
           </div>
 
-          <div className="modal-footer">
-            <button type="submit" className="btn-primary deploy-btn">
+          <div className={`modal-footer tutorial-field ${tutorialMode && tutorialStage !== 4 ? 'tutorial-locked' : 'tutorial-active'}`}>
+            <button type="submit" disabled={tutorialMode && tutorialStage !== 4} className="btn-primary deploy-btn">
               <span>CONFIRM ENSHRINEMENT</span>
             </button>
           </div>
@@ -251,6 +275,22 @@ export default function RitualModal({ onClose }) {
         .btn-close-circle:hover { background: var(--red-core); color: #fff; border-color: var(--red-hot); }
 
         .tactical-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .rehearsal-order {
+          display: flex; flex-direction: column; gap: .45rem; padding: .85rem 1rem;
+          margin: -1rem 0 1.25rem; border-left: 2px solid var(--gold-core);
+          background: rgba(197,160,89,.07); font-family: var(--font-mono);
+        }
+        .rehearsal-order span { color: var(--gold-core); font-size: .55rem; letter-spacing: .22em; }
+        .rehearsal-order strong { color: #fff; font-size: .62rem; letter-spacing: .12em; line-height: 1.6; }
+        .tutorial-field { transition: opacity .2s ease, filter .2s ease; }
+        .tutorial-locked { opacity: .22; filter: grayscale(1); pointer-events: none; }
+        .tutorial-derived { opacity: .48; }
+        .tutorial-active { position: relative; }
+        .tutorial-active::after {
+          content: ''; position: absolute; inset: -7px; pointer-events: none;
+          border: 1px solid var(--gold-core); border-radius: 6px;
+          box-shadow: 0 0 22px rgba(197,160,89,.24);
+        }
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
         @media (min-width: 640px) {
           .form-grid { grid-template-columns: 1fr 1fr; }

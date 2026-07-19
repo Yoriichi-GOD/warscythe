@@ -3,6 +3,7 @@ import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame, Award, Dumbbell, Info, ChevronDown } from 'lucide-react';
 import { getAssetUrl } from '../../utils/assetResolver';
 import { REGIONS } from '../../store/constants';
+import UnlockCeremonyModal from '../UnlockCeremonyModal';
 
 const REGION_SHORT_DESCS = [
   "Warm, hopeful, and calm grasslands.",
@@ -33,6 +34,40 @@ const getArtifactImage = (name) => {
 };
 
 
+const WidgetLock = ({ requiredTasks, conceptName }) => {
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 2500);
+  };
+
+  return (
+    <div 
+      className="absolute inset-0 z-[50] flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm border border-dashed border-gold-core/20 rounded cursor-pointer select-none"
+      onClick={handleClick}
+    >
+      <img 
+        src="/lock.webp" 
+        alt="Locked" 
+        className="w-[80%] h-[80%] max-w-[75%] max-h-[75%] object-contain filter drop-shadow-[0_0_15px_rgba(236,200,128,0.45)] animate-pulse"
+      />
+      <span className="text-[7px] font-mono tracking-widest text-gold-core uppercase mt-2">
+        LOCKED
+      </span>
+      {showNotification && (
+        <div className="absolute inset-x-2 bottom-4 bg-zinc-950 border border-gold-core/40 px-3 py-2 rounded shadow-2xl z-[100] text-center">
+          <span className="text-[8px] font-mono text-gold-core uppercase tracking-widest leading-normal block">
+            Complete {requiredTasks} Operations to unlock {conceptName}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const { 
     xp, 
@@ -45,11 +80,21 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     soundscapeEnabled,
     setSoundscapeEnabled,
     level,
-    activeTheme
+    activeTheme,
+    onboardingActive,
+    onboardingProgress
   } = useWarscytheStore();
 
   const [playingRegionIdx, setPlayingRegionIdx] = useState((level || 1) - 1);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [ceremonyTier, setCeremonyTier] = useState(null);
+  const [claimedScythes, setClaimedScythes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('warscythe-claimed-streak-scythes') || '[]'); }
+    catch { return []; }
+  });
+  const [showStreakExplainer, setShowStreakExplainer] = useState(() => (
+    onboardingActive && onboardingProgress === 4 && !localStorage.getItem('warscythe-streak-systems-explained')
+  ));
 
   useEffect(() => {
     setPlayingRegionIdx((level || 1) - 1);
@@ -90,6 +135,13 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days) || { name: 'NEOPHYTE', days: 5 };
   const nextTier = streakTiers.find(t => streakCount < t.days) || streakTiers[streakTiers.length - 1];
   const streakProgress = Math.min(100, (streakCount / nextTier.days) * 100);
+  const canAcquireCurrentTier = streakCount >= currentTier.days && !claimedScythes.includes(currentTier.name);
+  const acquireTier = (tier) => {
+    const nextClaimed = [...new Set([...claimedScythes, tier.name])];
+    setClaimedScythes(nextClaimed);
+    localStorage.setItem('warscythe-claimed-streak-scythes', JSON.stringify(nextClaimed));
+    setCeremonyTier(null);
+  };
 
   return (
     <div className="command-center-grid gap-4 min-h-full relative">
@@ -101,12 +153,16 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
 
       {/* 🎵 SOUNDSCAPE JUKEBOX */}
       <div 
+        id="onboarding-soundscape"
         className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-between gap-1 transition-all relative ${
           soundscapeEnabled 
             ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
             : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
         }`}
       >
+        {onboardingActive && onboardingProgress < 2 && (
+          <WidgetLock requiredTasks={2} conceptName="Soundscape" />
+        )}
         <div className="flex justify-between items-center w-full px-2">
           <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Soundscape</span>
           <Info 
@@ -178,8 +234,11 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       {/* 🔮 GUARDIAN OBSERVER */}
       <button 
         onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
-        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all"
+        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all relative"
       >
+        {onboardingActive && onboardingProgress < 2 && (
+          <WidgetLock requiredTasks={2} conceptName="Guardian Prophecies" />
+        )}
         <div className="flex justify-between items-center w-full px-2">
           <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Guardian</span>
           <Info 
@@ -215,8 +274,14 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
       <div 
         className="cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden cursor-pointer hover:border-gold-core/40 transition-all bg-[#050505]"
-        onClick={() => onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500')}
+        onClick={() => {
+          if (onboardingActive && onboardingProgress < 4) return;
+          onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500');
+        }}
       >
+        {onboardingActive && onboardingProgress < 4 && (
+          <WidgetLock requiredTasks={4} conceptName="Ultimate Artifact" />
+        )}
         {/* The Image (Centered and Blended) */}
         <div className="absolute inset-0 z-0 flex items-center justify-center p-4 bg-black/40">
            <img 
@@ -239,6 +304,18 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
            <p className="text-[8px] font-mono text-gold-core/60 mt-1 uppercase font-black">TIER {streakTiers.indexOf(currentTier) + 1}</p>
         </div>
 
+        {canAcquireCurrentTier && (
+          <button
+            onClick={(event) => {
+              event.stopPropagation();
+              setCeremonyTier(currentTier);
+            }}
+            className="absolute bottom-6 left-6 z-30 px-4 py-2 border border-gold-bright bg-black/80 text-gold-bright font-mono text-[8px] font-black tracking-[.28em] uppercase shadow-[0_0_22px_rgba(236,200,128,.55)] animate-pulse hover:bg-gold-core hover:text-black"
+          >
+            Acquire
+          </button>
+        )}
+
         {/* Inspect Prompt */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none z-20">
            <div className="px-4 py-2 border border-gold-core/20 bg-black/60 backdrop-blur-md">
@@ -248,7 +325,10 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       </div>
 
       {/* STREAK PROGRESS BAR */}
-      <div className="cc-streak-ascent elite-panel p-5 flex flex-col gap-4 bg-black/20">
+      <div className="cc-streak-ascent elite-panel p-5 flex flex-col gap-4 bg-black/20 relative">
+        {onboardingActive && onboardingProgress < 4 && (
+          <WidgetLock requiredTasks={4} conceptName="Streak Ascent" />
+        )}
          <div className="flex justify-between items-center">
             <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">Streak Ascent</span>
             <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
@@ -282,7 +362,10 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
       </div>
 
       {/* 🏆 ARSENAL (Trophy Wall) */}
-      <div className="cc-arsenal elite-panel p-5 flex flex-col shrink-0 bg-black/20">
+      <div className="cc-arsenal elite-panel p-5 flex flex-col shrink-0 bg-black/20 relative">
+        {onboardingActive && onboardingProgress < 4 && (
+          <WidgetLock requiredTasks={4} conceptName="Trophy Arsenal" />
+        )}
          <div className="flex justify-between items-center mb-4">
             <div className="flex flex-col gap-1">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Arsenal</span>
@@ -408,6 +491,38 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             )}
          </div>
       </div>
+
+      {ceremonyTier && (
+        <UnlockCeremonyModal
+          kind="scythe"
+          name={ceremonyTier.name}
+          days={ceremonyTier.days}
+          image={`/ultimate/${ceremonyTier.name.toLowerCase()}.png`}
+          onClose={() => setCeremonyTier(null)}
+          onAcquire={() => acquireTier(ceremonyTier)}
+        />
+      )}
+
+      {showStreakExplainer && (
+        <div className="fixed inset-0 z-[6400] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4">
+          <div className="w-full max-w-lg border border-gold-core/40 bg-zinc-950 p-7 text-center shadow-[0_0_60px_rgba(197,160,89,.2)]">
+            <span className="font-mono text-[8px] tracking-[.3em] text-gold-core uppercase">Task IV // Twin Systems Unsealed</span>
+            <h2 className="mt-3 font-display text-2xl text-white tracking-[.15em] uppercase">Artifact and Ascent</h2>
+            <p className="mt-5 font-serif italic text-sm leading-relaxed text-stone-300">
+              The Ultimate Artifact shows the streak Scythe your discipline has earned. Streak Ascent measures the next vow-bound threshold. When a milestone is reached, return to the glowing Acquire seal and claim the weapon through its prophecy.
+            </p>
+            <button
+              onClick={() => {
+                localStorage.setItem('warscythe-streak-systems-explained', 'true');
+                setShowStreakExplainer(false);
+              }}
+              className="mt-6 w-full py-3 border border-gold-core bg-gold-core/10 text-gold-bright font-mono text-[9px] font-black tracking-[.25em] uppercase hover:bg-gold-core hover:text-black"
+            >
+              Witness Both Systems
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

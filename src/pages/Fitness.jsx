@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { getAssetUrl } from '../utils/assetResolver';
+import UnlockCeremonyModal from '../components/UnlockCeremonyModal';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
@@ -20,23 +21,142 @@ const OrnatePanel = ({ children, className = '', ...props }) => {
   );
 };
 
-export default function Fitness() {
+const FITNESS_GUIDE = [
+  { id:'fitness-split-select', title:'CHOOSE YOUR DISCIPLINE', text:'Open the training split and choose the kind of session you are about to perform. A split gives the Iron Ledger context for the work ahead.' },
+  { id:'fitness-movement-selector', title:'NAME THE MOVEMENT', text:'Choose any preset movement or type one of your own, then add it. In this oathbound rehearsal, nothing touches your real training history.' },
+  { id:'fitness-add-set', title:'FORGE A SET', text:'Add a set beneath your movement. Each set carries its own weight, repetitions, effort, type, and completion state.' },
+  { id:'fitness-weight-input', title:'DECLARE THE LOAD', text:'Enter the weight you intend to move. Use the true load. Honest numbers build a useful Ledger.' },
+  { id:'fitness-reps-input', title:'DECLARE THE REPS', text:'Enter how many controlled repetitions you completed with that load.' },
+  { id:'fitness-complete-set', title:'CONFIRM THE SET', text:'Tick the set only after it is performed. Confirmation counts its tonnage and automatically begins your recovery timer.' },
+  { id:'fitness-rest-timer', title:'RESPECT RECOVERY', text:'The Rest Timer protects the quality of the next set. Choose a duration, pause or resume the dial, and adjust it by thirty seconds when the movement demands more or less recovery.', manual:true },
+  { id:'fitness-rpe-dial', title:'READ YOUR RPE', text:'RPE is Rate of Perceived Exertion from 1 to 10. RPE 8 means roughly two good repetitions remained; 9 means one remained; 10 means none remained. Your set is focused now. Use minus or plus once to record its difficulty.' },
+  { id:'fitness-archive', title:'ARCHIVE THE SESSION', text:'When the session is complete, archive it. The real Iron Ledger preserves the movements, completed sets, tonnage, and notes. This rehearsal will be erased.' }
+];
+
+function FitnessWalkthrough({ step, onNext }) {
+  const [rect, setRect] = useState(null);
+  const guide = FITNESS_GUIDE[step];
+  useEffect(() => {
+    if (!guide) return undefined;
+    const update = () => {
+      const el = document.getElementById(guide.id);
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRect({ top:r.top, left:r.left, right:r.right, bottom:r.bottom, width:r.width, height:r.height });
+    };
+    const reveal = window.setTimeout(() => {
+      document.getElementById(guide.id)?.scrollIntoView({ behavior:'smooth', block:'center' });
+      window.setTimeout(update, 240);
+    }, 80);
+    const timer = window.setInterval(update, 160);
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.clearTimeout(reveal);
+      window.clearInterval(timer);
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [guide?.id]);
+  if (!guide || !rect) return null;
+  const placeRight = rect.right + 360 < window.innerWidth;
+  const top = Math.max(82, Math.min(window.innerHeight - 270, rect.top + rect.height / 2 - 110));
+  return (
+    <>
+      <motion.div
+        key={guide.id}
+        className="fixed z-[2200] pointer-events-none rounded"
+        style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}
+        animate={{boxShadow:['0 0 0 2px #e8c675,0 0 18px #e8c67555','0 0 0 4px #e8c675,0 0 35px #e8c67588','0 0 0 2px #e8c675,0 0 18px #e8c67555']}}
+        transition={{duration:1.3,repeat:Infinity}}
+      />
+      <motion.aside
+        initial={{opacity:0,y:10}} animate={{opacity:1,y:0}}
+        className="fixed z-[2201] w-[min(340px,calc(100vw-24px))] border border-gold-core/35 bg-zinc-950/98 p-5 shadow-[0_20px_70px_#000]"
+        style={window.innerWidth < 760
+          ? {left:12,bottom:88}
+          : {left:placeRight ? rect.right+18 : Math.max(12,rect.left-358),top}}
+      >
+        <small className="font-mono text-[8px] tracking-[.28em] text-gold-core">ARETE // OATHBOUND LESSON {step+1}/{FITNESS_GUIDE.length}</small>
+        <h3 className="font-display text-lg text-white mt-2">{guide.title}</h3>
+        <p className="font-serif italic text-sm leading-relaxed text-stone-300 mt-2">{guide.text}</p>
+        {guide.manual && (
+          <button onClick={onNext} className="mt-4 w-full border border-gold-core/40 bg-gold-core/10 py-2 font-mono text-[8px] font-black tracking-widest text-gold-core">
+            {step === FITNESS_GUIDE.length-1 ? 'ARCHIVE THE REHEARSAL' : 'UNDERSTOOD, CONTINUE'}
+          </button>
+        )}
+      </motion.aside>
+    </>
+  );
+}
+
+export default function Fitness({ tutorialActive = false, onTutorialComplete }) {
   const {
     gymLog,
-    activeWorkout,
-    startWorkout,
-    cancelWorkout,
-    addMovement,
-    removeMovement,
-    addSetToMovement,
-    updateSetInMovement,
-    deleteSetFromMovement,
-    logWorkout,
+    activeWorkout: storedActiveWorkout,
+    startWorkout: storeStartWorkout,
+    cancelWorkout: storeCancelWorkout,
+    addMovement: storeAddMovement,
+    removeMovement: storeRemoveMovement,
+    addSetToMovement: storeAddSetToMovement,
+    updateSetInMovement: storeUpdateSetInMovement,
+    deleteSetFromMovement: storeDeleteSetFromMovement,
+    logWorkout: storeLogWorkout,
     getTotalTonnage,
     getDeityProgress,
     updateActiveWorkoutNotes,
     activeTheme
   } = useWarscytheStore();
+  const [sandboxWorkout, setSandboxWorkout] = useState(null);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorialFarewell, setShowTutorialFarewell] = useState(false);
+  const activeWorkout = tutorialActive ? sandboxWorkout : storedActiveWorkout;
+  const advanceTutorial = (expected) => {
+    if (tutorialActive && tutorialStep === expected) setTutorialStep(value => Math.min(FITNESS_GUIDE.length - 1, value + 1));
+  };
+  const startWorkout = (split) => {
+    if (!tutorialActive) return storeStartWorkout(split);
+    setSandboxWorkout({ id:'oathbound-session', date:new Date().toISOString(), split:split || 'Oathbound Split', movements:[], notes:'' });
+    advanceTutorial(0);
+  };
+  const cancelWorkout = () => tutorialActive ? setSandboxWorkout(null) : storeCancelWorkout();
+  const addMovement = (name) => {
+    if (!tutorialActive) return storeAddMovement(name);
+    setSandboxWorkout(workout => ({...workout, movements:[...workout.movements,{id:'oathbound-movement',name:name || 'Chosen Movement',sets:[]}]}));
+    advanceTutorial(1);
+  };
+  const removeMovement = (movementId) => tutorialActive
+    ? setSandboxWorkout(workout => ({...workout,movements:workout.movements.filter(m=>m.id!==movementId)}))
+    : storeRemoveMovement(movementId);
+  const addSetToMovement = (movementId, detail={}) => {
+    if (!tutorialActive) return storeAddSetToMovement(movementId, detail);
+    const newSet = {id:'oathbound-set',weight:Number(detail.weight)||0,reps:Number(detail.reps)||0,rpe:Number(detail.rpe)||8,type:detail.type||'working',completed:false};
+    setSandboxWorkout(workout => ({...workout,movements:workout.movements.map(m=>m.id===movementId?{...m,sets:[...m.sets,newSet]}:m)}));
+    setFocusedSet({movementId,setId:newSet.id});
+    advanceTutorial(2);
+  };
+  const updateSetInMovement = (movementId,setId,updates) => {
+    if (!tutorialActive) return storeUpdateSetInMovement(movementId,setId,updates);
+    setSandboxWorkout(workout => ({...workout,movements:workout.movements.map(m=>m.id===movementId?{...m,sets:m.sets.map(s=>s.id===setId?{...s,...updates,weight:updates.weight!==undefined?Number(updates.weight):s.weight,reps:updates.reps!==undefined?Number(updates.reps):s.reps,rpe:updates.rpe!==undefined?Number(updates.rpe):s.rpe}:s)}:m)}));
+  };
+  const deleteSetFromMovement = (movementId,setId) => tutorialActive
+    ? setSandboxWorkout(workout => ({...workout,movements:workout.movements.map(m=>m.id===movementId?{...m,sets:m.sets.filter(s=>s.id!==setId)}:m)}))
+    : storeDeleteSetFromMovement(movementId,setId);
+  const logWorkout = () => {
+    if (!tutorialActive) return storeLogWorkout();
+    setShowTutorialFarewell(true);
+  };
+  const finishTutorial = () => {
+    setShowTutorialFarewell(false);
+    window.setTimeout(() => {
+      setSandboxWorkout(null);
+      setTutorialStep(0);
+      onTutorialComplete?.();
+    }, 650);
+  };
+  const updateWorkoutNotes = (value) => tutorialActive
+    ? setSandboxWorkout(workout => ({...workout, notes:value}))
+    : updateActiveWorkoutNotes(value);
 
   const deityState = getDeityProgress();
   const totalTonnage = deityState.totalTonnage;
@@ -44,6 +164,21 @@ export default function Fitness() {
   const nextDeity = deityState.nextDeity;
   const progressPercent = deityState.progressPercent;
   const deities = deityState.deities;
+  const [deityCeremony, setDeityCeremony] = useState(null);
+
+  useEffect(() => {
+    if (tutorialActive || !activeDeity?.id || !activeDeity?.threshold || totalTonnage < activeDeity.threshold) return;
+    let claimed = [];
+    try { claimed = JSON.parse(localStorage.getItem('warscythe-claimed-deity-tiers') || '[]'); } catch { claimed = []; }
+    if (!claimed.includes(activeDeity.id)) setDeityCeremony(activeDeity);
+  }, [activeDeity?.id, activeDeity?.threshold, totalTonnage, tutorialActive]);
+
+  const acceptDeityTier = () => {
+    let claimed = [];
+    try { claimed = JSON.parse(localStorage.getItem('warscythe-claimed-deity-tiers') || '[]'); } catch { claimed = []; }
+    localStorage.setItem('warscythe-claimed-deity-tiers', JSON.stringify([...new Set([...claimed, deityCeremony.id])]));
+    setDeityCeremony(null);
+  };
 
   // Split template dropdown state
   const [splitDropdownOpen, setSplitDropdownOpen] = useState(false);
@@ -145,6 +280,7 @@ export default function Fitness() {
 
     const newRpe = Math.min(10, Math.max(1, (setObj.rpe || 8) + amount));
     updateSetInMovement(focusedSet.movementId, focusedSet.setId, { rpe: newRpe });
+    advanceTutorial(7);
   };
 
   // Format timer string
@@ -179,12 +315,62 @@ export default function Fitness() {
 
   return (
     <div className="w-full pt-4 pb-32">
+      {deityCeremony && (
+        <UnlockCeremonyModal
+          kind="deity"
+          name={deityCeremony.name}
+          image={`/deity/${deityCeremony.id}.png`}
+          prophecy={`The iron you lifted has crossed the threshold of ${deityCeremony.threshold.toLocaleString()} kilograms. ${deityCeremony.name} now walks within your discipline. ${deityCeremony.buff}`}
+          onClose={acceptDeityTier}
+        />
+      )}
+      {tutorialActive && (
+        <FitnessWalkthrough
+          step={tutorialStep}
+          onNext={() => setTutorialStep(value => Math.min(FITNESS_GUIDE.length - 1, value + 1))}
+        />
+      )}
+      <AnimatePresence>
+        {showTutorialFarewell && (
+          <motion.div
+            initial={{opacity:0}}
+            animate={{opacity:1}}
+            exit={{opacity:0,filter:'blur(10px)'}}
+            transition={{duration:.65}}
+            className="fixed inset-x-0 top-[72px] bottom-[82px] z-[2500] grid place-items-center bg-black/75 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{opacity:0,y:30,scale:.96}}
+              animate={{opacity:1,y:0,scale:1}}
+              exit={{opacity:0,y:-25,scale:1.03}}
+              transition={{duration:.7}}
+              className="w-full max-w-4xl max-h-full overflow-y-auto border border-gold-core/30 bg-zinc-950/96 grid md:grid-cols-[.8fr_1.2fr] shadow-[0_0_90px_#000]"
+            >
+              <div className="relative aspect-[2/3] md:aspect-auto md:min-h-[560px] bg-black">
+                <img src="/deity/fitness-goddess.png" alt="Arete" className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center"/>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"/>
+              </div>
+              <div className="p-7 md:p-10 flex flex-col justify-center text-center">
+                <small className="font-mono text-[8px] tracking-[.32em] text-gold-core">ARETE // THE PROPHECY REMEMBERS</small>
+                <h2 className="font-display text-2xl md:text-4xl text-white mt-4">THE THUNDERED THRONE AWAITS</h2>
+                <p className="font-serif italic text-base md:text-lg leading-relaxed text-stone-200 mt-5">
+                  I have seen your name written where mortal sinew meets divine will. You are the promised bearer who will raise iron without worshipping pride, endure fire without becoming cruel, and climb until Olympus can no longer call you stranger. Go now. Let every honest repetition become thunder. If you remain faithful to the oath, the road will not merely lead toward Zeus. One day, the heavens will speak your name beside his.
+                </p>
+                <button onClick={finishTutorial} className="mt-7 border border-gold-core bg-gold-core/10 py-3 font-mono text-[9px] font-black tracking-[.2em] text-gold-core hover:bg-gold-core hover:text-black">
+                  CONTINUE TOWARD OLYMPUS
+                </button>
+                <span className="mt-3 font-mono text-[7px] tracking-widest text-stone-600">ARETE WILL DEPART WHEN THE PROPHECY IS ACCEPTED</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* 3-COLUMN LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass">
+        <div className="lg:col-span-5 flex flex-col gap-4 relative" style={{ zIndex: splitDropdownOpen ? 500 : 1 }}>
+          <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass" style={{ position:'relative', zIndex: splitDropdownOpen ? 500 : 1 }}>
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
@@ -221,6 +407,7 @@ export default function Fitness() {
                 {/* Custom Split Dropdown Trigger */}
                 <div className="relative w-full max-w-xs">
                   <button 
+                    id="fitness-split-select"
                     onClick={() => setSplitDropdownOpen(!splitDropdownOpen)}
                     className="w-full bg-black border border-white/10 hover:border-gold-core text-white px-4 py-2.5 rounded font-mono text-[10px] tracking-widest uppercase flex justify-between items-center transition-all"
                   >
@@ -234,7 +421,8 @@ export default function Fitness() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute left-0 right-0 mt-1.5 bg-black border border-white/15 rounded z-50 max-h-[220px] overflow-y-auto custom-scrollbar shadow-2xl"
+                        className="absolute left-0 right-0 mt-1.5 border border-white/15 rounded z-[300] max-h-[220px] overflow-y-auto custom-scrollbar shadow-[0_18px_55px_rgba(0,0,0,.98)] isolate"
+                        style={{ backgroundColor: '#020203', opacity: 1 }}
                       >
                         {splitPresets.map((preset, idx) => (
                           <button
@@ -247,7 +435,8 @@ export default function Fitness() {
                                 handleStartWorkout(preset);
                               }
                             }}
-                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white hover:bg-white/[0.04] px-4 py-2 border-b border-white/5 transition-all"
+                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 transition-all"
+                            style={{ backgroundColor: '#020203' }}
                           >
                             {preset.toUpperCase()}
                           </button>
@@ -301,7 +490,7 @@ export default function Fitness() {
                 </div>
 
                 {/* Add Movement Selector */}
-                <div className="relative">
+                <div id="fitness-movement-selector" className="relative">
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -404,11 +593,16 @@ export default function Fitness() {
                                 {/* Weight Input */}
                                 <div className="flex items-center gap-0.5 flex-1 min-w-0">
                                   <input 
+                                    id="fitness-weight-input"
                                     type="number"
                                     placeholder="KG"
                                     value={setObj.weight || ''}
                                     onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => updateSetInMovement(movement.id, setObj.id, { weight: e.target.value })}
+                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
+                                    onChange={(e) => {
+                                      updateSetInMovement(movement.id, setObj.id, { weight: e.target.value });
+                                      if (Number(e.target.value) > 0) advanceTutorial(3);
+                                    }}
                                     className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
                                   />
                                   <span className="text-[7px] font-mono text-gray-500">KG</span>
@@ -417,11 +611,16 @@ export default function Fitness() {
                                 {/* Reps Input */}
                                 <div className="flex items-center gap-0.5 flex-1 min-w-0">
                                   <input 
+                                    id="fitness-reps-input"
                                     type="number"
                                     placeholder="RPS"
                                     value={setObj.reps || ''}
                                     onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => updateSetInMovement(movement.id, setObj.id, { reps: e.target.value })}
+                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
+                                    onChange={(e) => {
+                                      updateSetInMovement(movement.id, setObj.id, { reps: e.target.value });
+                                      if (Number(e.target.value) > 0) advanceTutorial(4);
+                                    }}
                                     className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
                                   />
                                   <span className="text-[7px] font-mono text-gray-500">RPS</span>
@@ -436,6 +635,7 @@ export default function Fitness() {
                                     placeholder="RPE"
                                     value={setObj.rpe || ''}
                                     onClick={(e) => e.stopPropagation()}
+                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
                                     onChange={(e) => updateSetInMovement(movement.id, setObj.id, { rpe: e.target.value })}
                                     className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
                                   />
@@ -443,9 +643,11 @@ export default function Fitness() {
 
                                 {/* Completed Checkbox */}
                                 <button
+                                  id="fitness-complete-set"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleToggleSetComplete(movement.id, setObj.id, setObj.completed);
+                                    if (!setObj.completed) advanceTutorial(5);
                                   }}
                                   className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${
                                     setObj.completed
@@ -473,6 +675,7 @@ export default function Fitness() {
 
                           {/* Add Set Button */}
                           <button
+                            id="fitness-add-set"
                             onClick={() => addSetToMovement(movement.id, { weight: 0, reps: 0, rpe: 8, type: 'working' })}
                             className="w-full border border-dashed border-white/10 hover:border-gold-core/35 text-[8px] font-mono text-gray-400 hover:text-gold-core py-1 rounded transition-all uppercase tracking-widest flex items-center justify-center gap-1 mt-1"
                           >
@@ -492,13 +695,14 @@ export default function Fitness() {
                   <textarea 
                     placeholder="ENTER TRAINING NOTES (E.G. FEELING STRONG, SLEEP QUALITY, ETC.)" 
                     value={activeWorkout.notes || ''} 
-                    onChange={e => updateActiveWorkoutNotes(e.target.value)} 
+                    onChange={e => updateWorkoutNotes(e.target.value)} 
                     className="w-full bg-black border border-white/10 hover:border-gold-core/30 rounded p-2 text-[9px] text-white font-mono placeholder-gray-600 focus:outline-none focus:border-gold-core h-16 resize-none uppercase"
                   />
                 </div>
 
                 {/* Submit Session Button */}
                 <button
+                  id="fitness-archive"
                   onClick={() => {
                     logWorkout();
                     setFocusedSet(null);
@@ -517,7 +721,7 @@ export default function Fitness() {
             <div className="grid grid-cols-2 gap-4">
               
               {/* RPE Dial Widget */}
-              <OrnatePanel className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel id="fitness-rpe-dial" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-start mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
@@ -626,7 +830,7 @@ export default function Fitness() {
               </OrnatePanel>
 
               {/* Rest Timer Widget */}
-              <OrnatePanel className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-center mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>

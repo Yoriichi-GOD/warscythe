@@ -133,7 +133,7 @@ const getRegionNodeInfo = (mapIdx, nodeId) => {
   return arch[nodeId] || { name: "Unknown Location", desc: "No description available." };
 };
 
-export default function MapSection({ onTabChange }) {
+export default function MapSection({ onTabChange, tutorialHighlightNode = null, onTutorialNodeClick = null, tutorialActive = false }) {
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const { 
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
@@ -160,6 +160,10 @@ export default function MapSection({ onTabChange }) {
   useEffect(() => {
     setActiveMapIndex(level === 0 ? 1 : ((level - 1) % 10) + 1);
   }, [level]);
+
+  useEffect(() => {
+    if (tutorialActive) setActiveMapIndex(1);
+  }, [tutorialActive]);
 
   useEffect(() => {
     if (level > prevLevelRef.current) {
@@ -335,29 +339,6 @@ export default function MapSection({ onTabChange }) {
       exit={{ opacity: 0 }}
       className="campaign-theater relative"
     >
-      {!hasSeenMapGuide && !isTutorialActive && (
-        <div className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto pt-[12vh]">
-          <div className="onboarding-pointer select-pointer max-w-sm" style={{ pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <span className="pointer-tag">GUARDIAN</span>
-                <h4 className="text-[12px] font-serif text-gold-core uppercase tracking-widest mb-1">The Theater of War</h4>
-                <p className="text-[11px] font-serif text-white">
-                  Earn keys by completing operations to unlock regions and rescue fairies. Rescued fairies reward you with stats and multiplier relics.
-                </p>
-              </div>
-              <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
-            </div>
-            <button 
-              type="button" 
-              onClick={() => setHasSeenMapGuide(true)}
-              className="mt-3 text-[9px] font-mono text-gold-core hover:text-white uppercase tracking-wider border border-gold-core/30 px-3 py-1 rounded cursor-pointer self-start bg-black/40 hover:bg-gold-core/10 transition-colors"
-            >
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      )}
       {/* Floating Fire Embers / Ashes */}
       <div className="ember-field">
         {[...Array(15)].map((_, i) => (
@@ -570,38 +551,64 @@ export default function MapSection({ onTabChange }) {
                   })}
                 </svg>
                   
-                {nodes.map(node => (
-                  <motion.div 
-                    key={node.id} 
-                    className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''}`} 
-                    style={{ top: node.top, left: node.left }} 
-                    onClick={() => setSelectedNode(node.id)}
-                  >
-                    {node.id === 'boss' && isBossRescued ? (
-                      <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
-                        <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
-                        <img 
-                          src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
-                          alt="Fairy Empress" 
-                          className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
-                          style={{ filter: currentFilter || 'none' }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <div className={`node-glow ${node.type}`} />
-                        {node.type === 'active' && <div className="current-ping" />}
-                        {node.type === 'locked' && <img src={getAssetUrl('/maps/map-lock-icon.png')} className="lock-icon animate-pulse" alt="Locked" />}
-                        {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
-                      </>
-                    )}
-                    <span className="node-label font-times font-bold">{node.label}</span>
-                    <div className="node-status font-times">{node.status}</div>
-                  </motion.div>
-                ))}
+                {nodes.map(node => {
+                  const isTutorialTarget = tutorialHighlightNode && node.id === tutorialHighlightNode;
+                  const isTutorialBlocked = tutorialHighlightNode && node.id !== tutorialHighlightNode;
+                  return (
+                    <motion.div 
+                      key={node.id} 
+                      className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''} ${isTutorialBlocked ? 'opacity-25 pointer-events-none' : ''}`} 
+                      style={{
+                        top: node.top,
+                        left: node.left,
+                        ...(isTutorialTarget ? { filter: 'drop-shadow(0 0 12px rgba(236,200,128,0.9))' } : {})
+                      }} 
+                      animate={isTutorialTarget ? {
+                        scale: [1, 1.08, 1],
+                        filter: [
+                          'drop-shadow(0 0 8px rgba(236,200,128,0.5))',
+                          'drop-shadow(0 0 20px rgba(236,200,128,1))',
+                          'drop-shadow(0 0 8px rgba(236,200,128,0.5))'
+                        ]
+                      } : {}}
+                      transition={isTutorialTarget ? { repeat: Infinity, duration: 1.4, ease: 'easeInOut' } : {}}
+                      onClick={() => {
+                        if (tutorialHighlightNode) {
+                          if (isTutorialTarget && onTutorialNodeClick) {
+                            setSelectedNode(node.id);
+                            onTutorialNodeClick(node.id);
+                          }
+                          return; // block all other node interactions during tutorial
+                        }
+                        setSelectedNode(node.id);
+                      }}
+                    >
+                      {node.id === 'boss' && isBossRescued ? (
+                        <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
+                          <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
+                          <img 
+                            src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
+                            alt="Fairy Empress" 
+                            className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
+                            style={{ filter: currentFilter || 'none' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div className={`node-glow ${node.type}`} />
+                          {node.type === 'active' && <div className="current-ping" />}
+                          {node.type === 'locked' && <img src={getAssetUrl('/maps/map-lock-icon.png')} className="lock-icon animate-pulse" alt="Locked" />}
+                          {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
+                        </>
+                      )}
+                      <span className="node-label font-times font-bold">{node.label}</span>
+                      <div className="node-status font-times">{node.status}</div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -820,7 +827,11 @@ export default function MapSection({ onTabChange }) {
       {/* 🗺️ TACTICAL NODE INTEL MODAL */}
       <AnimatePresence>
         {selectedNode && (
-          <div className="node-intel-overlay" onClick={() => setSelectedNode(null)}>
+          <div
+            className="node-intel-overlay"
+            style={{ zIndex: tutorialHighlightNode ? 4100 : 2100 }}
+            onClick={() => setSelectedNode(null)}
+          >
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1331,9 +1342,16 @@ export default function MapSection({ onTabChange }) {
           flex-direction: column;
           align-items: center;
           gap: 0.25rem;
-          transform: translate(-50%, -50%);
+          /* The node coordinates describe the center of the glowing marker.
+             Only offset by the marker radius so SVG routes terminate exactly
+             on the visible node instead of the center of the label stack. */
+          transform: translate(-50%, -4px);
           cursor: pointer;
           z-index: 10;
+        }
+
+        @media (min-width: 1024px) {
+          .map-node { transform: translate(-50%, -6px); }
         }
 
         .node-glow {

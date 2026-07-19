@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import { Swords, Dumbbell, Flame, Hammer, Map, Scroll } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 
-export default function EliteNavigation({ activeTab, onTabChange }) {
+export default function EliteNavigation({ activeTab, onTabChange, navigationLocked = false }) {
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
 
   const isTabAllowed = (tabName) => {
+    if (navigationLocked) return tabName === activeTab;
     if (!isTutorialActive) return true;
     if (tutorialStep === 'map_guide' && tabName === 'map') return true;
     if (tutorialStep === 'ops_guide' && tabName === 'ops') return true;
@@ -47,7 +48,9 @@ export default function EliteNavigation({ activeTab, onTabChange }) {
 
   const getTabClass = (tabName) => {
     let classes = `elite-tab ${activeTab === tabName ? 'active' : ''}`;
-    if (isTutorialActive) {
+    if (navigationLocked) {
+      if (activeTab !== tabName) classes += ' pointer-events-none opacity-20 filter grayscale';
+    } else if (isTutorialActive) {
       if (!isTabAllowed(tabName)) {
         classes += ' pointer-events-none opacity-20 filter grayscale';
       } else if (isTabHighlighted(tabName)) {
