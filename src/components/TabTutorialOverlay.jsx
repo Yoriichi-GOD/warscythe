@@ -319,10 +319,10 @@ function HighlightRing({ elementId }) {
   const [pos, setPos] = useState(null);
 
   useEffect(() => {
-    if (currentStep?.highlightId === 'shop-close') {
+    if (elementId === 'shop-close') {
       window.dispatchEvent(new CustomEvent('warscythe:shop-tutorial-close-enabled'));
     }
-  }, [currentStep?.highlightId]);
+  }, [elementId]);
 
   useEffect(() => {
     setPos(null);
@@ -522,19 +522,27 @@ export default function TabTutorialOverlay({
         style={{ background: 'transparent' }}
       />
 
-      {/* Bottom-anchored card */}
-      <div className="fixed bottom-0 inset-x-0 z-[10000] flex justify-center px-4 pb-6 pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-md">
-          <AnimatePresence mode="wait">
-            <GuardianCard
-              key={stepIndex}
-              step={currentStep}
-              onNext={advance}
-              onOpenRitual={() => setShowRitualForm(true)}
-            />
-          </AnimatePresence>
-        </div>
-      </div>
+      {/* Hide the introductory card while the ritual form teaches each field. */}
+      <AnimatePresence>
+        {!showRitualForm && (
+          <motion.div
+            key="tutorial-guardian-card"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 18 }}
+            className="fixed bottom-0 inset-x-0 z-[10000] flex justify-center px-4 pb-6 pointer-events-none"
+          >
+            <div className="pointer-events-auto w-full max-w-md">
+              <GuardianCard
+                key={stepIndex}
+                step={currentStep}
+                onNext={advance}
+                onOpenRitual={() => setShowRitualForm(true)}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Ritual modal in tutorial mode */}
       {showRitualForm && (
