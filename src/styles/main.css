@@ -29,7 +29,7 @@
     color: var(--color-text-primary);
     font-family: var(--font-main);
     overflow-x: hidden;
-    height: 100vh;
+    min-height: 100%;
     transition: background-color 0.5s ease, color 0.3s ease;
   }
 
@@ -107,6 +107,12 @@
   .ritual-card-inner {
     gap: 0.65rem !important;
     padding: 0.8rem !important;
+  }
+
+  html,
+  #root {
+    width: 100%;
+    min-height: 100%;
   }
   .ritual-card-actions,
   .ritual-card-desktop-meta {

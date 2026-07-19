@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -317,6 +317,7 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
 
 function HighlightRing({ elementId }) {
   const [pos, setPos] = useState(null);
+  const revealedElementRef = useRef(null);
 
   useEffect(() => {
     if (elementId === 'shop-close') {
@@ -326,22 +327,29 @@ function HighlightRing({ elementId }) {
 
   useEffect(() => {
     setPos(null);
+    revealedElementRef.current = null;
     const update = () => {
       const el = document.getElementById(elementId);
       if (!el) return;
+      if (revealedElementRef.current !== el) {
+        revealedElementRef.current = el;
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+      }
       const r = el.getBoundingClientRect();
       setPos({ top: r.top - 6, left: r.left - 6, width: r.width + 12, height: r.height + 12 });
     };
     update();
-    const reveal = window.setTimeout(() => {
-      document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
     const retry = window.setInterval(update, 120);
     window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
     return () => {
       window.clearInterval(retry);
-      window.clearTimeout(reveal);
       window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
     };
   }, [elementId]);
 

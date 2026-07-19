@@ -262,10 +262,21 @@ export default function Social() {
   const [leaderboardMode, setLeaderboardMode] = useState('friends');
 
   useEffect(() => {
-    fetchSocialData();
-    const interval = setInterval(fetchSocialData, 10000); // Poll every 10 seconds for real-time states
-    return () => clearInterval(interval);
-  }, []);
+    const refreshVisibleSection = () => {
+      if (document.visibilityState !== 'visible') return;
+      fetchSocialData({ section: activeSubTab });
+    };
+
+    refreshVisibleSection();
+    const interval = setInterval(refreshVisibleSection, 120000);
+    window.addEventListener('focus', refreshVisibleSection);
+    document.addEventListener('visibilitychange', refreshVisibleSection);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', refreshVisibleSection);
+      document.removeEventListener('visibilitychange', refreshVisibleSection);
+    };
+  }, [activeSubTab, fetchSocialData]);
 
   const handleSendRequest = async (e) => {
     e.preventDefault();

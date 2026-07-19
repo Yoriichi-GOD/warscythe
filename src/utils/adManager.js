@@ -7,6 +7,13 @@ const AD_UNITS = {
 };
 
 let AdMobModule = null;
+let getAccountState = () => ({ isAdFree: false });
+
+export const configureAdManager = (accountStateAccessor) => {
+  if (typeof accountStateAccessor === 'function') {
+    getAccountState = accountStateAccessor;
+  }
+};
 
 const getAdMob = async () => {
   if (AdMobModule) return AdMobModule;
@@ -54,8 +61,7 @@ export const AdManager = {
   showBanner: async () => {
     if (!isMobileApp) return;
 
-    const { useWarscytheStore } = await import('../store/useWarscytheStore');
-    const isAdFree = useWarscytheStore.getState().isAdFree;
+    const isAdFree = !!getAccountState().isAdFree;
     if (isAdFree) {
       await AdManager.hideBanner();
       return;
@@ -97,8 +103,7 @@ export const AdManager = {
   showInterstitial: async () => {
     if (!isMobileApp) return;
 
-    const { useWarscytheStore } = await import('../store/useWarscytheStore');
-    const isAdFree = useWarscytheStore.getState().isAdFree;
+    const isAdFree = !!getAccountState().isAdFree;
     if (isAdFree) return;
 
     const admob = await getAdMob();
@@ -129,8 +134,7 @@ export const AdSenseManager = {
   initialize: async () => {
     if (isMobileApp) return;
 
-    const { useWarscytheStore } = await import('../store/useWarscytheStore');
-    const isAdFree = useWarscytheStore.getState().isAdFree;
+    const isAdFree = !!getAccountState().isAdFree;
     if (isAdFree) {
       AdSenseManager.removeAds();
       return;

@@ -2,6 +2,14 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Network } from '@capacitor/network';
 
+let getSyncState = () => null;
+
+export const configureNetworkSync = (syncStateAccessor) => {
+  if (typeof syncStateAccessor === 'function') {
+    getSyncState = syncStateAccessor;
+  }
+};
+
 // Helper to show custom high-fantasy notifications/toasts in UI
 export const triggerToast = (message, type = 'info') => {
   const container = document.getElementById('toast-container');
@@ -106,9 +114,8 @@ export const initNetworkMonitoring = () => {
     const handleNetworkChange = async (status) => {
       const isOnline = status.connected;
       if (isOnline) {
-        const { useWarscytheStore } = await import('../store/useWarscytheStore');
-        const store = useWarscytheStore.getState();
-        if (store.hasPendingChanges) {
+        const store = getSyncState();
+        if (store?.hasPendingChanges) {
           store.forceSync();
         }
       } else {

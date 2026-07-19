@@ -51,6 +51,31 @@ const DIALOGUES = {
   ]
 };
 
+const revealTeachingTarget = (targetId) => {
+  if (!targetId) return;
+
+  let attempts = 0;
+  const reveal = () => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      const isPhone = window.matchMedia('(max-width: 639px)').matches;
+      element.scrollIntoView({
+        behavior: 'smooth',
+        // Phone lessons use a lower-third Guardian card, so the inspected
+        // control belongs in the clear teaching stage above him.
+        block: isPhone ? 'start' : 'center',
+        inline: 'nearest',
+      });
+      return;
+    }
+
+    attempts += 1;
+    if (attempts < 12) window.setTimeout(reveal, 80);
+  };
+
+  window.requestAnimationFrame(reveal);
+};
+
 export default function GuardianOverlay({ progress, onClose, onTutorialAfter }) {
   const [currentPage, setCurrentPage] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
@@ -99,7 +124,11 @@ export default function GuardianOverlay({ progress, onClose, onTutorialAfter }) 
         onClose();
       }
     } else {
-      setCurrentPage(prev => prev + 1);
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      // This moves only the current page's scrollable content. It does not
+      // advance a click lesson or switch tabs on the user's behalf.
+      revealTeachingTarget(pages[nextPage]?.target);
     }
   };
 
@@ -126,8 +155,8 @@ export default function GuardianOverlay({ progress, onClose, onTutorialAfter }) 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         className={`${isContextual
-          ? 'pointer-events-auto fixed right-4 top-[22vh] w-[min(360px,calc(100vw-2rem))] p-5'
-          : 'w-full max-w-xl mx-4 p-8'} flex flex-col items-center bg-zinc-950/95 border border-gold-core/20 rounded-lg shadow-[0_0_60px_rgba(0,0,0,0.85)] relative overflow-hidden`}
+          ? 'pointer-events-auto fixed right-4 top-[22vh] max-sm:top-auto max-sm:bottom-[86px] max-sm:left-3 max-sm:right-3 max-sm:mx-auto w-[min(360px,calc(100vw-1.5rem))] p-5'
+          : 'relative w-full max-w-xl mx-4 p-8'} flex flex-col items-center bg-zinc-950/95 border border-gold-core/20 rounded-lg shadow-[0_0_60px_rgba(0,0,0,0.85)] overflow-hidden`}
       >
         {/* Decorative corner runes */}
         <div className="absolute top-3 left-3 font-mono text-[7px] text-stone-700 tracking-widest">RUNIC_GATEWAY_V4</div>

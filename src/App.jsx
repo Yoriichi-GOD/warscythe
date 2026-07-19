@@ -17,21 +17,21 @@ import CacheAlertPopup from './components/CacheAlertPopup';
 import { ShieldAlert, X, Lock, Terminal, Play } from 'lucide-react';
 import './styles/main.css';
 import DashboardLayout from './components/layout/DashboardLayout';
-import Operations from './pages/Operations';
-import Rituals from './pages/Rituals';
-import QuestMap from './pages/QuestMap';
-import Fitness from './pages/Fitness';
-import Forge from './pages/Forge';
-import Ledger from './pages/Ledger';
-import Social from './pages/Social';
+const Operations = React.lazy(() => import('./pages/Operations'));
+const Rituals = React.lazy(() => import('./pages/Rituals'));
+const QuestMap = React.lazy(() => import('./pages/QuestMap'));
+const Fitness = React.lazy(() => import('./pages/Fitness'));
+const Forge = React.lazy(() => import('./pages/Forge'));
+const Ledger = React.lazy(() => import('./pages/Ledger'));
+const Social = React.lazy(() => import('./pages/Social'));
 import InfoModal from './components/InfoModal';
 import VideoGuideModal from './components/VideoGuideModal';
 import { infoData } from './data/infoDescriptions';
 import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
-import { AdManager, AdSenseManager } from './utils/adManager';
+import { AdManager, AdSenseManager, configureAdManager } from './utils/adManager';
 import ScratchCard from './components/ScratchCard';
-import { initNetworkMonitoring } from './utils/nativeTriggers';
+import { initNetworkMonitoring, configureNetworkSync } from './utils/nativeTriggers';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
@@ -49,6 +49,10 @@ import LoreModal from './components/LoreModal';
 import WarTerminal from './components/command/WarTerminal';
 import TutorialEndFlash from './components/TutorialEndFlash';
 import { REGIONS } from './store/constants';
+
+configureAdManager(() => useWarscytheStore.getState());
+configureNetworkSync(() => useWarscytheStore.getState());
+
 const PROPHECIES = [
   "Your brain accelerates when stakes are high. The chaos you feel is your processor scaling. Trust it.",
   "Fatigue is data, not failure.",
@@ -585,7 +589,7 @@ export default function App() {
 
       {/* Sticky Walkthrough Guide Banner */}
       {!guideBannerDismissed && (
-        <div className="w-full bg-zinc-950/90 border-b border-gold-core/25 backdrop-blur-md px-4 py-2 flex items-center justify-between z-40 text-left relative">
+        <div className="w-full shrink-0 bg-zinc-950/90 border-b border-gold-core/25 backdrop-blur-md px-4 py-2 flex items-center justify-between z-40 text-left relative">
           <div 
             onClick={() => openVideoModal('global_intro')}
             className="flex items-center gap-2.5 text-gold-core hover:text-white transition-colors cursor-pointer group flex-1 mr-4"
@@ -607,13 +611,18 @@ export default function App() {
         </div>
       )}
       
-      <main className="flex-1 w-full overflow-hidden relative">
+      <main className="flex-1 min-h-0 w-full overflow-hidden relative">
+        <React.Suspense fallback={(
+          <div className="h-full w-full grid place-items-center bg-black text-gold-core font-mono text-[10px] tracking-[0.3em]">
+            OPENING TACTICAL SECTOR...
+          </div>
+        )}>
         {/* Persistent Tab Pages for Smooth Mobile Switching */}
         <div 
           style={{ display: activeTab === 'ops' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar"
         >
-          <Operations 
+          {activeTab === 'ops' && <Operations
             onAddTask={() => {
               setTaskModalInitialEffort('Medium');
               setShowTaskModal(true);
@@ -624,7 +633,7 @@ export default function App() {
               setShowRealityLock(true);
             }}
             onOpenGymLog={() => setActiveTab('fitness')}
-          />
+          />}
         </div>
 
         <div 
@@ -632,11 +641,11 @@ export default function App() {
           style={{ display: activeTab === 'fitness' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          <Fitness
+          {activeTab === 'fitness' && <Fitness
             tutorialActive={fitnessTutorialActive}
             onTutorialComplete={() => setFitnessTutorialActive(false)}
-          />
-          {onboardingActive && !hasSeenFitnessPeek && (
+          />}
+          {activeTab === 'fitness' && onboardingActive && !hasSeenFitnessPeek && (
             <FitnessOathGate
               onComplete={() => {
                 useWarscytheStore.getState().setHasSeenFitnessPeek(true);
@@ -650,7 +659,7 @@ export default function App() {
           style={{ display: activeTab === 'rituals' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {onboardingActive && onboardingProgress < 3 ? (
+          {activeTab === 'rituals' && (onboardingActive && onboardingProgress < 3 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
               <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
                 <Rituals onAddTask={() => {}} />
@@ -659,14 +668,14 @@ export default function App() {
             </div>
           ) : (
             <Rituals onAddTask={() => setShowRitualModal(true)} />
-          )}
+          ))}
         </div>
 
         <div 
           style={{ display: activeTab === 'forge' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {onboardingActive && onboardingProgress < 3 ? (
+          {activeTab === 'forge' && (onboardingActive && onboardingProgress < 3 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
               <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
                 <Forge onOpenShop={() => {}} />
@@ -675,14 +684,14 @@ export default function App() {
             </div>
           ) : (
             <Forge onOpenShop={() => setShowShopModal(true)} />
-          )}
+          ))}
         </div>
         
         <div 
           style={{ display: activeTab === 'map' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar relative"
         >
-          {onboardingActive && onboardingProgress < 5 ? (
+          {activeTab === 'map' && (onboardingActive && onboardingProgress < 5 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
               <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
                 <QuestMap onTabChange={() => {}} />
@@ -703,14 +712,14 @@ export default function App() {
             onTutorialNodeClick={(nodeId) => setTutorialMapNodeClicked(nodeId)}
             tutorialActive={postGuardianTutorial === 'quest_map_intro'}
             />
-          )}
+          ))}
         </div>
         
         <div 
           style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {onboardingActive && onboardingProgress < 4 ? (
+          {activeTab === 'ledger' && (onboardingActive && onboardingProgress < 4 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
               <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
                 <Ledger initialSubTab={ledgerSubTab} onSubTabChange={() => {}} />
@@ -719,14 +728,14 @@ export default function App() {
             </div>
           ) : (
             <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
-          )}
+          ))}
         </div>
 
         <div 
           style={{ display: activeTab === 'social' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {onboardingActive && onboardingProgress < 7 ? (
+          {activeTab === 'social' && (onboardingActive && onboardingProgress < 7 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
               <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
                 <Social />
@@ -735,8 +744,9 @@ export default function App() {
             </div>
           ) : (
             <Social />
-          )}
+          ))}
         </div>
+        </React.Suspense>
       </main>
 
       <EliteNavigation 

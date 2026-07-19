@@ -10,6 +10,18 @@ import {
   EFFORT_MULT, TASKS_PER_LEVEL, MAX_TASKS, POINTS_BASE
 } from './constants';
 import { REGIONAL_CHRONICLES } from './regionalLore';
+import { applyArtifactLore } from '../data/artifactLore';
+import {
+  combineDomainState,
+  createDomainPayloads,
+  createProgressionEvent,
+  getDomainsForFields,
+  getDeviceUuid,
+  isSyncV2Unavailable,
+  nextDeviceSequence,
+  recordProgressionEvents,
+  syncDomain,
+} from './syncV2';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const generateUUID = () => {
@@ -41,9 +53,31 @@ const getRedirectUrl = () => {
 let isSyncingFromServer = false;
 let hasFetchedInitialState = false;
 let lastState = null;
-let currentSyncPromise = null;
-let nextSyncQueued = false;
-let watchdogTimeout = null;
+const domainSyncQueues = new Map();
+let socialFetchPromise = null;
+let leaderboardEventWritesDisabled = false;
+const SOCIAL_CACHE_TTL_MS = 60_000;
+const socialFetchedAt = {
+  friends: 0,
+  leaderboard: 0,
+  legion: 0
+};
+
+const enqueueDomainSync = (domain, operation) => {
+  const previous = domainSyncQueues.get(domain) || Promise.resolve();
+  const queued = previous
+    .catch(() => undefined)
+    .then(operation);
+
+  domainSyncQueues.set(domain, queued);
+  const release = () => {
+    if (domainSyncQueues.get(domain) === queued) {
+      domainSyncQueues.delete(domain);
+    }
+  };
+  queued.then(release, release);
+  return queued;
+};
 
 const normalizeTask = (task) => {
   if (!task) return task;
@@ -97,8 +131,29 @@ const mergeState = (local, saved) => {
     .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id))
     .map(normalizeTask);
   const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
+  const ritualCompletionEvents = mergeArraysById(
+    (local.ritualCompletionEvents || []).map(event => ({
+      ...event,
+      id: event.id || `${event.ritualUuid}:${event.date || event.occurredAt?.slice(0, 10)}`,
+    })),
+    (saved.ritualCompletionEvents || saved.completionEvents || []).map(event => ({
+      ...event,
+      id: event.id || `${event.ritualUuid}:${event.date || event.occurredAt?.slice(0, 10)}`,
+    })),
+    'id',
+    'occurredAt'
+  );
   const gymLog = mergeArraysById(local.gymLog || [], saved.gymLog || [], 'id', 'date');
-  const collectedArtifacts = mergeArraysById(local.collectedArtifacts || [], saved.collectedArtifacts || [], 'name', 'date');
+  const normalizeArtifact = artifact => ({
+    ...applyArtifactLore(artifact),
+    rewardEventId: artifact.rewardEventId || artifact.eventUuid || `${artifact.name || 'artifact'}:${artifact.date || 'legacy'}`,
+  });
+  const collectedArtifacts = mergeArraysById(
+    (local.collectedArtifacts || []).map(normalizeArtifact),
+    (saved.collectedArtifacts || []).map(normalizeArtifact),
+    'rewardEventId',
+    'date'
+  );
 
   // Primatives / Metrics
   const xp = Math.max(local.xp || 0, saved.xp || 0);
@@ -248,6 +303,7 @@ const mergeState = (local, saved) => {
   return {
     tasks,
     rituals,
+    ritualCompletionEvents,
     completedTasks,
     abandonedTasks,
     gymLog,
@@ -395,6 +451,8 @@ export const useWarscytheStore = create(
       coins: 0,
       gymLog: [],
       activeWorkout: null,
+      ritualCompletionEvents: [],
+      pendingProgressionEvents: [],
       hasCompletedTutorial: false,
       tutorialStep: 'task_creation',
       firstTaskCompleted: false,
@@ -454,31 +512,21 @@ export const useWarscytheStore = create(
       },
       equipTitle: (title) => {
         set({ currentTitle: title });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
       unlockTitle: (title) => {
         set(state => {
           const unlockedTitles = Array.from(new Set([...state.unlockedTitles, title]));
           return { unlockedTitles };
         });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
       setOnboardingProgress: (val) => {
         set({ onboardingProgress: val });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
       setOnboardingActive: (val) => {
         set({ onboardingActive: val });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
       clearPendingGuardian: () => {
         set({ pendingGuardianProgress: null });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
       setPostGuardianTutorial: (val) => set({ postGuardianTutorial: val }),
       clearPostGuardianTutorial: () => set({ postGuardianTutorial: null }),
@@ -506,8 +554,6 @@ export const useWarscytheStore = create(
             tutorialStep
           };
         });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
 
       openInfoModal: (sectionId, featureId = null) => set({
@@ -661,6 +707,8 @@ export const useWarscytheStore = create(
           coins: 0,
           gymLog: [],
           activeWorkout: null,
+          ritualCompletionEvents: [],
+          pendingProgressionEvents: [],
           hasCompletedTutorial: false,
           tutorialStep: 'task_creation',
           firstTaskCompleted: false,
@@ -845,13 +893,35 @@ export const useWarscytheStore = create(
           
           // Direct fetch to bypass client-side library hangs/locks
           const fetchPromise = (async () => {
-            const response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=state,username`, {
+            const profileColumns = [
+              'state',
+              'username',
+              'operations_state',
+              'fitness_state',
+              'rituals_state',
+              'inventory_state',
+              'statistics_state',
+              'settings_state',
+            ].join(',');
+            let response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=${profileColumns}`, {
               method: 'GET',
               headers: {
                 'apikey': supabaseAnonKey,
                 'Authorization': `Bearer ${jwt}`
               }
             });
+            // A client can be deployed before the database migration reaches a
+            // particular environment. Fall back to the legacy blob without
+            // locking the user out of Warscythe.
+            if (!response.ok && response.status === 400) {
+              response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=state,username`, {
+                method: 'GET',
+                headers: {
+                  'apikey': supabaseAnonKey,
+                  'Authorization': `Bearer ${jwt}`
+                }
+              });
+            }
             if (!response.ok) {
               const errBody = await response.text();
               throw new Error(`PostgREST error ${response.status}: ${errBody}`);
@@ -883,9 +953,9 @@ export const useWarscytheStore = create(
             } else {
               console.error('Error fetching user state:', error.message);
             }
-          } else if (data && data.state) {
+          } else if (data && (data.state || data.operations_state)) {
             console.log(`[SYNC TRACE] fetchUserState: profile state found. Merging...`);
-            const saved = data.state;
+            const saved = combineDomainState(data);
             const merged = mergeState(get(), saved);
             set({
               ...merged,
@@ -951,10 +1021,9 @@ export const useWarscytheStore = create(
               return { unlockedTitles };
             });
 
-            console.log(`[SYNC TRACE] fetchUserState: triggering parity write back to database...`);
-            // Immediately write the merged state back to the server to ensure parity
-            await get().saveUserState(userId);
-            console.log(`[SYNC TRACE] fetchUserState: parity write completed.`);
+            // A successful hydration is read-only. The normal debounced sync will
+            // persist the next genuine local mutation instead of echoing the entire
+            // profile payload back on every login.
           } else {
             console.log(`[SYNC TRACE] fetchUserState: profile row exists but state is empty or null.`);
           }
@@ -991,12 +1060,15 @@ export const useWarscytheStore = create(
         set({ username });
       },
 
-      saveUserState: async (userId) => {
+      saveUserState: async (userId, requestedDomains = null) => {
         if (import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true') {
           set({ syncStatus: 'realm', hasPendingChanges: false });
           return;
         }
-        console.log(`[SYNC TRACE] saveUserState CALLED at ${performance.now().toFixed(1)}ms — lock=${currentSyncPromise !== null} — caller stack:`, new Error().stack);
+        const domains = requestedDomains?.length
+          ? [...new Set(requestedDomains)]
+          : ['operations', 'fitness', 'rituals', 'inventory', 'settings'];
+        console.log(`[SYNC TRACE] saveUserState CALLED at ${performance.now().toFixed(1)}ms — domains=${domains.join(',')} — caller stack:`, new Error().stack);
         const u = userId || get().user?.id;
         if (!u) {
           console.error('[Warscythe Sync Debug] saveUserState returned early: no user ID');
@@ -1008,88 +1080,70 @@ export const useWarscytheStore = create(
           return;
         }
 
-        // 1. Single-Flight / Mutex Lock Guard
-        if (currentSyncPromise) {
-          if (!nextSyncQueued) {
-            console.log('[Warscythe Sync Debug] Sync is currently in-flight. Queueing next sync...');
-            nextSyncQueued = true;
-            await currentSyncPromise;
-            nextSyncQueued = false;
-            await get().saveUserState(userId);
-          }
-          return;
-        }
-
-        // Establish current sync run lock
-        let resolveSync;
-        currentSyncPromise = new Promise((resolve) => {
-          resolveSync = resolve;
-        });
-
-        // 2. Watchdog Safety Net
-        if (watchdogTimeout) clearTimeout(watchdogTimeout);
-        watchdogTimeout = setTimeout(() => {
+        // Each domain has its own single-flight queue. Unrelated domains can
+        // upload concurrently without blocking or overwriting one another.
+        const watchdogTimeout = setTimeout(() => {
           if (useWarscytheStore.getState().syncStatus === 'pending') {
             console.error('[Warscythe Sync Debug] Watchdog triggered: forcing syncStatus to failed.');
             useWarscytheStore.setState({ syncStatus: 'failed' });
           }
         }, 10000); // 10 second safety watchdog
 
-        // 3. Upsert Wrapper with Timeout Race & 401 Token Refresh
+        // 3. Sync V2 domain merge with a legacy fallback during migration rollout.
         const performUpsert = async (retryOn401 = true) => {
           const state = get();
-          const payload = {
-            tasks: state.tasks,
-            rituals: state.rituals,
-            completedTasks: state.completedTasks,
-            abandonedTasks: state.abandonedTasks,
-            executionScore: state.executionScore,
-            dailyLog: state.dailyLog,
-            notes: state.notes,
-            level: state.level,
-            totalCompletions: state.totalCompletions,
-            currentLevelProgress: state.currentLevelProgress,
-            collectedArtifacts: state.collectedArtifacts,
-            unlockedLore: state.unlockedLore,
-            currentTitle: state.currentTitle,
-            consecutiveLow: state.consecutiveLow,
-            streakCount: state.streakCount,
-            xp: state.xp,
-            scytheLevel: state.scytheLevel,
-            lastActiveDate: state.lastActiveDate,
-            bossKills: state.bossKills,
-            unlockedScythes: state.unlockedScythes,
-            unlockedThemes: state.unlockedThemes,
-            activeScytheSkin: state.activeScytheSkin,
-            activeTheme: state.activeTheme,
-            downloadedRegions: state.downloadedRegions,
-            scytheMigrationDone: state.scytheMigrationDone,
-            coins: state.coins,
-            gymLog: state.gymLog,
-            activeWorkout: state.activeWorkout,
-            hasCompletedTutorial: state.hasCompletedTutorial,
-            tutorialStep: state.tutorialStep,
-            firstTaskCompleted: state.firstTaskCompleted,
-            dailyPoints: state.dailyPoints,
-            lastResetDate: state.lastResetDate,
-            rescuedFairies: state.rescuedFairies,
-            soundscapeEnabled: state.soundscapeEnabled,
-            soundscapeVolume: state.soundscapeVolume,
-            onboardingProgress: state.onboardingProgress,
-            onboardingActive: state.onboardingActive,
-            unlockedTitles: state.unlockedTitles,
-            pendingGuardianProgress: state.pendingGuardianProgress,
-            referralSource: state.referralSource
-          };
+          const allDomainPayloads = createDomainPayloads(state);
+          const domainPayloads = Object.fromEntries(
+            Object.entries(allDomainPayloads).filter(([domain]) => domains.includes(domain))
+          );
+          const statisticsPayload = Object.fromEntries([
+            'xp', 'level', 'streakCount', 'coins', 'bossKills', 'dailyPoints',
+            'executionScore', 'totalCompletions', 'currentLevelProgress',
+            'scytheLevel', 'weeklyPoints',
+          ].map(key => [key, state[key]]));
+          const legacyPayload = Object.assign(
+            {},
+            allDomainPayloads.operations,
+            allDomainPayloads.fitness,
+            allDomainPayloads.rituals,
+            allDomainPayloads.inventory,
+            allDomainPayloads.settings,
+            statisticsPayload,
+          );
 
-          // Wrap database upsert inside a promise
-          const upsertPromise = (async () => {
-            const { error } = await supabase.from('profiles').upsert({
-              id: u,
-              state: payload,
-              updated_at: new Date().toISOString()
-            });
-            return { error };
+          const syncPromise = (async () => {
+            try {
+              let authoritativeStatistics = null;
+              const pendingEvents = state.pendingProgressionEvents || [];
+              if (pendingEvents.length > 0) {
+                const progression = await enqueueDomainSync(
+                  'progression',
+                  () => recordProgressionEvents(pendingEvents)
+                );
+                authoritativeStatistics = progression.statistics;
+                set(current => ({
+                  pendingProgressionEvents: (current.pendingProgressionEvents || [])
+                    .filter(event => !progression.confirmed.includes(event.eventUuid)),
+                  ...(authoritativeStatistics || {}),
+                }));
+              }
+
+              await Promise.all(
+                Object.entries(domainPayloads).map(([domain, payload]) => (
+                  enqueueDomainSync(domain, () => syncDomain(domain, payload))
+                ))
+              );
+              return { error: null, mode: 'v2' };
+            } catch (error) {
+              if (!isSyncV2Unavailable(error)) throw error;
+              console.warn('[SYNC V2] Migration is not installed in this environment; using the legacy profile blob.');
+              const { error: legacyError } = await supabase.from('profiles').upsert({
+                id: u,
+                state: legacyPayload,
+                updated_at: new Date().toISOString(),
+              });
+              return { error: legacyError, mode: 'legacy' };
+            }
           })();
 
           // 8 second timeout promise
@@ -1097,8 +1151,7 @@ export const useWarscytheStore = create(
             setTimeout(() => reject(new Error('Sync request timed out after 8 seconds')), 8000);
           });
 
-          // Race the upsert call against the 8 second timeout
-          const { error } = await Promise.race([upsertPromise, timeoutPromise]);
+          const { error } = await Promise.race([syncPromise, timeoutPromise]);
 
           if (error) {
             // Check for 401 Unauthorized / stale token error
@@ -1122,17 +1175,13 @@ export const useWarscytheStore = create(
 
         try {
           await performUpsert(true);
-          if (watchdogTimeout) clearTimeout(watchdogTimeout);
+          clearTimeout(watchdogTimeout);
           console.error('[Warscythe Sync Debug] Save query successful!');
           set({ syncStatus: 'synced', hasPendingChanges: false });
         } catch (err) {
-          if (watchdogTimeout) clearTimeout(watchdogTimeout);
+          clearTimeout(watchdogTimeout);
           console.error('[Warscythe Sync Debug] Exception/failure during upsert execution:', err.message || err);
           set({ syncStatus: 'failed' });
-        } finally {
-          // Release lock and resolve promise
-          currentSyncPromise = null;
-          resolveSync();
         }
       },
 
@@ -1190,6 +1239,7 @@ export const useWarscytheStore = create(
 
         const newTask = {
           id: genId(),
+          taskUuid: null,
           title,
           category,
           effort,
@@ -1202,8 +1252,12 @@ export const useWarscytheStore = create(
           notes: '',
           microSteps,
           lastProgressUpdate: new Date().toISOString(),
-          isTutorialTask: !get().firstTaskCompleted
+          isTutorialTask: !get().firstTaskCompleted,
+          deviceUuid: getDeviceUuid(),
+          deviceSequence: nextDeviceSequence(),
+          syncStatus: 'pending',
         };
+        newTask.taskUuid = newTask.id;
 
         set(state => {
           const updates = { tasks: [...state.tasks, newTask] };
@@ -1218,6 +1272,7 @@ export const useWarscytheStore = create(
       addRitual: (title, frequency, effort, targetTime = null) => {
         const newRitual = {
           id: genId(),
+          ritualUuid: null,
           title,
           frequency, // 'daily' | 'weekly'
           effort,    // 'Low' | 'Medium' | 'High' | 'Boss'
@@ -1226,8 +1281,12 @@ export const useWarscytheStore = create(
           lastCompletedAt: null,
           createdAt: new Date().toISOString(),
           targetTime,
-          lastNotifiedInterval: null
+          lastNotifiedInterval: null,
+          deviceUuid: getDeviceUuid(),
+          deviceSequence: nextDeviceSequence(),
+          syncStatus: 'pending',
         };
+        newRitual.ritualUuid = newRitual.id;
         set(state => ({
           rituals: [...(state.rituals || []), newRitual]
         }));
@@ -1317,6 +1376,11 @@ export const useWarscytheStore = create(
         // Determine if this is a tutorial task BEFORE using it below
         const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
         task.isTutorialTask = isTutorialTask;
+        task.taskUuid = task.taskUuid || task.id;
+        task.deviceUuid = task.deviceUuid || getDeviceUuid();
+        task.deviceSequence = task.deviceSequence || nextDeviceSequence();
+        task.syncStatus = 'pending';
+        const artifact = applyArtifactLore(reward.artifact);
 
         // Daily Points and Daily-based Scythe Level Reset
         const dailyPoints = isTutorialTask ? state.dailyPoints : state.dailyPoints + totalPts;
@@ -1332,6 +1396,19 @@ export const useWarscytheStore = create(
         // Digital Coins Award
         const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
         const newCoins = state.coins + coinReward;
+        const progressionEvent = createProgressionEvent({
+          eventType: 'operation_completed',
+          sourceUuid: task.taskUuid,
+          xpAwarded: totalPts,
+          coinsAwarded: coinReward,
+          metadata: {
+            isBoss,
+            countsForProgression: !isTutorialTask,
+            effort: task.effort,
+            regionAtCompletion: state.level,
+          },
+        });
+        task.eventUuid = progressionEvent.eventUuid;
 
         const today = todayKey();
         const dailyLog = { ...state.dailyLog };
@@ -1462,9 +1539,13 @@ export const useWarscytheStore = create(
           pendingTitleUnlock,
           consecutiveLow,
           collectedArtifacts: [...state.collectedArtifacts, {
-            ...reward.artifact,
+            ...artifact,
             rarity: reward.rarity,
             date: new Date().toISOString(),
+            rewardEventId: progressionEvent.eventUuid,
+            deviceUuid: getDeviceUuid(),
+            deviceSequence: progressionEvent.deviceSequence,
+            syncStatus: 'pending',
             context: isTutorialTask
               ? "Forged during your Tactical Onboarding. Your journey has begun."
               : `Forged on Day ${state.streakCount} of the Quest.`,
@@ -1473,7 +1554,15 @@ export const useWarscytheStore = create(
               : `Claimed during a ${task.effort || 'Moderate'} Resistance Strike.`
           }],
           unlockedLore,
-          pendingReward: { reward, basePts, totalPts, fragment, taskTitle: task.title, keyElement },
+          pendingReward: {
+            reward: { ...reward, artifact },
+            basePts,
+            totalPts,
+            fragment: artifact.hook || artifact.lore || fragment,
+            taskTitle: task.title,
+            keyElement
+          },
+          pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
           pendingLevelUp,
           pendingVictoryScreen,
           closerDismissed: false,
@@ -1533,6 +1622,7 @@ export const useWarscytheStore = create(
         const mult = EFFORT_MULT[ritual.effort] || 1;
         let basePts = Math.round(POINTS_BASE * mult);
         const reward = rollReward(ritual.effort === 'Boss');
+        const artifact = applyArtifactLore(reward.artifact);
 
         const totalPts = basePts + reward.bonusPts;
         const newXP = state.xp + totalPts;
@@ -1549,6 +1639,24 @@ export const useWarscytheStore = create(
         // Digital Coins Award
         const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
         const newCoins = state.coins + coinReward;
+        const progressionEvent = createProgressionEvent({
+          eventType: 'ritual_completed',
+          sourceUuid: `${ritual.ritualUuid || ritual.id}:${today}`,
+          xpAwarded: totalPts,
+          coinsAwarded: coinReward,
+          metadata: { effort: ritual.effort, ritualUuid: ritual.ritualUuid || ritual.id },
+        });
+        const ritualCompletionEvent = {
+          id: `${ritual.ritualUuid || ritual.id}:${today}`,
+          eventUuid: progressionEvent.eventUuid,
+          ritualUuid: ritual.ritualUuid || ritual.id,
+          date: today,
+          occurredAt: progressionEvent.occurredAt,
+          deviceUuid: progressionEvent.deviceUuid,
+          deviceSequence: progressionEvent.deviceSequence,
+          syncStatus: 'pending',
+        };
+        ritual.syncStatus = 'pending';
 
         const dailyLog = { ...state.dailyLog };
         if (!dailyLog[today]) dailyLog[today] = { completed: 0, weight: 0 };
@@ -1567,13 +1675,26 @@ export const useWarscytheStore = create(
           coins: newCoins,
           scytheLevel: newScytheLevel,
           collectedArtifacts: [...state.collectedArtifacts, {
-            ...reward.artifact,
+            ...artifact,
             rarity: reward.rarity,
             date: new Date().toISOString(),
+            rewardEventId: progressionEvent.eventUuid,
+            deviceUuid: progressionEvent.deviceUuid,
+            deviceSequence: progressionEvent.deviceSequence,
+            syncStatus: 'pending',
             context: `Forged on Day ${state.streakCount} of the Quest.`,
             effortContext: `Claimed during a Daily Ritual Strike.`
           }],
-          pendingReward: { reward, basePts, totalPts, fragment: null, taskTitle: ritual.title, keyElement: null },
+          ritualCompletionEvents: [...(state.ritualCompletionEvents || []), ritualCompletionEvent],
+          pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
+          pendingReward: {
+            reward: { ...reward, artifact },
+            basePts,
+            totalPts,
+            fragment: artifact.hook || artifact.lore,
+            taskTitle: ritual.title,
+            keyElement: null
+          },
           pendingLevelUp: null,
           pendingVictoryScreen: null,
           closerDismissed: false,
@@ -1585,7 +1706,7 @@ export const useWarscytheStore = create(
         ph.capture('ritual_conquered', {
           effort: ritual.effort,
           pts: totalPts,
-          level_up: !!pendingLevelUp
+          level_up: false
         });
 
         triggerHaptics(ritual.effort === 'Boss' ? 'HEAVY' : 'MEDIUM');
@@ -2143,10 +2264,19 @@ export const useWarscytheStore = create(
           }
 
           const newWorkout = {
+            ...finalWorkout,
             id: genId(),
+            eventUuid: generateUUID(),
             date: new Date().toISOString(),
-            ...finalWorkout
+            deviceUuid: getDeviceUuid(),
+            deviceSequence: nextDeviceSequence(),
+            syncStatus: 'pending',
           };
+          const progressionEvent = createProgressionEvent({
+            eventType: 'workout_archived',
+            sourceUuid: newWorkout.eventUuid,
+            metadata: { workoutId: newWorkout.id },
+          });
           // Trigger interstitial ad at workout completion
           import('../utils/adManager')
             .then(({ AdManager }) => AdManager.showInterstitial())
@@ -2154,7 +2284,8 @@ export const useWarscytheStore = create(
 
           return {
             gymLog: [newWorkout, ...(state.gymLog || [])],
-            activeWorkout: null
+            activeWorkout: null,
+            pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
           };
         });
       },
@@ -2263,8 +2394,6 @@ export const useWarscytheStore = create(
 
       setHasSeenFitnessPeek: (val) => {
         set({ hasSeenFitnessPeek: val });
-        const u = get().user?.id;
-        if (u) get().saveUserState(u);
       },
 
       recalculateState: () => {
@@ -2303,11 +2432,33 @@ export const useWarscytheStore = create(
       },
 
       // Social & Legion Actions
-      fetchSocialData: async () => {
+      fetchSocialData: async (options = {}) => {
         const u = get().user?.id;
         if (!u) return;
 
-        try {
+        const section = typeof options === 'string' ? options : (options.section || 'all');
+        // Existing mutation actions call this with no arguments and therefore
+        // require an immediate authoritative refresh. Screen-driven reads pass a
+        // section and use the TTL cache.
+        const force = typeof options === 'object'
+          && (options.force === true || Object.keys(options).length === 0);
+        const requestedSections = section === 'all'
+          ? ['friends', 'leaderboard', 'legion']
+          : [section];
+        const now = Date.now();
+        const isFresh = requestedSections.every(key => now - socialFetchedAt[key] < SOCIAL_CACHE_TTL_MS);
+        if (!force && isFresh) return;
+        if (socialFetchPromise) return socialFetchPromise;
+
+        socialFetchPromise = (async () => {
+          try {
+          const needsFriends = section === 'all' || section === 'friends' || section === 'leaderboard' || section === 'legion';
+          const needsLeaderboard = section === 'all' || section === 'leaderboard';
+          const needsLegion = section === 'all' || section === 'legion';
+          let friendIds = [];
+          let friendData = get().friendships || [];
+
+          if (needsFriends) {
           const { data: friendData, error: friendErr } = await supabase
             .from('friendships')
             .select(`
@@ -2320,14 +2471,20 @@ export const useWarscytheStore = create(
             `)
             .or(`requester_id.eq.${u},receiver_id.eq.${u}`);
 
-          let friendIds = [];
           if (!friendErr && friendData) {
             set({ friendships: friendData });
             friendIds = friendData
               .filter(f => f.status === 'accepted')
               .map(f => f.requester_id === u ? f.receiver_id : f.requester_id);
+            socialFetchedAt.friends = Date.now();
+          }
+          } else {
+            friendIds = friendData
+              .filter(f => f.status === 'accepted')
+              .map(f => f.requester_id === u ? f.receiver_id : f.requester_id);
           }
 
+          if (needsLeaderboard) {
           const weekStart = getWeekStart();
           const targetUserIds = [u, ...friendIds];
           const { data: leadData, error: leadErr } = await supabase
@@ -2365,7 +2522,10 @@ export const useWarscytheStore = create(
           if (!eventErr && eventData) {
             set({ leaderboardEvents: eventData });
           }
+          socialFetchedAt.leaderboard = Date.now();
+          }
 
+          if (needsLegion) {
           const { data: memberRows, error: memberRowsErr } = await supabase
             .from('legion_members')
             .select('legion_id')
@@ -2379,7 +2539,7 @@ export const useWarscytheStore = create(
 
             const { data: legionData } = await supabase
               .from('legions')
-              .select('*')
+              .select('id,name,creator_id,owner_id,level,total_xp,created_at')
               .eq('id', legionId)
               .single();
 
@@ -2398,9 +2558,10 @@ export const useWarscytheStore = create(
 
             const { data: ops } = await supabase
               .from('legion_operations')
-              .select('*')
+              .select('id,legion_id,parent_task_id,status,deadline,created_at,locked_at,completed_at')
               .eq('legion_id', legionId)
-              .order('created_at', { ascending: false });
+              .order('created_at', { ascending: false })
+              .limit(30);
 
             let subtasks = [];
             if (ops && ops.length > 0) {
@@ -2408,7 +2569,21 @@ export const useWarscytheStore = create(
               const { data: subData } = await supabase
                 .from('legion_subtasks')
                 .select(`
-                  *,
+                  id,
+                  legion_operation_id,
+                  assigned_to,
+                  task_id,
+                  title,
+                  deadline,
+                  priority,
+                  acceptance_status,
+                  completion_status,
+                  completed_by,
+                  xp_value,
+                  xp_awarded,
+                  note,
+                  restrained_at,
+                  restrained_by,
                   assignee:profiles!legion_subtasks_assigned_to_fkey(id, username, state)
                 `)
                 .in('legion_operation_id', opIds);
@@ -2417,7 +2592,7 @@ export const useWarscytheStore = create(
 
             const { data: lEvents } = await supabase
               .from('legion_events')
-              .select('*')
+              .select('id,legion_id,event_type,actor_id,target_id,metadata,created_at')
               .eq('legion_id', legionId)
               .order('created_at', { ascending: false })
               .limit(15);
@@ -2445,9 +2620,16 @@ export const useWarscytheStore = create(
               legionEvents: []
             });
           }
-        } catch (err) {
-          console.error("fetchSocialData error:", err);
-        }
+          socialFetchedAt.legion = Date.now();
+          }
+          } catch (err) {
+            console.error("fetchSocialData error:", err);
+          } finally {
+            socialFetchPromise = null;
+          }
+        })();
+
+        return socialFetchPromise;
       },
 
       sendFriendRequest: async (identifier) => {
@@ -2993,16 +3175,27 @@ export const useWarscytheStore = create(
 
       recordWeeklyEvent: async (eventType, description) => {
         const u = get().user?.id;
-        if (!u) return;
+        if (!u || leaderboardEventWritesDisabled) return;
 
         try {
-          await supabase
+          const { error } = await supabase
             .from('leaderboard_events')
             .insert({
               user_id: u,
               event_type: eventType,
               event_description: description
             });
+          if (error) {
+            const isPermanentPolicyFailure = error.code === '42501'
+              || error.status === 401
+              || error.status === 403;
+            if (isPermanentPolicyFailure) {
+              leaderboardEventWritesDisabled = true;
+              console.warn('Leaderboard event writes disabled for this session because the server policy rejected them.');
+              return;
+            }
+            throw error;
+          }
         } catch (err) {
           console.error("recordWeeklyEvent error:", err);
         }
@@ -3131,6 +3324,11 @@ useWarscytheStore.subscribe((state) => {
       hasSeenForgeGuide: state.hasSeenForgeGuide,
       hasSeenRitualsGuide: state.hasSeenRitualsGuide,
       hasSeenFitnessPeek: state.hasSeenFitnessPeek,
+      currentTitle: state.currentTitle,
+      unlockedTitles: state.unlockedTitles,
+      onboardingProgress: state.onboardingProgress,
+      onboardingActive: state.onboardingActive,
+      pendingGuardianProgress: state.pendingGuardianProgress,
     };
     return;
   }
@@ -3177,6 +3375,11 @@ useWarscytheStore.subscribe((state) => {
       hasSeenForgeGuide: state.hasSeenForgeGuide,
       hasSeenRitualsGuide: state.hasSeenRitualsGuide,
       hasSeenFitnessPeek: state.hasSeenFitnessPeek,
+      currentTitle: state.currentTitle,
+      unlockedTitles: state.unlockedTitles,
+      onboardingProgress: state.onboardingProgress,
+      onboardingActive: state.onboardingActive,
+      pendingGuardianProgress: state.pendingGuardianProgress,
     };
     return;
   }
@@ -3263,6 +3466,16 @@ useWarscytheStore.subscribe((state) => {
   if (state.scytheLevel !== lastState.scytheLevel) changedFields.push('scytheLevel');
   if (state.dailyPoints !== lastState.dailyPoints) changedFields.push('dailyPoints');
   if (state.rescuedFairies !== lastState.rescuedFairies) changedFields.push('rescuedFairies');
+  if (state.currentTitle !== lastState.currentTitle) changedFields.push('currentTitle');
+  if (state.unlockedTitles !== lastState.unlockedTitles) changedFields.push('unlockedTitles');
+  if (state.onboardingProgress !== lastState.onboardingProgress) changedFields.push('onboardingProgress');
+  if (state.onboardingActive !== lastState.onboardingActive) changedFields.push('onboardingActive');
+  if (state.pendingGuardianProgress !== lastState.pendingGuardianProgress) changedFields.push('pendingGuardianProgress');
+  if (state.hasSeenMapGuide !== lastState.hasSeenMapGuide) changedFields.push('hasSeenMapGuide');
+  if (state.hasSeenLedgerGuide !== lastState.hasSeenLedgerGuide) changedFields.push('hasSeenLedgerGuide');
+  if (state.hasSeenForgeGuide !== lastState.hasSeenForgeGuide) changedFields.push('hasSeenForgeGuide');
+  if (state.hasSeenRitualsGuide !== lastState.hasSeenRitualsGuide) changedFields.push('hasSeenRitualsGuide');
+  if (state.hasSeenFitnessPeek !== lastState.hasSeenFitnessPeek) changedFields.push('hasSeenFitnessPeek');
 
   const hasChanged = changedFields.length > 0;
 
@@ -3306,15 +3519,26 @@ useWarscytheStore.subscribe((state) => {
       scytheLevel: state.scytheLevel,
       dailyPoints: state.dailyPoints,
       rescuedFairies: state.rescuedFairies,
+      currentTitle: state.currentTitle,
+      unlockedTitles: state.unlockedTitles,
+      onboardingProgress: state.onboardingProgress,
+      onboardingActive: state.onboardingActive,
+      pendingGuardianProgress: state.pendingGuardianProgress,
+      hasSeenMapGuide: state.hasSeenMapGuide,
+      hasSeenLedgerGuide: state.hasSeenLedgerGuide,
+      hasSeenForgeGuide: state.hasSeenForgeGuide,
+      hasSeenRitualsGuide: state.hasSeenRitualsGuide,
+      hasSeenFitnessPeek: state.hasSeenFitnessPeek,
     };
 
     // Set status to pending and mark unsynced changes immediately
     useWarscytheStore.setState({ syncStatus: 'pending', hasPendingChanges: true });
 
+    const changedDomains = getDomainsForFields(changedFields);
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-      useWarscytheStore.getState().saveUserState(state.user.id);
-    }, 1500); // 1.5 second debounce to prevent spamming queries
+      useWarscytheStore.getState().saveUserState(state.user.id, changedDomains);
+    }, 5000); // Batch rapid tutorial, workout, and task mutations into one sync.
   }
 });
 
@@ -3351,7 +3575,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
         await Promise.race([
           (async () => {
             await useWarscytheStore.getState().fetchUserState(session.user.id);
-            await useWarscytheStore.getState().fetchSocialData();
           })(),
           loadTimeoutPromise
         ]);

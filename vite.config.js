@@ -3,6 +3,11 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  build: {
+    // Feature pages are lazy-loaded. The remaining shared runtime is intentionally
+    // substantial, but stays below 200 kB over the wire after gzip.
+    chunkSizeWarningLimit: 700,
+  },
   plugins: [
     react(),
     VitePWA({

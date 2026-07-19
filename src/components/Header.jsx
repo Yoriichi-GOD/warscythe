@@ -182,7 +182,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
   notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
-    <header className="main-header glass-panel">
+    <header className="main-header glass-panel shrink-0">
       <div className={`header-left ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
         <div className="logo-section">
           <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -551,6 +551,9 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           border-right: none;
           border-top: none;
           height: 64px;
+          position: relative;
+          z-index: 60;
+          flex: 0 0 auto;
         }
 
         @media (max-width: 1023px) {
