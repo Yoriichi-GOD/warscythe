@@ -7,7 +7,7 @@ import {
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
   Calendar, Flame, Sparkles, ChevronDown, CheckSquare, SquareSquare,
-  ClipboardList, X, Info
+  ClipboardList, X, Info, CloudDownload, Loader2
 } from 'lucide-react';
 
 
@@ -105,7 +105,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
     getTotalTonnage,
     getDeityProgress,
     updateActiveWorkoutNotes,
-    activeTheme
+    activeTheme,
+    downloadedRegions,
+    downloadRegionBundle
   } = useWarscytheStore();
   const [sandboxWorkout, setSandboxWorkout] = useState(null);
   const [tutorialStep, setTutorialStep] = useState(0);
@@ -165,6 +167,23 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const progressPercent = deityState.progressPercent;
   const deities = deityState.deities;
   const [deityCeremony, setDeityCeremony] = useState(null);
+  const [deityDownloadState, setDeityDownloadState] = useState({});
+  const isMobileApp = typeof window !== 'undefined'
+    && window.Capacitor
+    && typeof window.Capacitor.isNativePlatform === 'function'
+    && window.Capacitor.isNativePlatform();
+  const deityBundleId = (deityId) => `deity_${deityId}`;
+  const isDeityDownloaded = (deityId) => !isMobileApp || (downloadedRegions || []).includes(deityBundleId(deityId));
+  const downloadDeity = async (deityId) => {
+    const bundleId = deityBundleId(deityId);
+    setDeityDownloadState(state => ({ ...state, [deityId]: 'downloading' }));
+    try {
+      await downloadRegionBundle(bundleId);
+      setDeityDownloadState(state => ({ ...state, [deityId]: 'completed' }));
+    } catch {
+      setDeityDownloadState(state => ({ ...state, [deityId]: 'error' }));
+    }
+  };
 
   useEffect(() => {
     if (tutorialActive || !activeDeity?.id || !activeDeity?.threshold || totalTonnage < activeDeity.threshold) return;
@@ -322,6 +341,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
           image={`/deity/${deityCeremony.id}.png`}
           prophecy={`The iron you lifted has crossed the threshold of ${deityCeremony.threshold.toLocaleString()} kilograms. ${deityCeremony.name} now walks within your discipline. ${deityCeremony.buff}`}
           onClose={acceptDeityTier}
+          requiresDownload={!isDeityDownloaded(deityCeremony.id)}
+          downloadState={deityDownloadState[deityCeremony.id] || 'idle'}
+          onDownload={() => downloadDeity(deityCeremony.id)}
         />
       )}
       {tutorialActive && (
@@ -1162,6 +1184,8 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               {deities.map((deity, idx) => {
                 const isCurrent = deity.isCurrent;
                 const isUnlocked = deity.unlocked;
+                const deityDownloaded = isDeityDownloaded(deity.id);
+                const downloadState = deityDownloadState[deity.id] || 'idle';
 
                 return (
                   <div 
@@ -1174,6 +1198,19 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                           : 'border-white/5 bg-black/60 opacity-40'
                     }`}
                   >
+                    {isUnlocked && !deityDownloaded && (
+                      <button
+                        type="button"
+                        onClick={() => downloadDeity(deity.id)}
+                        disabled={downloadState === 'downloading'}
+                        className="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full border border-gold-core/45 bg-black/90 text-gold-core shadow-[0_0_14px_rgba(236,200,128,.3)]"
+                        aria-label={`Download ${deity.name}`}
+                      >
+                        {downloadState === 'downloading'
+                          ? <Loader2 size={12} className="animate-spin" />
+                          : <CloudDownload size={12} />}
+                      </button>
+                    )}
                     {/* Circle Avatar Face Preview */}
                     <div className="relative shrink-0">
                       <div className={`w-9 h-9 rounded-full overflow-hidden border flex items-center justify-center bg-black/60 transition-all ${

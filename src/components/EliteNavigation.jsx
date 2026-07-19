@@ -61,7 +61,7 @@ export default function EliteNavigation({ activeTab, onTabChange, navigationLock
   };
 
   return (
-    <nav className="elite-nav select-none">
+    <nav id="warscythe-taskbar" className="elite-nav select-none">
       <div className="nav-container">
         
         {/* Left Side: Operations, Fitness, Rituals */}

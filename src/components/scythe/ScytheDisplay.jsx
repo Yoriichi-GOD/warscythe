@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { getAssetUrl } from '../../utils/assetResolver';
+import { getResponsiveAsset } from '../../utils/responsiveAssets';
 import { Info } from 'lucide-react';
 
 export default function ScytheDisplay({ 
@@ -43,6 +44,7 @@ export default function ScytheDisplay({
       imagePath = getAssetUrl(`/themes/lava/scythe-${safeLevel.toLowerCase()}.png`);
     }
   }
+  const responsiveImage = getResponsiveAsset(imagePath);
 
   // Find the description of the selected stage
   const selectedStage = evolutionStages?.find(s => s.id === safeLevel);
@@ -142,7 +144,12 @@ export default function ScytheDisplay({
       >
         <img
           key={`${type}-${safeLevel}`}
-          src={imagePath}
+          src={responsiveImage?.src || imagePath}
+          srcSet={responsiveImage?.srcSet}
+          sizes={responsiveImage?.sizes}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           alt={`${safeLevel} Scythe`}
           className="scythe-hero-img"
           style={{

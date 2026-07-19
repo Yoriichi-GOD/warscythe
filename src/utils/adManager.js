@@ -17,16 +17,8 @@ export const configureAdManager = (accountStateAccessor) => {
 
 const getAdMob = async () => {
   if (AdMobModule) return AdMobModule;
-  try {
-    // Dynamic import with variable and vite-ignore prevents Rolldown build failure before npm install is run
-    const pluginName = '@capacitor-community/admob';
-    const mod = await import(/* @vite-ignore */ pluginName);
-    AdMobModule = mod;
-    return mod;
-  } catch (err) {
-    console.warn('AdMob plugin is not installed or available on this platform.', err);
-    return null;
-  }
+  AdMobModule = CapacitorAdMob;
+  return AdMobModule;
 };
 
 /**
@@ -169,3 +161,4 @@ export const AdSenseManager = {
     }
   }
 };
+import * as CapacitorAdMob from '@capacitor-community/admob';

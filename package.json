@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "optimize-assets": "node scripts/optimize-assets.mjs",
+    "build": "npm run optimize-assets && vite build",
+    "android:sync": "npm run build && node scripts/prepare-android-assets.mjs && cap sync android",
+    "android:apk": "npm run android:sync && cd android && gradlew.bat clean assembleDebug",
+    "verify:cdn": "node scripts/verify-cdn-assets.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -40,6 +44,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
     "postcss": "^8.5.12",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.9"
   }

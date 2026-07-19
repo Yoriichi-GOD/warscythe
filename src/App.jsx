@@ -611,7 +611,7 @@ export default function App() {
         </div>
       )}
       
-      <main className="flex-1 min-h-0 w-full overflow-hidden relative">
+      <main id="warscythe-content-stage" className="flex-1 min-h-0 w-full overflow-hidden relative">
         <React.Suspense fallback={(
           <div className="h-full w-full grid place-items-center bg-black text-gold-core font-mono text-[10px] tracking-[0.3em]">
             OPENING TACTICAL SECTOR...

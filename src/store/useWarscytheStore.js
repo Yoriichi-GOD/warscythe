@@ -446,7 +446,7 @@ export const useWarscytheStore = create(
       unlockedThemes: ['default'],
       activeScytheSkin: 'default',
       activeTheme: 'default',
-      downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deities_all', 'artifacts_all', 'nodes_all'],
+      downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deity_hermes', 'deity_apollo', 'deity_ares', 'deity_hercules', 'deity_zeus', 'artifacts_all', 'nodes_all'],
       scytheMigrationDone: false,
       coins: 0,
       gymLog: [],
@@ -702,7 +702,7 @@ export const useWarscytheStore = create(
           unlockedThemes: ['default'],
           activeScytheSkin: 'default',
           activeTheme: 'default',
-          downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deities_all', 'artifacts_all', 'nodes_all'],
+          downloadedRegions: (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ? [] : ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'cosmic_harvester', 'hellfire_reaper', 'soul_eater_prime', 'abyssal_leviathan', 'ares_devastator', 'shadow_blade', 'golden_harvester', 'cinder_reaper', 'frost_cleaver', 'storm_caller', 'shiva', 'lava', 'legion_core', 'deity_hermes', 'deity_apollo', 'deity_ares', 'deity_hercules', 'deity_zeus', 'artifacts_all', 'nodes_all'],
           scytheMigrationDone: false,
           coins: 0,
           gymLog: [],
@@ -2055,21 +2055,10 @@ export const useWarscytheStore = create(
       },
 
       downloadRegionBundle: async (subItemId) => {
-        const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-
-        let itemConfig = null;
-        for (const cat of Object.values(BUNDLE_CONFIG)) {
-          if (cat.items && cat.items[subItemId]) {
-            itemConfig = cat.items[subItemId];
-            break;
-          }
-        }
-        if (!itemConfig) return;
-
         try {
-          const cache = await caches.open('supabase-assets-cache');
-          const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
-          await cache.addAll(urls);
+          const { findBundleItem, cacheBundle } = await import('../utils/assetCache');
+          if (!findBundleItem(subItemId)) return;
+          await cacheBundle(subItemId);
 
           set(state => {
             const downloaded = Array.from(new Set([...(state.downloadedRegions || []).map(String), String(subItemId)]));
@@ -2087,23 +2076,10 @@ export const useWarscytheStore = create(
       },
 
       deleteRegionBundle: async (subItemId) => {
-        const { BUNDLE_CONFIG, getAssetUrl } = await import('../utils/assetResolver');
-
-        let itemConfig = null;
-        for (const cat of Object.values(BUNDLE_CONFIG)) {
-          if (cat.items && cat.items[subItemId]) {
-            itemConfig = cat.items[subItemId];
-            break;
-          }
-        }
-        if (!itemConfig) return;
-
         try {
-          const cache = await caches.open('supabase-assets-cache');
-          const urls = itemConfig.files.map(file => getAssetUrl(`/${file}`));
-          for (const url of urls) {
-            await cache.delete(url);
-          }
+          const { findBundleItem, deleteCachedBundle } = await import('../utils/assetCache');
+          if (!findBundleItem(subItemId)) return;
+          await deleteCachedBundle(subItemId);
 
           set(state => {
             const downloaded = (state.downloadedRegions || []).map(String).filter(id => id !== String(subItemId));

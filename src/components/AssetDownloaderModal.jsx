@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { BUNDLE_CONFIG } from '../utils/assetResolver';
+import { scanCachedBundleIds } from '../utils/assetCache';
 import { X, CloudDownload, Trash2, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function AssetDownloaderModal({ onClose }) {
@@ -29,27 +30,7 @@ export default function AssetDownloaderModal({ onClose }) {
         return;
       }
 
-      const { isBundled, getAssetUrl } = await import('../utils/assetResolver');
-      const cache = await caches.open('warscythe-region-assets');
-      const found = [];
-
-      for (const [catKey, cat] of Object.entries(BUNDLE_CONFIG)) {
-        for (const [subId, item] of Object.entries(cat.items)) {
-          let allValid = true;
-          for (const file of item.files) {
-            if (!isBundled(file)) {
-              const match = await cache.match(getAssetUrl(`/${file}`));
-              if (!match) {
-                allValid = false;
-                break;
-              }
-            }
-          }
-          if (allValid) {
-            found.push(String(subId));
-          }
-        }
-      }
+      const found = await scanCachedBundleIds();
       setDownloadedItemIds(found);
       useWarscytheStore.setState({ downloadedRegions: found });
     } catch (e) {
@@ -79,7 +60,7 @@ export default function AssetDownloaderModal({ onClose }) {
   };
 
   const handleToggleItem = async (catKey, subId, isCurrentlyDownloaded) => {
-    if (['deities', 'artifacts', 'nodes'].includes(catKey)) return;
+    if (['artifacts', 'nodes'].includes(catKey)) return;
 
     setLoadingItems(prev => ({ ...prev, [subId]: true }));
     setError(null);
@@ -100,7 +81,7 @@ export default function AssetDownloaderModal({ onClose }) {
   };
 
   const handleToggleCategory = async (catKey, isCatFullyDownloaded) => {
-    if (['deities', 'artifacts', 'nodes'].includes(catKey)) return;
+    if (['artifacts', 'nodes'].includes(catKey)) return;
 
     const cat = BUNDLE_CONFIG[catKey];
     const subIds = Object.keys(cat.items);

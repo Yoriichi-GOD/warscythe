@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles, X, CloudDownload, Loader2 } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 const SCYTHE_PROPHECIES = {
@@ -21,7 +21,10 @@ export default function UnlockCeremonyModal({
   image,
   prophecy,
   onClose,
-  onAcquire
+  onAcquire,
+  requiresDownload = false,
+  downloadState = 'idle',
+  onDownload
 }) {
   const isScythe = kind === 'scythe';
   const resolvedProphecy = prophecy || SCYTHE_PROPHECIES[name] || 'The old powers have witnessed your ascent. Carry what has awakened here with honor.';
@@ -65,6 +68,19 @@ export default function UnlockCeremonyModal({
               alt={name}
               className="w-[78%] h-[64%] sm:w-[62%] sm:h-[68%] lg:w-[68%] lg:h-[72%] object-contain scale-125 sm:scale-110 drop-shadow-[0_0_34px_rgba(236,200,128,.9)]"
             />
+            {requiresDownload && (
+              <button
+                type="button"
+                onClick={onDownload}
+                disabled={downloadState === 'downloading'}
+                className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full border border-gold-bright bg-black/90 text-gold-bright shadow-[0_0_30px_rgba(236,200,128,.65)]"
+                aria-label={`Download ${name} assets`}
+              >
+                {downloadState === 'downloading'
+                  ? <Loader2 size={23} className="animate-spin" />
+                  : <CloudDownload size={23} />}
+              </button>
+            )}
           </div>
 
           <div className="w-full max-w-4xl bg-black/78 border border-white/10 px-4 py-3 sm:px-8 sm:py-4 backdrop-blur-sm">
@@ -76,9 +92,12 @@ export default function UnlockCeremonyModal({
 
           <button
             onClick={isScythe ? onAcquire : onClose}
+            disabled={requiresDownload}
             className="mt-2 sm:mt-3 w-full max-w-4xl py-3 sm:py-4 border border-gold-bright bg-black/65 text-gold-bright font-mono text-[9px] sm:text-[11px] font-black tracking-[.32em] uppercase shadow-[0_0_24px_rgba(236,200,128,.35)] hover:bg-gold-core hover:text-black transition-all"
           >
-            {isScythe ? 'Acquire Armament' : 'Embody New Tier'}
+            {requiresDownload
+              ? (downloadState === 'error' ? 'Download Failed — Try the Sigil Again' : 'Download This Form to Continue')
+              : (isScythe ? 'Acquire Armament' : 'Embody New Tier')}
           </button>
         </div>
       </motion.section>

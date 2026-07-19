@@ -21,9 +21,9 @@ export default function LevelUpModal({ data, onClose }) {
   const [downloadState, setDownloadState] = useState('idle');
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
-  const isDownloaded = downloadedRegions.includes(crestIndex);
+  const isDownloaded = downloadedRegions.map(String).includes(String(crestIndex));
   const showPrompt = isMobileApp && !isDownloaded && crestIndex >= 2;
-  const bundleConfig = BUNDLE_CONFIG[crestIndex];
+  const bundleConfig = BUNDLE_CONFIG.regions.items[crestIndex];
 
   const handleDownload = async () => {
     setDownloadState('downloading');

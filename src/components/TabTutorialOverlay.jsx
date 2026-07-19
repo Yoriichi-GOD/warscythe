@@ -315,6 +315,62 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
 
 // ─── HIGHLIGHT PULSE OVERLAY ───────────────────────────────────────────────────
 
+const getClippedHighlightRect = (element) => {
+  const targetRect = element.getBoundingClientRect();
+  const headerRect = document.getElementById('warscythe-header')?.getBoundingClientRect();
+  const taskbarRect = document.getElementById('warscythe-taskbar')?.getBoundingClientRect();
+  const contentRect = document.getElementById('warscythe-content-stage')?.getBoundingClientRect();
+  const insideHeader = Boolean(element.closest('#warscythe-header'));
+  const insideTaskbar = Boolean(element.closest('#warscythe-taskbar'));
+
+  let owner = element.parentElement;
+  while (owner && owner !== document.body) {
+    const style = window.getComputedStyle(owner);
+    if (/(auto|scroll|hidden|clip)/.test(`${style.overflow}${style.overflowY}${style.overflowX}`)) break;
+    owner = owner.parentElement;
+  }
+  const ownerRect = owner && owner !== document.body
+    ? owner.getBoundingClientRect()
+    : contentRect;
+
+  let top = targetRect.top - 6;
+  let left = targetRect.left - 6;
+  let right = targetRect.right + 6;
+  let bottom = targetRect.bottom + 6;
+
+  if (!insideHeader && !insideTaskbar) {
+    if (contentRect) {
+      top = Math.max(top, contentRect.top);
+      left = Math.max(left, contentRect.left);
+      right = Math.min(right, contentRect.right);
+      bottom = Math.min(bottom, contentRect.bottom);
+    }
+    if (ownerRect) {
+      top = Math.max(top, ownerRect.top);
+      left = Math.max(left, ownerRect.left);
+      right = Math.min(right, ownerRect.right);
+      bottom = Math.min(bottom, ownerRect.bottom);
+    }
+    if (headerRect) top = Math.max(top, headerRect.bottom);
+    if (taskbarRect) bottom = Math.min(bottom, taskbarRect.top);
+  } else if (insideHeader && headerRect) {
+    top = Math.max(top, headerRect.top);
+    left = Math.max(left, headerRect.left);
+    right = Math.min(right, headerRect.right);
+    bottom = Math.min(bottom, headerRect.bottom);
+  } else if (insideTaskbar && taskbarRect) {
+    top = Math.max(top, taskbarRect.top);
+    left = Math.max(left, taskbarRect.left);
+    right = Math.min(right, taskbarRect.right);
+    bottom = Math.min(bottom, taskbarRect.bottom);
+  }
+
+  const width = Math.max(0, right - left);
+  const height = Math.max(0, bottom - top);
+  if (width < 2 || height < 2) return null;
+  return { top, left, width, height };
+};
+
 function HighlightRing({ elementId }) {
   const [pos, setPos] = useState(null);
   const revealedElementRef = useRef(null);
@@ -333,14 +389,14 @@ function HighlightRing({ elementId }) {
       if (!el) return;
       if (revealedElementRef.current !== el) {
         revealedElementRef.current = el;
+        const insideFixedChrome = Boolean(el.closest('#warscythe-header, #warscythe-taskbar'));
         el.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: insideFixedChrome ? 'nearest' : 'start',
           inline: 'nearest',
         });
       }
-      const r = el.getBoundingClientRect();
-      setPos({ top: r.top - 6, left: r.left - 6, width: r.width + 12, height: r.height + 12 });
+      setPos(getClippedHighlightRect(el));
     };
     update();
     const retry = window.setInterval(update, 120);
