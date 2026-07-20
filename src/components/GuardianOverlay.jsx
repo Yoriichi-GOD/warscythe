@@ -155,7 +155,7 @@ export default function GuardianOverlay({ progress, onClose, onTutorialAfter }) 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         className={`${isContextual
-          ? 'pointer-events-auto fixed right-4 top-[22vh] max-sm:top-auto max-sm:bottom-[86px] max-sm:left-3 max-sm:right-3 max-sm:mx-auto w-[min(360px,calc(100vw-1.5rem))] p-5'
+          ? 'pointer-events-auto fixed left-1/2 bottom-24 -translate-x-1/2 max-sm:bottom-[86px] max-sm:left-3 max-sm:right-3 max-sm:translate-x-0 max-sm:mx-auto w-[min(360px,calc(100vw-1.5rem))] p-5'
           : 'relative w-full max-w-xl mx-4 p-8'} flex flex-col items-center bg-zinc-950/95 border border-gold-core/20 rounded-lg shadow-[0_0_60px_rgba(0,0,0,0.85)] overflow-hidden`}
       >
         {/* Decorative corner runes */}

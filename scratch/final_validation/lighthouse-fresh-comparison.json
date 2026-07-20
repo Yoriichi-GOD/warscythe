@@ -1,0 +1,614 @@
+{
+  "generatedAt": "2026-07-20T16:08:09.751Z",
+  "inputs": {
+    "previous": "C:\\Users\\nrgen\\.gemini\\antigravity-ide\\scratch\\warlord\\warscythe.xyz-20260720T012152.json",
+    "current": "C:\\Users\\nrgen\\.gemini\\antigravity-ide\\scratch\\warlord\\scratch\\final_validation\\lighthouse-fresh-production.json",
+    "previousFetchTime": "2026-07-19T19:51:52.599Z",
+    "currentFetchTime": "2026-07-20T16:04:17.040Z"
+  },
+  "performanceScore": {
+    "previous": 0.61,
+    "current": 0.58,
+    "absoluteChange": -0.030000000000000027,
+    "percentageChange": -4.9180327868852505
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "label": "First Contentful Paint",
+      "unit": "ms",
+      "previous": 890.4911999999999,
+      "current": 6206.040500000001,
+      "absoluteChange": 5315.549300000001,
+      "percentageChange": 596.9232823412517
+    },
+    {
+      "id": "largest-contentful-paint",
+      "label": "Largest Contentful Paint",
+      "unit": "ms",
+      "previous": 16398.4912,
+      "current": 8564.262,
+      "absoluteChange": -7834.2292,
+      "percentageChange": -47.774085459764734
+    },
+    {
+      "id": "speed-index",
+      "label": "Speed Index",
+      "unit": "ms",
+      "previous": 2005.8805696044908,
+      "current": 6888.269022010538,
+      "absoluteChange": 4882.388452406047,
+      "percentageChange": 243.40374628429302
+    },
+    {
+      "id": "total-blocking-time",
+      "label": "Total Blocking Time",
+      "unit": "ms",
+      "previous": 249,
+      "current": 99.36400000000003,
+      "absoluteChange": -149.63599999999997,
+      "percentageChange": -60.094779116465844
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "label": "Cumulative Layout Shift",
+      "unit": "score",
+      "previous": 0.0034305347913518107,
+      "current": 0,
+      "absoluteChange": -0.0034305347913518107,
+      "percentageChange": -100
+    },
+    {
+      "id": "interactive",
+      "label": "Time to Interactive",
+      "unit": "ms",
+      "previous": 16652.491200000004,
+      "current": 8878.532650000001,
+      "absoluteChange": -7773.958550000003,
+      "percentageChange": -46.683456887219386
+    }
+  ],
+  "diagnostics": {
+    "previous": {
+      "numRequests": 53,
+      "numScripts": 15,
+      "numStylesheets": 3,
+      "numFonts": 1,
+      "numTasks": 4358,
+      "numTasksOver10ms": 32,
+      "numTasksOver25ms": 16,
+      "numTasksOver50ms": 11,
+      "numTasksOver100ms": 4,
+      "numTasksOver500ms": 0,
+      "rtt": 0.08729999999999999,
+      "throughput": 200507430.53950876,
+      "maxRtt": 56.103000000000065,
+      "maxServerLatency": 211.17200000000003,
+      "totalByteWeight": 42434577,
+      "totalTaskTime": 2753.5800000000127,
+      "mainDocumentTransferSize": 846
+    },
+    "current": {
+      "numRequests": 47,
+      "numScripts": 23,
+      "numStylesheets": 3,
+      "numFonts": 3,
+      "numTasks": 3472,
+      "numTasksOver10ms": 8,
+      "numTasksOver25ms": 3,
+      "numTasksOver50ms": 1,
+      "numTasksOver100ms": 0,
+      "numTasksOver500ms": 0,
+      "rtt": 0,
+      "throughput": 16553028.73184572,
+      "maxRtt": 231.63600000000002,
+      "maxServerLatency": 859.716,
+      "totalByteWeight": 12023431,
+      "totalTaskTime": 461.9389999999944,
+      "mainDocumentTransferSize": 994
+    }
+  },
+  "resources": {
+    "previous": {
+      "total": {
+        "requestCount": 53,
+        "transferSize": 42434577
+      },
+      "image": {
+        "requestCount": 23,
+        "transferSize": 39965970
+      },
+      "other": {
+        "requestCount": 10,
+        "transferSize": 1946255
+      },
+      "script": {
+        "requestCount": 15,
+        "transferSize": 466910
+      },
+      "font": {
+        "requestCount": 1,
+        "transferSize": 31369
+      },
+      "stylesheet": {
+        "requestCount": 3,
+        "transferSize": 23227
+      },
+      "document": {
+        "requestCount": 1,
+        "transferSize": 846
+      },
+      "media": {
+        "requestCount": 0,
+        "transferSize": 0
+      },
+      "third-party": {
+        "requestCount": 19,
+        "transferSize": 14090138
+      }
+    },
+    "current": {
+      "total": {
+        "requestCount": 47,
+        "transferSize": 12023431
+      },
+      "image": {
+        "requestCount": 8,
+        "transferSize": 9253377
+      },
+      "other": {
+        "requestCount": 5,
+        "transferSize": 1945912
+      },
+      "script": {
+        "requestCount": 23,
+        "transferSize": 728024
+      },
+      "font": {
+        "requestCount": 3,
+        "transferSize": 61391
+      },
+      "stylesheet": {
+        "requestCount": 3,
+        "transferSize": 23319
+      },
+      "document": {
+        "requestCount": 5,
+        "transferSize": 11408
+      },
+      "media": {
+        "requestCount": 0,
+        "transferSize": 0
+      },
+      "third-party": {
+        "requestCount": 22,
+        "transferSize": 432744
+      }
+    }
+  },
+  "lcpElement": {
+    "previous": [],
+    "current": []
+  },
+  "networkDependencyTree": {
+    "previous": null,
+    "current": null
+  },
+  "opportunities": {
+    "render-blocking-resources": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "unused-javascript": {
+      "previous": {
+        "score": 0,
+        "numericValue": 240,
+        "numericUnit": "millisecond",
+        "savingsMs": 240,
+        "savingsBytes": 205976,
+        "items": [
+          {
+            "url": "https://warscythe.xyz/assets/index-Bmj0dMhl.js",
+            "totalBytes": 248170,
+            "wastedBytes": 117160,
+            "wastedPercent": 47.20970390025032
+          },
+          {
+            "url": "https://warscythe.xyz/assets/useWarscytheStore-sg4SdD8x.js",
+            "totalBytes": 154168,
+            "wastedBytes": 88816,
+            "wastedPercent": 57.60966479888702
+          }
+        ]
+      },
+      "current": {
+        "score": 0,
+        "numericValue": 1980,
+        "numericUnit": "millisecond",
+        "savingsMs": 1980,
+        "savingsBytes": 433735,
+        "items": [
+          {
+            "url": "https://pagead2.googlesyndication.com/pagead/managed/js/adsense/m202607140101/show_ads_impl_fy2021.js",
+            "totalBytes": 170181,
+            "wastedBytes": 126885,
+            "wastedPercent": 74.55897842231785
+          },
+          {
+            "url": "https://warscythe.xyz/assets/play-BSiFGZVy.js",
+            "totalBytes": 201826,
+            "wastedBytes": 122273,
+            "wastedPercent": 60.58323005773359
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-C99wqM2s.js",
+            "totalBytes": 163753,
+            "wastedBytes": 108902,
+            "wastedPercent": 66.50395092105589
+          },
+          {
+            "url": "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6633543150979941",
+            "totalBytes": 56157,
+            "wastedBytes": 30373,
+            "wastedPercent": 54.08652812501919
+          },
+          {
+            "url": "https://us-assets.i.posthog.com/static/surveys.js?v=1.372.5",
+            "totalBytes": 28452,
+            "wastedBytes": 23108,
+            "wastedPercent": 81.2186239815653
+          },
+          {
+            "url": "https://us-assets.i.posthog.com/static/posthog-recorder.js?v=1.372.5",
+            "totalBytes": 50997,
+            "wastedBytes": 22194,
+            "wastedPercent": 43.520406924515015
+          }
+        ]
+      }
+    },
+    "unused-css-rules": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "modern-image-formats": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "uses-responsive-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "uses-optimized-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "offscreen-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "unminified-javascript": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "unminified-css": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "uses-long-cache-ttl": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "font-display": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "third-party-summary": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "mainthread-work-breakdown": {
+      "previous": {
+        "score": 0,
+        "numericValue": 2753.5799999999767,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "group": "other",
+            "groupLabel": "Other",
+            "duration": 1460.94199999998
+          },
+          {
+            "group": "scriptEvaluation",
+            "groupLabel": "Script Evaluation",
+            "duration": 700.5309999999869
+          },
+          {
+            "group": "styleLayout",
+            "groupLabel": "Style & Layout",
+            "duration": 440.1610000000001
+          },
+          {
+            "group": "paintCompositeRender",
+            "groupLabel": "Rendering",
+            "duration": 135.95100000000997
+          },
+          {
+            "group": "scriptParseCompile",
+            "groupLabel": "Script Parsing & Compilation",
+            "duration": 7.969999999999999
+          },
+          {
+            "group": "parseHTML",
+            "groupLabel": "Parse HTML & CSS",
+            "duration": 5.016999999999999
+          },
+          {
+            "group": "garbageCollection",
+            "groupLabel": "Garbage Collection",
+            "duration": 3.007999999999999
+          }
+        ]
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 1847.7560000000074,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "group": "scriptEvaluation",
+            "groupLabel": "Script Evaluation",
+            "duration": 716.2720000000078
+          },
+          {
+            "group": "other",
+            "groupLabel": "Other",
+            "duration": 637.3839999999993
+          },
+          {
+            "group": "styleLayout",
+            "groupLabel": "Style & Layout",
+            "duration": 372.728
+          },
+          {
+            "group": "scriptParseCompile",
+            "groupLabel": "Script Parsing & Compilation",
+            "duration": 61.616
+          },
+          {
+            "group": "paintCompositeRender",
+            "groupLabel": "Rendering",
+            "duration": 48.547999999999995
+          },
+          {
+            "group": "parseHTML",
+            "groupLabel": "Parse HTML & CSS",
+            "duration": 11.207999999999997
+          }
+        ]
+      }
+    },
+    "bootup-time": {
+      "previous": {
+        "score": 1,
+        "numericValue": 644.8229999999951,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "url": "Unattributable",
+            "total": 1149.4899999999845,
+            "scripting": 8.537000000000003,
+            "scriptParseCompile": 0
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-Bmj0dMhl.js",
+            "total": 918.3829999999912,
+            "scripting": 557.3699999999951,
+            "scriptParseCompile": 1.521
+          },
+          {
+            "url": "https://warscythe.xyz/",
+            "total": 611.5610000000004,
+            "scripting": 76.53100000000002,
+            "scriptParseCompile": 0.8640000000000001
+          }
+        ]
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 725.1720000000015,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "url": "Unattributable",
+            "total": 662.4640000000015,
+            "scripting": 115.51200000000031,
+            "scriptParseCompile": 0
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-C99wqM2s.js",
+            "total": 528.4480000000005,
+            "scripting": 197.6760000000005,
+            "scriptParseCompile": 1.536
+          },
+          {
+            "url": "https://warscythe.xyz/assets/play-BSiFGZVy.js",
+            "total": 229.8760000000005,
+            "scripting": 162.61600000000053,
+            "scriptParseCompile": 1.488
+          },
+          {
+            "url": "https://pagead2.googlesyndication.com/pagead/managed/js/adsense/m202607140101/show_ads_impl_fy2021.js",
+            "total": 138.19600000000037,
+            "scripting": 99.78800000000037,
+            "scriptParseCompile": 27.747999999999998
+          },
+          {
+            "url": "https://warscythe.xyz/",
+            "total": 95.316,
+            "scripting": 5.163999999999999,
+            "scriptParseCompile": 0.516
+          },
+          {
+            "url": "https://us-assets.i.posthog.com/static/posthog-recorder.js?v=1.372.5",
+            "total": 64.91199999999998,
+            "scripting": 52.53199999999997,
+            "scriptParseCompile": 10.48
+          },
+          {
+            "url": "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6633543150979941",
+            "total": 51.09599999999989,
+            "scripting": 38.251999999999896,
+            "scriptParseCompile": 11.864
+          }
+        ]
+      }
+    }
+  }
+}

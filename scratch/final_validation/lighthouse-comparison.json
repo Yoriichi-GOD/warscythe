@@ -1,0 +1,572 @@
+{
+  "generatedAt": "2026-07-20T15:12:19.831Z",
+  "inputs": {
+    "previous": "C:\\Users\\nrgen\\.gemini\\antigravity-ide\\scratch\\warlord\\warscythe.xyz-20260720T012152.json",
+    "current": "C:\\Users\\nrgen\\.gemini\\antigravity-ide\\scratch\\warlord\\warscythe.xyz-20260720T120831.json",
+    "previousFetchTime": "2026-07-19T19:51:52.599Z",
+    "currentFetchTime": "2026-07-20T06:38:31.924Z"
+  },
+  "performanceScore": {
+    "previous": 0.61,
+    "current": 0.69,
+    "absoluteChange": 0.07999999999999996,
+    "percentageChange": 13.114754098360649
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "label": "First Contentful Paint",
+      "unit": "ms",
+      "previous": 890.4911999999999,
+      "current": 1255.418,
+      "absoluteChange": 364.92679999999996,
+      "percentageChange": 40.98039374224023
+    },
+    {
+      "id": "largest-contentful-paint",
+      "label": "Largest Contentful Paint",
+      "unit": "ms",
+      "previous": 16398.4912,
+      "current": 6368.086999999995,
+      "absoluteChange": -10030.404200000004,
+      "percentageChange": -61.16662854933877
+    },
+    {
+      "id": "speed-index",
+      "label": "Speed Index",
+      "unit": "ms",
+      "previous": 2005.8805696044908,
+      "current": 2087.6243207275597,
+      "absoluteChange": 81.74375112306893,
+      "percentageChange": 4.075205291967444
+    },
+    {
+      "id": "total-blocking-time",
+      "label": "Total Blocking Time",
+      "unit": "ms",
+      "previous": 249,
+      "current": 6,
+      "absoluteChange": -243,
+      "percentageChange": -97.59036144578313
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "label": "Cumulative Layout Shift",
+      "unit": "score",
+      "previous": 0.0034305347913518107,
+      "current": 0.013014185438224904,
+      "absoluteChange": 0.009583650646873092,
+      "percentageChange": 279.3631672540663
+    },
+    {
+      "id": "interactive",
+      "label": "Time to Interactive",
+      "unit": "ms",
+      "previous": 16652.491200000004,
+      "current": 6396.764149999995,
+      "absoluteChange": -10255.727050000009,
+      "percentageChange": -61.58674354981798
+    }
+  ],
+  "diagnostics": {
+    "previous": {
+      "numRequests": 53,
+      "numScripts": 15,
+      "numStylesheets": 3,
+      "numFonts": 1,
+      "numTasks": 4358,
+      "numTasksOver10ms": 32,
+      "numTasksOver25ms": 16,
+      "numTasksOver50ms": 11,
+      "numTasksOver100ms": 4,
+      "numTasksOver500ms": 0,
+      "rtt": 0.08729999999999999,
+      "throughput": 200507430.53950876,
+      "maxRtt": 56.103000000000065,
+      "maxServerLatency": 211.17200000000003,
+      "totalByteWeight": 42434577,
+      "totalTaskTime": 2753.5800000000127,
+      "mainDocumentTransferSize": 846
+    },
+    "current": {
+      "numRequests": 53,
+      "numScripts": 24,
+      "numStylesheets": 3,
+      "numFonts": 1,
+      "numTasks": 6534,
+      "numTasksOver10ms": 22,
+      "numTasksOver25ms": 9,
+      "numTasksOver50ms": 6,
+      "numTasksOver100ms": 0,
+      "numTasksOver500ms": 0,
+      "rtt": 4.850000000000023,
+      "throughput": 193913113.1602205,
+      "maxRtt": 28.576999999999998,
+      "maxServerLatency": 311.78799999999995,
+      "totalByteWeight": 29102183,
+      "totalTaskTime": 1665.4409999999928,
+      "mainDocumentTransferSize": 991
+    }
+  },
+  "resources": {
+    "previous": {
+      "total": {
+        "requestCount": 53,
+        "transferSize": 42434577
+      },
+      "image": {
+        "requestCount": 23,
+        "transferSize": 39965970
+      },
+      "other": {
+        "requestCount": 10,
+        "transferSize": 1946255
+      },
+      "script": {
+        "requestCount": 15,
+        "transferSize": 466910
+      },
+      "font": {
+        "requestCount": 1,
+        "transferSize": 31369
+      },
+      "stylesheet": {
+        "requestCount": 3,
+        "transferSize": 23227
+      },
+      "document": {
+        "requestCount": 1,
+        "transferSize": 846
+      },
+      "media": {
+        "requestCount": 0,
+        "transferSize": 0
+      },
+      "third-party": {
+        "requestCount": 19,
+        "transferSize": 14090138
+      }
+    },
+    "current": {
+      "total": {
+        "requestCount": 53,
+        "transferSize": 29102183
+      },
+      "image": {
+        "requestCount": 13,
+        "transferSize": 26650111
+      },
+      "other": {
+        "requestCount": 11,
+        "transferSize": 1960551
+      },
+      "script": {
+        "requestCount": 24,
+        "transferSize": 435740
+      },
+      "font": {
+        "requestCount": 1,
+        "transferSize": 31369
+      },
+      "stylesheet": {
+        "requestCount": 3,
+        "transferSize": 23421
+      },
+      "document": {
+        "requestCount": 1,
+        "transferSize": 991
+      },
+      "media": {
+        "requestCount": 0,
+        "transferSize": 0
+      },
+      "third-party": {
+        "requestCount": 18,
+        "transferSize": 9744531
+      }
+    }
+  },
+  "lcpElement": {
+    "previous": [],
+    "current": []
+  },
+  "networkDependencyTree": {
+    "previous": null,
+    "current": null
+  },
+  "opportunities": {
+    "render-blocking-resources": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "unused-javascript": {
+      "previous": {
+        "score": 0,
+        "numericValue": 240,
+        "numericUnit": "millisecond",
+        "savingsMs": 240,
+        "savingsBytes": 205976,
+        "items": [
+          {
+            "url": "https://warscythe.xyz/assets/index-Bmj0dMhl.js",
+            "totalBytes": 248170,
+            "wastedBytes": 117160,
+            "wastedPercent": 47.20970390025032
+          },
+          {
+            "url": "https://warscythe.xyz/assets/useWarscytheStore-sg4SdD8x.js",
+            "totalBytes": 154168,
+            "wastedBytes": 88816,
+            "wastedPercent": 57.60966479888702
+          }
+        ]
+      },
+      "current": {
+        "score": 0,
+        "numericValue": 330,
+        "numericUnit": "millisecond",
+        "savingsMs": 330,
+        "savingsBytes": 189002,
+        "items": [
+          {
+            "url": "https://warscythe.xyz/assets/play-BSiFGZVy.js",
+            "totalBytes": 201826,
+            "wastedBytes": 115069,
+            "wastedPercent": 57.01372306018197
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-C99wqM2s.js",
+            "totalBytes": 126438,
+            "wastedBytes": 73933,
+            "wastedPercent": 58.47379676495116
+          }
+        ]
+      }
+    },
+    "unused-css-rules": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "modern-image-formats": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "uses-responsive-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "uses-optimized-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "offscreen-images": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "unminified-javascript": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "unminified-css": {
+      "previous": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "savingsMs": 0,
+        "savingsBytes": 0,
+        "items": []
+      }
+    },
+    "uses-long-cache-ttl": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "font-display": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "third-party-summary": {
+      "previous": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      },
+      "current": {
+        "numericValue": null,
+        "numericUnit": null,
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": []
+      }
+    },
+    "mainthread-work-breakdown": {
+      "previous": {
+        "score": 0,
+        "numericValue": 2753.5799999999767,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "group": "other",
+            "groupLabel": "Other",
+            "duration": 1460.94199999998
+          },
+          {
+            "group": "scriptEvaluation",
+            "groupLabel": "Script Evaluation",
+            "duration": 700.5309999999869
+          },
+          {
+            "group": "styleLayout",
+            "groupLabel": "Style & Layout",
+            "duration": 440.1610000000001
+          },
+          {
+            "group": "paintCompositeRender",
+            "groupLabel": "Rendering",
+            "duration": 135.95100000000997
+          },
+          {
+            "group": "scriptParseCompile",
+            "groupLabel": "Script Parsing & Compilation",
+            "duration": 7.969999999999999
+          },
+          {
+            "group": "parseHTML",
+            "groupLabel": "Parse HTML & CSS",
+            "duration": 5.016999999999999
+          },
+          {
+            "group": "garbageCollection",
+            "groupLabel": "Garbage Collection",
+            "duration": 3.007999999999999
+          }
+        ]
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 1665.4409999999812,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "group": "other",
+            "groupLabel": "Other",
+            "duration": 851.6439999999787
+          },
+          {
+            "group": "scriptEvaluation",
+            "groupLabel": "Script Evaluation",
+            "duration": 372.29799999999534
+          },
+          {
+            "group": "styleLayout",
+            "groupLabel": "Style & Layout",
+            "duration": 325.6999999999998
+          },
+          {
+            "group": "paintCompositeRender",
+            "groupLabel": "Rendering",
+            "duration": 102.11100000000748
+          },
+          {
+            "group": "parseHTML",
+            "groupLabel": "Parse HTML & CSS",
+            "duration": 8.619999999999997
+          },
+          {
+            "group": "scriptParseCompile",
+            "groupLabel": "Script Parsing & Compilation",
+            "duration": 5.067999999999999
+          }
+        ]
+      }
+    },
+    "bootup-time": {
+      "previous": {
+        "score": 1,
+        "numericValue": 644.8229999999951,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "url": "Unattributable",
+            "total": 1149.4899999999845,
+            "scripting": 8.537000000000003,
+            "scriptParseCompile": 0
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-Bmj0dMhl.js",
+            "total": 918.3829999999912,
+            "scripting": 557.3699999999951,
+            "scriptParseCompile": 1.521
+          },
+          {
+            "url": "https://warscythe.xyz/",
+            "total": 611.5610000000004,
+            "scripting": 76.53100000000002,
+            "scriptParseCompile": 0.8640000000000001
+          }
+        ]
+      },
+      "current": {
+        "score": 1,
+        "numericValue": 356.6480000000013,
+        "numericUnit": "millisecond",
+        "savingsMs": null,
+        "savingsBytes": null,
+        "items": [
+          {
+            "url": "Unattributable",
+            "total": 603.4869999999802,
+            "scripting": 3.668999999999997,
+            "scriptParseCompile": 0
+          },
+          {
+            "url": "https://warscythe.xyz/",
+            "total": 450.388,
+            "scripting": 27.292000000000023,
+            "scriptParseCompile": 0.4610000000000001
+          },
+          {
+            "url": "https://warscythe.xyz/assets/play-BSiFGZVy.js",
+            "total": 348.51799999999884,
+            "scripting": 119.1290000000005,
+            "scriptParseCompile": 0.357
+          },
+          {
+            "url": "https://warscythe.xyz/assets/index-C99wqM2s.js",
+            "total": 229.17100000000073,
+            "scripting": 205.41000000000074,
+            "scriptParseCompile": 0.33
+          }
+        ]
+      }
+    }
+  }
+}
