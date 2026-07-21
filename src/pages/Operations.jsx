@@ -154,7 +154,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
               <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
             </div>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 ops-mission-scroll">
               {tasks.map((task, idx) => {
                 const isTarget = tutorialStep === 'click_task' && idx === 0;
                 return (
@@ -330,6 +330,23 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         />
       </aside>
 
+      <style>{`
+        @media (max-width: 1023px) {
+          .ops-mission-scroll {
+            max-height: 140px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(197, 160, 89, 0.35) rgba(255, 255, 255, 0.02);
+          }
+          .ops-mission-scroll::-webkit-scrollbar { width: 4px; }
+          .ops-mission-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+          .ops-mission-scroll::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.35);
+            border-radius: 2px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
