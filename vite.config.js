@@ -44,12 +44,12 @@ export default defineConfig({
         theme_color: '#0a090c',
         icons: [
           {
-            src: 'wrath-192x192.png',
+            src: 'wrath.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'wrath-512x512.png',
+            src: 'wrath.png',
             sizes: '512x512',
             type: 'image/png'
           }
