@@ -46,12 +46,14 @@ export default defineConfig({
           {
             src: 'wrath-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: "any maskable"
           },
           {
             src: 'wrath-512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: "any maskable"
           }
         ]
       }
