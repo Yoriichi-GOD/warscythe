@@ -2,9 +2,9 @@
 
 > *"A figure carved into the stone watches with hollow eyes... The gates open slowly, resisting decades of rust."*
 
-**Warscythe** is a high-fantasy, zero-friction execution engine designed to crush ADHD paralysis. It transforms mundane daily tasks into a tactical campaign where consistent execution evolves your digital weaponry and unlocks deep, hidden lore.
+**Warscythe** is a high-fantasy, zero-friction execution engine designed to crush ADHD paralysis and help low motivation high ambition people to execute,by providing them purpose beyond the tasks something to look upto while working on a boring thing. It transforms mundane daily tasks into a tactical campaign where consistent execution evolves your digital weaponry and unlocks deep, hidden lore.
 
-*Built for the Y Combinator cycle.*
+
 
 ---
 

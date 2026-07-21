@@ -223,21 +223,33 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
         .modal-backdrop {
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
           background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
-          display: flex; align-items: center; justify-content: center; z-index: 1000;
+          display: flex; align-items: flex-start; justify-content: center; z-index: 1000;
           padding: 1rem;
+          padding-top: max(1rem, env(safe-area-inset-top));
+          overflow-y: auto;
         }
         
         .tactical-modal { 
           width: 100%; 
           max-width: 500px; 
-          padding: 1.5rem; 
+          padding: 1.5rem;
+          max-height: 85dvh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
           border: 1px solid var(--border-bright);
           box-shadow: 0 0 50px rgba(0,0,0,0.8);
           background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
+          scrollbar-width: thin;
+          scrollbar-color: rgba(197, 160, 89, 0.35) rgba(255, 255, 255, 0.02);
+          margin: auto;
         }
+        .tactical-modal::-webkit-scrollbar { width: 4px; }
+        .tactical-modal::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        .tactical-modal::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.35); border-radius: 2px; }
 
         @media (min-width: 640px) {
-          .tactical-modal { padding: 2.5rem; }
+          .modal-backdrop { align-items: center; }
+          .tactical-modal { padding: 2.5rem; max-height: 90dvh; }
         }
 
         .modal-header { 

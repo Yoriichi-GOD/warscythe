@@ -811,7 +811,6 @@ Each statement is classified: **(OE)** = Observed Evidence | **(RE)** = Reposito
 - Ritual all-or-nothing streak: miss any ritual, the whole streak resets. This is a high-stakes commitment device. **(RE)**
 
 **Potential Frustration Points:**
-- TC-06: A user who completes a ritual and finds their streak unchanged could believe the app broke. Silent data loss is trust-eroding. **(RE)**
 - Streak reset on miss: users who miss a day due to illness, travel, or genuine emergency have no recourse. This is intentional by design but may cause permanent dropout. **(INF)**
 - Onboarding requires 10 task completions to reach `hasCompletedTutorial = true`. Users who want to explore freely may find this constraining. **(RE)**
 
@@ -823,7 +822,7 @@ Each statement is classified: **(OE)** = Observed Evidence | **(RE)** = Reposito
 **Trust Implications of Sync Failures:**
 - `syncStatus` is visible in the UI (⚡ icon). Users can see when sync fails. **(RE — `syncStatus` is in state)**
 - `syncStatus: 'failed'` does not roll back the optimistic state. Users keep their local progress even if the server didn't receive it. This is correct behavior. **(RE)**
-- TC-06's data loss is invisible — the user sees no indicator. This is the most trust-damaging risk. **(RE)**
+
 
 ---
 
