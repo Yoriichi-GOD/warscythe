@@ -232,8 +232,8 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
         .tactical-modal { 
           width: 100%; 
           max-width: 500px; 
-          padding: 1.5rem;
-          max-height: 85dvh;
+          padding: 1rem;
+          max-height: 78dvh;
           overflow-y: auto;
           overscroll-behavior: contain;
           border: 1px solid var(--border-bright);
