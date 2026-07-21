@@ -238,7 +238,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         className={`modal-content glass-panel tactical-modal custom-scrollbar ${
-          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[90vh] overflow-y-auto'
+          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[78dvh] overflow-y-auto'
         }`}
         onClick={e => e.stopPropagation()}
       >
@@ -513,23 +513,32 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
           background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
           display: flex; justify-content: center; align-items: flex-start; z-index: 1000;
-          padding: 2rem 1.5rem;
+          padding: 1rem;
+          padding-top: max(1rem, env(safe-area-inset-top));
           overflow-y: auto;
         }
         
         .tactical-modal { 
           width: 100%; 
           max-width: 500px; 
-          padding: 1.5rem; 
+          padding: 1rem; 
+          max-height: 78dvh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
           border: 1px solid var(--border-bright);
           box-shadow: 0 0 50px rgba(0,0,0,0.8);
           background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
           margin: auto;
           position: relative;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(197, 160, 89, 0.35) rgba(255, 255, 255, 0.02);
         }
+        .tactical-modal::-webkit-scrollbar { width: 4px; }
+        .tactical-modal::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        .tactical-modal::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.35); border-radius: 2px; }
 
         @media (min-width: 640px) {
-          .tactical-modal { padding: 2.5rem; }
+          .tactical-modal { padding: 2.5rem; max-height: 85dvh; }
         }
 
         .modal-header { 

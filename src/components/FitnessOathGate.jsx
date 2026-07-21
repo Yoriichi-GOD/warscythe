@@ -6,9 +6,9 @@ export default function FitnessOathGate({ onComplete }) {
   const [stage, setStage] = useState('gate');
 
   return (
-    <div className="absolute inset-0 z-[1000] bg-black/55 backdrop-blur-[1.5px] overflow-hidden">
+    <div className="absolute inset-x-0 top-0 min-h-[200%] lg:min-h-full lg:inset-0 z-[1000] bg-black/80 backdrop-blur-[3px] lg:bg-black/55 lg:backdrop-blur-[1.5px] overflow-hidden">
       <img src="/gate.webp" alt="" className="hidden lg:block absolute inset-0 w-full h-full object-cover opacity-80" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_5%,rgba(0,0,0,.72)_82%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_5%,rgba(0,0,0,.72)_82%)] pointer-events-none" />
       <AnimatePresence mode="wait">
         {stage === 'gate' && (
           <motion.section key="gate" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="relative h-full grid items-start lg:place-items-center p-3 pt-[5vh] lg:p-5">

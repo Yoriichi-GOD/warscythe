@@ -9,12 +9,12 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
   const [frequency, setFrequency] = useState('daily');
   const [effort, setEffort] = useState('Medium');
   const [targetTime, setTargetTime] = useState('');
-  
+
   const [presetOpen, setPresetOpen] = useState(false);
   const [frequencyOpen, setFrequencyOpen] = useState(false);
   const [effortOpen, setEffortOpen] = useState(false);
   const [tutorialStage, setTutorialStage] = useState(0);
-  
+
   const addRitual = useWarscytheStore(state => state.addRitual);
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
 
@@ -49,7 +49,7 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
       onClose({ title, frequency, effort, targetTime: targetTime || null });
       return;
     }
-    
+
     const success = addRitual(title, frequency, effort, targetTime || null);
     if (success) {
       if (effort === 'Boss') {
@@ -62,12 +62,12 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
 
   return (
     <div className="modal-backdrop" onClick={tutorialMode ? undefined : onClose}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="modal-content glass-panel tactical-modal"
+        className="modal-content glass-panel tactical-modal max-h-[78dvh] overflow-y-auto custom-scrollbar"
         onClick={e => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -92,9 +92,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
         )}
 
         {(presetOpen || frequencyOpen || effortOpen) && (
-          <div 
-            className="fixed inset-0 z-40 bg-transparent" 
-            onClick={() => { setPresetOpen(false); setFrequencyOpen(false); setEffortOpen(false); }} 
+          <div
+            className="fixed inset-0 z-40 bg-transparent"
+            onClick={() => { setPresetOpen(false); setFrequencyOpen(false); setEffortOpen(false); }}
           />
         )}
 
@@ -102,9 +102,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
           <div className={`form-group full tutorial-field ${tutorialMode && tutorialStage !== 0 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: presetOpen ? 200 : 10 }}>
             <label><Zap size={10} /> TEMPLATE PRESETS</label>
             <div className="custom-select-container">
-              <button 
-                type="button" 
-                className="custom-select-trigger" 
+              <button
+                type="button"
+                className="custom-select-trigger"
                 onClick={() => { if (!tutorialMode || tutorialStage === 0) setPresetOpen(!presetOpen); setFrequencyOpen(false); setEffortOpen(false); }}
               >
                 <span>-- SELECT QUICK HABIT PRESET --</span>
@@ -113,9 +113,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
               {presetOpen && (
                 <div className="custom-select-options">
                   {HABIT_TEMPLATES.map((h, idx) => (
-                    <div 
-                      key={idx} 
-                      className="custom-select-option" 
+                    <div
+                      key={idx}
+                      className="custom-select-option"
                       onClick={() => handleSelectPreset(h.title)}
                     >
                       {h.title} ({h.effort})
@@ -128,10 +128,10 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
 
           <div className={`form-group full ${tutorialMode ? 'tutorial-locked tutorial-derived' : ''}`}>
             <label><Zap size={10} /> RITUAL IDENTIFIER</label>
-            <input 
-              type="text" 
-              placeholder="ENTER HABIT ROUTINE..." 
-              value={title} 
+            <input
+              type="text"
+              placeholder="ENTER HABIT ROUTINE..."
+              value={title}
               onChange={e => !tutorialMode && setTitle(e.target.value)}
               autoFocus
               required
@@ -142,9 +142,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
             <div className={`form-group tutorial-field ${tutorialMode && tutorialStage !== 1 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: frequencyOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> FREQUENCY</label>
               <div className="custom-select-container">
-                <button 
-                  type="button" 
-                  className="custom-select-trigger" 
+                <button
+                  type="button"
+                  className="custom-select-trigger"
                   onClick={() => { if (!tutorialMode || tutorialStage === 1) setFrequencyOpen(!frequencyOpen); setPresetOpen(false); setEffortOpen(false); }}
                 >
                   <span>{frequencyOptions.find(o => o.value === frequency)?.label}</span>
@@ -153,9 +153,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
                 {frequencyOpen && (
                   <div className="custom-select-options">
                     {frequencyOptions.map(opt => (
-                      <div 
-                        key={opt.value} 
-                        className="custom-select-option" 
+                      <div
+                        key={opt.value}
+                        className="custom-select-option"
                         onClick={() => { setFrequency(opt.value); setFrequencyOpen(false); if (tutorialMode) setTutorialStage(2); }}
                       >
                         {opt.label}
@@ -169,9 +169,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
             <div className={`form-group tutorial-field ${tutorialMode && tutorialStage !== 2 ? 'tutorial-locked' : 'tutorial-active'}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
-                <button 
-                  type="button" 
-                  className="custom-select-trigger" 
+                <button
+                  type="button"
+                  className="custom-select-trigger"
                   onClick={() => { if (!tutorialMode || tutorialStage === 2) setEffortOpen(!effortOpen); setPresetOpen(false); setFrequencyOpen(false); }}
                 >
                   <span>{effortOptions.find(o => o.value === effort)?.label}</span>
@@ -180,9 +180,9 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
                 {effortOpen && (
                   <div className="custom-select-options">
                     {effortOptions.map(opt => (
-                      <div 
-                        key={opt.value} 
-                        className="custom-select-option" 
+                      <div
+                        key={opt.value}
+                        className="custom-select-option"
                         onClick={() => { setEffort(opt.value); setEffortOpen(false); if (tutorialMode) setTutorialStage(3); }}
                       >
                         {opt.label}
@@ -193,13 +193,13 @@ export default function RitualModal({ onClose, tutorialMode = false }) {
               </div>
             </div>
           </div>
-          
+
           <div className={`form-group full mt-4 tutorial-field ${tutorialMode && tutorialStage !== 3 ? 'tutorial-locked' : 'tutorial-active'}`}>
             <label><Zap size={10} /> TARGET TIME (OPTIONAL ALERT CUE)</label>
-            <input 
-              type="time" 
+            <input
+              type="time"
               className="tactical-time-input w-full bg-black/40 border border-gold-core/20 hover:border-gold-core/50 focus:border-gold-bright text-white px-3 py-2 rounded text-xs font-mono focus:outline-none transition-colors"
-              value={targetTime} 
+              value={targetTime}
               onChange={e => {
                 setTargetTime(e.target.value);
                 if (tutorialMode && e.target.value) setTutorialStage(4);
