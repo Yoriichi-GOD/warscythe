@@ -38,18 +38,18 @@ export default defineConfig({
         ]
       },
       manifest: {
-        name: 'Warlord Execution Engine',
-        short_name: 'Warlord',
+        name: 'Warscythe Execution Engine',
+        short_name: 'Warscythe',
         description: 'High-performance task completion and behavior control.',
         theme_color: '#0a090c',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'wrath-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'wrath-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }
