@@ -117,6 +117,21 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
         className="auth-modal glass-panel"
         onClick={e => e.stopPropagation()}
       >
+        <aside className="auth-realm-panel" aria-hidden="true">
+          <div className="auth-realm-shade" />
+          <div className="auth-realm-sigil">
+            <img src="/command-core.png" alt="" />
+            <span>THE REALM AWAITS</span>
+          </div>
+          <div className="auth-realm-copy">
+            <small>WARSCYTHE // SECURE PASSAGE</small>
+            <h3>Enter as yourself.<br /><em>Leave as evidence.</em></h3>
+            <p>Your Operations, Rituals and training will shape the world beyond this gate.</p>
+          </div>
+          <div className="auth-realm-rule"><span>EXECUTION FORGES LEGEND</span></div>
+        </aside>
+
+        <section className="auth-content">
         {/* Back Button */}
         {activeScreen !== 'options' && activeScreen !== 'reset_password' && !registered && (
           <button className="auth-back-btn" onClick={handleBack} title="Back to Options">
@@ -398,8 +413,9 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
         <div className="auth-security-tag">
           <ShieldCheck size={12} />
-          <span>ENCRYPTED BY WARSCYTHE-X64</span>
+          <span>SECURE PASSAGE // WARSCYTHE-X64</span>
         </div>
+        </section>
       </motion.div>
 
 
@@ -408,8 +424,10 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
         .auth-backdrop { 
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.6); 
-          backdrop-filter: blur(10px); 
+          background:
+            radial-gradient(circle at 72% 45%, rgba(190, 141, 58, .13), transparent 30%),
+            rgba(0,0,0,0.78);
+          backdrop-filter: blur(14px) saturate(.75);
           z-index: 3000; 
           display: flex;
           align-items: center;
@@ -418,18 +436,109 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
         }
         .auth-modal {
           width: 100%;
-          max-width: 440px;
-          padding: 2rem;
+          max-width: 980px;
+          min-height: 610px;
+          padding: 0;
+          display: grid;
+          grid-template-columns: minmax(0, .84fr) minmax(430px, 1fr);
           text-align: center;
           position: relative;
-          background: rgba(10, 10, 15, 0.95);
-          border: 1px solid rgba(197, 160, 89, 0.35);
-          box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 40px rgba(197,160,89,0.05);
-          border-radius: 4px;
+          overflow: hidden;
+          background: #070709;
+          border: 1px solid rgba(232, 191, 105, 0.48);
+          box-shadow: 0 38px 120px rgba(0,0,0,.96), 0 0 65px rgba(197,160,89,.1);
+          border-radius: 2px;
         }
 
-        @media (min-width: 640px) {
-          .auth-modal { padding: 3rem 2.5rem; }
+        .auth-modal::before {
+          content: "";
+          position: absolute;
+          inset: 9px;
+          z-index: 20;
+          border: 1px solid rgba(232, 191, 105, .1);
+          pointer-events: none;
+        }
+
+        .auth-realm-panel {
+          position: relative;
+          min-height: 610px;
+          overflow: hidden;
+          border-right: 1px solid rgba(232, 191, 105, .22);
+          background: #0a0908 url("/landing-page/final-gate.webp") center / cover no-repeat;
+        }
+        .auth-realm-shade {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(180deg, rgba(2,2,3,.18), rgba(2,2,3,.16) 38%, rgba(2,2,3,.94)),
+            linear-gradient(90deg, rgba(2,2,3,.2), transparent 55%, rgba(2,2,3,.55));
+        }
+        .auth-realm-sigil {
+          position: absolute;
+          top: 2rem;
+          left: 2rem;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: .75rem;
+        }
+        .auth-realm-sigil img {
+          width: 42px;
+          height: 42px;
+          object-fit: contain;
+          filter: drop-shadow(0 0 12px rgba(232,191,105,.45));
+        }
+        .auth-realm-sigil span,
+        .auth-realm-rule span,
+        .auth-realm-copy small {
+          color: #e4bd6d;
+          font: 800 .52rem 'JetBrains Mono', monospace;
+          letter-spacing: .25em;
+        }
+        .auth-realm-copy {
+          position: absolute;
+          right: 2.25rem;
+          bottom: 4rem;
+          left: 2.25rem;
+          z-index: 2;
+          text-align: left;
+        }
+        .auth-realm-copy h3 {
+          margin: .85rem 0 1rem;
+          color: #fff8e9;
+          font: 600 2rem/1.15 'Cinzel', serif;
+          letter-spacing: .02em;
+        }
+        .auth-realm-copy h3 em { color: #e4bd6d; font-style: normal; }
+        .auth-realm-copy p {
+          max-width: 330px;
+          color: rgba(245,235,215,.67);
+          font: .84rem/1.65 Georgia, serif;
+        }
+        .auth-realm-rule {
+          position: absolute;
+          right: 2.25rem;
+          bottom: 1.7rem;
+          left: 2.25rem;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: .8rem;
+          opacity: .58;
+        }
+        .auth-realm-rule::before { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, #e4bd6d, transparent); }
+
+        .auth-content {
+          position: relative;
+          z-index: 10;
+          min-width: 0;
+          padding: 4.3rem 3.4rem 2.7rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          background:
+            radial-gradient(circle at 50% 15%, rgba(214,171,85,.08), transparent 32%),
+            linear-gradient(145deg, rgba(16,15,17,.98), rgba(5,5,7,.99));
         }
 
         .auth-back-btn {
@@ -783,6 +892,132 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           border-color: #c5a059;
           color: #c5a059;
           box-shadow: 0 0 10px rgba(197, 160, 89, 0.15);
+        }
+
+        .auth-icon {
+          width: 46px;
+          height: 46px;
+          margin-bottom: 1.25rem;
+          padding: 10px;
+          border: 1px solid rgba(228,189,109,.35);
+          border-radius: 50%;
+          background: rgba(228,189,109,.06);
+          color: #efc978;
+          filter: drop-shadow(0 0 16px rgba(228,189,109,.3));
+        }
+        .auth-header h2 {
+          margin-bottom: .65rem;
+          color: #fff9ed;
+          font-size: clamp(1.35rem, 2vw, 1.7rem);
+          letter-spacing: .22em;
+        }
+        .auth-header p { color: rgba(217,207,190,.42); letter-spacing: .24em; }
+        .auth-header::after {
+          content: "";
+          display: block;
+          width: 88px;
+          height: 1px;
+          margin: 1.6rem auto 0;
+          background: linear-gradient(90deg, transparent, #e4bd6d, transparent);
+        }
+        .auth-options-list { margin-top: 1.65rem; gap: .85rem; }
+        .auth-option-btn {
+          min-height: 54px;
+          position: relative;
+          justify-content: flex-start;
+          padding: .9rem 1.2rem;
+          border-color: rgba(228,189,109,.15);
+          background: linear-gradient(90deg, rgba(228,189,109,.045), rgba(255,255,255,.018));
+          color: rgba(255,249,237,.77);
+          font-size: .7rem;
+          font-weight: 800;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+        }
+        .auth-option-btn::after {
+          content: "ENTER";
+          position: absolute;
+          right: 1.1rem;
+          color: rgba(228,189,109,.28);
+          font-size: .46rem;
+          letter-spacing: .2em;
+        }
+        .auth-option-btn:hover {
+          border-color: rgba(228,189,109,.72);
+          background: linear-gradient(90deg, rgba(228,189,109,.14), rgba(228,189,109,.025));
+          box-shadow: inset 3px 0 #e4bd6d, 0 0 26px rgba(197,160,89,.08);
+          transform: translateX(3px);
+        }
+        .auth-option-btn:disabled::after { content: "SEALED"; }
+        .auth-option-btn.google:hover {
+          background: linear-gradient(90deg, rgba(66,133,244,.09), rgba(228,189,109,.025));
+          border-color: rgba(228,189,109,.6);
+          box-shadow: inset 3px 0 #4285f4, 0 0 24px rgba(66,133,244,.08);
+        }
+        .auth-disclaimer-container {
+          margin-top: 1rem;
+          padding: 1rem;
+          border: 1px solid rgba(228,189,109,.1);
+          background: rgba(0,0,0,.22);
+        }
+        .auth-disclaimer-label { align-items: center; }
+        .auth-terms-checkbox {
+          width: 18px;
+          height: 18px;
+          margin: 0;
+          accent-color: #e4bd6d;
+        }
+        .auth-disclaimer-text { color: rgba(217,207,190,.5); line-height: 1.55; }
+        .auth-disclaimer-text a { color: rgba(239,201,120,.82); text-underline-offset: 3px; }
+        .auth-security-tag {
+          margin-top: auto;
+          padding-top: 1.6rem;
+          color: rgba(228,189,109,.24);
+        }
+        .auth-close {
+          top: 1.45rem;
+          right: 1.55rem;
+          z-index: 30;
+          width: 38px;
+          height: 38px;
+          display: grid;
+          place-items: center;
+          border: 1px solid rgba(228,189,109,.12);
+          border-radius: 50%;
+          background: rgba(0,0,0,.32);
+        }
+        .auth-back-btn { z-index: 30; top: 1.7rem; left: calc(44% + 1.5rem); }
+        .auth-form { margin-top: 1.7rem; }
+        .auth-input-group input {
+          min-height: 52px;
+          border-color: rgba(228,189,109,.14);
+          background: rgba(0,0,0,.3);
+        }
+        .auth-submit-btn {
+          min-height: 52px;
+          border: 1px solid #efcc82;
+          border-radius: 1px;
+          background: linear-gradient(110deg, #b8893c, #edcb83 48%, #bc8d42);
+          box-shadow: 0 0 32px rgba(197,160,89,.16);
+        }
+
+        @media (max-width: 760px) {
+          .auth-backdrop { align-items: center; padding: .8rem; }
+          .auth-modal {
+            width: min(100%, 460px);
+            max-height: calc(100svh - 1.6rem);
+            min-height: 0;
+            display: block;
+            overflow-y: auto;
+          }
+          .auth-realm-panel { display: none; }
+          .auth-content { min-height: min(620px, calc(100svh - 1.6rem)); padding: 4.6rem 1.35rem 1.7rem; }
+          .auth-back-btn { left: 1.25rem; }
+          .auth-close { right: 1.15rem; }
+          .auth-header h2 { font-size: 1.25rem; }
+          .auth-option-btn { padding-inline: 1rem; font-size: .62rem; }
+          .auth-disclaimer-container { padding: .8rem; }
+          .auth-security-tag { padding-top: 1.2rem; }
         }
       `}</style>
     </div>

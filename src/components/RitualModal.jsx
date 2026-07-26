@@ -165,7 +165,6 @@ export default function RitualModal({
               placeholder="ENTER HABIT ROUTINE..."
               value={title}
               onChange={event => !tutorialMode && setTitle(event.target.value)}
-              autoFocus
               required
             />
           </div>

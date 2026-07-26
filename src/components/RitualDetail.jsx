@@ -22,7 +22,7 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
 
   const today = new Date().toISOString().slice(0, 10);
   const isCompletedToday = ritual.lastCompletedAt?.slice(0, 10) === today;
-  const monthStats = getRitualMonthStats(ritual, ritualCompletionEvents);
+  const cycleStats = getRitualMonthStats(ritual, ritualCompletionEvents);
   const saveChanges = () => {
     if (!draft.title.trim()) return;
     updateRitual(ritual.id, {
@@ -118,12 +118,12 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
               <span>VOW SEVERANCE WARNING</span>
               <h3 id="ritual-delete-title">BREAK THIS RITUAL?</h3>
               <p>
-                Deleting <strong>{ritual.title}</strong> ends its active streak and removes it from this month&apos;s medal projection.
+                Deleting <strong>{ritual.title}</strong> ends its active streak and removes it from its current 31-day medal projection.
                 Previously awarded medals remain in the Ledger.
               </p>
               <div className="ritual-delete-impact">
                 <div><Flame size={13} /><span>CURRENT STREAK</span><strong>{ritual.streak || 0} DAYS</strong></div>
-                <div><AlertTriangle size={13} /><span>MONTHLY RECORD</span><strong>{monthStats.completed} / {monthStats.totalOpportunities} LOGGED</strong></div>
+                <div><AlertTriangle size={13} /><span>CYCLE RECORD</span><strong>{cycleStats.completed} / {cycleStats.totalOpportunities} LOGGED</strong></div>
               </div>
               <div className="ritual-delete-warning-actions">
                 <button type="button" onClick={() => setShowDeleteWarning(false)}>KEEP THE VOW</button>

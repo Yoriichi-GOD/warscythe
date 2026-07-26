@@ -115,7 +115,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
       <section className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-hidden pb-6">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 shrink-0">
           <div className="flex items-center gap-3">
             <Zap size={14} className="text-gold-core" />
             <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
@@ -140,20 +140,20 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
           </div>
         </div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 flex-1 min-h-0">
           <div className={tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''}>
             <ObjectiveRitual onClick={onAddTask} />
           </div>
           
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 flex-1 min-h-0">
             <div className="flex justify-between items-center px-1">
               <span className="text-[9px] font-mono text-gray-300 tracking-widest uppercase">Missions in Progress</span>
               <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
             </div>
             
-            <div className="flex flex-col gap-3 ops-mission-scroll">
+            <div className={`flex flex-col gap-3 ops-mission-scroll custom-scrollbar flex-1 min-h-0 overflow-y-auto pr-2 ${tutorialStep === 'task_creation' || tutorialStep === 'click_task' ? 'ops-tutorial-reveal' : ''}`}>
               {tasks.map((task, idx) => {
                 const isTarget = tutorialStep === 'click_task' && idx === 0;
                 return (
@@ -206,7 +206,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         <button 
           onClick={handleRecalculate}
           disabled={isRecalculating || tutorialStep === 'task_creation'}
-          className={`mt-12 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
+          className={`mt-4 shrink-0 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
             tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''
           }`}
         >
@@ -343,6 +343,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
           .ops-mission-scroll::-webkit-scrollbar-thumb {
             background: rgba(197, 160, 89, 0.35);
             border-radius: 2px;
+          }
+          .ops-mission-scroll.ops-tutorial-reveal {
+            max-height: none;
+            overflow: visible;
           }
         }
       `}</style>

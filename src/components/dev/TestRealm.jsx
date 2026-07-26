@@ -1,9 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useWarscytheStore, getLore } from '../../store/useWarscytheStore';
+import { CAPTURE_SCENES, createCaptureRealmState } from '../../data/captureRealm';
+import { REGIONS } from '../../store/constants';
 
 const REALM_KEY = 'warscythe_test_realm_active';
 const SNAPSHOT_KEY = 'warscythe_test_realm_snapshots';
 const ORIGINAL_STATE_KEY = 'warscythe_test_realm_original_state';
+const CAPTURE_MODE_KEY = 'warscythe_capture_mode';
 const TEST_USER = {
   id: '00000000-0000-4000-8000-000000000001',
   email: 'test-realm@warscythe.local',
@@ -168,6 +171,25 @@ export default function TestRealm() {
   const [active, setActive] = useState(() => localStorage.getItem(REALM_KEY) === 'true');
   const [snapshotName, setSnapshotName] = useState('');
   const [snapshots, setSnapshots] = useState(readSnapshots);
+  const [captureMode, setCaptureMode] = useState(() => localStorage.getItem(CAPTURE_MODE_KEY) === 'true');
+
+  useEffect(() => {
+    document.body.classList.toggle('warscythe-capture-mode', captureMode);
+    localStorage.setItem(CAPTURE_MODE_KEY, String(captureMode));
+    return () => document.body.classList.remove('warscythe-capture-mode');
+  }, [captureMode]);
+
+  useEffect(() => {
+    const restoreControls = event => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        setCaptureMode(false);
+        setOpen(true);
+      }
+    };
+    window.addEventListener('keydown', restoreControls);
+    return () => window.removeEventListener('keydown', restoreControls);
+  }, []);
 
   const summary = useMemo(() => ({
     progress: store.onboardingProgress,
@@ -355,6 +377,31 @@ export default function TestRealm() {
     window.dispatchEvent(new CustomEvent('warscythe:test-tab', { detail: 'fitness' }));
   };
 
+  const launchCaptureScene = (scene) => {
+    const captureState = createCaptureRealmState();
+    applyState({
+      ...scenarioState('veteran'),
+      ...captureState,
+      activeWorkout: scene.activeWorkout ? captureState.activeWorkout : null,
+    });
+    localStorage.setItem('warscythe_capture_scene', scene.id);
+    document.body.dataset.captureScene = scene.id;
+    setOpen(false);
+    setCaptureMode(true);
+    window.dispatchEvent(new CustomEvent('warscythe:capture-scene', { detail: scene }));
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('warscythe:capture-scene', { detail: scene }));
+    }, 650);
+  };
+
+  const switchVideoRegion = (regionIndex) => {
+    const current = useWarscytheStore.getState();
+    applyState({
+      ...current,
+      level: regionIndex + 1,
+    });
+  };
+
   const saveSnapshot = () => {
     const name = snapshotName.trim() || `Snapshot ${Object.keys(snapshots).length + 1}`;
     const current = useWarscytheStore.getState();
@@ -392,7 +439,7 @@ export default function TestRealm() {
   );
 
   return (
-    <div className="fixed bottom-20 right-4 z-[200000] font-mono">
+    <div className="warscythe-test-realm fixed bottom-20 right-4 z-[200000] font-mono">
       {open && (
         <div className="mb-3 w-[min(94vw,390px)] max-h-[75vh] overflow-y-auto rounded-xl border border-cyan-400/30 bg-[#03080d]/[0.98] p-4 text-white shadow-[0_0_60px_rgba(34,211,238,0.18)]">
           <div className="mb-4 flex items-start justify-between">
@@ -435,6 +482,54 @@ export default function TestRealm() {
                       {label}
                     </button>
                   ))}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-amber-300/20 bg-amber-300/[0.04] p-3">
+                <div className="mb-1 text-[9px] tracking-[0.25em] text-amber-300">PRESS CAPTURE SUITE</div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-500">
+                  Founder data, completed onboarding and clean chrome-free scene states. Use a 1920px desktop viewport. Press Ctrl+Shift+P to restore these controls.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {CAPTURE_SCENES.map(scene => (
+                    <button
+                      key={scene.id}
+                      onClick={() => launchCaptureScene(scene)}
+                      className="rounded border border-amber-300/15 bg-black/30 px-2 py-2 text-left text-[8px] text-amber-100/80 hover:border-amber-300/50 hover:text-amber-200"
+                    >
+                      {scene.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-violet-300/20 bg-violet-300/[0.04] p-3">
+                <div className="mb-1 flex items-center justify-between text-[9px] tracking-[0.25em] text-violet-300">
+                  <span>VIDEO REGION</span>
+                  <span>{Math.min(store.level || 1, REGIONS.length)} / {REGIONS.length}</span>
+                </div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-500">
+                  Changes only the active region atmosphere. Capture data, Operations, Rituals, Fitness and Ledger evidence remain untouched.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {REGIONS.map((region, index) => {
+                    const selected = (store.level || 1) === index + 1;
+                    return (
+                      <button
+                        key={region.id || region.name || index}
+                        type="button"
+                        onClick={() => switchVideoRegion(index)}
+                        className={`rounded border px-2 py-2 text-left text-[8px] transition-colors ${
+                          selected
+                            ? 'border-violet-300 bg-violet-300 text-black'
+                            : 'border-white/10 bg-black/30 text-zinc-300 hover:border-violet-300/50 hover:text-violet-200'
+                        }`}
+                      >
+                        <span className="block text-[7px] opacity-60">REGION {index + 1}</span>
+                        <strong className="mt-0.5 block truncate tracking-wider">{region.name}</strong>
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
 
@@ -517,6 +612,17 @@ export default function TestRealm() {
                 </div>
               </section>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setCaptureMode(true);
+                }}
+                className="w-full rounded border border-amber-300/40 bg-amber-300/[0.08] px-3 py-2.5 text-[9px] font-black tracking-widest text-amber-200 hover:bg-amber-300 hover:text-black"
+              >
+                HIDE CONTROLS & RESUME CAPTURE
+              </button>
+
               <button onClick={deactivate} className="w-full rounded border border-red-500/30 px-3 py-2 text-[9px] tracking-widest text-red-400">
                 EXIT REALM & RESTORE NORMAL APP
               </button>
@@ -528,6 +634,9 @@ export default function TestRealm() {
       <button onClick={() => setOpen(value => !value)} className={`rounded-full border px-4 py-3 text-[10px] font-black tracking-widest shadow-2xl ${active ? 'border-cyan-300 bg-cyan-300 text-black' : 'border-cyan-400/40 bg-black text-cyan-300'}`} title="Open the development-only Warscythe Test Realm">
         {active ? 'REALM ACTIVE' : 'TEST REALM'}
       </button>
+      <style>{`
+        body.warscythe-capture-mode .warscythe-test-realm { display: none !important; }
+      `}</style>
     </div>
   );
 }

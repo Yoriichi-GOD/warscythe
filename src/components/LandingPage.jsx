@@ -1,693 +1,457 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sword, Shield, Activity, Music, Terminal, BookOpen, Layers, 
-  CheckCircle2, ChevronRight, Scale, ShieldAlert, X, Eye, Users, 
-  HelpCircle, Compass, CreditCard, Sparkles, Heart 
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
+import {
+  Activity,
+  Archive,
+  ArrowDown,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Dumbbell,
+  ExternalLink,
+  Flame,
+  Map,
+  Maximize2,
+  Menu,
+  Pause,
+  Play,
+  ScrollText,
+  Shield,
+  Sparkles,
+  Swords,
+  Terminal,
+  Users,
+  X,
 } from 'lucide-react';
+import './LandingPage.css';
 
-export default function LandingPage({ onLaunch }) {
-  const [activeTab, setActiveTab] = useState('operations');
-  const [showLegal, setShowLegal] = useState(null); // 'terms' | 'privacy' | null
+const LANDING_ASSET = '/landing-page/';
 
-  // 11 Chapters matching the full WARSCYTHE_INFO_ICON_DESCRIPTIONS_COMPLETE.md document
-  const chapters = [
-    {
-      id: 'operations',
-      label: 'Operations & Raids',
-      icon: Sword,
-      asset: '/nodes/node-blackvale.png',
-      topics: [
-        {
-          title: 'What is an Operation?',
-          philosophy: 'An operation is your declaration of war against a specific obstacle. Not a vague goal—a concrete, time-bound commitment. The moment you create it, you\'ve crossed the threshold from thinking to doing.',
-          useCase: 'You need to finish a project, learn a skill, build something, overcome resistance—anything that takes focus and time. Create an operation, assign it a difficulty level (how hard will this push you?), set a deadline, then execute.',
-          details: [
-            'One operation at a time per region? No. You can have up to 5 active simultaneously.',
-            'Each operation unlocks artifacts when completed. Artifacts prove you did the work.',
-            'Operations live in regions. Completing them advances regional progress toward fairy liberation.',
-            'Boss Raids are the hardest operations (14-day minimum). They\'re the climax of a region\'s story.'
-          ]
-        },
-        {
-          title: 'What are Threat Levels?',
-          philosophy: 'Threat levels are honest. Don\'t pretend your task is harder than it is. A low-threat operation should feel achievable. A legendary boss raid should feel like you\'re walking into actual danger.',
-          useCase: 'When creating an operation, you choose: Low (1-3 days), Medium (3-7 days), High (7-14 days), Legendary (14+ days, Boss Raid only).',
-          details: [
-            'Low: Something you can finish in a focused day or two. Clearing email, single workout session, small write-up.',
-            'Medium: A project that spans a week. A presentation, a feature, a mini-goal.',
-            'High: Something that demands sustained focus. A major deliverable, competitive training block, serious creative work.',
-            'Legendary: Only for the hardest wars. Launching a project, major exam, transformative commitment. Boss Raids live here.'
-          ],
-          whyItMatters: 'The app respects your time. If you say legendary, the app knows you\'re serious. If you\'re always legendary, the app will eventually call you out (through lore, through Guardian Angel whispers). You can\'t lie to the system—it will know.'
-        },
-        {
-          title: 'What is a Region?',
-          philosophy: 'Regions are worlds. Each dragon rules a world. Freeing a fairy means restoring that world to order. You\'re not just completing tasks—you\'re on a hero\'s journey across 40 distinct mythologies.',
-          useCase: 'Regions unlock sequentially. You unlock a new region only after completing 5 key operations in your current region. Each region has:',
-          details: [
-            'A unique aesthetic (void purple, lava gold, forest green, etc.)',
-            'A unique dragon (with its own personality and realm)',
-            'A unique imprisoned fairy (with her own story)',
-            '5 key operations to complete before you can challenge the dragon'
-          ],
-          currentState: 'You have access to Region 1 (Ashwood) at launch. Complete 5 operations, unlock Region 2. Keep going.'
-        },
-        {
-          title: 'What is a Boss Raid?',
-          philosophy: 'Not every operation is a boss raid. Boss raids are the climax. You\'ve prepared, gathered artifacts, built momentum. Now you face the dragon itself—the final obstacle before a fairy is free.',
-          useCase: 'After completing 4 normal operations in a region, you can initiate a Boss Raid:',
-          details: [
-            '14-day minimum (non-negotiable)',
-            'Deposits 1/5 key per completion (like normal operations)',
-            'Completes the liberation sequence for that fairy once you gather all 5 keys'
-          ],
-          whyItMatters: 'A Boss Raid is narrative theater. The game treats it as a war moment. Flash screens celebrate it. Your Guardian Angel acknowledges the weight.'
-        }
-      ]
-    },
-    {
-      id: 'rituals',
-      label: 'Daily Rituals & Streaks',
-      icon: Shield,
-      asset: '/nodes/node-ashendale.png',
-      topics: [
-        {
-          title: 'What is a Ritual?',
-          philosophy: 'Operations are wars against specific obstacles. Rituals are your daily religion. They\'re the non-negotiable habits that build you. Miss one ritual, and you break the chain. The chain is the point.',
-          useCase: 'Rituals are daily or weekly commitments you make to yourself (e.g., Morning run, Meditation, Gym session, Writing hour, Meal prep, or whatever builds you).',
-          details: [
-            'Operations are discrete projects (they end)',
-            'Rituals are continuous (they\'re forever, until you consciously end them)',
-            'Missing one ritual breaks ALL streaks (the system doesn\'t negotiate)'
-          ]
-        },
-        {
-          title: 'What is the Streak?',
-          philosophy: 'The streak is your scoreboard against yourself. It\'s not about perfection—it\'s about consistency. One day, one completed ritual set, one more link in the chain.',
-          useCase: 'Every day you complete ALL active rituals, the streak counter increases by 1. If you skip even one ritual, the streak resets to 0, all progress resets, and you start over tomorrow.',
-          details: [
-            'Consistency is the actual superpower. Not intensity, not brilliance—consistency.',
-            'The streak trains you to show up, even when you don\'t feel like it, even when it\'s cold.',
-            'At 200 days, the app will send you a letter. It\'s not congratulations. It\'s a warning asking: "Are you doing this for you, or are you addicted to the number?"'
-          ]
-        }
-      ]
-    },
-    {
-      id: 'scythe',
-      label: 'Scythe & Progression',
-      icon: Layers,
-      asset: '/artifacts/artifact-scroll.png',
-      topics: [
-        {
-          title: 'What is the Scythe?',
-          philosophy: 'The Scythe is your signature. It evolves with you. As you complete more operations, as your focus sharpens, the Scythe transforms. It\'s not a game mechanic. It\'s a visual symbol of your power growing.',
-          useCase: 'The Scythe has 6 evolution tiers: DORMANT (new player, untested), AWAKENED, HARDENED, REFINED, ASCENDED, and PLATINUM (ultimate form). You earn tiers by completing enough operations.',
-          whyItMatters: 'Every time you open the app, you see your scythe. Watching it evolve is watching yourself evolve. It\'s proof you\'re not stuck. You\'re building.'
-        },
-        {
-          title: 'What are Artifacts?',
-          philosophy: 'Artifacts are not loot. They\'re mementos. Each artifact tells a story about a specific execution truth. When you complete an operation, you receive an artifact that celebrates what you just proved about yourself.',
-          useCase: 'Every operation completion awards an artifact from a pool of 125 unique pieces, categorized by rarity (Common, Uncommon, Rare, Epic, Legendary).',
-          details: [
-            'CROWN: You stopped doing everything. You conquered what mattered.',
-            'BLADE: Criticism used to break you. Now it sharpens you.',
-            'LANTERN: You carried light into darkness. For yourself first.'
-          ],
-          whyItMatters: 'Artifacts don\'t drop instantly. You physically scratch an encrypted overlay to reveal them. This micro-pause lets the win register emotionally. The scratch action is the celebration.'
-        },
-        {
-          title: 'What is the Ledger?',
-          philosophy: 'The Ledger is your trophy vault. It\'s proof. All the dragons you\'ve slain, all the fairies you\'ve freed, all the artifacts you\'ve earned, all the streaks you\'ve built—they live here, permanently.',
-          useCase: 'The Ledger contains three primary logs: History Logs (daily completions), Relics & Lore (fairies/dragons/artifacts), and Guardian Chronicles (prophecies received).'
-        }
-      ]
-    },
-    {
-      id: 'fitness',
-      label: 'Fitness & Deities',
-      icon: Activity,
-      asset: '/bg/bg-region-10.png',
-      topics: [
-        {
-          title: 'What is Deity Progression?',
-          philosophy: 'Fitness isn\'t separate from execution. Your body and your mind are the same machine. The app honors both by weaving gym work into cosmological progression.',
-          useCase: 'As you accumulate gym volume (measured in kg), you unlock Greek deities:',
-          details: [
-            'Hermes (50k kg): Speed, overcoming paralysis',
-            'Apollo (150k kg): Clarity, cutting through fog',
-            'Ares (250k kg): War, willingness to bleed',
-            'Hercules (375k kg): Transcendence, becoming legend',
-            'Zeus (500k kg): Sovereignty, ruling the storm'
-          ],
-          whyItMatters: 'This progression takes 12-24 months of consistent training. It\'s not a sprint. It\'s a journey toward strength.'
-        },
-        {
-          title: 'What is the Iron Ledger?',
-          philosophy: 'Gym sessions are operations too. They deserve the same tracking, the same celebration, the same integration into your mythology.',
-          useCase: 'The Iron Ledger tracks SBD workouts, accessory volumes, conditioning metrics, and milestones. Your gym volume feeds directly into deity progression. Lift more, unlock the next god.'
-        }
-      ]
-    },
-    {
-      id: 'fairies',
-      label: 'Fairy & Dragon Lore',
-      icon: BookOpen,
-      asset: '/fairies/empress-9-caged.png',
-      topics: [
-        {
-          title: 'What is a Fairy?',
-          philosophy: 'Every region has an imprisoned fairy. Your job isn\'t just to conquer. It\'s to liberate. The distinction matters. You\'re not taking territory. You\'re freeing souls.',
-          useCase: 'To free a fairy: Complete 5 operations in the region to collect keys, then defeat the dragon in a Boss Raid. Once liberated, she claims her throne and her story is revealed in the Ledger.'
-        },
-        {
-          title: 'What are Dragons?',
-          philosophy: 'Dragons represent your greatest psychological blockades—the final guardians of your focus. Slaying them is not just a triumph of task completion, but the active reclaiming of your mental territory.',
-          useCase: 'Once you obtain all 5 regional keys, you challenge the dragon in a 14-day Boss Raid. Defeating the dragon completes the liberation sequence, rewards you with the dragon\'s head trophy in your Ledger, and frees the fairy.'
-        },
-        {
-          title: 'What is Lore?',
-          philosophy: 'Lore is the story behind each region. Why is that dragon there? What does the fairy dream of? What does her liberation mean? Every page of lore validates the work you\'re doing.',
-          useCase: 'Lore unlocks sequentially as you complete operations (5 pages per region). Each page is a novel-style narrative with an illustration.'
-        }
-      ]
-    },
-    {
-      id: 'social',
-      label: 'Friends & Social',
-      icon: Users,
-      asset: '/olympus-bg.png',
-      topics: [
-        {
-          title: 'What is a Friend?',
-          philosophy: 'Friends aren\'t just names on a list. They\'re witnesses to your journey. They see your streaks, your region progress, your victories. You see theirs. You\'re walking this path together.',
-          useCase: 'Add friends by username or Warscythe ID (max 50 friends to keep it meaningful). Shows their region progress, current streak tier, and active conquests.'
-        },
-        {
-          title: 'What is the Friends Leaderboard?',
-          philosophy: 'The leaderboard answers one question: who else is walking this path with me? Default view is always self-comparison to prevent demotivation.',
-          details: [
-            'Personal mode (default): Shows your streak vs. personal bests and weekly XP targets.',
-            'Competitive mode (opt-in): Ranks friends by weekly XP (resets weekly, preventing insurmountable gaps).'
-          ]
-        },
-        {
-          title: 'What is a Legion Operation?',
-          philosophy: 'Legion operations are distributed wars. You can\'t win them alone. You need other warriors. The app becomes cooperative, not just personal.',
-          useCase: 'Invite friends to a shared operation. Break it into sub-tasks (each friend takes one). All must complete their assignments for the legion to succeed and earn XP/artifacts.'
-        },
-        {
-          title: 'What is the XP System?',
-          philosophy: 'XP is invisible scorekeeping. Every operation completion, daily ritual check-in, or sub-task in a legion feeds a counter that determines your standing relative to friends.',
-          useCase: 'XP determines weekly leaderboard rankings, deity progression tiers, and seasonal achievements.'
-        }
-      ]
-    },
-    {
-      id: 'atmosphere',
-      label: 'Atmosphere & Cache',
-      icon: Music,
-      asset: '/soundscape-jukebox.png',
-      topics: [
-        {
-          title: 'What is a Soundscape?',
-          philosophy: 'Music demands attention. Soundscapes support it. The goal: work for an hour, forget the audio was playing, then feel something missing when you turn it off.',
-          useCase: 'Each region features a unique, original soundscape composition (e.g. Ashwood forest winds, Kailash bells, Lava Citadel crackling embers). Activation is optional and volume is independent of system controls.'
-        },
-        {
-          title: 'What is the Tactical Cache Core?',
-          philosophy: 'You\'re offline half your life. The app never punishes you for that. Soundscapes, regions, artifacts, lore—all cached locally. You can work fully offline with zero latency.',
-          useCase: 'Downloaded soundscapes play offline with zero buffering. If a soundscape isn\'t cached, it falls back to silence—no error, no broken state. Everything degrades gracefully.'
-        }
-      ]
-    },
-    {
-      id: 'terminal',
-      label: 'War Terminal',
-      icon: Terminal,
-      asset: '/guardian-observer.png',
-      topics: [
-        {
-          title: 'What is the War Terminal?',
-          philosophy: 'The Terminal is a command palette. Structured commands, predictable outputs, zero latency. It\'s not AI. It\'s not natural language. It\'s pure intention made instant.',
-          useCase: 'Open with Cmd+K / Ctrl+K (desktop) or floating button (mobile). Guide yourself with autocomplete prompts. Example: "/strike Finish YC application /threat legendary".'
-        },
-        {
-          title: 'Terminal Commands',
-          philosophy: 'All commands are immediately available. No unlock tiers. Artificial gating on a palette that maps to existing functionality is redundant complexity.',
-          useCase: 'Supported commands include: /strike (create task), /ritual (create habit), /workout (log gym session), /exercise (add sets/reps/rpe), /region (assign coordinate), and /priority.'
-        }
-      ]
-    },
-    {
-      id: 'guardian',
-      label: 'Guardian Angel',
-      icon: Sparkles,
-      asset: '/bg/bg-region-1.png',
-      topics: [
-        {
-          title: 'What is the Guardian Angel?',
-          philosophy: 'Not motivation. Not a cheerleader. The Guardian Angel is a witness who speaks the truth of execution. It appears during execution, validates your focus, and occasionally asks you to rest.',
-          useCase: 'Every 5-15 minutes during task execution, a prophecy appears on screen to align your context. At 200 days, the Angel triggers a letter questioning if you are playing for the number or for actual growth.'
-        }
-      ]
-    },
-    {
-      id: 'onboarding',
-      label: 'Onboarding & Settings',
-      icon: Compass,
-      asset: '/scroll-roller-top.png',
-      topics: [
-        {
-          title: 'The Doctrine of Will',
-          philosophy: 'Before you start, you should know what you\'re walking into. This app is for people who want to execute, not people who want to be managed.',
-          useCase: 'On first launch, the app shows the doctrine: "You are here because you\'ve decided something. Not because it\'s easy. Because it matters. The app doesn\'t motivate. It witnesses. It respects your time. Your resistance is not weakness. It\'s signal."'
-        },
-        {
-          title: 'First Operation Tutorial',
-          philosophy: 'Don\'t learn buttons. Learn the system. Your first operation should feel sacred, not mechanical.',
-          useCase: 'The onboarding leads you through the Doctrine, Region Unlock animation, and interactive gold-button steps to create your first actual task.'
-        },
-        {
-          title: 'What is Personal Mode?',
-          philosophy: 'Competition isn\'t for everyone. Some people thrive with friends\' rankings visible. Others find it demoralizing. The app respects both.',
-          useCase: 'Toggle Personal Mode ON to hide friends lists and focus entirely on your own metrics, bests, and daily checks.'
-        }
-      ]
-    },
-    {
-      id: 'payment',
-      label: 'Monetization & Bundle',
-      icon: CreditCard,
-      asset: '/shop-bg.png',
-      topics: [
-        {
-          title: 'What is Ad-Free?',
-          philosophy: 'Ads appear only on transition screens—between operations, during loading. Never during execution. Execution is sacred.',
-          useCase: 'Remove all banner and full-screen transition ads with a premium subscription.'
-        },
-        {
-          title: 'What are Cosmetics?',
-          philosophy: 'Cosmetics are emotional attachment. They don\'t make you stronger. They make the journey feel more personal.',
-          useCase: 'Unlock visual variants of your Scythe or region-specific themes that switch visuals and soundscapes simultaneously.'
-        },
-        {
-          title: 'What is the Bundle?',
-          philosophy: 'The bundle bundles value. You want ad-free + themes? The bundle costs less than buying them separately.',
-          useCase: 'The Genesis Bundle includes 2 cosmetic scythes, 1 region theme, and 1 month of ad-free subscription.'
-        }
-      ]
+const realms = [
+  { id: 'gate', label: 'The War Gate', short: 'Enter the world', x: 49, y: 84, icon: Shield },
+  { id: 'operations', label: 'Blackvale Campaigns', short: 'Campaigns that must end', x: 18, y: 53, icon: Swords },
+  { id: 'rituals', label: 'The Oath Sanctum', short: 'Oaths that must continue', x: 44, y: 53, icon: Flame },
+  { id: 'fitness', label: 'Hall of Olympus', short: 'The body becomes mythology', x: 80, y: 42, icon: Dumbbell },
+  { id: 'ledger', label: 'The Iron Ledger', short: 'Nothing vanishes', x: 78, y: 64, icon: Archive },
+  { id: 'legion', label: 'Legion Citadel', short: 'Do not fight alone', x: 47, y: 31, icon: Users },
+  { id: 'terminal', label: 'Terminal Bastion', short: 'Where the future waits', x: 22, y: 30, icon: Terminal },
+  { id: 'final-gate', label: 'The Final Gate', short: 'Begin the campaign', x: 72, y: 13, icon: Sparkles },
+];
+
+const featureSections = [
+  {
+    id: 'operations',
+    eyebrow: 'BLACKVALE CAMPAIGNS // OPERATIONS',
+    title: 'Campaigns that must end.',
+    copy: 'Put anything here that actually needs to be completed—a product launch, a paper, a bug fix, or tonight’s work. Break it into tactical steps, watch progress move, and finish with consequence.',
+    line: 'Finishing should not feel like a checkbox disappearing. It should feel like something happened.',
+    icon: Swords,
+    media: ['operations-command-screen.webp', 'operations-detail-screen.webp'],
+    captions: ['The campaign command', 'The objective beneath the objective'],
+    stats: ['Progress tracked', 'Regions advanced', 'Artifacts recovered', 'Bosses defeated'],
+  },
+  {
+    id: 'rituals',
+    eyebrow: 'THE OATH SANCTUM // RITUALS',
+    title: 'Oaths that must continue.',
+    copy: 'Training, studying, medication, reading, and sleep discipline become real through repetition. Rituals turn daily and weekly consistency into visible history rather than disposable checkmarks.',
+    line: 'Streaks show continuity. Medals show whether you actually kept showing up.',
+    icon: Flame,
+    media: ['rituals-command-screen.webp', 'rituals-medal-screen.webp'],
+    captions: ['The daily oath', 'Consistency earns evidence'],
+    stats: ['Daily and weekly vows', 'Native reminders', '31-day medals', 'Permanent history'],
+  },
+];
+
+const proofItems = [
+  ['Operations', 'Building Warscythe, founder deadlines, releases and the work that must end.'],
+  ['Rituals', 'Training, studying and the promises that only repetition can make real.'],
+  ['Fitness', 'Real sessions, tonnage and personal records—logged by the founders themselves.'],
+  ['Ledger', 'The completed, abandoned, recovered and maintained. Nothing quietly disappears.'],
+];
+
+function scrollToRealm(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function RuneCorners() {
+  return <span className="lp-rune-corners" aria-hidden="true" />;
+}
+
+function ProductFrame({ src, caption, className = '' }) {
+  const [missing, setMissing] = useState(false);
+  return (
+    <figure className={`lp-product-frame ${className}`}>
+      <RuneCorners />
+      {!missing ? (
+        <img
+          src={`${LANDING_ASSET}${src}`}
+          alt={caption}
+          loading="lazy"
+          onError={() => setMissing(true)}
+        />
+      ) : (
+        <div className="lp-product-placeholder">
+          <div className="lp-placeholder-sigil"><Sparkles size={22} /></div>
+          <span>REAL PRODUCT CAPTURE</span>
+          <strong>{caption}</strong>
+          <small>{src}</small>
+        </div>
+      )}
+      <figcaption>{caption}</figcaption>
+    </figure>
+  );
+}
+
+function SectionHeading({ eyebrow, title, copy, align = 'left' }) {
+  return (
+    <div className={`lp-section-heading lp-align-${align}`}>
+      <span>{eyebrow}</span>
+      <h2>{title}</h2>
+      {copy && <p>{copy}</p>}
+    </div>
+  );
+}
+
+function DemoModal({ onClose }) {
+  const videoRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
+
+  const toggleVideo = async () => {
+    if (unavailable) return;
+    try {
+      if (videoRef.current?.paused) {
+        await videoRef.current.play();
+        setPlaying(true);
+      } else {
+        videoRef.current?.pause();
+        setPlaying(false);
+      }
+    } catch {
+      setUnavailable(true);
     }
-  ];
-
-  const handleScrollToFeatures = () => {
-    document.getElementById('features-anchor')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const activeChapter = chapters.find(c => c.id === activeTab) || chapters[0];
+  return (
+    <motion.div
+      className="lp-modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="lp-demo-modal"
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.98 }}
+        onClick={event => event.stopPropagation()}
+      >
+        <RuneCorners />
+        <header>
+          <div>
+            <span>FOUNDER FIELD RECORDING</span>
+            <h2>SEE THE REALM RESPOND</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close demo"><X size={18} /></button>
+        </header>
+        <div className="lp-demo-stage">
+          <video
+            ref={videoRef}
+            poster={`${LANDING_ASSET}warscythe-demo-poster.webp`}
+            preload="metadata"
+            onEnded={() => setPlaying(false)}
+            onError={() => setUnavailable(true)}
+          >
+            <source src={`${LANDING_ASSET}warscythe-demo.mp4`} type="video/mp4" />
+          </video>
+          <button type="button" className="lp-demo-play" onClick={toggleVideo}>
+            {unavailable ? <><Sparkles size={20} /><span>DEMO RECORDING ARRIVES SOON</span></> : playing ? <><Pause size={20} /><span>PAUSE FIELD RECORDING</span></> : <><Play size={20} fill="currentColor" /><span>WATCH THE DEMO</span></>}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function LegalModal({ type, onClose }) {
+  const isTerms = type === 'terms';
+  return (
+    <motion.div className="lp-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+      <motion.div className="lp-legal-modal" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 12, opacity: 0 }} onClick={event => event.stopPropagation()}>
+        <header>
+          <div><ScrollText size={16} /><h2>{isTerms ? 'TERMS OF SERVICE' : 'PRIVACY POLICY'}</h2></div>
+          <button type="button" onClick={onClose} aria-label="Close legal notice"><X size={17} /></button>
+        </header>
+        <div className="lp-legal-copy">
+          {isTerms ? (
+            <>
+              <h3>1. TERMS OF USE</h3>
+              <p>Warscythe is a tactical command interface for recording real-world operations, rituals and fitness activity. You remain responsible for the goals you choose and the actions you take.</p>
+              <h3>2. FITNESS AND MEDICAL NOTICE</h3>
+              <p>Fitness progression is a narrative record, not medical advice, diagnosis or personal training instruction. Consult a qualified professional before beginning or changing a training program.</p>
+              <h3>3. ACCOUNTS AND ENTITLEMENTS</h3>
+              <p>Account progress and purchased entitlements are associated with your authenticated profile. Use the system honestly; fabricated progress only damages your own record.</p>
+            </>
+          ) : (
+            <>
+              <h3>1. YOUR RECORD</h3>
+              <p>Warscythe stores the account and progression data necessary to preserve your Operations, Rituals, workouts, rewards and world state.</p>
+              <h3>2. ADVERTISING</h3>
+              <p>Eligible web accounts may be shown advertising. Premium or ad-free entitlements remove those modules according to the purchased plan.</p>
+              <h3>3. OFFLINE ASSETS</h3>
+              <p>Selected world artwork and soundscapes may be cached locally to make the application faster and usable during interrupted connectivity.</p>
+            </>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export default function LandingPage({ onLaunch }) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [activeRealm, setActiveRealm] = useState('gate');
+  const [showDemo, setShowDemo] = useState(false);
+  const [showLegal, setShowLegal] = useState(null);
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 24, restDelta: 0.001 });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target?.id) setActiveRealm(visible.target.id);
+    }, { rootMargin: '-30% 0px -55%', threshold: [0.05, 0.25, 0.5] });
+
+    realms.forEach(realm => {
+      const section = document.getElementById(realm.id);
+      if (section) observer.observe(section);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const jump = id => {
+    setMobileNavOpen(false);
+    setMapOpen(false);
+    // Let the animated mobile realm drawer collapse before measuring the destination.
+    window.setTimeout(() => scrollToRealm(id), mapOpen ? 320 : 0);
+  };
 
   return (
-    <div className="landing-page-root custom-scrollbar">
-      {/* Header */}
-      <header className="landing-header">
-        <div className="logo-group flex items-center gap-3">
-          <img src="/command-core.png" alt="Warscythe Core Logo" className="w-8 h-8 rounded-full border border-gold-core/30 object-cover" />
-          <div className="flex flex-col">
-            <h1 className="cinzel-title text-base font-bold tracking-[0.25em] text-white leading-none">WARSCYTHE</h1>
-            <span className="font-mono text-[7px] text-gold-core/80 tracking-[0.4em] uppercase mt-1">VERSION 1.0 // GENESIS</span>
-          </div>
-        </div>
-        <button className="btn-gothic-gold px-4 py-2 text-[9px] tracking-widest font-mono" onClick={onLaunch}>
-          LAUNCH APPLICATION
+    <div className="landing-page-root">
+      <motion.div className="lp-scroll-progress" style={{ scaleX: progress }} />
+
+      <header className="lp-header">
+        <button className="lp-brand" type="button" onClick={() => jump('gate')} aria-label="Warscythe home">
+          <img src="/command-core.png" alt="" />
+          <span><strong>WARSCYTHE</strong><small>VERSION 1.0 // GENESIS</small></span>
         </button>
+        <nav className="lp-desktop-nav" aria-label="Landing page navigation">
+          {[
+            ['realm-map', 'Realm Map'],
+            ['operations', 'Operations'],
+            ['rituals', 'Rituals'],
+            ['fitness', 'Fitness'],
+            ['ledger', 'Ledger'],
+            ['legion', 'Legion'],
+          ].map(([id, label]) => <button key={id} className={activeRealm === id ? 'active' : ''} onClick={() => jump(id)}>{label}</button>)}
+        </nav>
+        <div className="lp-header-actions">
+          <button className="lp-nav-demo" onClick={() => setShowDemo(true)}><Play size={12} /> DEMO</button>
+          <button className="lp-primary-small" onClick={onLaunch}>ENTER WARSCYTHE</button>
+          <button className="lp-mobile-menu" onClick={() => setMobileNavOpen(open => !open)} aria-label="Open navigation"><Menu size={19} /></button>
+        </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="landing-hero" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.65), rgba(8,8,10,1)), url("/boss-kill/boss-initiate-screen.png")' }}>
-        <div className="hero-content text-center max-w-3xl px-6 relative z-10 flex flex-col items-center">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-badge font-mono text-[8px] text-gold-core border border-gold-core/25 px-3 py-1 rounded-full uppercase tracking-[0.25em] mb-4"
-          >
-            ✦ GENESIS TACTICAL MODULE ✦
-          </motion.div>
-          <motion.h2 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="cinzel-title text-4xl lg:text-5xl font-extrabold tracking-widest text-white leading-tight"
-          >
-            EMBODY THE SCYTHE.
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="font-mono text-[10px] text-gray-400 max-w-xl uppercase tracking-wider leading-relaxed my-6"
-          >
-            A high-resistance command center for execution, habits, and body conditioning. We do not motivate. We witness.
-          </motion.p>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex gap-4"
-          >
-            <button className="btn-gothic-gold px-6 py-3 text-[10px] tracking-widest font-mono" onClick={onLaunch}>
-              ENTER SANCTUARY
-            </button>
-            <button className="btn-gothic-outline px-6 py-3 text-[10px] tracking-widest font-mono" onClick={handleScrollToFeatures}>
-              EXPLORE CODEX
-            </button>
-          </motion.div>
-        </div>
-        <div className="hero-gradient-overlay" />
-      </section>
-
-      {/* Info Block: What is Warscythe */}
-      <section className="landing-about px-6 py-16 lg:py-24 border-t border-white/5 bg-[#08080a] relative">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="flex flex-col text-left">
-            <span className="font-mono text-[8px] text-gold-core tracking-[0.3em] uppercase mb-2">✦ OPERATIVE DOCTRINE</span>
-            <h3 className="cinzel-title text-xl font-bold tracking-widest text-white uppercase mb-4">WHAT IS WARSCYTHE?</h3>
-            <p className="font-mono text-[9px] text-gray-400 tracking-wider leading-relaxed uppercase mb-4">
-              Warscythe is a tactical command center for execution, focus, and daily habit consistency. It is a tool designed specifically for high-resistance brains that do not need hand-holding or superficial gamification.
-            </p>
-            <p className="font-mono text-[9px] text-gray-400 tracking-wider leading-relaxed uppercase">
-              It treats your goals as campaigns, your habits as daily rituals, and your physical strength as deity progression. It is a permanent archive of your discipline.
-            </p>
-          </div>
-          <div className="about-media rounded border border-white/10 overflow-hidden relative shadow-[0_0_30px_rgba(0,0,0,0.6)]">
-            <img src="/bg/bg-region-6.png" alt="Warscythe Core Platform" className="w-full object-cover aspect-video" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] to-transparent opacity-60" />
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Feature Codex */}
-      <section id="features-anchor" className="landing-features px-6 py-16 lg:py-24 border-t border-white/5 bg-[#050507]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="font-mono text-[8px] text-gold-core tracking-[0.3em] uppercase mb-2">✦ THE ARCHIVES OF CONQUEST</span>
-            <h3 className="cinzel-title text-2xl font-bold tracking-widest text-white uppercase">SYSTEM CODEX</h3>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Sidebar Navigation */}
-            <div className="lg:col-span-4 flex flex-col gap-2 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-              {chapters.map(feat => {
-                const Icon = feat.icon;
-                const isActive = activeTab === feat.id;
-                return (
-                  <button
-                    key={feat.id}
-                    onClick={() => setActiveTab(feat.id)}
-                    className={`p-3.5 rounded border text-left flex items-start gap-4 transition-all ${
-                      isActive 
-                        ? 'border-gold-core/40 bg-gold-core/[0.02] shadow-[0_0_15px_rgba(197,160,89,0.03)]' 
-                        : 'border-white/5 bg-black/40 hover:border-white/10 hover:bg-black/60'
-                    }`}
-                  >
-                    <Icon className={`mt-0.5 shrink-0 ${isActive ? 'text-gold-core' : 'text-gray-500'}`} size={15} />
-                    <div className="flex flex-col">
-                      <span className="font-mono text-[9px] font-bold text-white uppercase tracking-wider">{feat.label}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Display Panel */}
-            <div className="lg:col-span-8 border border-white/10 rounded-lg overflow-hidden bg-black/50 shadow-2xl flex flex-col">
-              {/* Feature Media */}
-              <div className="feature-panel-media w-full aspect-[21/9] overflow-hidden relative border-b border-white/5">
-                {activeTab === 'fairies' ? (
-                  <div className="w-full h-full flex">
-                    <img src="/fairies/empress-9-caged.png" alt="Empress Caged" className="w-1/2 h-full object-cover border-r border-white/5" />
-                    <img src="/dragons/dragon-abyssal.png" alt="Dragon Abyssal" className="w-1/2 h-full object-cover" />
-                  </div>
-                ) : (
-                  <img src={activeChapter.asset} alt={activeChapter.label} className="w-full h-full object-cover" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80 pointer-events-none" />
-              </div>
-
-              {/* Feature Content */}
-              <div className="p-6 flex flex-col text-left max-h-[50vh] overflow-y-auto custom-scrollbar">
-                <span className="font-mono text-[8px] text-gold-core tracking-[0.25em] uppercase mb-2">CODEX COMPONENT // {activeChapter.label.toUpperCase()}</span>
-                
-                {activeChapter.topics.map((topic, tIdx) => (
-                  <div key={tIdx} className={`flex flex-col ${tIdx > 0 ? 'mt-8 pt-6 border-t border-white/5' : ''}`}>
-                    <h4 className="cinzel-title text-sm font-bold text-white tracking-widest uppercase mb-3 flex items-center gap-2">
-                      <ChevronRight size={14} className="text-gold-core shrink-0" />
-                      {topic.title}
-                    </h4>
-                    
-                    <div className="flex flex-row justify-between items-start gap-4">
-                      <div className="flex-1 flex flex-col gap-3 font-mono text-[9px] text-gray-300 tracking-wide leading-relaxed uppercase">
-                        <div>
-                          <span className="text-gold-core font-bold block mb-1">✦ PHILOSOPHY:</span>
-                          <p className="text-gray-400 font-mono pl-3 border-l border-gold-core/20">{topic.philosophy}</p>
-                        </div>
-
-                        {topic.useCase && (
-                          <div>
-                            <span className="text-gold-core font-bold block mb-1">✦ USE CASE / MECHANIC:</span>
-                            <p className="text-gray-400 font-mono pl-3 border-l border-white/10">{topic.useCase}</p>
-                          </div>
-                        )}
-
-                        {topic.details && topic.details.length > 0 && (
-                          <div className="mt-2">
-                            <span className="text-gold-core font-bold block mb-1">✦ CORE PARAMETERS:</span>
-                            <ul className="list-none pl-3 flex flex-col gap-1.5 text-gray-400">
-                              {topic.details.map((detail, dIdx) => (
-                                <li key={dIdx} className="flex items-start gap-2">
-                                  <CheckCircle2 size={9} className="text-gold-core shrink-0 mt-0.5" />
-                                  <span>{detail}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {topic.whyItMatters && (
-                          <div className="mt-2 p-3 bg-white/[0.01] border border-white/5 rounded">
-                            <span className="text-gold-core font-bold block mb-1">✦ GUIDANCE INTEL:</span>
-                            <p className="text-gray-400 font-mono">{topic.whyItMatters}</p>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {topic.title === 'What is Deity Progression?' && (
-                        <img 
-                          src="/deity/hermes.png" 
-                          alt="Hermes" 
-                          className="w-[120px] lg:w-[150px] shrink-0 h-auto object-contain mt-2 opacity-80 filter drop-shadow-[0_0_15px_rgba(197,160,89,0.2)] pointer-events-none" 
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer / Login Actions */}
-      <footer className="landing-footer border-t border-white/5 bg-[#030304] px-6 py-12 text-center">
-        <div className="max-w-xl mx-auto flex flex-col items-center">
-          <h3 className="cinzel-title text-base font-bold tracking-widest text-white uppercase mb-2">CLAIM YOUR SECTOR</h3>
-          <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest mb-6">
-            Enter the command core and start your campaign.
-          </p>
-
-          <div className="flex gap-4 mb-8">
-            <button className="btn-gothic-gold px-5 py-2.5 text-[9px] tracking-widest font-mono" onClick={onLaunch}>
-              LOG IN
-            </button>
-            <button className="btn-gothic-outline px-5 py-2.5 text-[9px] tracking-widest font-mono" onClick={onLaunch}>
-              SIGN UP
-            </button>
-          </div>
-
-          <div className="flex gap-6 font-mono text-[7.5px] text-gray-500 uppercase tracking-[0.25em] mb-4">
-            <button className="hover:text-gold-core transition-colors" onClick={() => setShowLegal('terms')}>TERMS OF SERVICE</button>
-            <span>•</span>
-            <button className="hover:text-gold-core transition-colors" onClick={() => setShowLegal('privacy')}>PRIVACY POLICY</button>
-          </div>
-
-          <p className="font-mono text-[7px] text-gray-600 uppercase tracking-wider">
-            © 2026 WARSCYTHE COMMAND SYSTEM. ALL RIGHTS RESERVED.
-          </p>
-        </div>
-      </footer>
-
-      {/* Legal Overlay Modal */}
       <AnimatePresence>
-        {showLegal && (
-          <div className="modal-backdrop legal-backdrop flex items-center justify-center p-6" onClick={() => setShowLegal(null)}>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={e => e.stopPropagation()}
-              className="w-full max-w-2xl border border-white/10 rounded-lg p-6 bg-[#08080a] flex flex-col max-h-[80vh] overflow-hidden"
-              style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.92), rgba(0,0,0,0.98)), url("/shop-bg.png")', backgroundSize: 'cover' }}
-            >
-              <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-4">
-                <div className="flex items-center gap-2">
-                  <Scale className="text-gold-core" size={16} />
-                  <span className="cinzel-title text-sm font-bold text-white tracking-widest uppercase">
-                    {showLegal === 'terms' ? 'TERMS OF SERVICE' : 'PRIVACY POLICY'}
-                  </span>
-                </div>
-                <button className="text-gray-500 hover:text-white transition-colors" onClick={() => setShowLegal(null)}>
-                  <X size={16} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto custom-scrollbar font-mono text-[8px] text-gray-400 tracking-wide uppercase leading-relaxed text-left flex flex-col gap-4 pr-2">
-                {showLegal === 'terms' ? (
-                  <>
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">1. TERMS OF USE</h5>
-                    <p>Welcome to Warscythe. By entering the platform, you commit to our Operative Doctrine. The platform acts as a tactical command interface to witness your real-world campaigns and habits. You are solely responsible for executing your goals.</p>
-                    
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">2. NO FITNESS OR MEDICAL ADVICE</h5>
-                    <p>Fitness Deity features measure training volume (accumulated weight) for narrative milestone purposes. We do not provide physical therapy, medical diagnoses, or personal training instruction. Consult a professional before lifting heavy weights.</p>
-                    
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">3. USER ACCOUNTS & ENTITLEMENTS</h5>
-                    <p>Your data is stored securely using Supabase. Paid theme cosmetics, skins, or ad-free packages are linked to your authenticated account. Cheating regional progress via manual command exploits ruins your own cognitive journey; the system assumes you act with honor.</p>
-                  </>
-                ) : (
-                  <>
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">1. DATA HARVESTING DECREE</h5>
-                    <p>We respect your privacy. Warscythe operates on a secure Supabase cloud foundation. We store your account details, streak levels, logged workouts, active campaigns, and collected artifact tokens.</p>
-                    
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">2. MONETIZATION & ADSENSE DATA</h5>
-                    <p>For non-premium browser clients, Google AdSense Auto Ads are dynamically integrated. Google may use cookies to serve personalized ads based on your visits to this and other websites. Premium accounts dismiss all tracking and ad modules.</p>
-                    
-                    <h5 className="text-white font-bold text-[9px] tracking-wider">3. CLIENT-SIDE CACHING</h5>
-                    <p>To enable lag-free offline operations, game assets (soundscapes, theme variants, map segments) are stored locally using the browser's Cache Storage API. You have the right to purge these files at any time via the Cache Manager.</p>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </div>
+        {mobileNavOpen && (
+          <motion.nav className="lp-mobile-nav" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+            {realms.map(realm => <button key={realm.id} onClick={() => jump(realm.id)}>{realm.label}</button>)}
+            <button onClick={() => { setMobileNavOpen(false); setShowDemo(true); }}>Watch Demo</button>
+          </motion.nav>
         )}
       </AnimatePresence>
 
-      <style jsx>{`
-        .landing-page-root {
-          width: 100%;
-          min-height: 100vh;
-          background-color: #08080a;
-          color: #fff;
-          display: flex;
-          flex-direction: column;
-          overflow-y: auto;
-        }
+      <main>
+        <section id="gate" className="lp-hero">
+          <picture className="lp-hero-art">
+            <source media="(max-width: 700px)" srcSet={`${LANDING_ASSET}hero-gate-mobile.webp`} />
+            <img src={`${LANDING_ASSET}hero-gate-desktop.webp`} alt="A warrior overlooking the illuminated Warscythe realm" />
+          </picture>
+          <div className="lp-embers" style={{ backgroundImage: `url("${LANDING_ASSET}ember-particles.webp")` }} />
+          <div className="lp-hero-shade" />
 
-        .landing-header {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 65px;
-          background: rgba(8, 8, 10, 0.85);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0 2rem;
-          z-index: 1000;
-        }
+          <motion.div className="lp-hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.85 }}>
+            <span className="lp-kicker">THE EXECUTION RPG</span>
+            <h1>Execution,<br /><em>Forged into Legend.</em></h1>
+            <p>Warscythe is an execution RPG where your real tasks, habits and workouts shape a persistent fantasy world.</p>
+            <strong>There is no customizable avatar. You are the avatar.</strong>
+            <div className="lp-hero-actions">
+              <button className="lp-primary-cta" onClick={onLaunch}>ENTER WARSCYTHE <ExternalLink size={15} /></button>
+              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} fill="currentColor" /> WATCH THE DEMO</button>
+            </div>
+          </motion.div>
 
-        .landing-hero {
-          height: 100vh;
-          width: 100%;
-          background-size: cover;
-          background-position: center;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          padding-top: 65px;
-        }
+          <button className="lp-scroll-cue" onClick={() => jump('realm-map')}>
+            <span>EXPLORE THE REALM</span><ArrowDown size={17} />
+          </button>
+        </section>
 
-        .hero-gradient-overlay {
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle, transparent 30%, rgba(8,8,10,1) 100%);
-          z-index: 1;
-        }
+        <section id="realm-map" className="lp-map-section">
+          <SectionHeading align="center" eyebrow="THE KINGDOM RESPONDS" title="Choose your path." copy="Every territory is another form of execution. Explore the realm, then enter the system that makes it move." />
+          <div className="lp-map-shell">
+            <RuneCorners />
+            <img src={`${LANDING_ASSET}realm-map-base.webp`} alt="The connected territories of the Warscythe realm" loading="eager" />
+            <div className="lp-map-vignette" />
+            {realms.map(realm => {
+              const Icon = realm.icon;
+              return (
+                <button
+                  key={realm.id}
+                  className={`lp-map-node ${realm.x >= 70 ? 'label-left' : ''} ${activeRealm === realm.id ? 'active' : ''}`}
+                  style={{ left: `${realm.x}%`, top: `${realm.y}%` }}
+                  onClick={() => jump(realm.id)}
+                  aria-label={`${realm.label}: ${realm.short}`}
+                >
+                  <i><Icon size={13} /></i>
+                  <span><strong>{realm.label}</strong><small>{realm.short}</small></span>
+                </button>
+              );
+            })}
+          </div>
 
-        .btn-gothic-gold {
-          background: var(--gold-core);
-          color: #000;
-          border: 1px solid var(--gold-core);
-          font-weight: bold;
-          transition: all 0.3s ease;
-          border-radius: 2px;
-          cursor: pointer;
-        }
+          <div className="lp-mobile-realm-nav">
+            <button onClick={() => setMapOpen(open => !open)}><Map size={15} /><span>EXPLORE THE REALM</span><ChevronDown size={15} className={mapOpen ? 'rotate' : ''} /></button>
+            <AnimatePresence>
+              {mapOpen && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  {realms.map(realm => <button key={realm.id} onClick={() => jump(realm.id)}><realm.icon size={13} /><span>{realm.label}</span><small>{realm.short}</small></button>)}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </section>
 
-        .btn-gothic-gold:hover {
-          background: #fff;
-          border-color: #fff;
-          box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
+        <section className="lp-thesis">
+          <span>THE CATEGORY BREAK</span>
+          <blockquote>“You do not play Warscythe instead of doing your work. <em>Your work is what plays Warscythe.</em>”</blockquote>
+          <p>Most productivity tools help organize what comes next. Warscythe makes execution leave evidence.</p>
+        </section>
 
-        .btn-gothic-outline {
-          background: transparent;
-          color: #c5a059;
-          border: 1px solid rgba(197, 160, 89, 0.4);
-          transition: all 0.3s ease;
-          border-radius: 2px;
-          cursor: pointer;
-        }
+        {featureSections.map((section, sectionIndex) => {
+          const Icon = section.icon;
+          return (
+            <section id={section.id} className={`lp-feature-section ${sectionIndex % 2 ? 'reverse' : ''}`} key={section.id}>
+              <motion.div className="lp-feature-copy" initial={{ opacity: 0, x: sectionIndex % 2 ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.25 }}>
+                <div className="lp-feature-icon"><Icon size={20} /></div>
+                <SectionHeading eyebrow={section.eyebrow} title={section.title} copy={section.copy} />
+                <blockquote>{section.line}</blockquote>
+                <div className="lp-outcomes">
+                  {section.stats.map(stat => <span key={stat}><Check size={11} /> {stat}</span>)}
+                </div>
+              </motion.div>
+              <motion.div className="lp-feature-media" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }}>
+                <ProductFrame src={section.media[0]} caption={section.captions[0]} />
+                <ProductFrame src={section.media[1]} caption={section.captions[1]} className="lp-secondary-frame" />
+              </motion.div>
+            </section>
+          );
+        })}
 
-        .btn-gothic-outline:hover {
-          color: #fff;
-          border-color: #fff;
-          background: rgba(255, 255, 255, 0.02);
-        }
+        <section id="fitness" className="lp-olympus">
+          <img src={`${LANDING_ASSET}olympus-hall.webp`} alt="" loading="lazy" />
+          <div className="lp-environment-shade" />
+          <div className="lp-olympus-content">
+            <SectionHeading align="center" eyebrow="HALL OF OLYMPUS // FITNESS" title="The body becomes mythology." copy="Most fitness apps show graphs. Warscythe shows ascension. Your sessions, tonnage and personal records become permanent evidence of what your body has actually done." />
+            <strong>Strength is war. The body is the weapon.</strong>
+            <div className="lp-olympus-frames">
+              <ProductFrame src="fitness-olympus-screen.webp" caption="Ascension through real training" />
+              <ProductFrame src="fitness-session-screen.webp" caption="Every session leaves evidence" />
+            </div>
+            <div className="lp-tonnage-tease"><Activity size={15} /><span>THE NEXT DEITY IS A DESTINATION</span><strong>2,320 KG REMAINING UNTIL APOLLO</strong></div>
+          </div>
+        </section>
 
-        .about-media {
-          box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        }
+        <section id="ledger" className="lp-ledger">
+          <div className="lp-ledger-copy">
+            <div className="lp-feature-icon"><BookOpen size={20} /></div>
+            <SectionHeading eyebrow="THE IRON LEDGER // ARCHIVE OF BECOMING" title="Nothing vanishes." copy="Warscythe remembers what you finished, abandoned, trained, recovered and maintained. Over time, the Ledger becomes less like an archive and more like a save file for your real life." />
+            <blockquote>You live the character. Warscythe keeps the save file.</blockquote>
+          </div>
+          <div className="lp-ledger-gallery">
+            <ProductFrame src="ledger-calendar-screen.webp" caption="History does not disappear" />
+            <ProductFrame src="ledger-relics-screen.webp" caption="Every victory leaves an object" />
+          </div>
+          <p className="lp-ledger-manifesto">“I want someone who has used Warscythe for three years to see a history of who they became—not 4,000 crossed-out checkboxes.”</p>
+        </section>
 
-        .cinzel-title {
-          font-family: 'Cinzel Decorative', 'Cinzel', serif;
-        }
+        <section id="legion" className="lp-legion">
+          <div className="lp-legion-content">
+            <SectionHeading align="center" eyebrow="LEGION CITADEL // SHARED WAR" title="Do not fight alone." copy="Assign ownership, share objectives and keep the group history honest. Legion is persistent multiplayer execution—not another chatroom." />
+            <div className="lp-legion-line"><Users size={18} /><strong>A Legion is a war party with memory.</strong></div>
+            <div className="lp-legion-frames">
+              <ProductFrame src="legion-command-screen.webp" caption="The shared command" />
+              <ProductFrame src="legion-objective-screen.webp" caption="Every warrior owns a front" />
+            </div>
+            <span className="lp-roadmap-tag">COMING NEXT // LEGION WARS</span>
+          </div>
+        </section>
 
-        .legal-backdrop {
-          background: rgba(0, 0, 0, 0.85);
-          backdrop-filter: blur(8px);
-          z-index: 2200;
-        }
+        <section id="terminal" className="lp-terminal">
+          <img src={`${LANDING_ASSET}terminal-bastion.webp`} alt="" loading="lazy" />
+          <div className="lp-environment-shade" />
+          <motion.div className="lp-terminal-panel" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }}>
+            <RuneCorners />
+            <span>THE ROAD AHEAD // FUTURE ROADMAP</span>
+            <h2>The Terminal Bastion</h2>
+            <p>The long-term vision is not only to track execution, but to let more execution happen inside Warscythe. Humans and eventually controlled agents could work toward the same Operation with visible state and explicit approval gates.</p>
+            <strong>This layer is future roadmap, not current product.</strong>
+            <blockquote>“I want to be killing the dragon in one Warscythe region while using Warscythe to build the next one.”</blockquote>
+            <small>SSS // SELF-SUSTAINED SYSTEM</small>
+          </motion.div>
+        </section>
 
-        /* Webkit scrollbar for custom styling inside panels */
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.01);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(197, 160, 89, 0.3);
-          border-radius: 2px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(197, 160, 89, 0.6);
-        }
-      `}</style>
+        <section id="proof" className="lp-proof">
+          <SectionHeading align="center" eyebrow="PROOF OF LIFE" title="The kingdom is already alive." copy="Warscythe began as something its founders needed. The world was not added to decorate the work. It became the reason finishing finally felt like something." />
+          <div className="lp-proof-grid">
+            {proofItems.map(([title, copy], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}
+          </div>
+          <div className="lp-proof-foot"><strong>BUILT AND USED BY THE FOUNDERS DAILY</strong><span>WEB // INSTALLABLE PWA // ANDROID</span></div>
+        </section>
+
+        <section id="final-gate" className="lp-final-gate">
+          <img src={`${LANDING_ASSET}final-gate.webp`} alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
+          <div className="lp-final-shade" />
+          <motion.div className="lp-final-copy" initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }}>
+            <span>THE FINAL GATE</span>
+            <h2>Your life already has battles.<br /><em>Give them a world.</em></h2>
+            <p>Warscythe is for people who know what they need to do—and are tired of doing it in systems that make it feel like nothing.</p>
+            <div>
+              <button className="lp-primary-cta" onClick={onLaunch}>ENTER WARSCYTHE <ExternalLink size={15} /></button>
+              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} /> WATCH DEMO</button>
+            </div>
+            <strong>EXECUTION SHOULD LEAVE EVIDENCE.</strong>
+          </motion.div>
+        </section>
+      </main>
+
+      <footer className="lp-footer">
+        <button className="lp-brand" type="button" onClick={() => jump('gate')}>
+          <img src="/command-core.png" alt="" />
+          <span><strong>WARSCYTHE</strong><small>EXECUTION, FORGED INTO LEGEND</small></span>
+        </button>
+        <div><button onClick={() => setShowLegal('terms')}>TERMS</button><button onClick={() => setShowLegal('privacy')}>PRIVACY</button><button onClick={() => jump('realm-map')}>REALM MAP</button></div>
+        <small>© 2026 WARSCYTHE COMMAND SYSTEM</small>
+      </footer>
+
+      <AnimatePresence>
+        {showDemo && <DemoModal onClose={() => setShowDemo(false)} />}
+        {showLegal && <LegalModal type={showLegal} onClose={() => setShowLegal(null)} />}
+      </AnimatePresence>
     </div>
   );
 }

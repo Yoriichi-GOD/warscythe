@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell, Play } from 'lucide-react';
@@ -358,6 +358,29 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const artifactCollection = getArtifactCollection(collectedArtifacts);
   const artifactVariantsRecovered = artifactCollection.length;
   const artifactVariantsRemaining = Math.max(0, ARTIFACT_VARIANT_TOTAL - artifactVariantsRecovered);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const handleCaptureScene = event => {
+      if (event.detail?.tab !== 'ledger') return;
+      if (event.detail.selectLatestConquest) {
+        const latest = [...completedTasks]
+          .filter(task => task.completedAt)
+          .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))[0];
+        setSelectedDateStr(latest?.completedAt?.slice(0, 10) || null);
+      }
+      if (event.detail.selectFirstArtifact) {
+        setSelectedArtifact(artifactCollection[0] || null);
+        setSelectedTrophy(null);
+        setSelectedFairy(null);
+      }
+    };
+    window.addEventListener('warscythe:capture-scene', handleCaptureScene);
+    return () => window.removeEventListener('warscythe:capture-scene', handleCaptureScene);
+  // Capture realm state is applied before Ledger mounts, so the initial archive
+  // snapshot is the correct source for these development-only selections.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const rarities = {
     common: { color: '#aaa', label: 'COMMON' },
@@ -860,18 +883,18 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 </div>
               </div>
 
-              {/* ── MONTHLY RITUAL MEDALS ── */}
+              {/* ── RITUAL CYCLE MEDALS ── */}
               <div className="dragon-trophies-section glass-panel mb-6">
                 <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold text-gold-core">
                   <Award size={12} />
-                  <span>MONTHLY RITUAL MEDALS</span>
+                  <span>RITUAL CYCLE MEDALS</span>
                 </div>
                 <p className="text-[8px] font-mono text-gray-500 mt-1 mb-3 tracking-wider italic">
-                  Awarded at month-end for the consistency of each individual Ritual.
+                  Awarded after each Ritual completes its own 31-day consistency cycle.
                 </p>
                 {ritualMedalTotal === 0 ? (
                   <span className="empty-msg text-[9px] font-mono text-gray-500 tracking-wider">
-                    NO MONTHLY MEDALS EARNED YET
+                    NO RITUAL MEDALS EARNED YET
                   </span>
                 ) : (
                   <div className="flex flex-wrap gap-3">

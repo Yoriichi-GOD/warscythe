@@ -169,7 +169,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
   const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days) || { name: 'NEOPHYTE', days: 5 };
   const nextTier = streakTiers.find(t => streakCount < t.days) || streakTiers[streakTiers.length - 1];
   const streakProgress = Math.min(100, (streakCount / nextTier.days) * 100);
-  const ritualMonthProgress = medalProjection?.totalOpportunities
+  const ritualCycleProgress = medalProjection?.totalOpportunities
     ? Math.min(100, (medalProjection.completed / medalProjection.totalOpportunities) * 100)
     : 0;
   const canAcquireCurrentTier = streakCount >= currentTier.days && !claimedScythes.includes(currentTier.name);
@@ -340,7 +340,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
         {/* Labels (Overlay) */}
         <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10 text-left">
           <span className="text-[7px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold">
-            {isRitualMode ? 'Monthly Consistency' : 'Ultimate Artifact'}
+            {isRitualMode ? '31-Day Consistency' : 'Ultimate Artifact'}
           </span>
           <h4 className="text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">
             {isRitualMode ? 'Projected Medal' : 'Cosmic Reaper'}
@@ -417,7 +417,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
          <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
             <div 
               className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_15px_rgba(197,160,89,0.4)] transition-all duration-1000"
-              style={{ width: `${isRitualMode ? ritualMonthProgress : streakProgress}%` }}
+              style={{ width: `${isRitualMode ? ritualCycleProgress : streakProgress}%` }}
             />
          </div>
 
@@ -427,7 +427,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
               : streakTiers
             ).map((tier, idx) => {
               const isUnlocked = isRitualMode
-                ? ritualMonthProgress >= tier.days
+                ? ritualCycleProgress >= tier.days
                 : streakCount >= tier.days;
               return (
                 <button

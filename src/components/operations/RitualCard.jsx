@@ -29,6 +29,7 @@ export default function RitualCard({ ritual, onComplete, onOpen }) {
         
         {/* CHECKBOX / STATUS INDICATOR */}
         <button
+          id={`ritual-complete-${ritual.id}`}
           type="button"
           className="shrink-0 flex items-center justify-center"
           onClick={(event) => {
@@ -79,6 +80,7 @@ export default function RitualCard({ ritual, onComplete, onOpen }) {
             </span>
           ) : (
             <button 
+              id={`ritual-conquer-${ritual.id}`}
               onClick={() => onComplete(ritual.id)}
               className="px-3 py-1.5 rounded border border-gold-core/30 bg-gold-core/5 text-gold-core text-[8px] font-mono tracking-widest uppercase hover:bg-gold-core hover:text-black transition-all"
             >

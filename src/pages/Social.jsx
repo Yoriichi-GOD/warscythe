@@ -264,6 +264,7 @@ export default function Social() {
   useEffect(() => {
     const refreshVisibleSection = () => {
       if (document.visibilityState !== 'visible') return;
+      if (import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true') return;
       fetchSocialData({ section: activeSubTab });
     };
 
@@ -277,6 +278,18 @@ export default function Social() {
       document.removeEventListener('visibilitychange', refreshVisibleSection);
     };
   }, [activeSubTab, fetchSocialData]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const handleCaptureScene = event => {
+      const scene = event.detail || {};
+      if (scene.tab !== 'social') return;
+      setActiveSubTab(scene.socialSubTab || 'legion');
+      setSelectedLegionOpId(scene.legionOperationId || null);
+    };
+    window.addEventListener('warscythe:capture-scene', handleCaptureScene);
+    return () => window.removeEventListener('warscythe:capture-scene', handleCaptureScene);
+  }, []);
 
   const handleSendRequest = async (e) => {
     e.preventDefault();

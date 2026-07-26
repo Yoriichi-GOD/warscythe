@@ -633,6 +633,22 @@
   .ritual-delete-warning-card { padding: 1rem .85rem; }
   .ritual-delete-warning-card > p { font-size: .62rem; }
   .ritual-delete-impact { grid-template-columns: 1fr; }
+
+  /* Prevent iOS Safari from enlarging the viewport when fields receive focus. */
+  .ritual-modal-panel input,
+  .ritual-modal-panel textarea,
+  .ritual-modal-panel select,
+  .fitness-realm input,
+  .fitness-realm textarea,
+  .fitness-realm select {
+    font-size: 16px !important;
+  }
+
+  .fitness-realm input::placeholder,
+  .fitness-realm textarea::placeholder {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
 }
 
 @media (min-width: 1024px) {

@@ -215,10 +215,22 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const [timerDuration, setTimerDuration] = useState(90); // default 90s
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [timerDurationOpen, setTimerDurationOpen] = useState(false);
   const timerRef = useRef(null);
 
   // Detailed History Modal state
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [expandedHistoryId, setExpandedHistoryId] = useState(null);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const handleCaptureScene = event => {
+      if (event.detail?.tab !== 'fitness') return;
+      setShowHistoryModal(Boolean(event.detail.fitnessHistory));
+    };
+    window.addEventListener('warscythe:capture-scene', handleCaptureScene);
+    return () => window.removeEventListener('warscythe:capture-scene', handleCaptureScene);
+  }, []);
 
   // Split presets
   const splitPresets = [
@@ -333,7 +345,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const totalWorkouts = gymLog.length;
 
   return (
-    <div className="w-full pt-4 pb-32">
+    <div className="fitness-realm w-full pt-4 pb-32">
       {deityCeremony && (
         <UnlockCeremonyModal
           kind="deity"
@@ -853,28 +865,73 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
               {/* Rest Timer Widget */}
               <OrnatePanel id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
-                <div className="flex justify-between items-center mb-1 z-10">
+                <div className={`relative flex justify-between items-center mb-1 ${timerDurationOpen ? 'z-[320]' : 'z-10'}`}>
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>
                     <span className="text-[8px] font-mono text-gray-500 uppercase">Active Recovery</span>
                   </div>
                   
-                  {/* Select Rest Duration */}
-                  <select 
-                    value={timerDuration}
-                    onChange={(e) => {
-                      const dur = Number(e.target.value);
-                      setTimerDuration(dur);
-                      if (!timerActive) setTimerSeconds(dur);
+                  {/* App-native Rest Duration */}
+                  <div
+                    className="relative"
+                    onBlur={event => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) setTimerDurationOpen(false);
                     }}
-                    className="bg-black border border-white/10 text-white font-mono text-[7px] rounded px-1 py-0.5 focus:outline-none cursor-pointer"
                   >
-                    <option value={60}>60s</option>
-                    <option value={90}>90s</option>
-                    <option value={120}>120s</option>
-                    <option value={180}>180s</option>
-                    <option value={300}>300s</option>
-                  </select>
+                    <button
+                      type="button"
+                      onClick={() => setTimerDurationOpen(open => !open)}
+                      className={`flex min-w-[54px] items-center justify-between gap-2 rounded border px-2 py-1 font-mono text-[8px] font-bold tracking-wider transition-colors ${
+                        timerDurationOpen
+                          ? 'border-gold-core/60 bg-gold-core/10 text-gold-bright'
+                          : 'border-white/10 bg-black/70 text-white hover:border-gold-core/35'
+                      }`}
+                      aria-haspopup="listbox"
+                      aria-expanded={timerDurationOpen}
+                    >
+                      <span>{timerDuration}s</span>
+                      <ChevronDown size={10} className={`text-gold-core transition-transform ${timerDurationOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {timerDurationOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.96 }}
+                          className="absolute right-0 top-[calc(100%+4px)] z-[300] isolate w-[76px] overflow-hidden rounded border border-gold-core/30 shadow-[0_14px_32px_rgba(0,0,0,.95),inset_0_0_18px_rgba(197,160,89,.04)]"
+                          style={{ backgroundColor: '#020203', opacity: 1 }}
+                          role="listbox"
+                        >
+                          {[60, 90, 120, 180, 300].map(duration => (
+                            <button
+                              type="button"
+                              key={duration}
+                              role="option"
+                              aria-selected={timerDuration === duration}
+                              onClick={() => {
+                                setTimerDuration(duration);
+                                if (!timerActive) setTimerSeconds(duration);
+                                setTimerDurationOpen(false);
+                              }}
+                              className={`flex w-full items-center justify-between border-b border-white/5 px-2.5 py-1.5 font-mono text-[8px] tracking-wider last:border-0 ${
+                                timerDuration === duration
+                                  ? 'text-gold-bright'
+                                  : 'text-gray-400 hover:text-white'
+                              }`}
+                              style={{
+                                backgroundColor: timerDuration === duration ? '#17130c' : '#020203',
+                                opacity: 1,
+                              }}
+                            >
+                              <span>{duration}s</span>
+                              {timerDuration === duration && <Check size={9} className="text-gold-core" />}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-1 z-10 flex-1">
@@ -1314,12 +1371,12 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="w-full max-w-4xl border border-gold-core/20 p-6 bg-[#08080a]/95 rounded-lg max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 shadow-[0_0_40px_rgba(197,160,89,0.1),_inset_0_0_25px_rgba(0,0,0,0.85)]"
+              className="w-full max-w-4xl border border-gold-core/20 p-3 sm:p-6 bg-[#08080a]/95 rounded-lg max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-4 sm:gap-6 shadow-[0_0_40px_rgba(197,160,89,0.1),_inset_0_0_25px_rgba(0,0,0,0.85)]"
             >
               <div className="flex justify-between items-center border-b border-white/5 pb-3">
                 <div className="flex items-center gap-2">
                   <ClipboardList size={18} className="text-gold-core" />
-                  <h2 className="font-display text-sm text-white tracking-widest uppercase">THE IRON ARCHIVES // WORKOUT HISTORY</h2>
+                  <h2 className="font-display text-[11px] sm:text-sm text-white tracking-widest uppercase">THE IRON ARCHIVES // WORKOUT HISTORY</h2>
                 </div>
                 <button 
                   className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all"
@@ -1331,8 +1388,95 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
               <div className="flex flex-col gap-4">
                 <span className="font-mono text-[9px] text-gold-core uppercase tracking-widest">HISTORICAL TRAINING LOGS // READ ONLY</span>
-                
-                <div className="overflow-x-auto border border-white/5 rounded bg-black/40">
+
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+                  <div className="border border-gold-core/20 bg-gold-core/[0.04] p-2 sm:p-4">
+                    <small className="font-mono text-[7px] tracking-widest text-gray-500">SESSIONS ARCHIVED</small>
+                    <strong className="mt-1 block font-display text-base sm:text-2xl text-white">{totalWorkouts}</strong>
+                  </div>
+                  <div className="border border-gold-core/20 bg-gold-core/[0.04] p-2 sm:p-4">
+                    <small className="font-mono text-[7px] tracking-widest text-gray-500">TOTAL IRON MOVED</small>
+                    <strong className="mt-1 block font-display text-base sm:text-2xl text-gold-core">{Math.round(totalTonnage).toLocaleString()} KG</strong>
+                  </div>
+                  <div className="border border-gold-core/20 bg-gold-core/[0.04] p-2 sm:p-4">
+                    <small className="font-mono text-[7px] tracking-widest text-gray-500">ACTIVE ASCENSION</small>
+                    <strong className="mt-1 block font-display text-sm sm:text-lg text-white">{activeDeity?.name || 'MORTAL'}</strong>
+                  </div>
+                </div>
+
+                <div className="sm:hidden flex flex-col gap-2">
+                  {gymLog.map(log => {
+                    const expanded = expandedHistoryId === log.id;
+                    return (
+                      <article key={log.id} className="border border-gold-core/15 bg-black/40">
+                        <button
+                          type="button"
+                          className="w-full flex items-center justify-between gap-3 p-3 text-left"
+                          onClick={() => setExpandedHistoryId(expanded ? null : log.id)}
+                          aria-expanded={expanded}
+                        >
+                          <span className="min-w-0">
+                            <span className="block text-[10px] font-display font-bold text-white tracking-wider uppercase truncate">{log.split}</span>
+                            <span className="mt-1 flex items-center gap-1 text-[8px] font-mono text-gray-500">
+                              <Calendar size={9} /> {new Date(log.date).toLocaleDateString()}
+                            </span>
+                          </span>
+                          <span className="flex shrink-0 items-center gap-2">
+                            <strong className="text-[9px] font-mono text-gold-bright">{Math.round(getSessionTonnage(log)).toLocaleString()} KG</strong>
+                            <ChevronDown size={14} className={`text-gold-core transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                          </span>
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {expanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="border-t border-white/5 p-3 flex flex-col gap-3">
+                                {(log.movements || []).map((movement, movementIndex) => (
+                                  <div key={movementIndex}>
+                                    <strong className="text-[9px] font-mono text-gold-core uppercase">{movement.name}</strong>
+                                    <div className="mt-1.5 flex flex-col gap-1">
+                                      {(movement.sets || []).map((set, setIndex) => (
+                                        <div key={setIndex} className="flex items-start justify-between gap-2 text-[8px] font-mono">
+                                          <span className={set.completed ? 'text-gray-300' : 'text-gray-600 line-through'}>
+                                            Set {setIndex + 1} ({set.type.toUpperCase()}): {set.weight} KG × {set.reps} reps {set.rpe ? `@ ${set.rpe} RPE` : ''}
+                                          </span>
+                                          <span className={set.completed ? 'text-emerald-400' : 'text-red-400'}>
+                                            {set.completed ? 'COMPLETE' : 'MISSED'}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                                {!log.movements && (log.exercises || []).map((exercise, exerciseIndex) => (
+                                  <div key={exerciseIndex}>
+                                    <strong className="text-[9px] font-mono text-gold-core uppercase">{exercise.name}</strong>
+                                    <p className="mt-1 text-[8px] font-mono text-gray-300">
+                                      {exercise.sets} sets × {exercise.reps} reps {exercise.weight > 0 ? `@ ${exercise.weight} KG` : ''}
+                                    </p>
+                                  </div>
+                                ))}
+                                {log.notes && (
+                                  <div className="border-t border-white/5 pt-2">
+                                    <span className="text-[7px] font-mono text-gray-500 tracking-widest">SESSION NOTES</span>
+                                    <p className="mt-1 text-[9px] font-mono text-gray-300 uppercase">{log.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <div className="hidden sm:block overflow-x-auto border border-white/5 rounded bg-black/40">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 bg-white/[0.02] text-[8px] font-mono text-gray-400 uppercase tracking-widest">

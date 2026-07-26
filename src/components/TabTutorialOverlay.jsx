@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon } from 'lucide-react';
+import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon, X, Minus } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import RitualModal from './RitualModal';
 
@@ -49,26 +49,13 @@ const LEGACY_RITUALS_STEPS = [
 
 const RITUALS_STEPS = [
   {
-    type: 'dialogue',
+    type: 'highlight',
     speaker: 'Guardian',
     portrait: '/guardian-observer.png',
-    text: "The Forge is where consistency becomes power. Streak evolution, Scythe skins, and acquired themes all begin with the vows kept here.",
-    cta: "Show me"
-  },
-  {
-    type: 'dialogue',
-    speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
-    text: "Rituals are daily vows, not tasks completed once. Miss one and the streak falls. That is not cruelty. That is honesty.",
-    cta: "Understood"
-  },
-  {
-    type: 'dialogue',
-    speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
-    text: "Enshrine a rehearsal Ritual now. Choose its preset, frequency, resistance, and hour. Nothing from this lesson will remain in your true ledger.",
-    cta: "Enshrine a Ritual",
-    openRitualForm: true
+    title: 'BEGIN WITH A VOW',
+    text: "Press Enshrine Ritual. You will rehearse the complete flow—preset, frequency, resistance, and hour—without changing your true ledger.",
+    highlightId: 'ritual-enshrine-button',
+    cta: null
   },
   {
     type: 'ritual_complete',
@@ -242,7 +229,7 @@ const TUTORIAL_STEPS = {
 
 // ─── GUARDIAN CARD ─────────────────────────────────────────────────────────────
 
-function GuardianCard({ step, onNext, onOpenRitual }) {
+function GuardianCard({ step, onNext, onOpenRitual, onDismiss, onMinimize }) {
   const isFairy = step.speaker === 'Fairy';
   const isTrader = step.speaker === 'Trader';
   const portrait = isFairy
@@ -256,8 +243,16 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full max-w-md bg-zinc-950/98 border border-white/8 rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.9)] p-6 flex flex-col items-center gap-4"
+      className="relative w-full max-w-md max-h-[calc(100dvh-180px)] overflow-y-auto custom-scrollbar bg-zinc-950/98 border border-white/8 rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.9)] p-5 flex flex-col items-center gap-4"
     >
+      <div className="absolute right-3 top-3 z-10 flex gap-2">
+        <button type="button" onClick={onMinimize} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/70 text-stone-400 hover:border-gold-core/50 hover:text-gold-core" aria-label="Minimize tutorial">
+          <Minus size={14} />
+        </button>
+        <button type="button" onClick={onDismiss} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/70 text-stone-400 hover:border-red-500/50 hover:text-red-400" aria-label="End tutorial">
+          <X size={14} />
+        </button>
+      </div>
       {/* Portrait */}
       <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gold-core/20 bg-black/40 flex-shrink-0">
         <img src={portrait} alt={step.speaker} className="w-full h-full object-contain" />
@@ -436,6 +431,7 @@ export default function TabTutorialOverlay({
   const [stepIndex, setStepIndex] = useState(0);
   const [showRitualForm, setShowRitualForm] = useState(false);
   const [sandboxRitualId, setSandboxRitualId] = useState(null);
+  const [minimized, setMinimized] = useState(false);
 
   const steps = TUTORIAL_STEPS[tutorialId] || [];
   const currentStep = steps[stepIndex];
@@ -445,7 +441,18 @@ export default function TabTutorialOverlay({
     setStepIndex(0);
     setShowRitualForm(false);
     setSandboxRitualId(null);
+    setMinimized(false);
   }, [tutorialId]);
+
+  useEffect(() => {
+    if (tutorialId !== 'rituals_intro' || currentStep?.highlightId !== 'ritual-enshrine-button') return undefined;
+    const openForm = () => {
+      setShowRitualForm(true);
+      setStepIndex(index => Math.min(index + 1, steps.length - 1));
+    };
+    window.addEventListener('warscythe:tutorial-enshrine', openForm);
+    return () => window.removeEventListener('warscythe:tutorial-enshrine', openForm);
+  }, [tutorialId, currentStep?.highlightId, steps.length]);
 
   // Sync map highlight node whenever step changes
   useEffect(() => {
@@ -483,7 +490,7 @@ export default function TabTutorialOverlay({
       if (event.detail?.id === sandboxRitualId) advanceRef.current();
     };
     const containLesson = (event) => {
-      if (event.target.closest?.(`[data-ritual-id="${sandboxRitualId}"]`)) return;
+      if (event.target.closest?.(`#ritual-complete-${sandboxRitualId}, #ritual-conquer-${sandboxRitualId}`)) return;
       event.preventDefault();
       event.stopPropagation();
     };
@@ -571,6 +578,14 @@ export default function TabTutorialOverlay({
 
   if (!currentStep) return null;
 
+  const dismissTutorial = () => {
+    if (sandboxRitualId) {
+      useWarscytheStore.getState().deleteRitual(sandboxRitualId);
+    }
+    if (onHighlightChange) onHighlightChange(null);
+    onComplete();
+  };
+
   // Determine which node IDs to highlight — all map nodes except the current one should be dim
   return (
     <>
@@ -579,18 +594,18 @@ export default function TabTutorialOverlay({
         <HighlightRing elementId={currentStep.highlightId} />
       )}
       {currentStep?.type === 'ritual_complete' && sandboxRitualId && (
-        <HighlightRing elementId={`ritual-${sandboxRitualId}`} />
+        <HighlightRing elementId={`ritual-complete-${sandboxRitualId}`} />
       )}
 
       {/* Blocker overlay — full screen except card area, blocks all interaction */}
       <div
-        className={`fixed inset-0 z-[4000] ${tutorialId === 'rituals_intro' && currentStep?.type !== 'ritual_complete' ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        className="fixed inset-0 z-[4000] pointer-events-none"
         style={{ background: 'transparent' }}
       />
 
       {/* Hide the introductory card while the ritual form teaches each field. */}
       <AnimatePresence>
-        {!showRitualForm && !(
+        {!minimized && !showRitualForm && !(
           currentStep?.type === 'map_node'
           && tutorialNodeClicked === currentStep.nodeId
         ) && (
@@ -599,7 +614,7 @@ export default function TabTutorialOverlay({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 18 }}
-            className="fixed bottom-0 inset-x-0 z-[10000] flex justify-center px-4 pb-6 pointer-events-none"
+            className="fixed inset-x-0 bottom-[86px] z-[10000] flex justify-center px-4 pointer-events-none"
           >
             <div className="pointer-events-auto w-full max-w-md">
               <GuardianCard
@@ -607,11 +622,23 @@ export default function TabTutorialOverlay({
                 step={currentStep}
                 onNext={advance}
                 onOpenRitual={() => setShowRitualForm(true)}
+                onDismiss={dismissTutorial}
+                onMinimize={() => setMinimized(true)}
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {minimized && (
+        <button
+          type="button"
+          onClick={() => setMinimized(false)}
+          className="fixed bottom-[94px] left-4 z-[10001] rounded-full border border-gold-core/40 bg-zinc-950/95 px-4 py-3 font-mono text-[8px] font-black tracking-widest text-gold-core shadow-[0_0_30px_rgba(0,0,0,.8)]"
+        >
+          RESUME GUARDIAN
+        </button>
+      )}
 
       {/* Ritual modal in tutorial mode */}
       {showRitualForm && (

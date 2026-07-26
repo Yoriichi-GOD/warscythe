@@ -195,8 +195,27 @@ export default function App() {
     const handleTestTab = (event) => {
       if (event.detail) setActiveTab(event.detail);
     };
+    const handleCaptureScene = (event) => {
+      const scene = event.detail || {};
+      if (scene.tab) setActiveTab(scene.tab);
+      if (scene.ledgerSubTab) setLedgerSubTab(scene.ledgerSubTab);
+      setSelectedTaskId(scene.taskId || null);
+      window.setTimeout(() => {
+        const contentStage = document.getElementById('warscythe-content-stage');
+        if (scene.target) {
+          document.querySelector(scene.target)?.scrollIntoView({ behavior: 'instant', block: 'center' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          contentStage?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
+      }, 350);
+    };
     window.addEventListener('warscythe:test-tab', handleTestTab);
-    return () => window.removeEventListener('warscythe:test-tab', handleTestTab);
+    window.addEventListener('warscythe:capture-scene', handleCaptureScene);
+    return () => {
+      window.removeEventListener('warscythe:test-tab', handleTestTab);
+      window.removeEventListener('warscythe:capture-scene', handleCaptureScene);
+    };
   }, []);
 
   // Auto-switch tabs when postGuardianTutorial fires

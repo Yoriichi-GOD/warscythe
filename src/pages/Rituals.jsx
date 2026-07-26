@@ -1,16 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import RitualCard from '../components/operations/RitualCard';
 import RitualDetail from '../components/RitualDetail';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
+import UnlockCeremonyModal from '../components/UnlockCeremonyModal';
 import { Flame, Lock, Zap, Info, Play, Filter, ChevronDown } from 'lucide-react';
+import {
+  RITUAL_MEDAL_TIERS,
+  getCompletedRitualMedalAwards,
+} from '../utils/ritualMedals';
+
+const MEDAL_PROPHECIES = {
+  bronze: 'You returned when disappearance would have been easier. Fifteen answered days have given this vow a permanent mark.',
+  silver: 'Twenty-two answered days have turned intention into a discipline that can survive resistance.',
+  gold: 'Twenty-eight answered days stand inside a single vow cycle. Consistency has crossed into mastery.',
+};
 
 export default function Rituals({ onAddTask }) {
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const rituals = useWarscytheStore(state => state.rituals) || [];
+  const ritualCompletionEvents = useWarscytheStore(state => state.ritualCompletionEvents) || [];
   const completeRitual = useWarscytheStore(state => state.completeRitual);
   const deleteRitual = useWarscytheStore(state => state.deleteRitual);
   const handleRitualComplete = (id) => {
@@ -27,12 +39,20 @@ export default function Rituals({ onAddTask }) {
   const hasSeenRitualsGuide = useWarscytheStore(state => state.hasSeenRitualsGuide);
   const setHasSeenRitualsGuide = useWarscytheStore(state => state.setHasSeenRitualsGuide);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
+  const postGuardianTutorial = useWarscytheStore(state => state.postGuardianTutorial);
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
   
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [selectedRitualId, setSelectedRitualId] = useState(null);
   const [ritualFilter, setRitualFilter] = useState('all');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [acknowledgedMedals, setAcknowledgedMedals] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('warscythe-acknowledged-ritual-medals') || '[]');
+    } catch {
+      return [];
+    }
+  });
   const filterRef = useRef(null);
   const ritualFilterOptions = [
     { value: 'all', label: 'All Rituals' },
@@ -42,6 +62,18 @@ export default function Rituals({ onAddTask }) {
     { value: 'weekly', label: 'Weekly' },
   ];
   const selectedFilter = ritualFilterOptions.find(option => option.value === ritualFilter);
+  const pendingMedal = useMemo(() => (
+    getCompletedRitualMedalAwards(rituals, ritualCompletionEvents)
+      .filter(award => !acknowledgedMedals.includes(award.awardId))
+      .sort((a, b) => b.cycleEnd.localeCompare(a.cycleEnd))[0] || null
+  ), [rituals, ritualCompletionEvents, acknowledgedMedals]);
+
+  const acknowledgeMedal = () => {
+    if (!pendingMedal) return;
+    const next = [...new Set([...acknowledgedMedals, pendingMedal.awardId])];
+    setAcknowledgedMedals(next);
+    localStorage.setItem('warscythe-acknowledged-ritual-medals', JSON.stringify(next));
+  };
 
   useEffect(() => {
     const closeFilter = event => {
@@ -49,6 +81,18 @@ export default function Rituals({ onAddTask }) {
     };
     document.addEventListener('pointerdown', closeFilter);
     return () => document.removeEventListener('pointerdown', closeFilter);
+  }, []);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const handleCaptureScene = event => {
+      if (event.detail?.tab !== 'rituals') return;
+      setSelectedRitualId(event.detail.ritualId || null);
+      setRitualFilter('all');
+      setFilterOpen(false);
+    };
+    window.addEventListener('warscythe:capture-scene', handleCaptureScene);
+    return () => window.removeEventListener('warscythe:capture-scene', handleCaptureScene);
   }, []);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -99,6 +143,15 @@ export default function Rituals({ onAddTask }) {
 
   return (
     <div className="elite-grid-container rituals-grid relative">
+      {pendingMedal && (
+        <UnlockCeremonyModal
+          kind="ritual-medal"
+          name={`${RITUAL_MEDAL_TIERS[pendingMedal.medal].label} MEDAL`}
+          image={RITUAL_MEDAL_TIERS[pendingMedal.medal].image}
+          prophecy={`${pendingMedal.title}: ${MEDAL_PROPHECIES[pendingMedal.medal]}`}
+          onClose={acknowledgeMedal}
+        />
+      )}
       
       {/* ═══ LEFT COLUMN: ACTIVE RITUALS ═══ */}
       <section className="elite-panel h-[520px] lg:h-auto overflow-hidden lg:overflow-visible">
@@ -192,7 +245,14 @@ export default function Rituals({ onAddTask }) {
               )}
             </div>
             <button
-              onClick={onAddTask}
+              id="ritual-enshrine-button"
+              onClick={() => {
+                if (postGuardianTutorial === 'rituals_intro') {
+                  window.dispatchEvent(new CustomEvent('warscythe:tutorial-enshrine'));
+                  return;
+                }
+                onAddTask();
+              }}
               className="w-full py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02] shrink-0"
             >
               <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Enshrine Ritual</span>

@@ -32,17 +32,19 @@ const dateKey = value => {
   return date.toISOString().slice(0, 10);
 };
 
-const monthKey = value => dateKey(value)?.slice(0, 7) || null;
+const DAY_MS = 86400000;
+export const RITUAL_MEDAL_CYCLE_DAYS = 31;
 
-const monthBounds = value => {
+const startOfUtcDay = value => {
   const date = value instanceof Date ? value : new Date(value);
-  const start = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
-  const end = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
-  return { start, end };
+  if (Number.isNaN(date.getTime())) return null;
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 };
 
+const addUtcDays = (value, days) => new Date(startOfUtcDay(value).getTime() + (days * DAY_MS));
+
 const daysBetweenInclusive = (start, end) => (
-  Math.max(0, Math.floor((end - start) / 86400000) + 1)
+  Math.max(0, Math.floor((end - start) / DAY_MS) + 1)
 );
 
 const scheduledOpportunities = (ritual, start, end) => {
@@ -59,21 +61,44 @@ const scheduledOpportunities = (ritual, start, end) => {
   return count;
 };
 
-const medalForCount = (completed, opportunities) => {
+const targetsForRitual = (ritual, opportunities) => {
+  if (ritual.frequency !== 'weekly' && opportunities === RITUAL_MEDAL_CYCLE_DAYS) {
+    return { bronze: 15, silver: 22, gold: 28 };
+  }
+  return {
+    bronze: Math.ceil(opportunities * RITUAL_MEDAL_TIERS.bronze.ratio),
+    silver: Math.ceil(opportunities * RITUAL_MEDAL_TIERS.silver.ratio),
+    gold: Math.ceil(opportunities * RITUAL_MEDAL_TIERS.gold.ratio),
+  };
+};
+
+const medalForCount = (ritual, completed, opportunities) => {
   if (!opportunities) return null;
-  if (completed >= Math.ceil(opportunities * RITUAL_MEDAL_TIERS.gold.ratio)) return 'gold';
-  if (completed >= Math.ceil(opportunities * RITUAL_MEDAL_TIERS.silver.ratio)) return 'silver';
-  if (completed >= Math.ceil(opportunities * RITUAL_MEDAL_TIERS.bronze.ratio)) return 'bronze';
+  const targets = targetsForRitual(ritual, opportunities);
+  if (completed >= targets.gold) return 'gold';
+  if (completed >= targets.silver) return 'silver';
+  if (completed >= targets.bronze) return 'bronze';
   return null;
 };
 
-const eventsForRitual = (ritual, events, targetMonth) => {
+const cycleBounds = (ritual, referenceDate = new Date(), cycleIndex) => {
+  const created = startOfUtcDay(ritual.createdAt || referenceDate);
+  const reference = startOfUtcDay(referenceDate);
+  const inferredIndex = Math.max(0, Math.floor((reference - created) / (RITUAL_MEDAL_CYCLE_DAYS * DAY_MS)));
+  const index = Number.isInteger(cycleIndex) ? Math.max(0, cycleIndex) : inferredIndex;
+  const start = addUtcDays(created, index * RITUAL_MEDAL_CYCLE_DAYS);
+  const end = addUtcDays(start, RITUAL_MEDAL_CYCLE_DAYS - 1);
+  return { created, start, end, index };
+};
+
+const eventsForRitual = (ritual, events, start, end) => {
   const ritualId = ritual.ritualUuid || ritual.id;
   return new Set(
     events
       .filter(event => (
         (event.ritualUuid === ritualId || event.ritualId === ritualId)
-        && monthKey(event.date || event.occurredAt) === targetMonth
+        && startOfUtcDay(event.date || event.occurredAt) >= start
+        && startOfUtcDay(event.date || event.occurredAt) <= end
       ))
       .map(event => dateKey(event.date || event.occurredAt))
       .filter(Boolean)
@@ -84,38 +109,34 @@ export const getRitualMonthStats = (
   ritual,
   events = [],
   referenceDate = new Date(),
-  targetMonth = monthKey(referenceDate)
+  cycleIndex
 ) => {
-  const { start: monthStart, end: monthEnd } = monthBounds(`${targetMonth}-01T00:00:00.000Z`);
-  // A monthly medal represents the whole calendar month. A Ritual enshrined
-  // mid-month can still begin its record immediately, but does not receive a
-  // shortened target that makes the medal easier than an existing Ritual.
-  const eligibilityStart = monthStart;
-  const today = new Date(referenceDate);
-  const currentMonth = monthKey(today) === targetMonth;
-  const elapsedEnd = currentMonth && today < monthEnd
-    ? new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()))
-    : monthEnd;
-  const completionDates = eventsForRitual(ritual, events, targetMonth);
-  const totalOpportunities = scheduledOpportunities(ritual, eligibilityStart, monthEnd);
-  const elapsedOpportunities = scheduledOpportunities(ritual, eligibilityStart, elapsedEnd);
+  const today = startOfUtcDay(referenceDate);
+  const { start, end, index } = cycleBounds(ritual, referenceDate, cycleIndex);
+  const isCurrentCycle = today >= start && today <= end;
+  const elapsedEnd = today < start ? new Date(start.getTime() - DAY_MS) : (today < end ? today : end);
+  const completionDates = eventsForRitual(ritual, events, start, end);
+  const totalOpportunities = scheduledOpportunities(ritual, start, end);
+  const elapsedOpportunities = scheduledOpportunities(ritual, start, elapsedEnd);
   const completed = Math.min(completionDates.size, totalOpportunities);
-  const attainableFrom = currentMonth && today <= monthEnd
-    ? new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()))
-    : new Date(monthEnd.getTime() + 86400000);
-  const attainableOpportunities = scheduledOpportunities(ritual, attainableFrom, monthEnd);
+  const attainableFrom = isCurrentCycle ? today : new Date(end.getTime() + DAY_MS);
+  const attainableOpportunities = scheduledOpportunities(ritual, attainableFrom, end);
   const completedAttainableDates = [...completionDates].filter(day => (
     new Date(`${day}T00:00:00.000Z`) >= attainableFrom
   )).length;
   const remaining = Math.max(0, attainableOpportunities - completedAttainableDates);
   const projectedCompleted = Math.min(totalOpportunities, completed + remaining);
-  const projectedMedal = medalForCount(projectedCompleted, totalOpportunities);
-  const earnedMedal = medalForCount(completed, totalOpportunities);
+  const projectedMedal = medalForCount(ritual, projectedCompleted, totalOpportunities);
+  const earnedMedal = medalForCount(ritual, completed, totalOpportunities);
+  const targets = targetsForRitual(ritual, totalOpportunities);
 
   return {
     ritualId: ritual.ritualUuid || ritual.id,
     title: ritual.title || 'Unnamed Ritual',
-    month: targetMonth,
+    cycleIndex: index,
+    cycleStart: dateKey(start),
+    cycleEnd: dateKey(end),
+    cycleComplete: today > end,
     completed,
     elapsedOpportunities,
     totalOpportunities,
@@ -123,9 +144,9 @@ export const getRitualMonthStats = (
     projectedCompleted,
     projectedMedal,
     earnedMedal,
-    bronzeTarget: Math.ceil(totalOpportunities * RITUAL_MEDAL_TIERS.bronze.ratio),
-    silverTarget: Math.ceil(totalOpportunities * RITUAL_MEDAL_TIERS.silver.ratio),
-    goldTarget: Math.ceil(totalOpportunities * RITUAL_MEDAL_TIERS.gold.ratio),
+    bronzeTarget: targets.bronze,
+    silverTarget: targets.silver,
+    goldTarget: targets.gold,
     completionRate: elapsedOpportunities ? completed / elapsedOpportunities : 0,
     createdAt: ritual.createdAt || '',
   };
@@ -145,39 +166,42 @@ export const getCurrentRitualMedalProjection = (rituals = [], events = [], refer
 };
 
 export const getRitualMedalCollection = (rituals = [], events = [], referenceDate = new Date()) => {
-  const currentMonth = monthKey(referenceDate);
   const ritualById = new Map(rituals.map(ritual => [ritual.ritualUuid || ritual.id, ritual]));
-  const candidatePairs = new Map();
 
   events.forEach(event => {
-    const eventMonth = monthKey(event.date || event.occurredAt);
-    if (!eventMonth || eventMonth >= currentMonth) return;
     const ritualId = event.ritualUuid || event.ritualId;
-    if (!ritualId) return;
-    const key = `${ritualId}:${eventMonth}`;
-    if (!candidatePairs.has(key)) {
-      candidatePairs.set(key, {
-        ritual: ritualById.get(ritualId) || {
-          id: ritualId,
-          ritualUuid: ritualId,
-          title: event.ritualTitle || 'Archived Ritual',
-          frequency: event.frequency || 'daily',
-          createdAt: event.ritualCreatedAt || `${eventMonth}-01T00:00:00.000Z`,
-        },
-        month: eventMonth,
-      });
-    }
+    if (!ritualId || ritualById.has(ritualId)) return;
+    ritualById.set(ritualId, {
+      id: ritualId,
+      ritualUuid: ritualId,
+      title: event.ritualTitle || 'Archived Ritual',
+      frequency: event.frequency || 'daily',
+      createdAt: event.ritualCreatedAt || event.date || event.occurredAt,
+    });
   });
 
-  const awards = [...candidatePairs.values()]
-    .map(({ ritual, month }) => getRitualMonthStats(ritual, events, referenceDate, month))
-    .filter(stats => stats.earnedMedal)
-    .map(stats => ({ ...stats, medal: stats.earnedMedal }));
+  const awards = getCompletedRitualMedalAwards([...ritualById.values()], events, referenceDate);
 
   return awards.reduce((collection, award) => {
     collection[award.medal] += 1;
     return collection;
   }, { bronze: 0, silver: 0, gold: 0 });
+};
+
+export const getCompletedRitualMedalAwards = (rituals = [], events = [], referenceDate = new Date()) => {
+  const today = startOfUtcDay(referenceDate);
+  return rituals.flatMap(ritual => {
+    const created = startOfUtcDay(ritual.createdAt || referenceDate);
+    const completedCycleCount = Math.max(0, Math.floor((today - created) / (RITUAL_MEDAL_CYCLE_DAYS * DAY_MS)));
+    return Array.from({ length: completedCycleCount }, (_, cycleIndex) => (
+      getRitualMonthStats(ritual, events, referenceDate, cycleIndex)
+    ));
+  }).filter(stats => stats.cycleComplete && stats.earnedMedal)
+    .map(stats => ({
+      ...stats,
+      medal: stats.earnedMedal,
+      awardId: `${stats.ritualId}:cycle-${stats.cycleIndex}:${stats.earnedMedal}`,
+    }));
 };
 
 export const isRitualScheduledOnDate = (ritual, value = new Date()) => {

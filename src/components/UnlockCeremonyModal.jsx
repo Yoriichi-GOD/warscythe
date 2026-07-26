@@ -26,6 +26,7 @@ export default function UnlockCeremonyModal({
   onDownload
 }) {
   const isScythe = kind === 'scythe';
+  const isMedal = kind === 'ritual-medal';
   const resolvedProphecy = prophecy || SCYTHE_PROPHECIES[name] || 'The old powers have witnessed your ascent. Carry what has awakened here with honor.';
 
   return (
@@ -47,7 +48,7 @@ export default function UnlockCeremonyModal({
 
         <div className="absolute inset-0 z-10 flex flex-col items-center px-[7%] pt-[4%] pb-[3%] sm:px-[9%] sm:pt-[3%] sm:pb-[3%] text-center">
           <div className="font-mono text-[8px] sm:text-[10px] tracking-[.35em] text-gold-core uppercase">
-            {isScythe ? 'Streak Armament Acquired' : 'Olympian Tier Ascended'}
+            {isScythe ? 'Streak Armament Acquired' : (isMedal ? 'Ritual Medal Achieved' : 'Olympian Tier Ascended')}
           </div>
           <h2 className="mt-1 sm:mt-2 font-display text-2xl sm:text-4xl lg:text-5xl tracking-[.14em] text-white uppercase drop-shadow-[0_0_14px_#000]">
             {name}
@@ -55,6 +56,11 @@ export default function UnlockCeremonyModal({
           {isScythe && (
             <div className="mt-2 px-4 py-1 border-y border-gold-core/30 font-mono text-[8px] sm:text-[10px] tracking-[.25em] text-gold-bright uppercase">
               {days} Day Vow
+            </div>
+          )}
+          {isMedal && (
+            <div className="mt-2 px-4 py-1 border-y border-gold-core/30 font-mono text-[8px] sm:text-[10px] tracking-[.25em] text-gold-bright uppercase">
+              31 Day Vow Cycle
             </div>
           )}
 
@@ -96,7 +102,7 @@ export default function UnlockCeremonyModal({
           >
             {requiresDownload
               ? (downloadState === 'error' ? 'Download Failed — Try the Sigil Again' : 'Download This Form to Continue')
-              : (isScythe ? 'Acquire Armament' : 'Embody New Tier')}
+              : (isScythe ? 'Acquire Armament' : (isMedal ? 'Seal Medal in the Ledger' : 'Embody New Tier'))}
           </button>
         </div>
       </motion.section>
