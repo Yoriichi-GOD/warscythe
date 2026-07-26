@@ -37,7 +37,7 @@ import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 import LockedDoor from './components/LockedDoor';
 import GuardianOverlay from './components/GuardianOverlay';
-import TabTutorialOverlay from './components/TabTutorialOverlay';
+import TabTutorialOverlay, { getMapTutorialGuidance } from './components/TabTutorialOverlay';
 import RoadmapModal from './components/RoadmapModal';
 import TitleUnlockFlash from './components/TitleUnlockFlash';
 import FitnessOathGate from './components/FitnessOathGate';
@@ -162,7 +162,9 @@ export default function App() {
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskModalInitialEffort, setTaskModalInitialEffort] = useState('Medium');
+  const [taskModalDraft, setTaskModalDraft] = useState(null);
   const [showRitualModal, setShowRitualModal] = useState(false);
+  const [ritualModalDraft, setRitualModalDraft] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
@@ -178,6 +180,7 @@ export default function App() {
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(false);
   const [showTutorialEndFlash, setShowTutorialEndFlash] = useState(false);
   const [tutorialMapNodeClicked, setTutorialMapNodeClicked] = useState(null);
+  const [tutorialMapNodeContinued, setTutorialMapNodeContinued] = useState(null);
   const [mapTutorialHighlightNode, setMapTutorialHighlightNode] = useState(null);
   const [fitnessTutorialActive, setFitnessTutorialActive] = useState(false);
 
@@ -203,6 +206,7 @@ export default function App() {
       return;
     }
     setTutorialMapNodeClicked(null);
+    setTutorialMapNodeContinued(null);
     if (postGuardianTutorial === 'rituals_intro') setActiveTab('rituals');
     else if (postGuardianTutorial === 'forge_intro') setActiveTab('forge');
     else if (postGuardianTutorial === 'quest_map_intro') setActiveTab('map');
@@ -569,6 +573,10 @@ export default function App() {
   const navigationSealed = fitnessTutorialActive || postGuardianTutorial === 'lore_intro';
   const guardedTabChange = (tab) => {
     if (navigationSealed && tab !== activeTab) return;
+    if (tab !== activeTab) {
+      setShowTaskModal(false);
+      setShowRitualModal(false);
+    }
     setActiveTab(tab);
   };
 
@@ -620,7 +628,7 @@ export default function App() {
         {/* Persistent Tab Pages for Smooth Mobile Switching */}
         <div 
           style={{ display: activeTab === 'ops' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar"
+          className="operations-page-scroll h-full w-full overflow-y-auto"
         >
           {activeTab === 'ops' && <Operations
             onAddTask={() => {
@@ -709,7 +717,15 @@ export default function App() {
               }
             }}
             tutorialHighlightNode={mapTutorialHighlightNode}
-            onTutorialNodeClick={(nodeId) => setTutorialMapNodeClicked(nodeId)}
+            tutorialGuidance={getMapTutorialGuidance(mapTutorialHighlightNode)}
+            onTutorialNodeClick={(nodeId) => {
+              setTutorialMapNodeClicked(nodeId);
+              setTutorialMapNodeContinued(null);
+            }}
+            onTutorialContinue={(nodeId) => {
+              setTutorialMapNodeClicked(null);
+              setTutorialMapNodeContinued(nodeId);
+            }}
             tutorialActive={postGuardianTutorial === 'quest_map_intro'}
             />
           ))}
@@ -760,13 +776,21 @@ export default function App() {
           <TaskModal 
             onClose={() => setShowTaskModal(false)} 
             initialEffort={taskModalInitialEffort}
+            initialDraft={taskModalDraft}
+            onDraftChange={setTaskModalDraft}
+            onSubmitted={() => setTaskModalDraft(null)}
           />
         )}
       </AnimatePresence>
       
       <AnimatePresence>
         {showRitualModal && (
-          <RitualModal onClose={() => setShowRitualModal(false)} />
+          <RitualModal
+            onClose={() => setShowRitualModal(false)}
+            initialDraft={ritualModalDraft}
+            onDraftChange={setRitualModalDraft}
+            onSubmitted={() => setRitualModalDraft(null)}
+          />
         )}
       </AnimatePresence>
       
@@ -1085,6 +1109,7 @@ export default function App() {
           onMapNodeClick={(nodeId) => setTutorialMapNodeClicked(nodeId)}
           onHighlightChange={(nodeId) => setMapTutorialHighlightNode(nodeId)}
           tutorialNodeClicked={tutorialMapNodeClicked}
+          tutorialNodeContinued={tutorialMapNodeContinued}
         />
       )}
 

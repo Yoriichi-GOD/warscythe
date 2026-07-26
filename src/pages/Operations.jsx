@@ -83,8 +83,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     { days: 60, name: 'EXECUTIONER' },
     { days: 120, name: 'SOVEREIGN' },
     { days: 200, name: 'VOID-WALKER' },
-    { days: 300, name: 'ETERNAL' },
-    { days: 360, name: 'DEATH-LORD' }
+    { days: 300, name: 'ETERNAL' }
   ];
 
   const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days);
@@ -115,7 +114,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     <div className="elite-grid-container">
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
-      <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
+      <section className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-hidden pb-6">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <Zap size={14} className="text-gold-core" />

@@ -4,6 +4,8 @@ import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 import LockedDoor from '../components/LockedDoor';
+import { RITUAL_MEDAL_TIERS, getRitualMedalCollection } from '../utils/ritualMedals';
+import { ARTIFACT_VARIANT_TOTAL, getArtifactCollection } from '../utils/artifactCollection';
 
 const EMPRESS_NAMES = [
   'Empress Dryad of Ashwood',
@@ -336,6 +338,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const currentTitle = useWarscytheStore(state => state.currentTitle) || 'Recruit';
   const bossKills = useWarscytheStore(state => state.bossKills) || 0;
   const rescuedFairies = useWarscytheStore(state => state.rescuedFairies) || {};
+  const rituals = useWarscytheStore(state => state.rituals) || [];
+  const ritualCompletionEvents = useWarscytheStore(state => state.ritualCompletionEvents) || [];
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const hasSeenLedgerGuide = useWarscytheStore(state => state.hasSeenLedgerGuide);
   const setHasSeenLedgerGuide = useWarscytheStore(state => state.setHasSeenLedgerGuide);
@@ -349,6 +353,11 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const [selectedFairy, setSelectedFairy] = useState(null);
 
   const bossTasks = completedTasks.filter(t => t.effort === 'Boss').sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+  const ritualMedalCollection = getRitualMedalCollection(rituals, ritualCompletionEvents);
+  const ritualMedalTotal = Object.values(ritualMedalCollection).reduce((sum, count) => sum + count, 0);
+  const artifactCollection = getArtifactCollection(collectedArtifacts);
+  const artifactVariantsRecovered = artifactCollection.length;
+  const artifactVariantsRemaining = Math.max(0, ARTIFACT_VARIANT_TOTAL - artifactVariantsRecovered);
 
   const rarities = {
     common: { color: '#aaa', label: 'COMMON' },
@@ -415,7 +424,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
       {/* Main Content Area */}
       <div className="flex-1 min-h-0">
         {subTab === 'history' ? (
-          <div className="flex flex-col gap-6">
+          <div className="ledger-history-layout flex flex-col gap-6">
             {/* Calendar Widget */}
             <div className="elite-panel p-6 bg-black/40 border border-white/5 rounded-lg flex flex-col gap-4 relative overflow-hidden">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-3 gap-3">
@@ -457,7 +466,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               <div className="grid grid-cols-7 gap-2">
                 {dayCells.map((day, idx) => {
                   if (day === null) {
-                    return <div key={`empty-${idx}`} className="aspect-square" />;
+                    return <div key={`empty-${idx}`} className="ledger-day-cell aspect-square" />;
                   }
 
                   const dateStr = getLocalDateString(day);
@@ -467,7 +476,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                   const circleDetails = getDayCircleStyle(dateStr);
                   const hasLogs = !!circleDetails;
                   
-                  let cellClassName = "relative aspect-square flex flex-col items-center justify-center rounded cursor-pointer transition-all border select-none ";
+                  let cellClassName = "ledger-day-cell relative aspect-square flex flex-col items-center justify-center rounded cursor-pointer transition-all border select-none ";
                   
                   if (!hasLogs) {
                     cellClassName += "border-white/[0.02] bg-white/[0.005] opacity-25 hover:opacity-60 hover:border-white/10";
@@ -543,8 +552,9 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
             </div>
 
+            <div className="ledger-history-detail custom-scrollbar flex flex-col gap-6">
             {/* Selected Date Header and List Filters */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-3">
+            <div className="flex flex-col justify-between items-start gap-4 border-b border-white/5 pb-3">
               <div>
                 {selectedDateStr ? (
                   <h3 className="text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
@@ -557,7 +567,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Filter controls */}
                 <div className="flex gap-1.5 p-1 bg-black/40 border border-white/5 rounded">
                   {['ALL', 'CONQUERED', 'ABANDONED'].map(tab => (
@@ -716,6 +726,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 </div>
               </div>
             )}
+            </div>
           </div>
         ) : subTab === 'prophecies' ? (
           <div className="flex flex-col gap-6">
@@ -849,6 +860,44 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 </div>
               </div>
 
+              {/* ── MONTHLY RITUAL MEDALS ── */}
+              <div className="dragon-trophies-section glass-panel mb-6">
+                <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold text-gold-core">
+                  <Award size={12} />
+                  <span>MONTHLY RITUAL MEDALS</span>
+                </div>
+                <p className="text-[8px] font-mono text-gray-500 mt-1 mb-3 tracking-wider italic">
+                  Awarded at month-end for the consistency of each individual Ritual.
+                </p>
+                {ritualMedalTotal === 0 ? (
+                  <span className="empty-msg text-[9px] font-mono text-gray-500 tracking-wider">
+                    NO MONTHLY MEDALS EARNED YET
+                  </span>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    {['gold', 'silver', 'bronze'].map(medalId => {
+                      const count = ritualMedalCollection[medalId];
+                      if (!count) return null;
+                      const medal = RITUAL_MEDAL_TIERS[medalId];
+                      return (
+                        <div key={medalId} className={`ritual-medal-ledger-card ritual-medal-${medalId}`}>
+                          <div className="ritual-medal-ledger-visual">
+                            <Award size={24} aria-hidden="true" />
+                            <img
+                              src={medal.image}
+                              alt={`${medal.label} Ritual Medal`}
+                              onError={event => { event.currentTarget.style.display = 'none'; }}
+                            />
+                          </div>
+                          <span>{medal.label}</span>
+                          <strong>×{count}</strong>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* ── DRAGON HEAD TROPHIES ── */}
               <div className="dragon-trophies-section glass-panel mb-6">
                 <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono text-red-500/80 tracking-widest uppercase font-bold">
@@ -888,17 +937,21 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
 
               <div className="gallery-grid-page">
-                {collectedArtifacts.length === 0 ? (
+                <div className="artifact-recovery-counter">
+                  <span>{artifactVariantsRecovered} / {ARTIFACT_VARIANT_TOTAL} ARTIFACTS RECOVERED</span>
+                  <strong>{artifactVariantsRemaining} ARTIFACTS TO GO</strong>
+                </div>
+                {artifactCollection.length === 0 ? (
                   <div className="empty-vault py-12 text-center text-gray-500">
                     <p className="font-display text-[11px] tracking-wider uppercase mb-1">NO ARTIFACTS RECOVERED YET.</p>
                     <span className="font-mono text-[9px] tracking-widest">CONQUER OPERATIONS TO FILL THE VAULT.</span>
                   </div>
                 ) : (
                   <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-4">
-                    {collectedArtifacts.map((art, i) => (
+                    {artifactCollection.map(art => (
                       <motion.div 
-                        key={i}
-                        className={`art-card rarity-${art.rarity} ${selectedArtifact === art ? 'active' : ''}`}
+                        key={art.variantKey}
+                        className={`art-card rarity-${art.rarity} ${selectedArtifact?.variantKey === art.variantKey ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedArtifact(art);
                           setSelectedTrophy(null);
@@ -913,6 +966,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                           style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain', zIndex: 2 }}
                         />
                         <div className="rarity-dot" />
+                        {art.count > 1 && <span className="artifact-card-multiplier">×{art.count}</span>}
                       </motion.div>
                     ))}
                   </div>
@@ -935,7 +989,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                   </motion.div>
                 ) : selectedArtifact ? (
                   <motion.div 
-                    key={selectedArtifact.name}
+                    key={selectedArtifact.variantKey}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -956,7 +1010,10 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                         {rarities[selectedArtifact.rarity].label} ARTIFACT
                       </span>
                       <h3 className="font-display text-xl text-white tracking-wide uppercase mb-1">{selectedArtifact.name}</h3>
-                      <p className="art-date text-[9px] font-mono text-gray-500 mb-4">RECOVERED: {new Date(selectedArtifact.date).toLocaleDateString()}</p>
+                      <p className="artifact-inspector-count">RECOVERED ×{selectedArtifact.count}</p>
+                      <p className="art-date text-[9px] font-mono text-gray-500 mb-4">
+                        FIRST RECOVERED: {selectedArtifact.recoveries[0]?.date ? new Date(selectedArtifact.recoveries[0].date).toLocaleDateString() : 'UNKNOWN'}
+                      </p>
                       
                       {(selectedArtifact.context || selectedArtifact.effortContext) && (
                         <div className="flex flex-col gap-1 mt-2 mb-4 p-3 bg-white/[0.02] border border-white/5 rounded text-left">
@@ -985,6 +1042,21 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                           <p className="text-[11px] text-text-dim leading-relaxed font-serif italic">{selectedArtifact.lore}</p>
                         </div>
                       )}
+                      <div className="artifact-recovery-history">
+                        <div className="lore-header flex items-center gap-1.5">
+                          <Calendar size={11} />
+                          <span>RECOVERY RECORD</span>
+                        </div>
+                        {selectedArtifact.recoveries.map((recovery, index) => (
+                          <div className="artifact-recovery-entry" key={recovery.rewardEventId}>
+                            <strong>RECOVERY {String(index + 1).padStart(2, '0')}</strong>
+                            <span>{recovery.date ? new Date(recovery.date).toLocaleDateString() : 'DATE UNKNOWN'}</span>
+                            {(recovery.context || recovery.effortContext) && (
+                              <p>{[recovery.context, recovery.effortContext].filter(Boolean).join(' // ')}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </motion.div>
                 ) : selectedTrophy ? (

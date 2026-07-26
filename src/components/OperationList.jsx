@@ -62,7 +62,7 @@ export default function OperationList({ onAddTask, onOpenTask }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .operation-section { 
           display: flex; 
           flex-direction: column; 
@@ -215,7 +215,7 @@ function TaskCard({ task, onClick }) {
           {task.deadline && (
             <div className="meta-pill deadline">
               <Clock size={10} />
-              <span>{new Date(task.deadline).toLocaleDateString('en-IN', { day:'numeric', month:'short' })}</span>
+              <span>{new Date(task.deadline).toLocaleString('en-IN', { day:'numeric', month:'short', hour:'numeric', minute:'2-digit' })}</span>
             </div>
           )}
         </div>
@@ -237,7 +237,7 @@ function TaskCard({ task, onClick }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .task-card {
           display: flex;
           align-items: stretch;

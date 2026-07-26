@@ -10,8 +10,7 @@ const SCYTHE_PROPHECIES = {
   EXECUTIONER: 'Sixty victories stand without interruption. The weapon now falls with the certainty of judgment.',
   SOVEREIGN: 'One hundred and twenty dawns bow before your vow. You no longer borrow momentum. You command it.',
   'VOID-WALKER': 'Two hundred days have carried you beyond the noise of lesser promises. Even the void makes room for your passage.',
-  ETERNAL: 'Three hundred returns have made constancy indistinguishable from nature. The weapon remembers you between worlds.',
-  'DEATH-LORD': 'A full cycle has failed to break you. Time itself has become the whetstone of your final form.'
+  ETERNAL: 'Three hundred returns have made constancy indistinguishable from nature. The weapon remembers you between worlds.'
 };
 
 export default function UnlockCeremonyModal({

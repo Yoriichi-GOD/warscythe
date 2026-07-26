@@ -469,7 +469,7 @@ export default function TestRealm() {
               <section>
                 <div className="mb-2 text-[9px] tracking-[0.25em] text-cyan-400">STREAK SCYTHE CEREMONY</div>
                 <div className="grid grid-cols-4 gap-1">
-                  {[5, 15, 30, 60, 120, 200, 300, 360].map(days => (
+                  {[5, 15, 30, 60, 120, 200, 300].map(days => (
                     <button key={days} onClick={() => launchScytheMilestone(days)} className="rounded border border-white/10 p-2 text-[8px] hover:border-cyan-400/40">
                       {days}D
                     </button>

@@ -231,3 +231,91 @@ export const cancelRitualReminders = async (ritualId) => {
     console.warn('Failed to cancel ritual reminders:', err);
   }
 };
+
+const OPERATION_REMINDER_STAGES = [
+  { key: 'half', progress: 0.5, label: 'Half the allotted time has passed.' },
+  { key: 'three-quarter', progress: 0.75, label: '75% of the allotted time has passed.' },
+  { key: 'nine-tenths', progress: 0.9, label: '90% of the allotted time has passed.' },
+  { key: '24h', beforeMs: 24 * 60 * 60 * 1000, label: '24 hours remain.' },
+  { key: '12h', beforeMs: 12 * 60 * 60 * 1000, label: '12 hours remain.' },
+  { key: '6h', beforeMs: 6 * 60 * 60 * 1000, label: '6 hours remain.' },
+  { key: '1h', beforeMs: 60 * 60 * 1000, label: '1 hour remains.' },
+  { key: '15m', beforeMs: 15 * 60 * 1000, label: '15 minutes remain.' },
+];
+
+export const getOperationReminderSchedule = (operation, now = new Date()) => {
+  if (!operation?.deadline) return [];
+  const createdAt = new Date(operation.createdAt || now);
+  const deadline = new Date(operation.deadline);
+  const duration = deadline - createdAt;
+  if (!Number.isFinite(duration) || duration <= 0) return [];
+
+  const seenMinutes = new Set();
+  return OPERATION_REMINDER_STAGES.map((stage, index) => {
+    const at = stage.progress
+      ? new Date(createdAt.getTime() + duration * stage.progress)
+      : new Date(deadline.getTime() - stage.beforeMs);
+    return { ...stage, at, suffixId: index + 1 };
+  }).filter(reminder => {
+    const minuteKey = Math.round(reminder.at.getTime() / 60000);
+    if (reminder.at <= now || reminder.at >= deadline || seenMinutes.has(minuteKey)) return false;
+    seenMinutes.add(minuteKey);
+    return true;
+  });
+};
+
+export const scheduleOperationReminders = async (operation) => {
+  if (!operation?.deadline) return;
+  try {
+    const reminders = getOperationReminderSchedule(operation);
+    if (reminders.length === 0) return;
+    const isGranted = await requestNotificationPermission();
+    if (!isGranted) return;
+
+    const baseId = hashCode(`operation:${operation.id}`) * 10;
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      await LocalNotifications.cancel({
+        notifications: OPERATION_REMINDER_STAGES.map((_, index) => ({ id: baseId + index + 1 }))
+      });
+      await LocalNotifications.schedule({
+        notifications: reminders.map(reminder => ({
+          title: 'OPERATION DEADLINE',
+          body: `"${operation.title}" — ${reminder.label}`,
+          id: baseId + reminder.suffixId,
+          schedule: { at: reminder.at },
+          sound: null,
+          attachments: null,
+          actionTypeId: '',
+          extra: { operationId: operation.id, stage: reminder.key }
+        }))
+      });
+    } else if ('Notification' in window) {
+      reminders.forEach(reminder => {
+        const delay = reminder.at - new Date();
+        if (delay > 0 && delay <= 2147483647) {
+          setTimeout(() => {
+            new Notification('OPERATION DEADLINE', {
+              body: `"${operation.title}" — ${reminder.label}`,
+              icon: '/favicon.ico'
+            });
+          }, delay);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to schedule operation reminders:', err);
+  }
+};
+
+export const cancelOperationReminders = async (operationId) => {
+  try {
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      const baseId = hashCode(`operation:${operationId}`) * 10;
+      await LocalNotifications.cancel({
+        notifications: OPERATION_REMINDER_STAGES.map((_, index) => ({ id: baseId + index + 1 }))
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to cancel operation reminders:', err);
+  }
+};

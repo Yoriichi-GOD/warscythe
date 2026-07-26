@@ -1,19 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Flame, Trash2, CheckCircle2, Circle, Clock } from "lucide-react";
-import { useWarscytheStore } from "../../store/useWarscytheStore";
+import { Flame, CheckCircle2, Circle, Clock } from "lucide-react";
 
-export default function RitualCard({ ritual, onComplete }) {
-  const deleteRitual = useWarscytheStore(state => state.deleteRitual);
+export default function RitualCard({ ritual, onComplete, onOpen }) {
   const today = new Date().toISOString().slice(0, 10);
   const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === today;
-
-  const handleDelete = (e) => {
-    e.stopPropagation();
-    if (confirm(`Are you sure you want to discard the ritual "${ritual.title}"?`)) {
-      deleteRitual(ritual.id);
-    }
-  };
 
   const effortLabels = {
     Low: 'RECON',
@@ -27,23 +18,31 @@ export default function RitualCard({ ritual, onComplete }) {
       id={`ritual-${ritual.id}`}
       data-ritual-id={ritual.id}
       whileHover={!isCompletedToday ? { scale: 1.01 } : {}}
-      className={`relative group cursor-pointer rounded-xl border transition-all overflow-hidden ${
+      className={`relative group cursor-pointer shrink-0 rounded-xl border transition-all overflow-hidden ${
         isCompletedToday 
           ? 'border-gold-core/20 bg-gold-core/[0.02] opacity-60' 
           : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'
       }`}
-      onClick={() => !isCompletedToday && onComplete(ritual.id)}
+      onClick={() => onOpen(ritual.id)}
     >
       <div className="ritual-card-inner flex items-center gap-4 p-4">
         
         {/* CHECKBOX / STATUS INDICATOR */}
-        <div className="shrink-0 flex items-center justify-center">
+        <button
+          type="button"
+          className="shrink-0 flex items-center justify-center"
+          onClick={(event) => {
+            event.stopPropagation();
+            if (!isCompletedToday) onComplete(ritual.id);
+          }}
+          aria-label={isCompletedToday ? `${ritual.title} completed today` : `Complete ${ritual.title}`}
+        >
           {isCompletedToday ? (
             <CheckCircle2 size={20} className="text-gold-core" />
           ) : (
             <Circle size={20} className="text-gray-600 group-hover:text-gold-core transition-colors" />
           )}
-        </div>
+        </button>
 
         {/* CONTENT */}
         <div className="flex-1 flex flex-col gap-1 min-w-0">
@@ -72,7 +71,7 @@ export default function RitualCard({ ritual, onComplete }) {
           </div>
         </div>
 
-        {/* ACTION / DELETE */}
+        {/* COMPLETION ACTION */}
         <div className="ritual-card-actions flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
           {isCompletedToday ? (
             <span className="text-[8px] font-mono text-gold-core/60 uppercase tracking-wider font-bold">
@@ -86,12 +85,6 @@ export default function RitualCard({ ritual, onComplete }) {
               CONQUER
             </button>
           )}
-          <button 
-            onClick={handleDelete}
-            className="w-8 h-8 flex items-center justify-center rounded text-gray-600 hover:text-red-core hover:bg-red-core/5 transition-colors"
-          >
-            <Trash2 size={12} />
-          </button>
         </div>
       </div>
     </motion.div>

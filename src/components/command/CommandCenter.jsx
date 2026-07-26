@@ -4,6 +4,12 @@ import { Swords, History, Flame, Award, Dumbbell, Info, ChevronDown } from 'luci
 import { getAssetUrl } from '../../utils/assetResolver';
 import { REGIONS } from '../../store/constants';
 import UnlockCeremonyModal from '../UnlockCeremonyModal';
+import {
+  RITUAL_MEDAL_TIERS,
+  STREAK_SCYTHE_TIERS,
+  getCurrentRitualMedalProjection,
+  isRitualScheduledOnDate,
+} from '../../utils/ritualMedals';
 
 const REGION_SHORT_DESCS = [
   "Warm, hopeful, and calm grasslands.",
@@ -68,7 +74,7 @@ const WidgetLock = ({ requiredTasks, conceptName }) => {
   );
 };
 
-export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
+export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 'operations' }) {
   const { 
     xp, 
     totalCompletions, 
@@ -82,8 +88,11 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     level,
     activeTheme,
     onboardingActive,
-    onboardingProgress
+    onboardingProgress,
+    rituals = [],
+    ritualCompletionEvents = []
   } = useWarscytheStore();
+  const isRitualMode = mode === 'rituals';
 
   const [playingRegionIdx, setPlayingRegionIdx] = useState((level || 1) - 1);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -105,14 +114,48 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
   const cTasks = Array.isArray(completedTasks) ? completedTasks : [];
   const aTasks = Array.isArray(abandonedTasks) ? abandonedTasks : [];
 
-  const totalAttempted = cTasks.length + aTasks.length;
-  const executionRatio = totalAttempted === 0 ? 0 : Math.round((cTasks.length / totalAttempted) * 100);
-  const dashOffset = 125 - (125 * executionRatio) / 100;
+  const today = new Date().toISOString().slice(0, 10);
+  const scheduledRituals = rituals.filter(ritual => isRitualScheduledOnDate(ritual, new Date()));
+  const completedRitualIdsToday = new Set(
+    ritualCompletionEvents
+      .filter(event => (event.date || event.occurredAt?.slice(0, 10)) === today)
+      .map(event => event.ritualUuid || event.ritualId)
+  );
+  const ritualCompletionsToday = scheduledRituals.filter(ritual => (
+    completedRitualIdsToday.has(ritual.ritualUuid || ritual.id)
+    || ritual.lastCompletedAt?.slice(0, 10) === today
+  )).length;
+  const ritualExecutionRatio = scheduledRituals.length === 0
+    ? 0
+    : Math.round((ritualCompletionsToday / scheduledRituals.length) * 100);
+  const medalProjection = getCurrentRitualMedalProjection(rituals, ritualCompletionEvents);
+  const projectedMedal = medalProjection?.projectedMedal
+    ? RITUAL_MEDAL_TIERS[medalProjection.projectedMedal]
+    : null;
 
-  const allLogs = [
-    ...cTasks.map(t => ({...t, status: 'CONQUERED'})), 
+  const totalAttempted = cTasks.length + aTasks.length;
+  const operationExecutionRatio = totalAttempted === 0 ? 0 : Math.round((cTasks.length / totalAttempted) * 100);
+  const executionRatio = isRitualMode ? ritualExecutionRatio : operationExecutionRatio;
+  const dashOffset = 125 - (125 * executionRatio) / 100;
+  const projectedTarget = medalProjection && projectedMedal
+    ? medalProjection[`${medalProjection.projectedMedal}Target`]
+    : null;
+
+  const operationLogs = [
+    ...cTasks.map(t => ({...t, status: 'CONQUERED'})),
     ...aTasks.map(t => ({...t, status: 'ABANDONED'}))
-  ]
+  ];
+  const ritualById = new Map(rituals.map(ritual => [ritual.ritualUuid || ritual.id, ritual]));
+  const ritualLogs = ritualCompletionEvents.map(event => {
+    const ritual = ritualById.get(event.ritualUuid || event.ritualId);
+    return {
+      ...event,
+      title: ritual?.title || event.ritualTitle || 'Archived Ritual',
+      completedAt: event.occurredAt || event.date,
+      status: 'CONQUERED',
+    };
+  });
+  const allLogs = (isRitualMode ? ritualLogs : operationLogs)
     .sort((a, b) => {
       const dateA = new Date(a.completedAt || a.abandonedAt || 0);
       const dateB = new Date(b.completedAt || b.abandonedAt || 0);
@@ -120,21 +163,15 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
     })
     .slice(0, 25);
 
-  const streakTiers = [
-    { days: 5, name: 'NEOPHYTE' },
-    { days: 15, name: 'ACOLYTE' },
-    { days: 30, name: 'REAPER' },
-    { days: 60, name: 'EXECUTIONER' },
-    { days: 120, name: 'SOVEREIGN' },
-    { days: 200, name: 'VOID-WALKER' },
-    { days: 300, name: 'ETERNAL' },
-    { days: 360, name: 'DEATH-LORD' }
-  ];
+  const streakTiers = STREAK_SCYTHE_TIERS;
 
   // More compatible findLast equivalent
   const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days) || { name: 'NEOPHYTE', days: 5 };
   const nextTier = streakTiers.find(t => streakCount < t.days) || streakTiers[streakTiers.length - 1];
   const streakProgress = Math.min(100, (streakCount / nextTier.days) * 100);
+  const ritualMonthProgress = medalProjection?.totalOpportunities
+    ? Math.min(100, (medalProjection.completed / medalProjection.totalOpportunities) * 100)
+    : 0;
   const canAcquireCurrentTier = streakCount >= currentTier.days && !claimedScythes.includes(currentTier.name);
   const acquireTier = (tier) => {
     const nextClaimed = [...new Set([...claimedScythes, tier.name])];
@@ -273,9 +310,10 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
 
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
       <div 
-        className="cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden cursor-pointer hover:border-gold-core/40 transition-all bg-[#050505]"
+        className={`cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden transition-all bg-[#050505] ${isRitualMode ? '' : 'cursor-pointer hover:border-gold-core/40'}`}
         onClick={() => {
           if (onboardingActive && onboardingProgress < 4) return;
+          if (isRitualMode) return;
           onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500');
         }}
       >
@@ -284,27 +322,55 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
         )}
         {/* The Image (Centered and Blended) */}
         <div className="absolute inset-0 z-0 flex items-center justify-center p-4 bg-black/40">
-           <img 
-             src={getAssetUrl(`/ultimate/${currentTier.name.toLowerCase()}.png`)} 
-             alt={currentTier.name} 
-             className="w-[85%] h-[85%] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300"
-             onError={(e) => { e.target.src = '/scythe/PLATINUM.png'; }}
+           <img
+             src={isRitualMode
+               ? (projectedMedal?.image || '/medals/ritual-medal-bronze.png')
+               : getAssetUrl(`/ultimate/${currentTier.name.toLowerCase()}.png`)}
+             alt={isRitualMode ? `${projectedMedal?.label || 'Unattained'} ritual medal` : currentTier.name}
+             className={`w-[85%] h-[85%] object-contain transition-all duration-300 ${
+               isRitualMode && !projectedMedal
+                 ? 'opacity-10 grayscale'
+                 : 'opacity-70 group-hover:opacity-100'
+             }`}
+             onError={(e) => { e.currentTarget.style.display = 'none'; }}
            />
            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40 pointer-events-none" />
         </div>
 
         {/* Labels (Overlay) */}
         <div className="absolute top-6 left-6 flex flex-col items-start gap-1 z-10 text-left">
-          <span className="text-[7px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold">Ultimate Artifact</span>
-          <h4 className="text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">Cosmic Reaper</h4>
+          <span className="text-[7px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold">
+            {isRitualMode ? 'Monthly Consistency' : 'Ultimate Artifact'}
+          </span>
+          <h4 className="text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">
+            {isRitualMode ? 'Projected Medal' : 'Cosmic Reaper'}
+          </h4>
         </div>
         
         <div className="absolute bottom-6 right-6 text-right z-10">
-           <p className="text-white font-display text-[10px] tracking-widest uppercase drop-shadow-md">{currentTier.name}</p>
-           <p className="text-[8px] font-mono text-gold-core/60 mt-1 uppercase font-black">TIER {streakTiers.indexOf(currentTier) + 1}</p>
+           <p className="text-white font-display text-[10px] tracking-widest uppercase drop-shadow-md">
+             {isRitualMode ? (projectedMedal?.label || 'NO MEDAL POSSIBLE') : currentTier.name}
+           </p>
+           <p className="text-[8px] font-mono text-gold-core/60 mt-1 uppercase font-black max-w-[180px] truncate">
+             {isRitualMode
+               ? (medalProjection?.title || 'ENSHRINE A RITUAL')
+               : `TIER ${streakTiers.indexOf(currentTier) + 1}`}
+           </p>
         </div>
+        {isRitualMode && medalProjection && (
+          <div className="absolute bottom-6 left-6 z-10 text-left">
+            <span className="block text-[7px] font-mono text-white/35 tracking-[0.2em] uppercase">
+              Medal Objective
+            </span>
+            <strong className="block mt-1 text-[8px] font-mono text-gold-core/80 tracking-[0.14em] uppercase">
+              {projectedMedal
+                ? `Target: ${projectedTarget}/${medalProjection.totalOpportunities} days`
+                : `Bronze begins: ${medalProjection.bronzeTarget}/${medalProjection.totalOpportunities} days`}
+            </strong>
+          </div>
+        )}
 
-        {canAcquireCurrentTier && (
+        {!isRitualMode && canAcquireCurrentTier && (
           <button
             onClick={(event) => {
               event.stopPropagation();
@@ -316,12 +382,15 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
           </button>
         )}
 
-        {/* Inspect Prompt */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none z-20">
-           <div className="px-4 py-2 border border-gold-core/20 bg-black/60 backdrop-blur-md">
-              <span className="text-[8px] font-mono text-gold-core tracking-[0.5em] uppercase font-bold">Inspect Weapon</span>
-           </div>
-        </div>
+        {!isRitualMode && (
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gold-core/5 flex items-center justify-center pointer-events-none z-20">
+             <div className="px-4 py-2 border border-gold-core/20 bg-black/60 backdrop-blur-md">
+                <span className="text-[8px] font-mono text-gold-core tracking-[0.5em] uppercase font-bold">
+                  Inspect Weapon
+                </span>
+             </div>
+          </div>
+        )}
       </div>
 
       {/* STREAK PROGRESS BAR */}
@@ -330,31 +399,49 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
           <WidgetLock requiredTasks={4} conceptName="Streak Ascent" />
         )}
          <div className="flex justify-between items-center">
-            <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">Streak Ascent</span>
-            <span className="text-[8px] font-mono text-gold-core uppercase font-bold">{streakCount} / {nextTier.days} DAYS</span>
+            <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">
+              {isRitualMode ? 'Ritual Ascent' : 'Streak Ascent'}
+            </span>
+            <span className="text-[8px] font-mono text-gold-core uppercase font-bold">
+              {isRitualMode
+                ? `${medalProjection?.completed || 0} / ${medalProjection?.totalOpportunities || 0} LOGGED`
+                : `${streakCount} / ${nextTier.days} DAYS`}
+            </span>
          </div>
+         {isRitualMode && medalProjection?.title && (
+           <p className="text-[8px] font-display text-white/65 tracking-[0.16em] uppercase truncate">
+             {medalProjection.title}
+           </p>
+         )}
          
          <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
             <div 
               className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_15px_rgba(197,160,89,0.4)] transition-all duration-1000"
-              style={{ width: `${streakProgress}%` }}
+              style={{ width: `${isRitualMode ? ritualMonthProgress : streakProgress}%` }}
             />
          </div>
 
          <div className="flex justify-between items-center px-1">
-            {streakTiers.map((tier, idx) => {
-              const isUnlocked = streakCount >= tier.days;
+            {(isRitualMode
+              ? Object.entries(RITUAL_MEDAL_TIERS).map(([id, tier]) => ({ id, name: tier.label, days: tier.ratio * 100 }))
+              : streakTiers
+            ).map((tier, idx) => {
+              const isUnlocked = isRitualMode
+                ? ritualMonthProgress >= tier.days
+                : streakCount >= tier.days;
               return (
                 <button
-                  key={tier.name}
+                  key={tier.id || tier.name}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString());
+                    if (!isRitualMode) {
+                      onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString());
+                    }
                   }}
                   className={`w-1.5 h-1.5 rounded-full transition-all ${
                     isUnlocked ? 'bg-gold-core scale-125 shadow-[0_0_8px_#c5a059]' : 'bg-white/10 hover:bg-white/20'
                   } hover:scale-150`}
-                  title={tier.name}
+                  title={isRitualMode ? `${tier.name} ${Math.round(tier.days)}%` : tier.name}
                 />
               );
             })}
@@ -436,16 +523,22 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
 
       {/* 🔢 DAILY COMPLETIONS */}
       <div className="cc-daily-completions elite-panel p-4 flex flex-col items-center justify-center gap-2 bg-black/20">
-        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">Daily Completions</span>
+        <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">
+          {isRitualMode ? 'Rituals Today' : 'Daily Completions'}
+        </span>
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-display text-gold-bright leading-none">{totalCompletions || 0}</span>
+          <span className="text-2xl font-display text-gold-bright leading-none">
+            {isRitualMode ? ritualCompletionsToday : (totalCompletions || 0)}
+          </span>
           <Flame size={12} className="text-gold-core/40" />
         </div>
       </div>
 
       {/* 🔢 EXECUTION RATIO */}
       <div className="cc-execution-ratio elite-panel p-4 flex flex-col items-center justify-center gap-1 text-center bg-black/20">
-         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Execution</span>
+         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">
+           {isRitualMode ? 'Ritual' : 'Execution'}
+         </span>
          <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">Ratio</span>
          <div className="relative w-12 h-12 mt-1">
            <svg className="w-full h-full transform -rotate-90">
@@ -471,7 +564,11 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog }) {
             {allLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-6 opacity-30 mt-8">
                 <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] text-center uppercase leading-relaxed">
-                  No operations completed yet.<br/>The log awaits your victories.
+                  {isRitualMode ? (
+                    <>No Rituals conquered yet.<br/>The vow log awaits.</>
+                  ) : (
+                    <>No operations completed yet.<br/>The log awaits your victories.</>
+                  )}
                 </p>
               </div>
             ) : (

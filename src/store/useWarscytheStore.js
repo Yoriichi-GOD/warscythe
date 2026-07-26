@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { ph } from '../lib/ph';
-import { triggerHaptics, scheduleStreakAlert, scheduleRitualReminders, cancelRitualReminders } from '../utils/nativeTriggers';
+import { triggerHaptics, scheduleStreakAlert, scheduleRitualReminders, cancelRitualReminders, scheduleOperationReminders, cancelOperationReminders } from '../utils/nativeTriggers';
 import { Capacitor } from '@capacitor/core';
 import { getAssetUrl, BUNDLE_CONFIG } from '../utils/assetResolver';
 import {
@@ -22,6 +22,7 @@ import {
   recordProgressionEvents,
   syncDomain,
 } from './syncV2';
+import { deriveDailyScytheLevel } from './scytheProgression';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const generateUUID = () => {
@@ -35,6 +36,27 @@ const generateUUID = () => {
   });
 };
 const todayKey = () => new Date().toISOString().slice(0, 10);
+const getDailyScytheProgress = (state, additions = {}) => {
+  const today = todayKey();
+  const completedOperations = (state.completedTasks || []).filter(task =>
+    !task.isTutorialTask && task.completedAt?.slice(0, 10) === today
+  ).length + (additions.operations || 0);
+
+  const ritualKeys = new Set(
+    (state.ritualCompletionEvents || [])
+      .filter(event => event.date === today || event.occurredAt?.slice(0, 10) === today)
+      .map(event => event.ritualUuid || event.eventUuid || event.id)
+  );
+  const completedRituals = ritualKeys.size + (additions.rituals || 0);
+  const totalActions = completedOperations + completedRituals;
+
+  return {
+    level: deriveDailyScytheLevel({ operations: completedOperations, rituals: completedRituals }),
+    completedOperations,
+    completedRituals,
+    totalActions,
+  };
+};
 const getWeekStart = () => {
   const d = new Date();
   const day = d.getDay();
@@ -1210,15 +1232,13 @@ export const useWarscytheStore = create(
       // Actions
       addTask: (title, category, effort, deadline, priority = 'none', subTasks = []) => {
         if (deadline) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          const now = new Date();
           const target = new Date(deadline);
-          target.setHours(0, 0, 0, 0);
-          const diffMs = target - today;
-          const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+          const diffMs = target - now;
+          const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-          if (effort === 'Low' && diffDays < 1) {
-            return "Low effort tasks must have a minimum limit of 1 day.";
+          if (!Number.isFinite(target.getTime()) || diffMs <= 0) {
+            return "The deadline must be later than the current time.";
           }
           if (effort === 'Medium' && diffDays < 3) {
             return "Medium effort tasks must have a minimum limit of 3 days.";
@@ -1266,6 +1286,7 @@ export const useWarscytheStore = create(
           }
           return updates;
         });
+        scheduleOperationReminders(newTask);
         return true;
       },
 
@@ -1280,7 +1301,9 @@ export const useWarscytheStore = create(
           bestStreak: 0,
           lastCompletedAt: null,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           targetTime,
+          notes: '',
           lastNotifiedInterval: null,
           deviceUuid: getDeviceUuid(),
           deviceSequence: nextDeviceSequence(),
@@ -1292,6 +1315,32 @@ export const useWarscytheStore = create(
         }));
         if (targetTime) {
           scheduleRitualReminders(newRitual);
+        }
+        return true;
+      },
+
+      updateRitual: (id, updates) => {
+        const currentRitual = (get().rituals || []).find(r => r.id === id);
+        if (!currentRitual) return false;
+
+        cancelRitualReminders(id);
+        const updatedRitual = {
+          ...currentRitual,
+          ...updates,
+          id: currentRitual.id,
+          ritualUuid: currentRitual.ritualUuid || currentRitual.id,
+          updatedAt: new Date().toISOString(),
+          deviceUuid: getDeviceUuid(),
+          deviceSequence: nextDeviceSequence(),
+          syncStatus: 'pending',
+        };
+
+        set(state => ({
+          rituals: (state.rituals || []).map(r => r.id === id ? updatedRitual : r)
+        }));
+
+        if (updatedRitual.targetTime) {
+          scheduleRitualReminders(updatedRitual);
         }
         return true;
       },
@@ -1337,6 +1386,7 @@ export const useWarscytheStore = create(
         if (taskIdx === -1) return;
 
         const task = { ...state.tasks[taskIdx] };
+        cancelOperationReminders(id);
         // Capture stall state BEFORE setting progress to 100
         const wasStalled = task.progress >= 80 && task.progress < 95 && !!task.stalledAt;
         task.progress = 100;
@@ -1384,14 +1434,10 @@ export const useWarscytheStore = create(
 
         // Daily Points and Daily-based Scythe Level Reset
         const dailyPoints = isTutorialTask ? state.dailyPoints : state.dailyPoints + totalPts;
-        let newScytheLevel = "DORMANT";
-        if (!isTutorialTask) {
-          if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
-          else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
-          else if (dailyPoints >= 400) newScytheLevel = "REFINED";
-          else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
-          else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
-        }
+        const newScytheLevel = getDailyScytheProgress(
+          state,
+          isTutorialTask ? {} : { operations: 1 }
+        ).level;
 
         // Digital Coins Award
         const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
@@ -1629,12 +1675,7 @@ export const useWarscytheStore = create(
 
         // Daily Points and Daily-based Scythe Level Reset
         const dailyPoints = state.dailyPoints + totalPts;
-        let newScytheLevel = "DORMANT";
-        if (dailyPoints >= 1000) newScytheLevel = "PLATINUM";
-        else if (dailyPoints >= 700) newScytheLevel = "ASCENDED";
-        else if (dailyPoints >= 400) newScytheLevel = "REFINED";
-        else if (dailyPoints >= 250) newScytheLevel = "HARDENED";
-        else if (dailyPoints >= 100) newScytheLevel = "AWAKENED";
+        const newScytheLevel = getDailyScytheProgress(state, { rituals: 1 }).level;
 
         // Digital Coins Award
         const coinReward = Math.round(basePts * 0.15) + Math.round(reward.bonusPts * 0.15);
@@ -1650,6 +1691,9 @@ export const useWarscytheStore = create(
           id: `${ritual.ritualUuid || ritual.id}:${today}`,
           eventUuid: progressionEvent.eventUuid,
           ritualUuid: ritual.ritualUuid || ritual.id,
+          ritualTitle: ritual.title,
+          ritualCreatedAt: ritual.createdAt,
+          frequency: ritual.frequency,
           date: today,
           occurredAt: progressionEvent.occurredAt,
           deviceUuid: progressionEvent.deviceUuid,
@@ -1787,6 +1831,7 @@ export const useWarscytheStore = create(
       },
 
       abandonTask: (id) => {
+        cancelOperationReminders(id);
         set(state => {
           const task = state.tasks.find(t => t.id === id);
           if (!task) return state;
@@ -2389,12 +2434,7 @@ export const useWarscytheStore = create(
           const newLevel = Math.floor(totalCompletions / TASKS_PER_LEVEL) + 1;
           const finalLevelProgress = totalCompletions % TASKS_PER_LEVEL;
 
-          let newScytheLevel = "DORMANT";
-          if (state.dailyPoints >= 1000) newScytheLevel = "PLATINUM";
-          else if (state.dailyPoints >= 700) newScytheLevel = "ASCENDED";
-          else if (state.dailyPoints >= 400) newScytheLevel = "REFINED";
-          else if (state.dailyPoints >= 250) newScytheLevel = "HARDENED";
-          else if (state.dailyPoints >= 100) newScytheLevel = "AWAKENED";
+          const newScytheLevel = getDailyScytheProgress(state).level;
 
           return {
             xp: newXP,

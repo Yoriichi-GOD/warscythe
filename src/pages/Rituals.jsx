@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import RitualCard from '../components/operations/RitualCard';
+import RitualDetail from '../components/RitualDetail';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
-import { Flame, Lock, Zap, Info, Play } from 'lucide-react';
+import { Flame, Lock, Zap, Info, Play, Filter, ChevronDown } from 'lucide-react';
 
 export default function Rituals({ onAddTask }) {
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
@@ -29,6 +30,36 @@ export default function Rituals({ onAddTask }) {
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
   
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
+  const [selectedRitualId, setSelectedRitualId] = useState(null);
+  const [ritualFilter, setRitualFilter] = useState('all');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef(null);
+  const ritualFilterOptions = [
+    { value: 'all', label: 'All Rituals' },
+    { value: 'pending', label: 'Pending Today' },
+    { value: 'completed', label: 'Conquered Today' },
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekly', label: 'Weekly' },
+  ];
+  const selectedFilter = ritualFilterOptions.find(option => option.value === ritualFilter);
+
+  useEffect(() => {
+    const closeFilter = event => {
+      if (!filterRef.current?.contains(event.target)) setFilterOpen(false);
+    };
+    document.addEventListener('pointerdown', closeFilter);
+    return () => document.removeEventListener('pointerdown', closeFilter);
+  }, []);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const filteredRituals = rituals.filter(ritual => {
+    const completedToday = ritual.lastCompletedAt?.slice(0, 10) === today;
+    if (ritualFilter === 'pending') return !completedToday;
+    if (ritualFilter === 'completed') return completedToday;
+    if (ritualFilter === 'daily') return ritual.frequency === 'daily';
+    if (ritualFilter === 'weekly') return ritual.frequency === 'weekly';
+    return true;
+  });
 
   const stageOrder = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
   const currentStageIndex = stageOrder.indexOf(scytheLevel.toUpperCase());
@@ -40,8 +71,7 @@ export default function Rituals({ onAddTask }) {
     { days: 60, name: 'EXECUTIONER' },
     { days: 120, name: 'SOVEREIGN' },
     { days: 200, name: 'VOID-WALKER' },
-    { days: 300, name: 'ETERNAL' },
-    { days: 360, name: 'DEATH-LORD' }
+    { days: 300, name: 'ETERNAL' }
   ];
 
   const currentTier = [...streakTiers].reverse().find(t => streakCount >= t.days);
@@ -68,17 +98,17 @@ export default function Rituals({ onAddTask }) {
   ];
 
   return (
-    <div className="elite-grid-container relative">
+    <div className="elite-grid-container rituals-grid relative">
       
       {/* ═══ LEFT COLUMN: ACTIVE RITUALS ═══ */}
-      <section className="elite-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-36">
+      <section className="elite-panel h-[520px] lg:h-auto overflow-hidden lg:overflow-visible">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <Flame size={14} className="text-gold-core" />
             <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Rituals</h2>
           </div>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               type="button"
               onClick={() => openVideoModal('rituals')}
               className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
@@ -86,7 +116,7 @@ export default function Rituals({ onAddTask }) {
             >
               <Play size={12} fill="currentColor" className="text-gold-core" />
             </button>
-            <button 
+            <button
               type="button"
               onClick={() => openInfoModal('rituals')}
               className="text-gray-500 hover:text-gold-core transition-colors p-1 hover:bg-white/5 rounded cursor-pointer flex items-center justify-center"
@@ -97,31 +127,76 @@ export default function Rituals({ onAddTask }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8 min-h-0 flex-1">
+          <div className="flex flex-col gap-4 min-h-0 flex-1">
             <div className="flex justify-between items-center px-1">
               <span className="text-[9px] font-mono text-gray-300 tracking-widest uppercase">Enshrined Habits</span>
               <span className="text-[9px] font-mono text-gold-core/60">{rituals.length} Active</span>
             </div>
+
+            <div className="ritual-filter-control" ref={filterRef}>
+              <button
+                type="button"
+                className="ritual-filter-trigger"
+                onClick={() => setFilterOpen(open => !open)}
+                aria-haspopup="listbox"
+                aria-expanded={filterOpen}
+              >
+                <Filter size={10} aria-hidden="true" />
+                <span className="ritual-filter-prefix">View</span>
+                <strong>{selectedFilter?.label}</strong>
+                <ChevronDown size={10} className={filterOpen ? 'rotate-180' : ''} aria-hidden="true" />
+              </button>
+              <AnimatePresence>
+                {filterOpen && (
+                  <motion.div
+                    className="ritual-filter-menu"
+                    role="listbox"
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                    transition={{ duration: 0.14 }}
+                  >
+                    {ritualFilterOptions.map(option => (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={ritualFilter === option.value}
+                        key={option.value}
+                        className={ritualFilter === option.value ? 'active' : ''}
+                        onClick={() => {
+                          setRitualFilter(option.value);
+                          setFilterOpen(false);
+                        }}
+                      >
+                        <span>{option.label}</span>
+                        <i aria-hidden="true" />
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             
-            <div className="flex flex-col gap-3">
-              {rituals.map(ritual => (
-                <RitualCard key={ritual.id} ritual={ritual} onComplete={handleRitualComplete} />
+            <div className="ritual-list-scroll custom-scrollbar flex flex-col gap-3 min-h-0 pr-1">
+              {filteredRituals.map(ritual => (
+                <RitualCard key={ritual.id} ritual={ritual} onComplete={handleRitualComplete} onOpen={setSelectedRitualId} />
               ))}
 
-              {rituals.length === 0 && (
+              {filteredRituals.length === 0 && (
                 <div className="w-full py-6 border border-dashed border-white/5 rounded flex flex-col items-center justify-center text-white/10 bg-white/[0.005]">
-                  <span className="text-[8px] font-mono tracking-[0.25em] uppercase text-gray-600 mb-1">No Rituals Enshrined</span>
+                  <span className="text-[8px] font-mono tracking-[0.25em] uppercase text-gray-600 mb-1">
+                    {rituals.length === 0 ? 'No Rituals Enshrined' : 'No Rituals Match This View'}
+                  </span>
                 </div>
               )}
-              
-              <button 
-                onClick={onAddTask}
-                className="w-full mt-4 py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02]"
-              >
-                <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Enshrine Ritual</span>
-              </button>
             </div>
+            <button
+              onClick={onAddTask}
+              className="w-full py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02] shrink-0"
+            >
+              <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Enshrine Ritual</span>
+            </button>
           </div>
         </div>
       </section>
@@ -224,9 +299,20 @@ export default function Rituals({ onAddTask }) {
       {/* ═══ RIGHT COLUMN: COMMAND CENTER ═══ */}
       <aside className="operations-sidebar custom-scrollbar">
         <CommandCenter 
+          mode="rituals"
           onPreviewUltimate={(level, type, pwr) => setPreview({ level, type, pwr })} 
         />
       </aside>
+
+      <AnimatePresence>
+        {selectedRitualId && (
+          <RitualDetail
+            ritualId={selectedRitualId}
+            onClose={() => setSelectedRitualId(null)}
+            onComplete={handleRitualComplete}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   );

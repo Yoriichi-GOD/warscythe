@@ -133,7 +133,14 @@ const getRegionNodeInfo = (mapIdx, nodeId) => {
   return arch[nodeId] || { name: "Unknown Location", desc: "No description available." };
 };
 
-export default function MapSection({ onTabChange, tutorialHighlightNode = null, onTutorialNodeClick = null, tutorialActive = false }) {
+export default function MapSection({
+  onTabChange,
+  tutorialHighlightNode = null,
+  tutorialGuidance = null,
+  onTutorialNodeClick = null,
+  onTutorialContinue = null,
+  tutorialActive = false
+}) {
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const { 
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
@@ -197,10 +204,31 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
   };
 
   const [selectedNode, setSelectedNode] = useState(null);
+  const mapViewportRef = useRef(null);
 
   useEffect(() => {
     setSelectedNode(null);
   }, [activeMapIndex]);
+
+  useEffect(() => {
+    if (!tutorialHighlightNode || !mapViewportRef.current) return undefined;
+
+    const revealTarget = window.requestAnimationFrame(() => {
+      const viewport = mapViewportRef.current;
+      const target = viewport.querySelector(`[data-map-node="${tutorialHighlightNode}"]`);
+      if (!target || viewport.scrollHeight <= viewport.clientHeight) return;
+
+      const viewportRect = viewport.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      viewport.scrollTo({
+        top: viewport.scrollTop + targetRect.top - viewportRect.top - (viewport.clientHeight / 2) + (targetRect.height / 2),
+        left: viewport.scrollLeft + targetRect.left - viewportRect.left - (viewport.clientWidth / 2) + (targetRect.width / 2),
+        behavior: 'smooth'
+      });
+    });
+
+    return () => window.cancelAnimationFrame(revealTarget);
+  }, [tutorialHighlightNode, activeMapIndex]);
 
   const [jailImageFailed, setJailImageFailed] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -297,8 +325,7 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
   const isBossRescued = !!rescuedFairyInfo;
 
   const dayOfWeek = new Date().getDay();
-  const isAshendaleLocked = dayOfWeek % 2 === 0;
-  const isStonehollowLocked = !isAshendaleLocked;
+  const isStonehollowLocked = dayOfWeek % 2 !== 0;
 
   const nodeInfo = (nodeId) => getRegionNodeInfo(activeMapIndex, nodeId);
 
@@ -314,15 +341,15 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
 
   const nodes = [
     { id: 'stone', label: (nodeInfo('stone')?.name || '').toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
-    { id: 'ashendale', label: (nodeInfo('ashendale')?.name || '').toUpperCase(), top: '72%', left: '78%', status: isAshendaleLocked ? 'LOCKED' : 'SECURED', type: isAshendaleLocked ? 'locked' : 'secured' },
+    { id: 'ashendale', label: (nodeInfo('ashendale')?.name || '').toUpperCase(), top: '72%', left: '78%', status: 'SECURED', type: 'secured' },
     { id: 'castle', label: (nodeInfo('castle')?.name || '').toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
-    { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : (nodeInfo('jail')?.name || '').toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'IN PROGRESS', type: isBossRescued ? 'secured' : 'active' },
+    { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : (nodeInfo('jail')?.name || '').toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'LOCKED', type: isBossRescued ? 'secured' : 'locked' },
     { id: 'boss', label: isBossRescued ? "EMPRESS' ABODE" : (nodeInfo('boss')?.name || '').toUpperCase(), top: '15%', left: '50%', status: isBossRescued ? 'SECURED' : 'FINAL OBJECTIVE', type: 'boss' }
   ];
 
   const connections = [
     { from: 'castle', to: 'jail', color: 'rgba(197, 160, 89, 0.3)' },
-    { from: 'jail', to: 'ashendale', color: isAshendaleLocked ? 'rgba(255, 60, 60, 0.1)' : 'rgba(197, 160, 89, 0.3)' },
+    { from: 'jail', to: 'ashendale', color: 'rgba(197, 160, 89, 0.3)' },
     { from: 'jail', to: 'stone', color: isStonehollowLocked ? 'rgba(255, 60, 60, 0.1)' : 'rgba(197, 160, 89, 0.3)' },
     { from: 'jail', to: 'boss', color: 'rgba(255, 60, 60, 0.3)', thick: true }
   ];
@@ -459,7 +486,7 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
 
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
-          <div className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+          <div ref={mapViewportRef} className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
             <AnimatePresence>
               {showFog && (
                 <motion.div
@@ -557,6 +584,7 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
                   return (
                     <motion.div 
                       key={node.id} 
+                      data-map-node={node.id}
                       className={`map-node ${node.type} ${node.id === 'boss' && isBossRescued ? 'empress-abode-node' : ''} ${isTutorialBlocked ? 'opacity-25 pointer-events-none' : ''}`} 
                       style={{
                         top: node.top,
@@ -600,7 +628,17 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
                         <>
                           <div className={`node-glow ${node.type}`} />
                           {node.type === 'active' && <div className="current-ping" />}
-                          {node.type === 'locked' && <img src={getAssetUrl('/maps/map-lock-icon.png')} className="lock-icon animate-pulse" alt="Locked" />}
+                          {node.type === 'locked' && (
+                            node.id === 'jail' ? (
+                              <img
+                                src={getAssetUrl('/maps/map-lock-icon.png')}
+                                alt="Iron Jail Locked"
+                                className="map-jail-lock-icon"
+                              />
+                            ) : (
+                              <Lock size={18} className="lock-icon animate-pulse text-gold-core" aria-label="Locked" />
+                            )
+                          )}
                           {node.type === 'boss' && <Skull size={20} className="boss-icon" />}
                         </>
                       )}
@@ -853,6 +891,34 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
               <div className="modal-header font-times">
                 <span className="panel-tag font-mono text-[9px] text-gold-core">TACTICAL NODE INTEL //</span>
               </div>
+
+              {tutorialActive
+                && tutorialGuidance?.nodeId === selectedNode
+                && (
+                  <div className="node-fairy-guidance">
+                    <img
+                      src={getAssetUrl('/fairies/empress-1-liberated.png')}
+                      alt="Fairy"
+                      className="node-fairy-guidance__portrait"
+                    />
+                    <div className="node-fairy-guidance__copy">
+                      <span>FAIRY // FIELD GUIDANCE</span>
+                      <p>{tutorialGuidance.text.replace(/\s*Click (the Dragon's Nest node on the map|it)\.?$/i, '')}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="node-fairy-guidance__continue"
+                      onClick={() => {
+                        const nodeId = selectedNode;
+                        setSelectedNode(null);
+                        onTutorialContinue?.(nodeId);
+                      }}
+                    >
+                      CONTINUE
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                )}
 
               {selectedNode === 'castle' && (
                 <div className="intel-content font-times">
@@ -1362,6 +1428,14 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
           box-shadow: 0 0 10px #fff;
           transition: 0.3s;
         }
+        .map-jail-lock-icon {
+          width: 34px;
+          height: 34px;
+          object-fit: contain;
+          margin: -13px 0 -2px;
+          filter: drop-shadow(0 0 8px rgba(236, 200, 128, 0.65));
+          animation: pulse 1.8s ease-in-out infinite;
+        }
 
         @media (min-width: 1024px) {
           .node-glow {
@@ -1512,6 +1586,82 @@ export default function MapSection({ onTabChange, tutorialHighlightNode = null, 
           display: flex; justify-content: space-between; align-items: center;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.8rem; margin: 0;
           z-index: 10; position: relative;
+        }
+        .node-fairy-guidance {
+          position: relative;
+          z-index: 20;
+          display: grid;
+          grid-template-columns: 52px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.65rem;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+          border-radius: 5px;
+          background: linear-gradient(110deg, rgba(5, 18, 13, 0.96), rgba(4, 7, 6, 0.96));
+          box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.05);
+        }
+        .node-fairy-guidance__portrait {
+          width: 52px;
+          height: 52px;
+          object-fit: cover;
+          object-position: center top;
+          border: 1px solid rgba(16, 185, 129, 0.45);
+          border-radius: 4px;
+        }
+        .node-fairy-guidance__copy {
+          min-width: 0;
+        }
+        .node-fairy-guidance__copy span {
+          display: block;
+          margin-bottom: 0.25rem;
+          color: #34d399;
+          font-family: var(--font-mono);
+          font-size: 0.5rem;
+          font-weight: 900;
+          letter-spacing: 0.16em;
+        }
+        .node-fairy-guidance__copy p {
+          margin: 0;
+          color: rgba(255, 255, 255, 0.82);
+          font-family: var(--font-display, 'Times New Roman', serif);
+          font-size: 0.68rem;
+          font-style: italic;
+          line-height: 1.45;
+        }
+        .node-fairy-guidance__continue {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.25rem;
+          min-height: 34px;
+          padding: 0 0.65rem;
+          border: 1px solid rgba(236, 200, 128, 0.55);
+          border-radius: 3px;
+          color: #ecc880;
+          background: rgba(236, 200, 128, 0.07);
+          font-family: var(--font-mono);
+          font-size: 0.52rem;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          cursor: pointer;
+        }
+        @media (max-width: 520px) {
+          .node-fairy-guidance {
+            grid-template-columns: 44px minmax(0, 1fr);
+            gap: 0.55rem;
+            padding: 0.55rem;
+          }
+          .node-fairy-guidance__portrait {
+            width: 44px;
+            height: 44px;
+          }
+          .node-fairy-guidance__copy p {
+            font-size: 0.64rem;
+          }
+          .node-fairy-guidance__continue {
+            grid-column: 1 / -1;
+            width: 100%;
+          }
         }
         .intel-content { display: flex; flex-direction: column; gap: 1.25rem; z-index: 10; position: relative; }
         .intel-header h3 {

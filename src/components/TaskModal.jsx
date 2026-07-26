@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
-import { X, ShieldAlert, Crosshair, Calendar, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
+import { X, ShieldAlert, Crosshair, Calendar, Clock, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
+import RitualTimePicker from './RitualTimePicker';
 
 function CustomDatePicker({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,14 +109,21 @@ function CustomDatePicker({ value, onChange }) {
   );
 }
 
-export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Work');
-  const [effort, setEffort] = useState(initialEffort);
-  const [deadline, setDeadline] = useState('');
-  const [priority, setPriority] = useState('none');
-  const [subTaskText, setSubTaskText] = useState('');
-  const [subTasks, setSubTasks] = useState([]);
+export default function TaskModal({
+  onClose,
+  initialEffort = 'Medium',
+  initialDraft = null,
+  onDraftChange,
+  onSubmitted,
+}) {
+  const [title, setTitle] = useState(initialDraft?.title || '');
+  const [category, setCategory] = useState(initialDraft?.category || 'Work');
+  const [effort, setEffort] = useState(initialDraft?.effort || initialEffort);
+  const [deadline, setDeadline] = useState(initialDraft?.deadline || '');
+  const [deadlineTime, setDeadlineTime] = useState(initialDraft?.deadlineTime || '23:59');
+  const [priority, setPriority] = useState(initialDraft?.priority || 'none');
+  const [subTaskText, setSubTaskText] = useState(initialDraft?.subTaskText || '');
+  const [subTasks, setSubTasks] = useState(initialDraft?.subTasks || []);
   const [error, setError] = useState(null);
   
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -128,6 +136,19 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
+
+  useEffect(() => {
+    onDraftChange?.({
+      title,
+      category,
+      effort,
+      deadline,
+      deadlineTime,
+      priority,
+      subTaskText,
+      subTasks,
+    });
+  }, [title, category, effort, deadline, deadlineTime, priority, subTaskText, subTasks, onDraftChange]);
 
   const advanceTutorial = (fromStep) => {
     if (tutorialStep === 'task_modal_open' && formTutorialStep === fromStep) {
@@ -202,13 +223,21 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError(null);
-    if (!title || !deadline) return;
+    if (!title || !deadline || !deadlineTime) return;
+
+    const deadlineDate = new Date(`${deadline}T${deadlineTime}:00`);
+    if (Number.isNaN(deadlineDate.getTime()) || deadlineDate <= new Date()) {
+      setError("Choose a deadline later than the current time.");
+      return;
+    }
+    const preciseDeadline = deadlineDate.toISOString();
     
     if (tutorialStep === 'task_modal_open') {
       setIsSubmitting(true);
       setTimeout(() => {
-        const success = addTask(title, category, effort, deadline, priority, subTasks);
+        const success = addTask(title, category, effort, preciseDeadline, priority, subTasks);
         if (success === true) {
+          onSubmitted?.();
           setTutorialStep('click_task');
           onClose();
         } else {
@@ -219,8 +248,9 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
       return;
     }
 
-    const success = addTask(title, category, effort, deadline, priority, subTasks);
+    const success = addTask(title, category, effort, preciseDeadline, priority, subTasks);
     if (success === true) {
+      onSubmitted?.();
       if (effort === 'Boss') {
         triggerBossFlash('initiate');
       }
@@ -393,10 +423,20 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
 
           <div id="tutorial-step-3" className={`form-group full transition-all duration-300 ${isDimmed(3) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Calendar size={10} /> TARGET DEADLINE</label>
-            <CustomDatePicker 
-              value={deadline} 
-              onChange={(val) => { setDeadline(val); setError(null); advanceTutorial(3); }} 
-            />
+            <div className="operation-deadline-grid">
+              <CustomDatePicker
+                value={deadline}
+                onChange={(val) => { setDeadline(val); setError(null); advanceTutorial(3); }}
+              />
+              <div className="operation-time-field">
+                <span className="operation-time-label"><Clock size={10} /> EXACT TIME</span>
+                <RitualTimePicker
+                  value={deadlineTime}
+                  onChange={(val) => { setDeadlineTime(val); setError(null); }}
+                  clearLabel="Clear operation deadline time"
+                />
+              </div>
+            </div>
             {tutorialStep === 'task_modal_open' && formTutorialStep === 3 && (
               <div className="onboarding-pointer left-pointer select-pointer">
                 <div className="flex items-center gap-3">
@@ -508,7 +548,7 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
         </form>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .modal-backdrop {
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
           background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
@@ -525,8 +565,8 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
           max-height: 78dvh;
           overflow-y: auto;
           overscroll-behavior: contain;
-          border: 1px solid var(--border-bright);
-          box-shadow: 0 0 50px rgba(0,0,0,0.8);
+          border: 1px solid rgba(236, 200, 128, 0.42);
+          box-shadow: inset 0 0 38px rgba(0,0,0,0.72), 0 0 50px rgba(0,0,0,0.8), 0 0 24px rgba(197,160,89,0.08);
           background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
           margin: auto;
           position: relative;
@@ -924,6 +964,84 @@ export default function TaskModal({ onClose, initialEffort = 'Medium' }) {
 
         .calendar-day.empty {
           cursor: default;
+        }
+
+        @media (max-width: 639px) {
+          .modal-backdrop {
+            top: 108px;
+            bottom: calc(72px + env(safe-area-inset-bottom));
+            left: 0;
+            width: 100%;
+            height: auto;
+            padding: 0.5rem 0.7rem;
+            align-items: center;
+            overflow: hidden;
+          }
+
+          .tactical-modal,
+          .modal-onboarding-open {
+            width: 100%;
+            max-width: 520px;
+            max-height: 100% !important;
+            margin: 0;
+            padding: 0.7rem 0.8rem;
+            overflow-y: auto !important;
+            border-color: rgba(236, 200, 128, 0.38);
+            border-radius: 10px;
+          }
+
+          .modal-header {
+            min-height: 48px;
+            margin-bottom: 0.65rem;
+            padding-bottom: 0.55rem;
+          }
+
+          .modal-title-box { gap: 0.65rem; }
+          .modal-title-box h2 { font-size: 0.78rem; }
+          .btn-close-circle { width: 30px; height: 30px; }
+
+          .tactical-form,
+          .modal-onboarding-open .tactical-form {
+            gap: 0.62rem;
+          }
+
+          .form-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+          }
+
+          .form-group { gap: 0.35rem; }
+
+          input,
+          select,
+          .custom-select-trigger {
+            min-height: 42px;
+            padding: 0.65rem 0.72rem;
+            font-size: 0.68rem;
+          }
+
+          .operation-deadline-grid {
+            grid-template-columns: minmax(0, 1.2fr) minmax(125px, 0.8fr);
+            gap: 0.55rem;
+          }
+
+          .operation-time-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.48rem;
+          }
+
+          .operation-time-field .ritual-time-trigger {
+            min-height: 42px;
+            padding: 0.55rem 0.6rem;
+            font-size: 0.58rem;
+          }
+
+          .priority-btn { padding: 0.58rem 0.3rem; font-size: 0.52rem; }
+          .btn-add-sub { width: 42px; margin-left: 0; }
+          .deploy-btn { height: 44px; margin-top: 0.15rem; font-size: 0.72rem; }
+          .capacity-warning { padding: 0.6rem; }
+          .warning-text { font-size: 0.62rem; }
+          .onboarding-pointer { padding: 0.55rem; margin-top: 0.25rem; }
         }
       `}</style>
     </div>

@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Lock, Unlock, Sparkles, Swords, Eye, Shield, CloudDownload, Loader2, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
+import {
+  STREAK_SCYTHE_TIERS,
+  getOperativeYearAttendance,
+  getStreakScytheMultipliers,
+} from '../utils/ritualMedals';
 
 export default function ScytheCenter({ onOpenShop }) {
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
@@ -22,11 +27,14 @@ export default function ScytheCenter({ onOpenShop }) {
     setHasSeenForgeGuide,
     tutorialStep
   } = useWarscytheStore();
+  const completedTasks = useWarscytheStore(state => state.completedTasks) || [];
+  const ritualCompletionEvents = useWarscytheStore(state => state.ritualCompletionEvents) || [];
+  const user = useWarscytheStore(state => state.user);
 
   const [isSlashing, setIsSlashing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState('streak'); // 'streak', 'shop', 'theme'
-  const [selectedItemId, setSelectedItemId] = useState('dormant');
+  const [selectedItemId, setSelectedItemId] = useState('neophyte');
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
 
@@ -45,17 +53,41 @@ export default function ScytheCenter({ onOpenShop }) {
     setTimeout(() => setIsSlashing(false), 600);
   };
 
-  const streakScythes = [
-    { id: 'dormant', name: 'Dormant Scythe', req: 0, desc: 'The crude starting form of the Reaper\'s blade.', type: 'streak' },
-    { id: 'neophyte', name: 'Neophyte Reaper', req: 5, desc: 'Attuned to early daily consistency.', type: 'streak' },
-    { id: 'acolyte', name: 'Acolyte Reaper', req: 15, desc: 'Forged for dedicated initiates.', type: 'streak' },
-    { id: 'reaper', name: 'Reaper', req: 30, desc: 'A seasoned instrument of focus.', type: 'streak' },
-    { id: 'executioner', name: 'Executioner Reaper', req: 60, desc: 'Swift finality for resistance.', type: 'streak' },
-    { id: 'sovereign', name: 'Sovereign Reaper', req: 120, desc: 'Commanding weapon of the elite.', type: 'streak' },
-    { id: 'void-walker', name: 'Void-Walker Reaper', req: 200, desc: 'Imbued with the quiet of the void.', type: 'streak' },
-    { id: 'eternal', name: 'Eternal Reaper', req: 300, desc: 'A timeless relic of infinite execution.', type: 'streak' },
-    { id: 'death-lord', name: 'Death-Lord Reaper', req: 360, desc: 'The ultimate weapon of unbroken focus.', type: 'streak' }
-  ];
+  const streakDescriptions = {
+    neophyte: 'Attuned to early daily consistency.',
+    acolyte: 'Forged for dedicated initiates.',
+    reaper: 'A seasoned instrument of focus.',
+    executioner: 'Swift finality for resistance.',
+    sovereign: 'Commanding weapon of the elite.',
+    'void-walker': 'Imbued with the quiet of the void.',
+    eternal: 'A timeless relic of infinite execution.',
+  };
+  const streakScythes = STREAK_SCYTHE_TIERS.map(tier => ({
+    id: tier.id,
+    name: tier.displayName,
+    req: tier.days,
+    desc: streakDescriptions[tier.id],
+    type: 'streak',
+  }));
+  const streakHistory = getStreakScytheMultipliers(completedTasks, ritualCompletionEvents);
+  const operativeAttendance = getOperativeYearAttendance(
+    completedTasks,
+    ritualCompletionEvents,
+    user?.created_at
+  );
+  const claimedStreakScythes = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('warscythe-claimed-streak-scythes') || '[]')
+        .map(name => String(name).toLowerCase());
+    } catch {
+      return [];
+    }
+  })();
+  const streakMultiplierFor = item => Math.max(
+    streakHistory.multipliers[item.id] || 0,
+    streakCount >= item.req ? 1 : 0,
+    claimedStreakScythes.includes(item.id) ? 1 : 0
+  );
 
   const paidScythes = [
     // Premium Scythes (₹50)
@@ -81,7 +113,7 @@ export default function ScytheCenter({ onOpenShop }) {
 
   const isUnlocked = (item) => {
     if (item.type === 'streak') {
-      return streakCount >= item.req;
+      return streakMultiplierFor(item) > 0;
     }
     if (item.type === 'theme') {
       return (unlockedThemes || []).includes(item.id);
@@ -111,7 +143,6 @@ export default function ScytheCenter({ onOpenShop }) {
     sovereign: 'rgba(197,160,89,0.6)',
     'void-walker': 'rgba(138,43,226,0.6)',
     eternal: 'rgba(255,60,60,0.7)',
-    'death-lord': 'rgba(30,30,30,0.8)',
 
     cosmic_harvester: 'rgba(52, 152, 219, 0.75)',
     hellfire_reaper: 'rgba(231, 76, 60, 0.75)',
@@ -152,7 +183,7 @@ export default function ScytheCenter({ onOpenShop }) {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (tab === 'streak') setSelectedItemId('dormant');
+    if (tab === 'streak') setSelectedItemId('neophyte');
     else if (tab === 'shop') setSelectedItemId('cosmic_harvester');
     else setSelectedItemId('default');
     if (import.meta.env.DEV || useWarscytheStore.getState().postGuardianTutorial === 'forge_intro') {
@@ -181,12 +212,15 @@ export default function ScytheCenter({ onOpenShop }) {
               <Play size={12} fill="currentColor" className="text-gold-core" />
             </button>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2">
             <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
               🪙 {coins} COINS
             </div>
             <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
-              🔥 {streakCount} DAYS STREAK
+              LONGEST CHAIN {Math.max(streakCount, streakHistory.longestChain)}D
+            </div>
+            <div className="px-3 py-1.5 bg-black/40 border border-gold-core/20 text-gold-core text-[10px] rounded font-mono">
+              ATTENDANCE {operativeAttendance.attendanceDays}D
             </div>
           </div>
         </div>
@@ -260,6 +294,11 @@ export default function ScytheCenter({ onOpenShop }) {
                     <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
                       <CloudDownload size={10} className="animate-pulse" />
                     </div>
+                  )}
+                  {item.type === 'streak' && streakMultiplierFor(item) > 0 && (
+                    <span className="absolute top-1/2 -translate-y-1/2 right-3 px-2 py-1 rounded-full border border-gold-core/35 bg-black/70 text-[8px] font-mono font-black tracking-wider text-gold-bright">
+                      ×{streakMultiplierFor(item)}
+                    </span>
                   )}
                 </div>
               );

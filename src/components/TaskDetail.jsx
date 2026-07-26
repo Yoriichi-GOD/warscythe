@@ -247,7 +247,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
 
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .modal-backdrop {
           position: fixed; inset: 0;
           background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);

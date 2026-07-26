@@ -100,7 +100,7 @@ const FORGE_STEPS = [
     type: 'highlight',
     speaker: 'Guardian',
     portrait: '/guardian-observer.png',
-    text: "First — your Streak Weapons. Every streak milestone unlocks a more powerful form. Your dormant Scythe evolves through nine tiers as you build unbreakable habits. Click 'Streak Weapons' above.",
+    text: "First — your Streak Weapons. Every consecutive-chain milestone unlocks a more powerful form, beginning with Neophyte and ending with Eternal Reaper at 300 days. Reaching a milestone again adds another mark to that weapon. Click 'Streak Weapons' above.",
     highlightId: 'forge-streak-tab',
     cta: null // user must click the highlighted element
   },
@@ -428,7 +428,8 @@ export default function TabTutorialOverlay({
   onSwitchTab,
   onMapNodeClick,
   onHighlightChange,
-  tutorialNodeClicked
+  tutorialNodeClicked,
+  tutorialNodeContinued
 }) {
   const setPostGuardianTutorial = useWarscytheStore(s => s.setPostGuardianTutorial);
 
@@ -457,14 +458,15 @@ export default function TabTutorialOverlay({
     }
   }, [stepIndex, tutorialId]);
 
-  // Handle map node clicks advancing the tutorial
+  // A map node must remain open long enough for its intel and the Fairy's
+  // explanation to be read. Only the inline CONTINUE action advances the tour.
   useEffect(() => {
-    if (!tutorialNodeClicked || !currentStep) return;
-    if (currentStep.type === 'map_node' && currentStep.nodeId === tutorialNodeClicked) {
-      setTimeout(() => advanceRef.current(), 400);
+    if (!tutorialNodeContinued || !currentStep) return;
+    if (currentStep.type === 'map_node' && currentStep.nodeId === tutorialNodeContinued) {
+      advanceRef.current();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorialNodeClicked]);
+  }, [tutorialNodeContinued]);
 
   useEffect(() => {
     if (currentStep?.type !== 'highlight' || !currentStep.highlightId) return undefined;
@@ -588,7 +590,10 @@ export default function TabTutorialOverlay({
 
       {/* Hide the introductory card while the ritual form teaches each field. */}
       <AnimatePresence>
-        {!showRitualForm && (
+        {!showRitualForm && !(
+          currentStep?.type === 'map_node'
+          && tutorialNodeClicked === currentStep.nodeId
+        ) && (
           <motion.div
             key="tutorial-guardian-card"
             initial={{ opacity: 0, y: 18 }}
@@ -627,4 +632,9 @@ export function getMapTutorialNodeId(tutorialId, stepIndex) {
   const steps = QUEST_MAP_STEPS;
   const step = steps[stepIndex];
   return step?.type === 'map_node' ? step.nodeId : null;
+}
+
+export function getMapTutorialGuidance(nodeId) {
+  const step = QUEST_MAP_STEPS.find(item => item.type === 'map_node' && item.nodeId === nodeId);
+  return step ? { nodeId: step.nodeId, speaker: step.speaker, text: step.text } : null;
 }

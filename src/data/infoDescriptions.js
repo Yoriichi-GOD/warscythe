@@ -89,7 +89,7 @@ export const infoData = {
         title: "What is the Scythe?",
         philosophy: "The Scythe is your signature. It evolves with you. As you complete more operations, as your focus sharpens, the Scythe transforms. It's not a game mechanic. It's a visual symbol of your power growing.",
         useCase: "The Scythe has 6 evolution tiers:\n- DORMANT (new player, untested)\n- AWAKENED (first few operations completed)\n- HARDENED (proven yourself)\n- REFINED (consistent warrior)\n- ASCENDED (legendary tier)\n- PLATINUM (ultimate form)\n\nEach tier looks visually different. PLATINUM is beautiful and terrifying. You earn tiers by completing enough operations.",
-        cosmetics: "At higher tiers, you unlock cosmetic variants (COSMIC REAPER, VOID-WALKER, ETERNAL, DEATH-LORD). These are paid cosmetics—visual expressions of your scythe, not mechanical upgrades.",
+        cosmetics: "At higher tiers, you unlock cosmetic variants such as COSMIC REAPER, VOID-WALKER, and ETERNAL. These are visual expressions of your scythe, not mechanical upgrades.",
         whyItMatters: "Every time you open the app, you see your scythe. Watching it evolve is watching yourself evolve. It's proof you're not stuck. You're building."
       },
       {
