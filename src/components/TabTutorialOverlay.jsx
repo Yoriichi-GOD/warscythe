@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon, X, Minus } from 'lucide-react';
+import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import RitualModal from './RitualModal';
 
@@ -209,10 +209,12 @@ const LORE_STEPS = [
 const LEGION_STEPS = [
   { type:'dialogue', speaker:'Guardian', text:"A friend witnesses your road. A Legion walks it with you. We will rehearse its command without creating, inviting, or disbanding anything real.", cta:"Begin the war game →" },
   { type:'highlight', speaker:'Guardian', text:"Legion Command is the garrison. Here a creator names the Legion, invites trusted friends, and divides an operation into owned assignments.", highlightId:'social-legion-tab' },
-  { type:'dialogue', speaker:'Guardian', text:"First create a banner and name. Then reinforce the garrison by selecting an accepted friend. Only the creator may add or remove members, and no outsider may enter another region uninvited.", cta:"Continue rehearsal →" },
+  { type:'dialogue', speaker:'Guardian', text:"Now forge a rehearsal coalition yourself. Give it any name. This sandbox banner will never reach the living realm and will be erased when the lesson ends.", cta:"Name the coalition →" },
+  { type:'sandbox_legion_create', speaker:'Guardian', title:'FORGE THE REHEARSAL BANNER', text:"Name the temporary coalition below, then press Forge Coalition.", highlightId:'legion-sandbox-forge-form' },
+  { type:'dialogue', speaker:'Guardian', text:"The banner stands. Its creator commands the garrison: only they may invite accepted friends, remove members, or disband the Legion. No outsider enters uninvited.", cta:"Continue rehearsal →" },
   { type:'dialogue', speaker:'Guardian', text:"A creator may begin the parent operation before another member accepts an assignment. Each brother's sub-task carries its own deadline and priority, while the Legion records the shared outcome.", cta:"What if I walk alone? →" },
-  { type:'dialogue', speaker:'Guardian', text:"If no ally walks with you today, disband the empty rehearsal and continue. You are a fiery-hearted warrior for facing dragons alone. Remember this also: battles grow lighter when brothers carry part of the shield.", cta:"Disband rehearsal →" },
-  { type:'dialogue', speaker:'Guardian', text:"The war game is erased. Your real Legion records were never touched. When the right people arrive, return and raise a banner worth following.", cta:"End lesson →" }
+  { type:'dialogue', speaker:'Guardian', text:"If no ally walks with you today, continue alone. You are a fiery-hearted warrior for facing dragons by yourself. Remember this also: battles grow lighter when brothers carry part of the shield.", cta:"End the war game →" },
+  { type:'dialogue', speaker:'Guardian', text:"When this lesson closes, the rehearsal coalition is disbanded automatically. Your real Legion records remain exactly as they were before the war game.", cta:"End lesson →" }
 ];
 
 const TUTORIAL_STEPS = {
@@ -229,7 +231,7 @@ const TUTORIAL_STEPS = {
 
 // ─── GUARDIAN CARD ─────────────────────────────────────────────────────────────
 
-function GuardianCard({ step, onNext, onOpenRitual, onDismiss, onMinimize }) {
+function GuardianCard({ step, onNext, onOpenRitual }) {
   const isFairy = step.speaker === 'Fairy';
   const isTrader = step.speaker === 'Trader';
   const portrait = isFairy
@@ -245,14 +247,6 @@ function GuardianCard({ step, onNext, onOpenRitual, onDismiss, onMinimize }) {
       exit={{ opacity: 0, y: -10 }}
       className="relative w-full max-w-md max-h-[calc(100dvh-180px)] overflow-y-auto custom-scrollbar bg-zinc-950/98 border border-white/8 rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.9)] p-5 flex flex-col items-center gap-4"
     >
-      <div className="absolute right-3 top-3 z-10 flex gap-2">
-        <button type="button" onClick={onMinimize} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/70 text-stone-400 hover:border-gold-core/50 hover:text-gold-core" aria-label="Minimize tutorial">
-          <Minus size={14} />
-        </button>
-        <button type="button" onClick={onDismiss} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/70 text-stone-400 hover:border-red-500/50 hover:text-red-400" aria-label="End tutorial">
-          <X size={14} />
-        </button>
-      </div>
       {/* Portrait */}
       <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gold-core/20 bg-black/40 flex-shrink-0">
         <img src={portrait} alt={step.speaker} className="w-full h-full object-contain" />
@@ -431,7 +425,7 @@ export default function TabTutorialOverlay({
   const [stepIndex, setStepIndex] = useState(0);
   const [showRitualForm, setShowRitualForm] = useState(false);
   const [sandboxRitualId, setSandboxRitualId] = useState(null);
-  const [minimized, setMinimized] = useState(false);
+  const legionSandboxSnapshotRef = React.useRef(null);
 
   const steps = TUTORIAL_STEPS[tutorialId] || [];
   const currentStep = steps[stepIndex];
@@ -441,7 +435,43 @@ export default function TabTutorialOverlay({
     setStepIndex(0);
     setShowRitualForm(false);
     setSandboxRitualId(null);
-    setMinimized(false);
+  }, [tutorialId]);
+
+  useEffect(() => {
+    if (tutorialId !== 'legion_intro') return undefined;
+
+    const current = useWarscytheStore.getState();
+    const isTestRealm = import.meta.env.DEV
+      && localStorage.getItem('warscythe_test_realm_active') === 'true';
+    legionSandboxSnapshotRef.current = isTestRealm
+      ? {
+          activeLegion: null,
+          legionMembers: [],
+          legionOperations: [],
+          legionSubtasks: [],
+          legionEvents: [],
+        }
+      : {
+          activeLegion: current.activeLegion,
+          legionMembers: current.legionMembers,
+          legionOperations: current.legionOperations,
+          legionSubtasks: current.legionSubtasks,
+          legionEvents: current.legionEvents,
+        };
+    useWarscytheStore.setState({
+      activeLegion: null,
+      legionMembers: [],
+      legionOperations: [],
+      legionSubtasks: [],
+      legionEvents: [],
+    });
+
+    return () => {
+      if (legionSandboxSnapshotRef.current) {
+        useWarscytheStore.setState(legionSandboxSnapshotRef.current);
+        legionSandboxSnapshotRef.current = null;
+      }
+    };
   }, [tutorialId]);
 
   useEffect(() => {
@@ -529,6 +559,72 @@ export default function TabTutorialOverlay({
     };
   }, [currentStep?.highlightId, currentStep?.type]);
 
+  useEffect(() => {
+    if (currentStep?.type !== 'sandbox_legion_create') return undefined;
+    let cleanup = () => {};
+    const bind = () => {
+      const form = document.getElementById('legion-sandbox-forge-form');
+      const input = document.getElementById('legion-sandbox-name');
+      if (!form || !input) return false;
+
+      const forgeSandboxLegion = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const name = input.value.trim();
+        if (!name) {
+          input.focus();
+          return;
+        }
+
+        const state = useWarscytheStore.getState();
+        const ownerId = state.user?.id || 'sandbox-founder';
+        const legionId = `sandbox-legion-${Date.now()}`;
+        useWarscytheStore.setState({
+          activeLegion: {
+            id: legionId,
+            name,
+            owner_id: ownerId,
+            level: 1,
+            total_xp: 0,
+            created_at: new Date().toISOString(),
+            isTutorialSandbox: true,
+          },
+          legionMembers: [{
+            id: `${legionId}-creator`,
+            legion_id: legionId,
+            user_id: ownerId,
+            role: 'creator',
+            contribution_xp: 0,
+            profile: {
+              id: ownerId,
+              username: state.username || 'Rehearsal Founder',
+              email: state.user?.email || '',
+            },
+          }],
+          legionOperations: [],
+          legionSubtasks: [],
+          legionEvents: [],
+        });
+        advanceRef.current();
+      };
+
+      form.addEventListener('submit', forgeSandboxLegion, true);
+      cleanup = () => form.removeEventListener('submit', forgeSandboxLegion, true);
+      return true;
+    };
+
+    if (bind()) return cleanup;
+    const retry = window.setInterval(() => {
+      if (bind()) window.clearInterval(retry);
+    }, 120);
+    return () => {
+      window.clearInterval(retry);
+      cleanup();
+    };
+  }, [currentStep?.type]);
+
   const advance = () => {
     if (!currentStep) return;
 
@@ -578,19 +674,11 @@ export default function TabTutorialOverlay({
 
   if (!currentStep) return null;
 
-  const dismissTutorial = () => {
-    if (sandboxRitualId) {
-      useWarscytheStore.getState().deleteRitual(sandboxRitualId);
-    }
-    if (onHighlightChange) onHighlightChange(null);
-    onComplete();
-  };
-
   // Determine which node IDs to highlight — all map nodes except the current one should be dim
   return (
     <>
       {/* Forge highlight ring */}
-      {(currentStep?.type === 'highlight' || currentStep?.type === 'inspect' || currentStep?.type === 'sandbox_submit') && currentStep.highlightId && (
+      {(currentStep?.type === 'highlight' || currentStep?.type === 'inspect' || currentStep?.type === 'sandbox_submit' || currentStep?.type === 'sandbox_legion_create') && currentStep.highlightId && (
         <HighlightRing elementId={currentStep.highlightId} />
       )}
       {currentStep?.type === 'ritual_complete' && sandboxRitualId && (
@@ -605,7 +693,7 @@ export default function TabTutorialOverlay({
 
       {/* Hide the introductory card while the ritual form teaches each field. */}
       <AnimatePresence>
-        {!minimized && !showRitualForm && !(
+        {!showRitualForm && currentStep?.type !== 'sandbox_legion_create' && !(
           currentStep?.type === 'map_node'
           && tutorialNodeClicked === currentStep.nodeId
         ) && (
@@ -622,22 +710,20 @@ export default function TabTutorialOverlay({
                 step={currentStep}
                 onNext={advance}
                 onOpenRitual={() => setShowRitualForm(true)}
-                onDismiss={dismissTutorial}
-                onMinimize={() => setMinimized(true)}
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {minimized && (
-        <button
-          type="button"
-          onClick={() => setMinimized(false)}
-          className="fixed bottom-[94px] left-4 z-[10001] rounded-full border border-gold-core/40 bg-zinc-950/95 px-4 py-3 font-mono text-[8px] font-black tracking-widest text-gold-core shadow-[0_0_30px_rgba(0,0,0,.8)]"
-        >
-          RESUME GUARDIAN
-        </button>
+      {currentStep?.type === 'sandbox_legion_create' && (
+        <div className="fixed inset-x-0 top-[155px] z-[10000] flex justify-center px-4 pointer-events-none">
+          <div className="max-w-md border border-gold-core/50 bg-black/95 px-4 py-3 text-center shadow-[0_0_24px_rgba(236,200,128,0.16)]">
+            <p className="font-mono text-[8px] font-black tracking-[0.24em] text-gold-core uppercase">
+              Guardian // Name the rehearsal coalition, then forge it
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Ritual modal in tutorial mode */}

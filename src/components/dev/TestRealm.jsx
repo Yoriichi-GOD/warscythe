@@ -7,6 +7,20 @@ const REALM_KEY = 'warscythe_test_realm_active';
 const SNAPSHOT_KEY = 'warscythe_test_realm_snapshots';
 const ORIGINAL_STATE_KEY = 'warscythe_test_realm_original_state';
 const CAPTURE_MODE_KEY = 'warscythe_capture_mode';
+const TEST_SCYTHE_LEVELS = ['DORMANT', 'AWAKENED', 'HARDENED', 'REFINED', 'ASCENDED', 'PLATINUM'];
+const TEST_PAID_SCYTHES = [
+  ['default', 'Realm Default'],
+  ['cosmic_harvester', 'Cosmic Harvester'],
+  ['hellfire_reaper', 'Hellfire Reaper'],
+  ['soul_eater_prime', 'Soul-Eater Prime'],
+  ['abyssal_leviathan', 'Abyssal Leviathan'],
+  ['ares_devastator', "Ares' Devastator"],
+];
+const TEST_THEMES = [
+  ['default', 'Region Default'],
+  ['shiva', 'Kailash Ascension'],
+  ['lava', 'Lava Citadel'],
+];
 const TEST_USER = {
   id: '00000000-0000-4000-8000-000000000001',
   email: 'test-realm@warscythe.local',
@@ -40,11 +54,20 @@ const BASE_STATE = {
   xp: 0,
   coins: 0,
   scytheLevel: 'DORMANT',
+  unlockedScythes: TEST_PAID_SCYTHES.map(([id]) => id),
+  unlockedThemes: TEST_THEMES.map(([id]) => id),
+  activeScytheSkin: 'default',
+  activeTheme: 'default',
   lastActiveDate: null,
   lastResetDate: null,
   bossKills: 0,
   gymLog: [],
   activeWorkout: null,
+  activeLegion: null,
+  legionMembers: [],
+  legionOperations: [],
+  legionSubtasks: [],
+  legionEvents: [],
   hasCompletedTutorial: false,
   tutorialStep: 'task_creation',
   firstTaskCompleted: false,
@@ -402,6 +425,33 @@ export default function TestRealm() {
     });
   };
 
+  const switchScytheLevel = (scytheLevel) => {
+    applyState({
+      ...useWarscytheStore.getState(),
+      scytheLevel,
+    });
+  };
+
+  const switchPaidScythe = (activeScytheSkin) => {
+    applyState({
+      ...useWarscytheStore.getState(),
+      unlockedScythes: TEST_PAID_SCYTHES.map(([id]) => id),
+      activeScytheSkin,
+    });
+  };
+
+  const switchPaidTheme = (activeTheme) => {
+    applyState({
+      ...useWarscytheStore.getState(),
+      unlockedThemes: TEST_THEMES.map(([id]) => id),
+      activeTheme,
+    });
+    [...document.body.classList]
+      .filter(className => className.startsWith('theme-'))
+      .forEach(className => document.body.classList.remove(className));
+    if (activeTheme !== 'default') document.body.classList.add(`theme-${activeTheme}`);
+  };
+
   const saveSnapshot = () => {
     const name = snapshotName.trim() || `Snapshot ${Object.keys(snapshots).length + 1}`;
     const current = useWarscytheStore.getState();
@@ -530,6 +580,72 @@ export default function TestRealm() {
                       </button>
                     );
                   })}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-fuchsia-300/20 bg-fuchsia-300/[0.04] p-3">
+                <div className="mb-1 text-[9px] tracking-[0.25em] text-fuchsia-300">SCYTHE VIDEO LOADOUT</div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-500">
+                  Preview any daily evolution tier with the default blade or a premium Scythe skin.
+                </p>
+
+                <div className="mb-2 text-[8px] tracking-[0.18em] text-zinc-400">EVOLUTION LEVEL</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {TEST_SCYTHE_LEVELS.map(level => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => switchScytheLevel(level)}
+                      className={`rounded border px-1.5 py-2 text-[7px] ${
+                        store.scytheLevel === level
+                          ? 'border-fuchsia-300 bg-fuchsia-300 text-black'
+                          : 'border-white/10 bg-black/30 text-zinc-400 hover:border-fuchsia-300/50'
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mb-2 mt-4 text-[8px] tracking-[0.18em] text-zinc-400">PREMIUM SCYTHE</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {TEST_PAID_SCYTHES.map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => switchPaidScythe(id)}
+                      className={`rounded border px-2 py-2 text-left text-[7.5px] ${
+                        store.activeScytheSkin === id
+                          ? 'border-fuchsia-300 bg-fuchsia-300 text-black'
+                          : 'border-white/10 bg-black/30 text-zinc-300 hover:border-fuchsia-300/50'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-sky-300/20 bg-sky-300/[0.04] p-3">
+                <div className="mb-1 text-[9px] tracking-[0.25em] text-sky-300">PAID THEME PREVIEW</div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-500">
+                  Applies the complete paid environment while preserving the current video region and capture evidence.
+                </p>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {TEST_THEMES.map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => switchPaidTheme(id)}
+                      className={`rounded border px-2 py-2 text-left text-[8px] ${
+                        store.activeTheme === id
+                          ? 'border-sky-300 bg-sky-300 text-black'
+                          : 'border-white/10 bg-black/30 text-zinc-300 hover:border-sky-300/50'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </section>
 

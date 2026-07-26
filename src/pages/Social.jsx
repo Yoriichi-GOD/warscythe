@@ -218,7 +218,8 @@ export default function Social() {
     level,
     executionScore,
     onboardingActive,
-    onboardingProgress
+    onboardingProgress,
+    postGuardianTutorial
   } = useWarscytheStore();
 
   const [activeSubTab, setActiveSubTab] = useState('leaderboard');
@@ -264,6 +265,7 @@ export default function Social() {
   useEffect(() => {
     const refreshVisibleSection = () => {
       if (document.visibilityState !== 'visible') return;
+      if (postGuardianTutorial === 'legion_intro') return;
       if (import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true') return;
       fetchSocialData({ section: activeSubTab });
     };
@@ -277,7 +279,7 @@ export default function Social() {
       window.removeEventListener('focus', refreshVisibleSection);
       document.removeEventListener('visibilitychange', refreshVisibleSection);
     };
-  }, [activeSubTab, fetchSocialData]);
+  }, [activeSubTab, fetchSocialData, postGuardianTutorial]);
 
   useEffect(() => {
     if (!import.meta.env.DEV) return undefined;
@@ -775,15 +777,16 @@ export default function Social() {
                     Legion Operations turn shared goals into shared records. Forge a persistent group with other operatives.
                   </p>
 
-                  <form onSubmit={handleCreateLegion} className="create-legion-form mt-8 max-w-xs w-full">
+                  <form id="legion-sandbox-forge-form" onSubmit={handleCreateLegion} className="create-legion-form mt-8 max-w-xs w-full">
                     <input 
+                      id="legion-sandbox-name"
                       type="text" 
                       placeholder="Legion Name..." 
                       value={legionNameInput}
                       onChange={e => setLegionNameInput(e.target.value)}
                       className="legion-name-input font-mono mb-4 text-center"
                     />
-                    <button type="submit" className="legion-forge-btn">
+                    <button id="legion-sandbox-forge" type="submit" className="legion-forge-btn">
                       <span>FORGE COALITION</span>
                     </button>
                   </form>
