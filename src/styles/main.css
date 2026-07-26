@@ -652,15 +652,20 @@
 }
 
 @media (min-width: 1024px) {
+  .ledger-page-shell {
+    max-width: 1600px !important;
+    width: calc(100% - 3rem);
+  }
+
   .ledger-history-layout {
     display: grid !important;
-    grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 1.5rem;
   }
 
   .ledger-history-detail {
-    height: min(514px, calc(100vh - 245px));
+    height: min(600px, calc(100vh - 205px));
     overflow-y: auto;
     padding: 1.25rem;
     background: rgba(8, 8, 10, 0.55);
@@ -672,7 +677,7 @@
 
   .ledger-day-cell {
     aspect-ratio: auto !important;
-    height: clamp(44px, 6.2vh, 62px);
+    height: clamp(50px, 7.2vh, 72px);
   }
 }
 
