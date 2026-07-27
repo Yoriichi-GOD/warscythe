@@ -20,7 +20,7 @@ export default function VideoGuideModal() {
   const videoKey = useWarscytheStore(state => state.videoKey);
   const closeVideoModal = useWarscytheStore(state => state.closeVideoModal);
 
-  const videoId = VIDEO_GUIDE_MAP[videoKey] || "dQw4w9WgXcQ";
+  const videoId = VIDEO_GUIDE_MAP[videoKey] || "M82FvdLRKik";
   const title = TITLE_MAP[videoKey] || "TACTICAL SYSTEM WALKTHROUGH";
   const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&showinfo=0`;
@@ -30,7 +30,7 @@ export default function VideoGuideModal() {
       {showVideoModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 md:p-6 overflow-x-hidden overflow-y-auto">
           {/* Backdrop Blur */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export default function VideoGuideModal() {
                   {title}
                 </h3>
               </div>
-              <button 
+              <button
                 onClick={closeVideoModal}
                 className="text-gray-500 hover:text-white transition-colors p-1 hover:bg-white/5 rounded cursor-pointer"
               >
