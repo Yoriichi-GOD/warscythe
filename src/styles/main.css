@@ -293,8 +293,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
 }
+
 
 .ritual-create-field > label,
 .ritual-edit-field > span {
@@ -689,6 +689,27 @@
     height: calc(100vh - 148px);
     padding: 0 1.5rem 1rem 1.5rem;
     overflow: hidden;
+  }
+}
+
+/* ── Active Operations Panel Scrollbar (Aspect Ratio & Low-Height Fix) ──
+   Allows the entire Active Operations panel to scroll vertically whenever
+   the viewport height/aspect ratio causes Missions in Progress or Recalculate
+   Protocol to overflow. The inner ops-mission-scroll scrollbar remains intact. */
+@media (min-width: 1024px) {
+  .operations-primary-panel {
+    max-height: calc(100vh - 148px);
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 160, 89, 0.35) rgba(255, 255, 255, 0.02);
+  }
+  .operations-primary-panel::-webkit-scrollbar { width: 4px; }
+  .operations-primary-panel::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+  .operations-primary-panel::-webkit-scrollbar-thumb {
+    background: rgba(197, 160, 89, 0.35);
+    border-radius: 2px;
   }
 }
 

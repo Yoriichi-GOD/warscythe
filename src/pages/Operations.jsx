@@ -114,7 +114,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     <div className="elite-grid-container">
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
-      <section className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-hidden pb-6">
+      <section className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-6">
         <div className="flex justify-between items-center mb-8 shrink-0">
           <div className="flex items-center gap-3">
             <Zap size={14} className="text-gold-core" />
@@ -140,20 +140,20 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
           </div>
         </div>
 
-        <div className="flex flex-col gap-8 flex-1 min-h-0">
-          <div className={tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''}>
+        <div className="flex flex-col gap-6 flex-1 min-h-0">
+          <div className={`shrink-0 ${tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <ObjectiveRitual onClick={onAddTask} />
           </div>
           
-          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-1 shrink-0" />
 
-          <div className="flex flex-col gap-4 flex-1 min-h-0">
-            <div className="flex justify-between items-center px-1">
+          <div className="flex flex-col gap-4 flex-1 min-h-[220px]">
+            <div className="flex justify-between items-center px-1 shrink-0">
               <span className="text-[9px] font-mono text-gray-300 tracking-widest uppercase">Missions in Progress</span>
               <span className="text-[9px] font-mono text-gold-core/60">{tasks.length} / 3</span>
             </div>
             
-            <div className={`flex flex-col gap-3 ops-mission-scroll custom-scrollbar flex-1 min-h-0 overflow-y-auto pr-2 ${tutorialStep === 'task_creation' || tutorialStep === 'click_task' ? 'ops-tutorial-reveal' : ''}`}>
+            <div className={`flex flex-col gap-3 ops-mission-scroll custom-scrollbar flex-1 min-h-[180px] overflow-y-auto pr-2 ${tutorialStep === 'task_creation' || tutorialStep === 'click_task' ? 'ops-tutorial-reveal' : ''}`}>
               {tasks.map((task, idx) => {
                 const isTarget = tutorialStep === 'click_task' && idx === 0;
                 return (
@@ -200,27 +200,26 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             </div>
           </div>
 
+          {/* RECALCULATE PROTOCOL */}
+          <button 
+            onClick={handleRecalculate}
+            disabled={isRecalculating || tutorialStep === 'task_creation'}
+            className={`shrink-0 w-full py-4 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
+              tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''
+            }`}
+          >
+            <div className="flex items-center justify-center gap-3">
+              <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
+              <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
+                {isRecalculating ? 'Recalculating...' : recalcSuccess ? 'Protocol Decomposed' : 'Recalculate Protocol'}
+              </span>
+              <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
+            </div>
+            <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">
+              {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
+            </p>
+          </button>
         </div>
-
-        {/* RECALCULATE PROTOCOL */}
-        <button 
-          onClick={handleRecalculate}
-          disabled={isRecalculating || tutorialStep === 'task_creation'}
-          className={`mt-4 shrink-0 w-full py-5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
-            tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''
-          }`}
-        >
-          <div className="flex items-center justify-center gap-3">
-            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
-            <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
-              {isRecalculating ? 'Recalculating...' : recalcSuccess ? 'Protocol Decomposed' : 'Recalculate Protocol'}
-            </span>
-            <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
-          </div>
-          <p className="text-[8px] font-mono text-gray-600 mt-1 tracking-[0.2em] uppercase">
-            {recalcSuccess ? 'All active strikes broken down into micro steps!' : 'Break it down. Focus. Execute.'}
-          </p>
-        </button>
       </section>
 
       <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
