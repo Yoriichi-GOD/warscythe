@@ -969,6 +969,13 @@
   .operation-deadline-grid {
     grid-template-columns: 1fr;
   }
+  .operation-time-field .ritual-time-popover {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    padding: .55rem;
+  }
+  .operation-time-field .ritual-time-column > div {
+    grid-template-columns: 34px minmax(34px, 1fr) 34px;
+  }
 }
 
 .tab-label {

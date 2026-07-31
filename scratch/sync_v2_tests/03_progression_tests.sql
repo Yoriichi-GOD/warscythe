@@ -117,11 +117,13 @@ END $$;
 
 
 -- ─────────────────────────────────────────────────────────────
--- TC-11: Client optimistic preview rejected by server.
---        Scenario: Client locally computed level 5, but server
+-- TC-11: Server-confirmed level-up.
+--        Scenario: stale client state claims level 5, but the server
 --        derives level 4 (e.g., some tasks were already counted).
 -- Test: Server's statistics_state becomes canonical.
---       Client must reconcile DOWN to server value.
+--       Online ceremonies use the accepted RPC result. Offline ceremonies use
+--       only the last confirmed baseline plus unique queued progression events,
+--       then become silently confirmed by this authoritative result.
 -- This tests the return value of record_warscythe_progression_event()
 -- and whether the client store correctly applies server statistics.
 -- ─────────────────────────────────────────────────────────────

@@ -234,7 +234,12 @@ export default function TestRealm() {
       username: next.username || 'Realm Tester',
       syncStatus: 'realm',
       hasPendingChanges: false,
-      isMerging: false
+      isMerging: false,
+      confirmedProgressionLevel: Number(next.level) || 1,
+      confirmedProgressionCompletions: Number(next.totalCompletions) || 0,
+      confirmedProgressionInitialized: true,
+      celebratedProgressionEventUuids: [],
+      queuedLevelUpCeremonies: []
     });
   };
 

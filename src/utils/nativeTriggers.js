@@ -113,8 +113,9 @@ export const initNetworkMonitoring = () => {
   try {
     const handleNetworkChange = async (status) => {
       const isOnline = status.connected;
+      const store = getSyncState();
+      store?.setNetworkConnected?.(isOnline);
       if (isOnline) {
-        const store = getSyncState();
         if (store?.hasPendingChanges) {
           store.forceSync();
         }

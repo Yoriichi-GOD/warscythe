@@ -1,0 +1,70 @@
+-- Ritual edits must use updatedAt before lastCompletedAt. Otherwise a ritual
+-- that has ever been completed can never sync a later name/time/note edit.
+create or replace function public.sync_warscythe_domain(
+  p_domain text,
+  p_payload jsonb
+) returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  current_value jsonb;
+  merged jsonb;
+begin
+  if uid is null then raise exception 'Authentication required'; end if;
+  if p_domain not in ('operations','fitness','rituals','inventory','settings') then
+    raise exception 'Unsupported Warscythe sync domain: %', p_domain;
+  end if;
+
+  insert into public.profiles (id, state, updated_at)
+  values (uid, '{}'::jsonb, now())
+  on conflict (id) do nothing;
+
+  execute format('select %I from public.profiles where id = $1 for update', p_domain || '_state')
+  into current_value using uid;
+  current_value := coalesce(current_value, '{}'::jsonb);
+
+  if p_domain = 'operations' then
+    merged := current_value || (p_payload - 'tasks' - 'completedTasks' - 'abandonedTasks');
+    merged := jsonb_set(merged, '{tasks}', public.warscythe_array_union(current_value->'tasks', p_payload->'tasks', array['taskUuid','id'], array['updatedAt','lastProgressUpdate','createdAt']), true);
+    merged := jsonb_set(merged, '{completedTasks}', public.warscythe_array_union(current_value->'completedTasks', p_payload->'completedTasks', array['taskUuid','id'], array['completedAt','updatedAt']), true);
+    merged := jsonb_set(merged, '{abandonedTasks}', public.warscythe_array_union(current_value->'abandonedTasks', p_payload->'abandonedTasks', array['abandonedAt','updatedAt']), true);
+    merged := jsonb_set(merged, '{tasks}', coalesce((
+      select jsonb_agg(t)
+      from jsonb_array_elements(merged->'tasks') t
+      where coalesce(t->>'taskUuid', t->>'id') not in (
+        select coalesce(x->>'taskUuid', x->>'id') from jsonb_array_elements((merged->'completedTasks') || (merged->'abandonedTasks')) x
+      )
+    ), '[]'::jsonb), true);
+  elsif p_domain = 'fitness' then
+    merged := current_value || (p_payload - 'gymLog');
+    merged := jsonb_set(merged, '{gymLog}', public.warscythe_array_union(current_value->'gymLog', p_payload->'gymLog', array['eventUuid','id'], array['completedAt','date','updatedAt']), true);
+  elsif p_domain = 'rituals' then
+    merged := current_value || (p_payload - 'rituals');
+    merged := jsonb_set(merged, '{rituals}', public.warscythe_array_union(current_value->'rituals', p_payload->'rituals', array['ritualUuid','id'], array['updatedAt','lastCompletedAt']), true);
+    merged := jsonb_set(merged, '{completionEvents}', public.warscythe_array_union(current_value->'completionEvents', p_payload->'completionEvents', array['id','eventUuid'], array['occurredAt','createdAt']), true);
+    merged := jsonb_set(merged, '{dailyLog}', coalesce(current_value->'dailyLog','{}'::jsonb) || coalesce(p_payload->'dailyLog','{}'::jsonb), true);
+  elsif p_domain = 'inventory' then
+    merged := current_value || (p_payload - 'collectedArtifacts');
+    merged := jsonb_set(merged, '{collectedArtifacts}', public.warscythe_array_union(current_value->'collectedArtifacts', p_payload->'collectedArtifacts', array['rewardEventId','eventUuid','id','name'], array['date','createdAt']), true);
+    merged := jsonb_set(merged, '{unlockedScythes}', public.warscythe_scalar_array_union(current_value->'unlockedScythes', p_payload->'unlockedScythes'), true);
+    merged := jsonb_set(merged, '{unlockedThemes}', public.warscythe_scalar_array_union(current_value->'unlockedThemes', p_payload->'unlockedThemes'), true);
+    merged := jsonb_set(merged, '{unlockedTitles}', public.warscythe_scalar_array_union(current_value->'unlockedTitles', p_payload->'unlockedTitles'), true);
+    merged := jsonb_set(merged, '{unlockedLore}', coalesce(current_value->'unlockedLore','{}'::jsonb) || coalesce(p_payload->'unlockedLore','{}'::jsonb), true);
+    merged := jsonb_set(merged, '{rescuedFairies}', coalesce(current_value->'rescuedFairies','{}'::jsonb) || coalesce(p_payload->'rescuedFairies','{}'::jsonb), true);
+  else
+    if coalesce((p_payload->>'updatedAt')::timestamptz, 'epoch'::timestamptz)
+      >= coalesce((current_value->>'updatedAt')::timestamptz, 'epoch'::timestamptz) then
+      merged := current_value || p_payload;
+    else
+      merged := current_value;
+    end if;
+  end if;
+
+  execute format('update public.profiles set %I = $1, sync_v2_migrated_at = coalesce(sync_v2_migrated_at, now()), updated_at = now() where id = $2', p_domain || '_state')
+  using merged, uid;
+  return merged;
+end;
+$$;

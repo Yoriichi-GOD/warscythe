@@ -128,7 +128,7 @@ export default function TaskModal({
   
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [effortOpen, setEffortOpen] = useState(false);
-  const [formTutorialStep, setFormTutorialStep] = useState(0);
+  const [formTutorialStep, setFormTutorialStep] = useState(initialDraft?.formTutorialStep || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const tasks = useWarscytheStore(state => state.tasks) || [];
@@ -147,8 +147,9 @@ export default function TaskModal({
       priority,
       subTaskText,
       subTasks,
+      formTutorialStep,
     });
-  }, [title, category, effort, deadline, deadlineTime, priority, subTaskText, subTasks, onDraftChange]);
+  }, [title, category, effort, deadline, deadlineTime, priority, subTaskText, subTasks, formTutorialStep, onDraftChange]);
 
   const advanceTutorial = (fromStep) => {
     if (tutorialStep === 'task_modal_open' && formTutorialStep === fromStep) {
@@ -1021,8 +1022,16 @@ export default function TaskModal({
           }
 
           .operation-deadline-grid {
-            grid-template-columns: minmax(0, 1.2fr) minmax(125px, 0.8fr);
+            grid-template-columns: 1fr;
             gap: 0.55rem;
+          }
+
+          .operation-time-field {
+            width: 100%;
+          }
+
+          .operation-time-field .ritual-time-popover {
+            width: 100%;
           }
 
           .operation-time-label {

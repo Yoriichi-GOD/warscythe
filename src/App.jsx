@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWarscytheStore, getLore } from './store/useWarscytheStore';
-import { TASKS_PER_LEVEL } from './store/constants';
+import { useWarscytheStore } from './store/useWarscytheStore';
 import Header from './components/Header';
 import TaskModal from './components/TaskModal';
 import RitualModal from './components/RitualModal';
@@ -96,6 +95,30 @@ const getTaskCategoryType = (category = '') => {
   return 'operations';
 };
 
+const hasRestorableAuthSession = () => {
+  if (typeof window === 'undefined') return false;
+
+  const callbackParams = new URLSearchParams(
+    window.location.hash?.slice(1) || window.location.search?.slice(1) || ''
+  );
+  if (callbackParams.has('access_token') || callbackParams.has('code')) return true;
+
+  const now = Math.floor(Date.now() / 1000);
+  for (let index = 0; index < window.localStorage.length; index += 1) {
+    const key = window.localStorage.key(index);
+    if (!key?.startsWith('sb-') || !key.endsWith('-auth-token')) continue;
+    try {
+      const session = JSON.parse(window.localStorage.getItem(key));
+      if (session?.access_token && (!session.expires_at || session.expires_at > now)) {
+        return true;
+      }
+    } catch {
+      // A malformed or obsolete auth entry is not a restorable session.
+    }
+  }
+  return false;
+};
+
 export default function App() {
   const user = useWarscytheStore(state => state.user);
   const username = useWarscytheStore(state => state.username);
@@ -109,6 +132,9 @@ export default function App() {
   const pendingTitleUnlock = useWarscytheStore(state => state.pendingTitleUnlock);
   const clearPendingTitleUnlock = useWarscytheStore(state => state.clearPendingTitleUnlock);
   const isMerging = useWarscytheStore(state => state.isMerging);
+  const storeHydrated = useWarscytheStore(state => state.storeHydrated);
+  const authResolved = useWarscytheStore(state => state.authResolved);
+  const profileResolved = useWarscytheStore(state => state.profileResolved);
   const level = useWarscytheStore(state => state.level);
   const soundscapeEnabled = useWarscytheStore(state => state.soundscapeEnabled);
   const soundscapeVolume = useWarscytheStore(state => state.soundscapeVolume);
@@ -118,53 +144,26 @@ export default function App() {
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const hasSeenFitnessPeek = useWarscytheStore(state => state.hasSeenFitnessPeek);
 
-  useEffect(() => {
-    const state = useWarscytheStore.getState();
-    const ritualsCompleted = (state.rituals || []).reduce((acc, r) => acc + (r.streak || 0), 0);
-    const tasksCompleted = (state.completedTasks || []).filter(t => !t.isTutorialTask).length;
-    const trueTotalCompletions = tasksCompleted + ritualsCompleted;
-    
-    const trueLevel = Math.floor(trueTotalCompletions / TASKS_PER_LEVEL) + 1;
-    const trueProgress = trueTotalCompletions % TASKS_PER_LEVEL;
-    
-    // Retroactively rebuild unlocked lore based on true completions
-    const reconstructedLore = {};
-    for (let r = 0; r < trueLevel; r++) {
-      const loreArr = getLore(r) || [];
-      const fragsForThisRegion = r === trueLevel - 1 ? trueProgress : TASKS_PER_LEVEL;
-      reconstructedLore[r] = loreArr.slice(0, fragsForThisRegion);
-    }
-    
-    // Run one-time migration to clean up auto-unlocked scythes from legacy streak calculation
-    const cleanUnlocked = state.scytheMigrationDone 
-      ? (state.unlockedScythes || ['neophyte'])
-      : ['neophyte'];
-    
-    // Auto-detect legacy users to bypass onboarding if they already have progress
-    const hasCompletedTutorial = !!(state.hasCompletedTutorial || trueTotalCompletions > 0 || trueLevel > 1 || state.firstTaskCompleted);
-    const tutorialStep = hasCompletedTutorial ? 'completed' : state.tutorialStep;
-
-    // Unconditionally force sync to fix any corrupted state
-    useWarscytheStore.setState({
-      totalCompletions: trueTotalCompletions,
-      level: trueLevel,
-      currentLevelProgress: trueProgress,
-      unlockedLore: reconstructedLore,
-      unlockedScythes: cleanUnlocked,
-      scytheMigrationDone: true,
-      hasCompletedTutorial,
-      tutorialStep
-    });
-  }, [user?.email]);
-
   const [activeTab, setActiveTab] = useState('ops');
   const [ledgerSubTab, setLedgerSubTab] = useState('history');
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskModalInitialEffort, setTaskModalInitialEffort] = useState('Medium');
-  const [taskModalDraft, setTaskModalDraft] = useState(null);
+  const [taskModalDraft, setTaskModalDraft] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('warscythe-operation-draft') || 'null');
+    } catch {
+      return null;
+    }
+  });
   const [showRitualModal, setShowRitualModal] = useState(false);
-  const [ritualModalDraft, setRitualModalDraft] = useState(null);
+  const [ritualModalDraft, setRitualModalDraft] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('warscythe-ritual-draft') || 'null');
+    } catch {
+      return null;
+    }
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
@@ -183,6 +182,7 @@ export default function App() {
   const [tutorialMapNodeContinued, setTutorialMapNodeContinued] = useState(null);
   const [mapTutorialHighlightNode, setMapTutorialHighlightNode] = useState(null);
   const [fitnessTutorialActive, setFitnessTutorialActive] = useState(false);
+  const [expectsSessionAtStartup] = useState(hasRestorableAuthSession);
 
   useEffect(() => {
     if (activeTab !== 'fitness' || hasSeenFitnessPeek) return;
@@ -346,6 +346,28 @@ export default function App() {
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
 
   useEffect(() => {
+    if (taskModalDraft) {
+      sessionStorage.setItem('warscythe-operation-draft', JSON.stringify(taskModalDraft));
+    } else {
+      sessionStorage.removeItem('warscythe-operation-draft');
+    }
+  }, [taskModalDraft]);
+
+  useEffect(() => {
+    if (ritualModalDraft) {
+      sessionStorage.setItem('warscythe-ritual-draft', JSON.stringify(ritualModalDraft));
+    } else {
+      sessionStorage.removeItem('warscythe-ritual-draft');
+    }
+  }, [ritualModalDraft]);
+
+  useEffect(() => {
+    if (user && !isMerging && tutorialStep === 'task_modal_open') {
+      setShowTaskModal(true);
+    }
+  }, [user, isMerging, tutorialStep]);
+
+  useEffect(() => {
     if (tutorialStep && tutorialStep !== 'completed') {
       if (tutorialStep === 'map_guide') {
         setActiveTab('ops');
@@ -394,7 +416,6 @@ export default function App() {
   const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
   const completeTask = useWarscytheStore(state => state.completeTask);
   const updateProgress = useWarscytheStore(state => state.updateProgress);
-  const updateStreak = useWarscytheStore(state => state.updateStreak);
   const activeBossFlash = useWarscytheStore(state => state.activeBossFlash);
   const clearBossFlash = useWarscytheStore(state => state.clearBossFlash);
   const pendingVictoryScreen = useWarscytheStore(state => state.pendingVictoryScreen);
@@ -545,10 +566,34 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      updateStreak();
+    if (user && storeHydrated && profileResolved && !isMerging) {
+      useWarscytheStore.getState().refreshDailyState();
     }
-  }, [user, updateStreak]);
+  }, [user, storeHydrated, profileResolved, isMerging]);
+
+  const startupResolved = storeHydrated
+    && authResolved
+    && (!user || (profileResolved && !isMerging));
+  const shouldShowStartupCurtain = !startupResolved
+    && (expectsSessionAtStartup || !!user);
+
+  if (shouldShowStartupCurtain) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-[70vh] flex items-center justify-center px-6">
+          <div className="ornate-panel px-10 py-8 text-center">
+            <div className="font-mono text-[10px] tracking-[0.35em] text-gold-core uppercase">
+              Restoring Operative Record
+            </div>
+            <div className="mt-3 font-serif text-xl tracking-[0.18em] text-parchment uppercase">
+              The Realm Remembers
+            </div>
+          </div>
+        </div>
+        <div id="toast-container" />
+      </DashboardLayout>
+    );
+  }
 
   if (!user) {
     const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
@@ -579,7 +624,7 @@ export default function App() {
     );
   }
 
-  if (user && !isMerging && !username) {
+  if (user && !username) {
     return (
       <DashboardLayout>
         <UsernameSetup />

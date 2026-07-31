@@ -23,6 +23,10 @@ import {
   syncDomain,
 } from './syncV2';
 import { deriveDailyScytheLevel } from './scytheProgression';
+import {
+  deriveOfflineLevelUpCeremonies,
+  uniqueRegionalProgressionEvents,
+} from './progressionProjection';
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const generateUUID = () => {
@@ -35,16 +39,27 @@ const generateUUID = () => {
     return v.toString(16);
   });
 };
-const todayKey = () => new Date().toISOString().slice(0, 10);
+export const localDateKey = (value = new Date()) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+const todayKey = () => localDateKey();
 const getDailyScytheProgress = (state, additions = {}) => {
   const today = todayKey();
   const completedOperations = (state.completedTasks || []).filter(task =>
-    !task.isTutorialTask && task.completedAt?.slice(0, 10) === today
+    !task.isTutorialTask
+    && task.category !== 'LEGION'
+    && !task.isLegionTask
+    && localDateKey(task.completedAt) === today
   ).length + (additions.operations || 0);
 
   const ritualKeys = new Set(
     (state.ritualCompletionEvents || [])
-      .filter(event => event.date === today || event.occurredAt?.slice(0, 10) === today)
+      .filter(event => event.date === today || localDateKey(event.occurredAt) === today)
       .map(event => event.ritualUuid || event.eventUuid || event.id)
   );
   const completedRituals = ritualKeys.size + (additions.rituals || 0);
@@ -62,7 +77,71 @@ const getWeekStart = () => {
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const mon = new Date(d.setDate(diff));
-  return mon.toISOString().slice(0, 10);
+  return localDateKey(mon);
+};
+
+const getProgressionTitle = level => (
+  level <= TITLES.length
+    ? TITLES[level - 1]
+    : `${TITLES[TITLES.length - 1]} ${level - TITLES.length + 1}`
+);
+
+const buildLevelUpPatch = (current, ceremonies, { provisional = false } = {}) => {
+  const celebrated = new Set(current.celebratedProgressionEventUuids || []);
+  const additions = (ceremonies || []).filter(ceremony => {
+    if (!ceremony?.eventUuid || celebrated.has(ceremony.eventUuid)) return false;
+    celebrated.add(ceremony.eventUuid);
+    return true;
+  });
+  if (additions.length === 0) return {};
+
+  let unlockedTitles = [...(current.unlockedTitles || ['Recruit'])];
+  let rescuedFairies = { ...(current.rescuedFairies || {}) };
+  let currentTitle = current.currentTitle;
+
+  const normalized = additions.map(ceremony => {
+    const newTitle = getProgressionTitle(ceremony.newLevel);
+    const previousTitle = getProgressionTitle(ceremony.previousLevel);
+    if (!unlockedTitles.includes(newTitle)) unlockedTitles.push(newTitle);
+    if (currentTitle === previousTitle || currentTitle === 'Recruit') currentTitle = newTitle;
+    if (!rescuedFairies[ceremony.previousLevel - 1]) {
+      rescuedFairies[ceremony.previousLevel - 1] = {
+        date: new Date().toISOString(),
+        taskTitle: ceremony.taskTitle,
+        taskCategory: ceremony.taskCategory,
+      };
+    }
+    return { ...ceremony, newTitle, provisional };
+  });
+
+  const hasActiveCeremony = !!current.pendingLevelUp || !!current.pendingVictoryScreen;
+  const queue = [...(current.queuedLevelUpCeremonies || []), ...normalized];
+  const active = hasActiveCeremony ? null : queue.shift();
+
+  return {
+    level: Math.max(Number(current.level) || 1, ...normalized.map(item => item.newLevel)),
+    currentTitle,
+    unlockedTitles,
+    rescuedFairies,
+    celebratedProgressionEventUuids: Array.from(celebrated).slice(-100),
+    queuedLevelUpCeremonies: queue,
+    ...(active ? {
+      pendingLevelUp: {
+        eventUuid: active.eventUuid,
+        regionIdx: active.newLevel - 1,
+        newLevel: active.newLevel,
+        newTitle: active.newTitle,
+        provisional: active.provisional,
+      },
+      pendingVictoryScreen: {
+        eventUuid: active.eventUuid,
+        regionIdx: active.previousLevel - 1,
+        mapIndex: ((active.previousLevel - 1) % 10) + 1,
+        taskTitle: active.taskTitle,
+        provisional: active.provisional,
+      },
+    } : {}),
+  };
 };
 
 const getRedirectUrl = () => {
@@ -152,7 +231,7 @@ const mergeState = (local, saved) => {
   const tasks = mergeArraysById(local.tasks || [], saved.tasks || [], 'id', 'lastProgressUpdate')
     .filter(t => !completedTasks.some(ct => ct.id === t.id) && !abandonedTasks.some(at => at.id === t.id))
     .map(normalizeTask);
-  const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'lastCompletedAt');
+  const rituals = mergeArraysById(local.rituals || [], saved.rituals || [], 'id', 'updatedAt');
   const ritualCompletionEvents = mergeArraysById(
     (local.ritualCompletionEvents || []).map(event => ({
       ...event,
@@ -475,6 +554,12 @@ export const useWarscytheStore = create(
       activeWorkout: null,
       ritualCompletionEvents: [],
       pendingProgressionEvents: [],
+      confirmedProgressionLevel: 1,
+      confirmedProgressionCompletions: 0,
+      confirmedProgressionInitialized: false,
+      celebratedProgressionEventUuids: [],
+      queuedLevelUpCeremonies: [],
+      isNetworkConnected: typeof navigator === 'undefined' ? true : navigator.onLine,
       hasCompletedTutorial: false,
       tutorialStep: 'task_creation',
       firstTaskCompleted: false,
@@ -493,6 +578,9 @@ export const useWarscytheStore = create(
       syncStatus: 'synced',
       hasPendingChanges: false,
       isMerging: false,
+      storeHydrated: false,
+      authResolved: false,
+      profileResolved: false,
       user: null,
       isAdFree: false,
       showResetPasswordModal: false,
@@ -596,7 +684,7 @@ export const useWarscytheStore = create(
       signIn: async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        set({ user: data.user });
+        set({ user: data.user, authResolved: true, profileResolved: false });
         ph.identify(data.user.id, { email });
         ph.capture('warscythe_sign_in');
 
@@ -617,8 +705,9 @@ export const useWarscytheStore = create(
         // If email confirmation is enabled, session is null, so we DO NOT log them in.
         // If email confirmation is disabled, session is populated, so we log them in.
         if (data.session) {
-          set({ user: data.user });
+          set({ user: data.user, authResolved: true, profileResolved: false });
           ph.identify(data.user.id, { email });
+          await get().fetchUserState(data.user.id);
         }
         ph.capture('warscythe_sign_up');
       },
@@ -652,7 +741,7 @@ export const useWarscytheStore = create(
         });
         if (error) throw error;
         if (data.user) {
-          set({ user: data.user });
+          set({ user: data.user, authResolved: true, profileResolved: false });
           ph.identify(data.user.id, { phone });
           ph.capture('warscythe_otp_sign_in');
           await get().fetchUserState(data.user.id);
@@ -731,6 +820,12 @@ export const useWarscytheStore = create(
           activeWorkout: null,
           ritualCompletionEvents: [],
           pendingProgressionEvents: [],
+          confirmedProgressionLevel: 1,
+          confirmedProgressionCompletions: 0,
+          confirmedProgressionInitialized: false,
+          celebratedProgressionEventUuids: [],
+          queuedLevelUpCeremonies: [],
+          isNetworkConnected: typeof navigator === 'undefined' ? true : navigator.onLine,
           hasCompletedTutorial: false,
           tutorialStep: 'task_creation',
           firstTaskCompleted: false,
@@ -859,7 +954,7 @@ export const useWarscytheStore = create(
           console.log(`[SYNC TRACE] fetchUserState aborted: isMerging is already true`);
           return;
         }
-        set({ isMerging: true });
+        set({ isMerging: true, profileResolved: false });
         try {
           isSyncingFromServer = true;
           
@@ -979,12 +1074,24 @@ export const useWarscytheStore = create(
             console.log(`[SYNC TRACE] fetchUserState: profile state found. Merging...`);
             const saved = combineDomainState(data);
             const merged = mergeState(get(), saved);
+            const serverLevel = Number(data.statistics_state?.level ?? saved?.level ?? merged.level) || 1;
+            const serverCompletions = Number(
+              data.statistics_state?.totalCompletions
+              ?? saved?.totalCompletions
+              ?? merged.totalCompletions
+            ) || 0;
             set({
               ...merged,
+              confirmedProgressionLevel: serverLevel,
+              confirmedProgressionCompletions: serverCompletions,
+              confirmedProgressionInitialized: true,
               username: data.username || null,
               syncStatus: 'synced',
               hasPendingChanges: false
             });
+            if (get().isNetworkConnected === false) {
+              get().promotePendingOfflineLevelUps();
+            }
             
             console.log(`[SYNC TRACE] fetchUserState: querying user_entitlements...`);
             // Fetch entitlements to update isAdFree via direct fetch
@@ -1053,7 +1160,7 @@ export const useWarscytheStore = create(
           console.error(`[SYNC TRACE] fetchUserState exception caught:`, err);
         } finally {
           isSyncingFromServer = false;
-          set({ isMerging: false });
+          set({ isMerging: false, profileResolved: true });
           console.log(`[SYNC TRACE] fetchUserState completed and isMerging reset to false.`);
         }
       },
@@ -1143,11 +1250,82 @@ export const useWarscytheStore = create(
                   () => recordProgressionEvents(pendingEvents)
                 );
                 authoritativeStatistics = progression.statistics;
-                set(current => ({
-                  pendingProgressionEvents: (current.pendingProgressionEvents || [])
-                    .filter(event => !progression.confirmed.includes(event.eventUuid)),
-                  ...(authoritativeStatistics || {}),
-                }));
+                const confirmedLevelUps = [];
+                let comparisonLevel = state.confirmedProgressionInitialized
+                  ? Number(state.confirmedProgressionLevel) || 1
+                  : Number(state.level) || 1;
+                for (const result of progression.results || []) {
+                  const resultLevel = Number(result.statistics?.level) || comparisonLevel;
+                  if (
+                    result.accepted
+                    && result.event?.eventType === 'operation_completed'
+                    && result.event?.metadata?.countsForProgression !== false
+                    && resultLevel > comparisonLevel
+                  ) {
+                    confirmedLevelUps.push({
+                      previousLevel: comparisonLevel,
+                      newLevel: resultLevel,
+                      event: result.event,
+                    });
+                  }
+                  comparisonLevel = Math.max(comparisonLevel, resultLevel);
+                }
+
+                set(current => {
+                  const remainingEvents = (current.pendingProgressionEvents || [])
+                    .filter(event => !progression.confirmed.includes(event.eventUuid));
+                  const celebrated = new Set(current.celebratedProgressionEventUuids || []);
+                  const hasCelebratedRemainingEvent = uniqueRegionalProgressionEvents(remainingEvents)
+                    .some(event => celebrated.has(event.eventUuid));
+                  const authoritativeLevel = Number(authoritativeStatistics?.level);
+                  const authoritativeCompletions = Number(authoritativeStatistics?.totalCompletions);
+                  const next = {
+                    pendingProgressionEvents: remainingEvents,
+                    ...(authoritativeStatistics || {}),
+                    confirmedProgressionLevel: Number.isFinite(authoritativeLevel)
+                      ? authoritativeLevel
+                      : current.confirmedProgressionLevel,
+                    confirmedProgressionCompletions: Number.isFinite(authoritativeCompletions)
+                      ? authoritativeCompletions
+                      : current.confirmedProgressionCompletions,
+                    confirmedProgressionInitialized: !!authoritativeStatistics
+                      || current.confirmedProgressionInitialized,
+                    ...(hasCelebratedRemainingEvent ? {
+                      level: Math.max(authoritativeLevel || 1, Number(current.level) || 1),
+                      totalCompletions: Math.max(
+                        authoritativeCompletions || 0,
+                        Number(current.totalCompletions) || 0
+                      ),
+                      currentLevelProgress: current.currentLevelProgress,
+                    } : {}),
+                  };
+
+                  if (confirmedLevelUps.length === 0) return next;
+                  return {
+                    ...next,
+                    ...buildLevelUpPatch(
+                      current,
+                      confirmedLevelUps.map(({ previousLevel, newLevel, event }) => ({
+                        eventUuid: event.eventUuid,
+                        previousLevel,
+                        newLevel,
+                        taskTitle: event.metadata?.taskTitle || 'A conquered Operation',
+                        taskCategory: event.metadata?.taskCategory || 'General',
+                      }))
+                    ),
+                  };
+                });
+
+                for (const confirmedLevelUp of confirmedLevelUps) {
+                  get().recordWeeklyEvent(
+                    'empress_liberated',
+                    `Liberated the regional Empress at Level ${confirmedLevelUp.newLevel}`
+                  );
+                  ph.capture('level_up_confirmed', {
+                    previous_level: confirmedLevelUp.previousLevel,
+                    new_level: confirmedLevelUp.newLevel,
+                  });
+                }
               }
 
               await Promise.all(
@@ -1204,6 +1382,7 @@ export const useWarscytheStore = create(
           clearTimeout(watchdogTimeout);
           console.error('[Warscythe Sync Debug] Exception/failure during upsert execution:', err.message || err);
           set({ syncStatus: 'failed' });
+          get().promotePendingOfflineLevelUps();
         }
       },
 
@@ -1286,6 +1465,7 @@ export const useWarscytheStore = create(
           }
           return updates;
         });
+        get().recordExecutionActivity('operation_initiated');
         scheduleOperationReminders(newTask);
         return true;
       },
@@ -1377,10 +1557,11 @@ export const useWarscytheStore = create(
           });
           return { tasks };
         });
+        get().recordExecutionActivity('operation_recalculated');
       },
 
       completeTask: (id) => {
-        get().updateStreak();
+        get().recordExecutionActivity('operation_completed');
         const state = get();
         const taskIdx = state.tasks.findIndex(t => t.id === id);
         if (taskIdx === -1) return;
@@ -1425,6 +1606,7 @@ export const useWarscytheStore = create(
 
         // Determine if this is a tutorial task BEFORE using it below
         const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
+        const countsForRegionalProgress = !isTutorialTask && task.category !== 'LEGION' && !task.isLegionTask;
         task.isTutorialTask = isTutorialTask;
         task.taskUuid = task.taskUuid || task.id;
         task.deviceUuid = task.deviceUuid || getDeviceUuid();
@@ -1433,10 +1615,10 @@ export const useWarscytheStore = create(
         const artifact = applyArtifactLore(reward.artifact);
 
         // Daily Points and Daily-based Scythe Level Reset
-        const dailyPoints = isTutorialTask ? state.dailyPoints : state.dailyPoints + totalPts;
+        const dailyPoints = countsForRegionalProgress ? state.dailyPoints + totalPts : state.dailyPoints;
         const newScytheLevel = getDailyScytheProgress(
           state,
-          isTutorialTask ? {} : { operations: 1 }
+          countsForRegionalProgress ? { operations: 1 } : {}
         ).level;
 
         // Digital Coins Award
@@ -1449,9 +1631,11 @@ export const useWarscytheStore = create(
           coinsAwarded: coinReward,
           metadata: {
             isBoss,
-            countsForProgression: !isTutorialTask,
+            countsForProgression: countsForRegionalProgress,
             effort: task.effort,
             regionAtCompletion: state.level,
+            taskTitle: task.title,
+            taskCategory: task.category || 'General',
           },
         });
         task.eventUuid = progressionEvent.eventUuid;
@@ -1462,69 +1646,28 @@ export const useWarscytheStore = create(
         dailyLog[today].completed++;
         dailyLog[today].weight = (dailyLog[today].weight || 0) + mult;
 
-        const newTotalCompletions = isTutorialTask ? state.totalCompletions : state.totalCompletions + 1;
-        const newLevel = Math.floor(newTotalCompletions / TASKS_PER_LEVEL) + 1;
+        const newTotalCompletions = countsForRegionalProgress ? state.totalCompletions + 1 : state.totalCompletions;
         const finalLevelProgress = newTotalCompletions % TASKS_PER_LEVEL;
 
         const keyElements = ['fire', 'water', 'earth', 'wind', 'spirit'];
         const keyIndex = (newTotalCompletions - 1) % TASKS_PER_LEVEL;
-        const keyElement = isTutorialTask ? null : keyElements[keyIndex % keyElements.length];
+        const keyElement = countsForRegionalProgress ? keyElements[keyIndex % keyElements.length] : null;
 
-        let level = state.level;
-        let currentTitle = state.currentTitle;
         let unlockedTitles = [...(state.unlockedTitles || ['Recruit'])];
-        let pendingLevelUp = null;
 
         // Lore unlock
-        const regionIdx = level - 1;
+        const regionIdx = state.level - 1;
         const loreArr = getLore(regionIdx);
         const fragIdx = finalLevelProgress === 0 ? TASKS_PER_LEVEL - 1 : finalLevelProgress - 1;
-        const fragment = isTutorialTask
+        const fragment = !countsForRegionalProgress
           ? "Tactical tutorial completed successfully. Ashwood gateway threat evaluated."
           : loreArr[Math.min(Math.max(0, fragIdx), loreArr.length - 1)];
 
         const unlockedLore = { ...state.unlockedLore };
-        if (!isTutorialTask) {
+        if (countsForRegionalProgress) {
           if (!unlockedLore[regionIdx]) unlockedLore[regionIdx] = [];
           if (unlockedLore[regionIdx].length < 10 && fragment && !unlockedLore[regionIdx].includes(fragment)) {
             unlockedLore[regionIdx].push(fragment);
-          }
-        }
-
-        const rescuedFairies = { ...(state.rescuedFairies || {}) };
-
-        let pendingVictoryScreen = null;
-        // Level up check
-        if (!isTutorialTask && newLevel > state.level) {
-          const oldMapIndex = ((state.level - 1) % 10) + 1;
-          level = newLevel;
-          const levelTitle = level <= TITLES.length ? TITLES[level - 1] : TITLES[TITLES.length - 1] + ' ' + (level - TITLES.length + 1);
-          const oldLevelTitle = state.level <= TITLES.length ? TITLES[state.level - 1] : TITLES[TITLES.length - 1] + ' ' + (state.level - TITLES.length + 1);
-          
-          if (!unlockedTitles.includes(levelTitle)) {
-            unlockedTitles.push(levelTitle);
-          }
-          
-          if (currentTitle === oldLevelTitle || currentTitle === 'Recruit') {
-            currentTitle = levelTitle;
-          }
-          
-          pendingLevelUp = {
-            regionIdx: level - 1,
-            newLevel: level,
-            newTitle: levelTitle
-          };
-          pendingVictoryScreen = {
-            regionIdx: state.level - 1,
-            mapIndex: oldMapIndex,
-            taskTitle: task.title
-          };
-          if (!rescuedFairies[state.level - 1]) {
-            rescuedFairies[state.level - 1] = {
-              date: new Date().toISOString(),
-              taskTitle: task.title,
-              taskCategory: task.category || 'General'
-            };
           }
         }
 
@@ -1536,7 +1679,7 @@ export const useWarscytheStore = create(
         let pendingGuardianProgress = state.pendingGuardianProgress;
         let pendingTitleUnlock = state.pendingTitleUnlock;
         
-        if (onboardingActive && !isTutorialTask) {
+        if (onboardingActive && countsForRegionalProgress) {
           onboardingProgress += 1;
           pendingGuardianProgress = onboardingProgress;
           if (onboardingProgress === 5 && !unlockedTitles.includes("Curious Explorer")) {
@@ -1573,9 +1716,9 @@ export const useWarscytheStore = create(
           coins: newCoins,
           scytheLevel: newScytheLevel,
           totalCompletions: newTotalCompletions,
-          currentLevelProgress: isTutorialTask ? state.currentLevelProgress : finalLevelProgress,
-          level,
-          currentTitle,
+          currentLevelProgress: countsForRegionalProgress ? finalLevelProgress : state.currentLevelProgress,
+          level: state.level,
+          currentTitle: state.currentTitle,
           unlockedTitles,
           onboardingProgress,
           onboardingActive,
@@ -1609,16 +1752,17 @@ export const useWarscytheStore = create(
             keyElement
           },
           pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
-          pendingLevelUp,
-          pendingVictoryScreen,
           closerDismissed: false,
           lastActiveDate: today,
           bossKills: state.bossKills + (isBoss ? 1 : 0),
-          rescuedFairies,
+          rescuedFairies: state.rescuedFairies,
           firstTaskCompleted: true
         });
 
-        get().updateWeeklyLeaderboard(totalPts);
+        if (get().isNetworkConnected === false || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+          get().promotePendingOfflineLevelUps();
+        }
+
         if (isBoss) {
           get().recordWeeklyEvent('boss_raid_completed', `Conquered a legendary Boss Raid task`);
           // Trigger interstitial ad when boss is defeated
@@ -1628,9 +1772,6 @@ export const useWarscytheStore = create(
         } else {
           get().recordWeeklyEvent('task_completed', `Conquered a ${task.effort || 'Medium'} Resistance task`);
         }
-        if (newLevel > state.level) {
-          get().recordWeeklyEvent('empress_liberated', `Liberated the regional Empress at Level ${newLevel}`);
-        }
         if (newScytheLevel !== state.scytheLevel && newScytheLevel !== "DORMANT") {
           get().recordWeeklyEvent('scythe_evolved', `Evolved Scythe to the ${newScytheLevel} tier`);
         }
@@ -1638,7 +1779,7 @@ export const useWarscytheStore = create(
         ph.capture('operation_conquered', {
           category: task.category,
           pts: totalPts,
-          level_up: !!pendingLevelUp
+          level_up: false
         });
 
         triggerHaptics(task.effort === 'Boss' ? 'HEAVY' : 'MEDIUM');
@@ -1646,7 +1787,6 @@ export const useWarscytheStore = create(
       },
 
       completeRitual: (id) => {
-        get().updateStreak();
         const state = get();
         const rituals = state.rituals || [];
         const ritIdx = rituals.findIndex(r => r.id === id);
@@ -1656,11 +1796,15 @@ export const useWarscytheStore = create(
         const today = todayKey();
 
         // Prevent completing multiple times a day for daily rituals
-        const isCompletedToday = ritual.lastCompletedAt && ritual.lastCompletedAt.slice(0, 10) === today;
+        const isCompletedToday = ritual.lastCompletedAt && localDateKey(ritual.lastCompletedAt) === today;
         if (isCompletedToday) return;
+        get().recordExecutionActivity('ritual_completed');
 
         cancelRitualReminders(id);
         ritual.lastCompletedAt = new Date().toISOString();
+        ritual.updatedAt = ritual.lastCompletedAt;
+        ritual.deviceUuid = getDeviceUuid();
+        ritual.deviceSequence = nextDeviceSequence();
         const newStreak = (ritual.streak || 0) + 1;
         ritual.streak = newStreak;
         ritual.bestStreak = Math.max(ritual.bestStreak || 0, newStreak);
@@ -1745,8 +1889,6 @@ export const useWarscytheStore = create(
           lastActiveDate: today
         });
 
-        get().updateWeeklyLeaderboard(totalPts);
-
         ph.capture('ritual_conquered', {
           effort: ritual.effort,
           pts: totalPts,
@@ -1757,60 +1899,21 @@ export const useWarscytheStore = create(
         scheduleStreakAlert(18);
       },
 
-      updateStreak: () => {
+      refreshDailyState: () => {
         const today = todayKey();
         const state = get();
-
-        // 5 AM RESET CHECK
-        const now = new Date();
-        const currentHour = now.getHours();
-        const lastResetDate = state.lastResetDate;
-        let scytheResetHappened = false;
-
-        if (lastResetDate !== today && currentHour >= 5) {
-          scytheResetHappened = true;
-        }
-
-        if (state.lastActiveDate === today) {
-          if (scytheResetHappened && state.scytheLevel !== "DORMANT") {
-            set({
-              scytheLevel: "DORMANT",
-              dailyPoints: 0,
-              lastResetDate: today
-            });
-          }
-          return;
-        }
-
-        const last = state.lastActiveDate ? new Date(state.lastActiveDate) : null;
-        const nowDay = new Date(today);
-        const diffDays = last ? Math.floor((nowDay - last) / (1000 * 60 * 60 * 24)) : 0;
-
-        let newStreak = state.streakCount;
-        let newXP = state.xp;
-
-        if (diffDays === 1) {
-          newStreak += 1;
-        } else if (diffDays > 1) {
-          newStreak = 0;
-          // ELITE DECAY SYSTEM: 20 XP loss per day missed
-          const decayAmount = diffDays * 20;
-          newXP = Math.max(0, state.xp - decayAmount);
-        }
-
-        // Daily active reset of scythe level on day transition
-        const newScytheLevel = "DORMANT";
-        const dailyPoints = 0;
+        if (state.lastResetDate === today) return false;
+        const nowDay = new Date(`${today}T00:00:00`);
 
         // Reset missed daily rituals
         const yesterday = new Date(nowDay);
         yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+        const yesterdayStr = localDateKey(yesterday);
 
         const updatedRituals = (state.rituals || []).map(r => {
           const updated = { ...r, lastNotifiedInterval: null };
           if (r.frequency === 'daily') {
-            const lastCompDate = r.lastCompletedAt ? r.lastCompletedAt.slice(0, 10) : null;
+            const lastCompDate = r.lastCompletedAt ? localDateKey(r.lastCompletedAt) : null;
             if (lastCompDate !== yesterdayStr && lastCompDate !== today) {
               updated.streak = 0;
             }
@@ -1819,16 +1922,38 @@ export const useWarscytheStore = create(
         });
 
         set({
-          streakCount: newStreak,
-          xp: newXP,
-          dailyPoints,
-          scytheLevel: newScytheLevel,
+          dailyPoints: 0,
+          scytheLevel: "DORMANT",
           rituals: updatedRituals,
-          lastActiveDate: today,
           lastResetDate: today
         });
-
+        return true;
       },
+
+      recordExecutionActivity: (activityType = 'execution') => {
+        get().refreshDailyState();
+        const today = todayKey();
+        const state = get();
+        if (state.lastActiveDate === today) return false;
+
+        const last = state.lastActiveDate
+          ? new Date(`${state.lastActiveDate.slice(0, 10)}T00:00:00`)
+          : null;
+        const nowDay = new Date(`${today}T00:00:00`);
+        const diffDays = last ? Math.round((nowDay - last) / 86400000) : null;
+        const streakCount = diffDays === 1 ? (state.streakCount || 0) + 1 : 1;
+
+        set({
+          streakCount,
+          lastActiveDate: today,
+          lastExecutionActivity: activityType
+        });
+        return true;
+      },
+
+      // Backward-compatible alias for older callers. This is intentionally an
+      // execution event now; opening the app must never call it.
+      updateStreak: () => get().recordExecutionActivity('execution'),
 
       abandonTask: (id) => {
         cancelOperationReminders(id);
@@ -1847,7 +1972,63 @@ export const useWarscytheStore = create(
       dismissCloser: () => set({ closerDismissed: true }),
       clearPendingReward: () => set({ pendingReward: null }),
       clearPendingTitleUnlock: () => set({ pendingTitleUnlock: null }),
-      clearPendingLevelUp: () => set({ pendingLevelUp: null }),
+      setNetworkConnected: connected => {
+        set({ isNetworkConnected: !!connected });
+        if (!connected) get().promotePendingOfflineLevelUps();
+      },
+      promotePendingOfflineLevelUps: () => {
+        const state = get();
+        const regionalEvents = uniqueRegionalProgressionEvents(state.pendingProgressionEvents);
+        if (regionalEvents.length === 0) return false;
+
+        const initialized = state.confirmedProgressionInitialized === true;
+        const baseCompletions = initialized
+          ? Number(state.confirmedProgressionCompletions) || 0
+          : Math.max(0, (Number(state.totalCompletions) || 0) - regionalEvents.length);
+        const baseLevel = initialized
+          ? Number(state.confirmedProgressionLevel) || 1
+          : Number(state.level) || Math.floor(baseCompletions / TASKS_PER_LEVEL) + 1;
+        const { ceremonies } = deriveOfflineLevelUpCeremonies({
+          events: regionalEvents,
+          confirmedCompletions: baseCompletions,
+          confirmedLevel: baseLevel,
+          tasksPerLevel: TASKS_PER_LEVEL,
+        });
+
+        set(current => ({
+          ...buildLevelUpPatch(current, ceremonies, { provisional: true }),
+          confirmedProgressionLevel: initialized ? current.confirmedProgressionLevel : baseLevel,
+          confirmedProgressionCompletions: initialized
+            ? current.confirmedProgressionCompletions
+            : baseCompletions,
+          confirmedProgressionInitialized: true,
+        }));
+        return ceremonies.length > 0;
+      },
+      clearPendingLevelUp: () => set(current => {
+        const queue = [...(current.queuedLevelUpCeremonies || [])];
+        const next = queue.shift();
+        if (!next) {
+          return { pendingLevelUp: null, queuedLevelUpCeremonies: queue };
+        }
+        return {
+          queuedLevelUpCeremonies: queue,
+          pendingLevelUp: {
+            eventUuid: next.eventUuid,
+            regionIdx: next.newLevel - 1,
+            newLevel: next.newLevel,
+            newTitle: next.newTitle,
+            provisional: next.provisional,
+          },
+          pendingVictoryScreen: {
+            eventUuid: next.eventUuid,
+            regionIdx: next.previousLevel - 1,
+            mapIndex: ((next.previousLevel - 1) % 10) + 1,
+            taskTitle: next.taskTitle,
+            provisional: next.provisional,
+          },
+        };
+      }),
       clearPendingVictoryScreen: () => set({ pendingVictoryScreen: null }),
       addReceivedProphecy: (prophecy) => set(state => {
         const alreadyReceived = (state.receivedProphecies || []).some(p => p.text === prophecy.text);
@@ -2150,6 +2331,7 @@ export const useWarscytheStore = create(
             movements: []
           }
         });
+        get().recordExecutionActivity('fitness_session_started');
       },
 
       cancelWorkout: () => {
@@ -2309,6 +2491,7 @@ export const useWarscytheStore = create(
             pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
           };
         });
+        get().recordExecutionActivity('fitness_session_archived');
       },
 
       updateActiveWorkoutNotes: (notes) => {
@@ -2430,7 +2613,9 @@ export const useWarscytheStore = create(
             newXP += (basePts + bonus);
           });
 
-          const totalCompletions = (state.completedTasks || []).filter(t => !t.isTutorialTask).length;
+          const totalCompletions = (state.completedTasks || [])
+            .filter(t => !t.isTutorialTask && t.category !== 'LEGION' && !t.isLegionTask)
+            .length;
           const newLevel = Math.floor(totalCompletions / TASKS_PER_LEVEL) + 1;
           const finalLevelProgress = totalCompletions % TASKS_PER_LEVEL;
 
@@ -2749,6 +2934,7 @@ export const useWarscytheStore = create(
         });
 
         await get().fetchSocialData();
+        get().recordExecutionActivity('legion_forged');
       },
 
       inviteLegionMember: async (legionId, friendId) => {
@@ -2834,6 +3020,7 @@ export const useWarscytheStore = create(
         });
 
         await get().fetchSocialData();
+        get().recordExecutionActivity('legion_operation_initiated');
       },
 
       respondToSubtask: async (subtaskId, acceptStatus) => {
@@ -3035,7 +3222,7 @@ export const useWarscytheStore = create(
 
               const { data: allSubs } = await supabase
                 .from('legion_subtasks')
-                .select('assigned_to, completed_by, completion_status, xp_value')
+                .select('id, assigned_to, completed_by, completion_status, xp_value')
                 .eq('legion_operation_id', sub.legion_operation_id);
 
               let cumulativeOperationXp = 0;
@@ -3045,11 +3232,25 @@ export const useWarscytheStore = create(
                   cumulativeOperationXp += sItem.xp_value;
 
                   if (winner === u) {
+                    const progressionEvent = createProgressionEvent({
+                      eventType: 'legion_subtask_completed',
+                      sourceUuid: sItem.id,
+                      xpAwarded: sItem.xp_value,
+                      coinsAwarded: 0,
+                      metadata: {
+                        legionOperationId: sub.legion_operation_id,
+                        legionId: op.legion_id,
+                        countsForProgression: false,
+                      },
+                    });
                     set(state => ({
                       executionScore: state.executionScore + sItem.xp_value,
-                      xp: state.xp + sItem.xp_value
+                      xp: state.xp + sItem.xp_value,
+                      pendingProgressionEvents: [
+                        ...(state.pendingProgressionEvents || []),
+                        progressionEvent,
+                      ],
                     }));
-                    await get().updateWeeklyLeaderboard(sItem.xp_value);
                   }
                 }
               }
@@ -3217,39 +3418,6 @@ export const useWarscytheStore = create(
         }
       },
 
-      updateWeeklyLeaderboard: async (ptsEarned) => {
-        const u = get().user?.id;
-        if (!u) return;
-
-        try {
-          const weekStart = getWeekStart();
-          const { data, error } = await supabase
-            .from('leaderboard_snapshots')
-            .select('weekly_xp, operations_completed')
-            .eq('user_id', u)
-            .eq('week_start', weekStart)
-            .maybeSingle();
-
-          let currentWeeklyXp = 0;
-          let currentOpsCompleted = 0;
-          if (!error && data) {
-            currentWeeklyXp = data.weekly_xp;
-            currentOpsCompleted = data.operations_completed;
-          }
-
-          const streak = get().streakCount || 0;
-
-          await supabase.from('leaderboard_snapshots').upsert({
-            user_id: u,
-            week_start: weekStart,
-            weekly_xp: currentWeeklyXp + ptsEarned,
-            streak_days: streak,
-            operations_completed: currentOpsCompleted + (ptsEarned > 0 ? 1 : 0)
-          }, { onConflict: 'user_id,week_start' });
-        } catch (err) {
-          console.error("Failed to update weekly leaderboard:", err);
-        }
-      }
       };
     },
     {
@@ -3262,10 +3430,10 @@ export const useWarscytheStore = create(
             console.log(`[SYNC TRACE] Store hydration failed at ${performance.now().toFixed(1)}ms:`, error);
           } else {
             console.log(`[SYNC TRACE] Store hydrated at ${performance.now().toFixed(1)}ms`);
-            if (storeSet) {
-              console.log('[SYNC TRACE] Forcing isMerging to false on hydration load');
-              storeSet({ isMerging: false });
-            }
+          }
+          if (storeSet) {
+            console.log('[SYNC TRACE] Marking local store hydration attempt complete');
+            storeSet({ isMerging: false, storeHydrated: true });
           }
         };
       },
@@ -3274,6 +3442,11 @@ export const useWarscytheStore = create(
         const merged = {
           ...currentState,
           ...persistedState,
+          // Startup coordination is runtime-only. Never trust values persisted
+          // by a previous browser session.
+          storeHydrated: currentState.storeHydrated,
+          authResolved: currentState.authResolved,
+          profileResolved: currentState.profileResolved,
           downloadedRegions: isMobile
             ? (persistedState?.downloadedRegions || [])
             : [2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -3558,10 +3731,21 @@ useWarscytheStore.subscribe((state) => {
   }
 });
 
+const waitForStoreHydration = () => {
+  if (useWarscytheStore.persist.hasHydrated()) return Promise.resolve();
+  return new Promise(resolve => {
+    const unsubscribe = useWarscytheStore.persist.onFinishHydration(() => {
+      unsubscribe();
+      resolve();
+    });
+  });
+};
+
 // Listen to auth state changes to fetch latest user state on app initialization/refresh
 supabase.auth.onAuthStateChange(async (event, session) => {
   console.log(`[AUTH TRACE] onAuthStateChange fired with event: ${event}, user ID: ${session?.user?.id || 'none'}`);
 
+  await waitForStoreHydration();
   const state = useWarscytheStore.getState();
   const currentUser = state.user;
 
@@ -3580,7 +3764,11 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       state.clearClientState();
     }
 
-    useWarscytheStore.setState({ user: session.user });
+    useWarscytheStore.setState({
+      user: session.user,
+      authResolved: true,
+      profileResolved: false,
+    });
 
     if (isNewSignIn || isInitialLoad) {
       console.log(`[AUTH TRACE] Triggering initial server load...`);
@@ -3598,8 +3786,11 @@ supabase.auth.onAuthStateChange(async (event, session) => {
         console.error(`[AUTH TRACE] Error during initial server load:`, loadErr);
       } finally {
         hasFetchedInitialState = true;
+        useWarscytheStore.setState({ profileResolved: true });
         console.log(`[AUTH TRACE] Initial server load completed. hasFetchedInitialState is now: ${hasFetchedInitialState}`);
       }
+    } else {
+      useWarscytheStore.setState({ profileResolved: true });
     }
   } else {
     console.log(`[AUTH TRACE] No user session found.`);
@@ -3608,5 +3799,10 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[AUTH TRACE] Wiping client state because logged-in user signed out.`);
       state.clearClientState();
     }
+    useWarscytheStore.setState({
+      user: null,
+      authResolved: true,
+      profileResolved: true,
+    });
   }
 });

@@ -61,13 +61,11 @@ REVOKE ALL     ON FUNCTION public.search_profiles(text) FROM public;
 GRANT  EXECUTE ON FUNCTION public.search_profiles(text) TO authenticated;
 
 -- ────────────────────────────────────────────────────────────────────────────
--- 4) MEDIUM: stop writing leaderboard rows under another user's identity.
---    (Does NOT stop a user inflating their OWN weekly_xp — that needs server-side
---     scoring; tracked as a follow-up.)
+-- 4) Leaderboard snapshots are server-owned. The progression RPC recomputes
+--    deterministic weekly score and clients receive read-only access.
 -- ────────────────────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS leaderboard_upsert_own ON public.leaderboard_snapshots;
-CREATE POLICY leaderboard_upsert_own ON public.leaderboard_snapshots
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+REVOKE INSERT, UPDATE, DELETE ON public.leaderboard_snapshots FROM authenticated;
 
 -- ============================================================================
 -- Quick verification (optional): run these as an ANON/authenticated user and

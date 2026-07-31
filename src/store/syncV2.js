@@ -138,6 +138,7 @@ export const syncDomain = async (domain, payload) => {
 export const recordProgressionEvents = async events => {
   let latestStatistics = null;
   const confirmed = [];
+  const results = [];
   for (const event of events || []) {
     const { data, error } = await supabase.rpc('record_warscythe_progression_event', {
       p_event: event,
@@ -145,8 +146,13 @@ export const recordProgressionEvents = async events => {
     if (error) throw error;
     confirmed.push(event.eventUuid);
     latestStatistics = data?.statistics || latestStatistics;
+    results.push({
+      event,
+      accepted: data?.accepted === true,
+      statistics: data?.statistics || null,
+    });
   }
-  return { confirmed, statistics: latestStatistics };
+  return { confirmed, statistics: latestStatistics, results };
 };
 
 export const createProgressionEvent = ({

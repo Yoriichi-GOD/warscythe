@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 
 export default function MissionCard({ task, onOpen }) {
   const progress = task.progress || 0;
+  const priorityColor = task.priority === 'high' ? '#ef4444'
+    : task.priority === 'medium' ? '#f1c40f'
+      : task.priority === 'low' ? '#2ecc71'
+        : 'var(--color-gold-core)';
   
   const [timeLeft, setTimeLeft] = useState({ value: "---", unit: "NO LIMIT" });
 
@@ -67,8 +71,9 @@ export default function MissionCard({ task, onOpen }) {
         <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 56 56">
             <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
-            <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold-core" 
+            <circle cx="28" cy="28" r="24" fill="none" stroke={priorityColor} strokeWidth="2.5"
               strokeDasharray={`${150.8 * (progress / 100)} 150.8`}
+              style={{ filter: `drop-shadow(0 0 4px ${priorityColor})` }}
             />
           </svg>
           <div className="absolute flex flex-col items-center">

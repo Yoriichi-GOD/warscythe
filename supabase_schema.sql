@@ -246,12 +246,8 @@ CREATE POLICY friendships_delete ON public.friendships
 CREATE POLICY leaderboard_select_all ON public.leaderboard_snapshots
   FOR SELECT USING (true); -- Public/Friend reading
 
--- WITH CHECK prevents a user from writing/altering rows for OTHER user_ids
--- (leaderboard row forgery under someone else's identity). NOTE: this does not stop
--- a user from inflating their OWN weekly_xp — the value is client-supplied. Fully
--- preventing self-inflation requires computing XP server-side (see SECURITY_HARDENING.sql).
-CREATE POLICY leaderboard_upsert_own ON public.leaderboard_snapshots
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- Snapshot mutations are performed only by record_warscythe_progression_event().
+-- Authenticated clients intentionally have no INSERT/UPDATE/DELETE policy.
 
 -- Leaderboard Events Policies
 CREATE POLICY leaderboard_events_select ON public.leaderboard_events
