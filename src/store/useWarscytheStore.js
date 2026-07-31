@@ -346,18 +346,13 @@ const mergeState = (local, saved) => {
     }
   }
 
-  // Scythe Level
-  const scytheLevels = ["DORMANT", "AWAKENED", "HARDENED", "REFINED", "ASCENDED", "PLATINUM"];
-  const levelLocal = scytheLevels.indexOf(local.scytheLevel || "DORMANT");
-  const levelServer = scytheLevels.indexOf(saved.scytheLevel || "DORMANT");
-  let scytheLevel;
-  if (parseDate(local.lastResetDate) > parseDate(saved.lastResetDate)) {
-    scytheLevel = local.scytheLevel || "DORMANT";
-  } else if (parseDate(saved.lastResetDate) > parseDate(local.lastResetDate)) {
-    scytheLevel = saved.scytheLevel || "DORMANT";
-  } else {
-    scytheLevel = scytheLevels[Math.max(levelLocal, levelServer)];
-  }
+  // The Reaper's Scythe is a daily execution state, not a lifetime unlock.
+  // Rebuild it from today's canonical completion records so an old Platinum
+  // value in the legacy profile blob can never resurrect after hydration.
+  const scytheLevel = getDailyScytheProgress({
+    completedTasks,
+    ritualCompletionEvents,
+  }).level;
 
   // Simple Flags
   const scytheMigrationDone = !!(local.scytheMigrationDone || saved.scytheMigrationDone);
@@ -951,7 +946,26 @@ export const useWarscytheStore = create(
       fetchUserState: async (userId) => {
         console.log(`[SYNC TRACE] fetchUserState started for user: ${userId}`);
         if (get().isMerging) {
-          console.log(`[SYNC TRACE] fetchUserState aborted: isMerging is already true`);
+          console.log(`[SYNC TRACE] fetchUserState joined the active profile merge.`);
+          await new Promise(resolve => {
+            let settled = false;
+            let timeoutId;
+            let unsubscribe = () => {};
+            const finish = () => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timeoutId);
+              unsubscribe();
+              resolve();
+            };
+            unsubscribe = useWarscytheStore.subscribe(state => {
+              if (!state.isMerging) finish();
+            });
+            // Preserve the historic deadlock escape hatch. A duplicate auth
+            // event may join the first load, but can never wait forever.
+            timeoutId = setTimeout(finish, 8500);
+            if (!useWarscytheStore.getState().isMerging) finish();
+          });
           return;
         }
         set({ isMerging: true, profileResolved: false });

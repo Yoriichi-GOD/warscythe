@@ -70,7 +70,16 @@ export default function MissionCard({ task, onOpen }) {
         {/* CIRCULAR TIMER */}
         <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 56 56">
-            <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/5" />
+            <circle
+              cx="28"
+              cy="28"
+              r="24"
+              fill="none"
+              stroke={priorityColor}
+              strokeWidth="1.5"
+              opacity="0.32"
+              style={{ filter: `drop-shadow(0 0 2px ${priorityColor})` }}
+            />
             <circle cx="28" cy="28" r="24" fill="none" stroke={priorityColor} strokeWidth="2.5"
               strokeDasharray={`${150.8 * (progress / 100)} 150.8`}
               style={{ filter: `drop-shadow(0 0 4px ${priorityColor})` }}
