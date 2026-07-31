@@ -30,7 +30,7 @@ begin
     merged := current_value || (p_payload - 'tasks' - 'completedTasks' - 'abandonedTasks');
     merged := jsonb_set(merged, '{tasks}', public.warscythe_array_union(current_value->'tasks', p_payload->'tasks', array['taskUuid','id'], array['updatedAt','lastProgressUpdate','createdAt']), true);
     merged := jsonb_set(merged, '{completedTasks}', public.warscythe_array_union(current_value->'completedTasks', p_payload->'completedTasks', array['taskUuid','id'], array['completedAt','updatedAt']), true);
-    merged := jsonb_set(merged, '{abandonedTasks}', public.warscythe_array_union(current_value->'abandonedTasks', p_payload->'abandonedTasks', array['abandonedAt','updatedAt']), true);
+    merged := jsonb_set(merged, '{abandonedTasks}', public.warscythe_array_union(current_value->'abandonedTasks', p_payload->'abandonedTasks', array['taskUuid','id'], array['abandonedAt','updatedAt']), true);
     merged := jsonb_set(merged, '{tasks}', coalesce((
       select jsonb_agg(t)
       from jsonb_array_elements(merged->'tasks') t
