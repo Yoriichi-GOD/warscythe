@@ -17,6 +17,6 @@ export function landingImageProps(file, sizes = '(max-width: 700px) 100vw, 60vw'
   if (!metadata) return { src };
   const widths = [480, 940, 1440].filter(width => width < metadata.width);
   const base = file.replace(/\.webp$/i, '');
-  return { src, width: metadata.width, height: metadata.height, sizes,
+  return { src, width: metadata.width, height: metadata.height, sizes, style: { aspectRatio: `${metadata.width} / ${metadata.height}` },
     srcSet: [...widths.map(width => `/generated/landing-page/${base}-${width}.webp ${width}w`), `${src} ${metadata.width}w`].join(', ') };
 }

@@ -28,6 +28,9 @@ import {
 } from 'lucide-react';
 import './LandingPage.css';
 import './landingPolish.css';
+import { NarrativeText } from './LandingNarrative';
+import { useLandingNarrative } from './useLandingNarrative';
+import './landingNarrative.css';
 
 const LANDING_ASSET = '/landing-page/';
 
@@ -85,7 +88,7 @@ function RuneCorners() {
 function ProductFrame({ src, caption, className = '' }) {
   const [missing, setMissing] = useState(false);
   return (
-    <figure className={`lp-product-frame ${className}`}>
+    <figure className={`lp-product-frame ${className}`} data-image-reveal>
       <RuneCorners />
       {!missing ? (
         <img
@@ -108,12 +111,11 @@ function ProductFrame({ src, caption, className = '' }) {
   );
 }
 
-function SectionHeading({ eyebrow, title, copy, align = 'left' }) {
+function SectionHeading({ title, copy, align = 'left' }) {
   return (
     <div className={`lp-section-heading lp-align-${align}`}>
-      <span>{eyebrow}</span>
-      <h2>{title}</h2>
-      {copy && <p>{copy}</p>}
+      <NarrativeText as="h2" words>{title}</NarrativeText>
+      {copy && <NarrativeText>{copy}</NarrativeText>}
     </div>
   );
 }
@@ -195,7 +197,7 @@ function DemoModal({ onClose }) {
             <source src={`${LANDING_ASSET}warscythe-demo.mp4`} type="video/mp4" />
           </video>
           <button type="button" className="lp-demo-play" onClick={toggleVideo}>
-            {unavailable ? <><Sparkles size={20} /><span>DEMO RECORDING ARRIVES SOON</span></> : playing ? <><Pause size={20} /><span>PAUSE FIELD RECORDING</span></> : <><Play size={20} fill="currentColor" /><span>WATCH THE DEMO</span></>}
+            {unavailable ? <><Sparkles size={20} /><span>DEMO RECORDING ARRIVES SOON</span></> : playing ? <><Pause size={20} /><span>PAUSE FIELD RECORDING</span></> : <><Play size={20} fill="currentColor" /><span>Watch the demo</span></>}
           </button>
         </div>
       </Motion.div>
@@ -245,6 +247,7 @@ export default function LandingPage({ onLaunch }) {
   const ambient = useAmbientMotion();
   const reduced = useReducedMotionPreference();
   const motionEnabled = ambient && !motionPaused;
+  const narrativeRoot = useLandingNarrative(motionEnabled);
   const [mapOpen, setMapOpen] = useState(false);
   const [activeRealm, setActiveRealm] = useState('gate');
   const [showDemo, setShowDemo] = useState(false);
@@ -276,7 +279,7 @@ export default function LandingPage({ onLaunch }) {
 
   return (
     <MotionConfig reducedMotion={motionEnabled ? 'user' : 'always'}>
-    <div className="landing-page-root" data-landing-motion={motionEnabled}>
+    <div ref={narrativeRoot} className="landing-page-root" data-landing-motion={motionEnabled}>
       <Motion.div className="lp-scroll-progress" style={{ scaleX: motionEnabled ? progress : scrollYProgress }} />
 
       <header className="lp-header">
@@ -297,7 +300,7 @@ export default function LandingPage({ onLaunch }) {
         <div className="lp-header-actions">
           <button type="button" className="lp-motion-toggle" aria-pressed={motionPaused || reduced} disabled={reduced} onClick={() => setMotionPaused(value => !value)} aria-label={reduced ? 'Reduced motion enabled' : motionPaused ? 'Resume page motion' : 'Pause page motion'}>{motionPaused || reduced ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}<span>{reduced ? 'Reduced motion' : motionPaused ? 'Resume motion' : 'Pause motion'}</span></button>
           <button className="lp-nav-demo" onClick={() => setShowDemo(true)}><Play size={12} /> DEMO</button>
-          <button className="lp-primary-small" onClick={onLaunch}>ENTER WARSCYTHE</button>
+          <button className="lp-primary-small" onClick={onLaunch}>Enter Warscythe</button>
           <button className="lp-mobile-menu" onClick={() => setMobileNavOpen(open => !open)} aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileNavOpen} aria-controls="landing-mobile-nav"><Menu size={19} /></button>
         </div>
       </header>
@@ -325,8 +328,8 @@ export default function LandingPage({ onLaunch }) {
             <p>Warscythe is an execution RPG where your real tasks, habits and workouts shape a persistent fantasy world.</p>
             <strong>There is no customizable avatar. You are the avatar.</strong>
             <div className="lp-hero-actions">
-              <button className="lp-primary-cta" onClick={onLaunch}>ENTER WARSCYTHE <ExternalLink size={15} /></button>
-              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} fill="currentColor" /> WATCH THE DEMO</button>
+              <button className="lp-primary-cta" onClick={onLaunch}>Enter Warscythe <ExternalLink size={15} /></button>
+              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} fill="currentColor" /> Watch the demo</button>
             </div>
           </Motion.div>
 
@@ -362,18 +365,18 @@ export default function LandingPage({ onLaunch }) {
           const Icon = section.icon;
           return (
             <section id={section.id} className={`lp-feature-section ${sectionIndex % 2 ? 'reverse' : ''}`} key={section.id}>
-              <Motion.div className="lp-feature-copy" initial={{ opacity: 0, x: sectionIndex % 2 ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.25 }}>
+              <div className="lp-feature-copy">
                 <div className="lp-feature-icon"><Icon size={20} /></div>
                 <SectionHeading eyebrow={section.eyebrow} title={section.title} copy={section.copy} />
-                <blockquote>{section.line}</blockquote>
+                <NarrativeText as="blockquote">{section.line}</NarrativeText>
                 <div className="lp-outcomes">
                   {section.stats.map(stat => <span key={stat}><Check size={11} /> {stat}</span>)}
                 </div>
-              </Motion.div>
-              <Motion.div className="lp-feature-media" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }}>
+              </div>
+              <div className="lp-feature-media">
                 <ProductFrame src={section.media[0]} caption={section.captions[0]} />
                 <ProductFrame src={section.media[1]} caption={section.captions[1]} className="lp-secondary-frame" />
-              </Motion.div>
+              </div>
             </section>
           );
         })}
@@ -383,7 +386,7 @@ export default function LandingPage({ onLaunch }) {
           <div className="lp-environment-shade" />
           <div className="lp-olympus-content">
             <SectionHeading align="center" eyebrow="HALL OF OLYMPUS // FITNESS" title="The body becomes mythology." copy="Most fitness apps show graphs. Warscythe shows ascension. Your sessions, tonnage and personal records become permanent evidence of what your body has actually done." />
-            <strong>Strength is war. The body is the weapon.</strong>
+            <NarrativeText as="strong">Strength is war. The body is the weapon.</NarrativeText>
             <div className="lp-olympus-frames">
               <ProductFrame src="fitness-olympus-screen.webp" caption="Ascension through real training" />
               <ProductFrame src="fitness-session-screen.webp" caption="Every session leaves evidence" />
@@ -396,19 +399,19 @@ export default function LandingPage({ onLaunch }) {
           <div className="lp-ledger-copy">
             <div className="lp-feature-icon"><BookOpen size={20} /></div>
             <SectionHeading eyebrow="THE IRON LEDGER // ARCHIVE OF BECOMING" title="Nothing vanishes." copy="Warscythe remembers what you finished, abandoned, trained, recovered and maintained. Over time, the Ledger becomes less like an archive and more like a save file for your real life." />
-            <blockquote>You live the character. Warscythe keeps the save file.</blockquote>
+            <NarrativeText as="blockquote">You live the character. Warscythe keeps the save file.</NarrativeText>
           </div>
           <div className="lp-ledger-gallery">
             <ProductFrame src="ledger-calendar-screen.webp" caption="History does not disappear" />
             <ProductFrame src="ledger-relics-screen.webp" caption="Every victory leaves an object" />
           </div>
-          <p className="lp-ledger-manifesto">“I want someone who has used Warscythe for three years to see a history of who they became—not 4,000 crossed-out checkboxes.”</p>
+          <NarrativeText className="lp-ledger-manifesto">“I want someone who has used Warscythe for three years to see a history of who they became—not 4,000 crossed-out checkboxes.”</NarrativeText>
         </section>
 
         <section id="legion" className="lp-legion">
           <div className="lp-legion-content">
             <SectionHeading align="center" eyebrow="LEGION CITADEL // SHARED WAR" title="Do not fight alone." copy="Assign ownership, share objectives and keep the group history honest. Legion is persistent multiplayer execution—not another chatroom." />
-            <div className="lp-legion-line"><Users size={18} /><strong>A Legion is a war party with memory.</strong></div>
+            <div className="lp-legion-line"><Users size={18} /><NarrativeText as="strong">A Legion is a war party with memory.</NarrativeText></div>
             <div className="lp-legion-frames">
               <ProductFrame src="legion-command-screen.webp" caption="The shared command" />
               <ProductFrame src="legion-objective-screen.webp" caption="Every warrior owns a front" />
@@ -420,21 +423,21 @@ export default function LandingPage({ onLaunch }) {
         <section id="terminal" className="lp-terminal">
           <img {...landingImageProps('terminal-bastion.webp', '100vw')} alt="" loading="lazy" />
           <div className="lp-environment-shade" />
-          <Motion.div className="lp-terminal-panel" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }}>
+          <div className="lp-terminal-panel" data-image-reveal>
             <RuneCorners />
             <span>THE ROAD AHEAD // FUTURE ROADMAP</span>
-            <h2>The Terminal Bastion</h2>
-            <p>The long-term vision is not only to track execution, but to let more execution happen inside Warscythe. Humans and eventually controlled agents could work toward the same Operation with visible state and explicit approval gates.</p>
+            <NarrativeText as="h2" words>The Terminal Bastion</NarrativeText>
+            <NarrativeText>The long-term vision is not only to track execution, but to let more execution happen inside Warscythe. Humans and eventually controlled agents could work toward the same Operation with visible state and explicit approval gates.</NarrativeText>
             <strong>This layer is future roadmap, not current product.</strong>
-            <blockquote>“I want to be killing the dragon in one Warscythe region while using Warscythe to build the next one.”</blockquote>
+            <NarrativeText as="blockquote">“I want to be killing the dragon in one Warscythe region while using Warscythe to build the next one.”</NarrativeText>
             <small>SSS // SELF-SUSTAINED SYSTEM</small>
-          </Motion.div>
+          </div>
         </section>
 
         <section id="proof" className="lp-proof">
           <SectionHeading align="center" eyebrow="PROOF OF LIFE" title="The kingdom is already alive." copy="Warscythe began as something its founders needed. The world was not added to decorate the work. It became the reason finishing finally felt like something." />
           <div className="lp-proof-grid">
-            {proofItems.map(([title, copy], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}
+            {proofItems.map(([title, copy], index) => <article key={title}><span>0{index + 1}</span><NarrativeText as="h3" words>{title}</NarrativeText><NarrativeText>{copy}</NarrativeText></article>)}
           </div>
           <div className="lp-proof-foot"><strong>BUILT AND USED BY THE FOUNDERS DAILY</strong><span>WEB // INSTALLABLE PWA // ANDROID</span></div>
         </section>
@@ -442,16 +445,16 @@ export default function LandingPage({ onLaunch }) {
         <section id="final-gate" className="lp-final-gate">
           <img {...landingImageProps('final-gate.webp', '100vw')} alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
           <div className="lp-final-shade" />
-          <Motion.div className="lp-final-copy" initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }}>
+          <div className="lp-final-copy">
             <span>THE FINAL GATE</span>
-            <h2>Your life already has battles.<br /><em>Give them a world.</em></h2>
-            <p>Warscythe is for people who know what they need to do—and are tired of doing it in systems that make it feel like nothing.</p>
+            <h2><NarrativeText as="span" words>Your life already has battles.</NarrativeText><em><NarrativeText as="span" words>Give them a world.</NarrativeText></em></h2>
+            <NarrativeText>Warscythe is for people who know what they need to do—and are tired of doing it in systems that make it feel like nothing.</NarrativeText>
             <div>
-              <button className="lp-primary-cta" onClick={onLaunch}>ENTER WARSCYTHE <ExternalLink size={15} /></button>
-              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} /> WATCH DEMO</button>
+              <button className="lp-primary-cta" onClick={onLaunch}>Enter Warscythe <ExternalLink size={15} /></button>
+              <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} /> Watch demo</button>
             </div>
             <strong>EXECUTION SHOULD LEAVE EVIDENCE.</strong>
-          </Motion.div>
+          </div>
         </section>
       </main>
 

@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-21",
+  "previousRelease": "d580db89d38061ba2360b48a112c6034b5c87ddd",
+  "checks": {
+    "presentation": 103,
+    "landing": 70,
+    "fitnessFrames": 15,
+    "workout": 24,
+    "domainStartupAndRouting": 19,
+    "build": true,
+    "newLintFindings": 0
+  },
+  "preservation": {
+    "affinityFiles": 14,
+    "affinityChanged": [],
+    "frameAssets": 95,
+    "assetsChanged": [],
+    "storeUnchanged": true
+  },
+  "profile": [
+    {
+      "width": 390,
+      "frames": 728,
+      "meanFrameMs": 5.503708791209814,
+      "maxFrameMs": 20.90000000000009,
+      "over34ms": 0,
+      "longTasks": [],
+      "scriptMs": 758.2330000000001,
+      "layoutMs": 3.508,
+      "styleMs": 359.927
+    },
+    {
+      "width": 1440,
+      "frames": 630,
+      "meanFrameMs": 6.3519047619035796,
+      "maxFrameMs": 41.70000000000073,
+      "over34ms": 1,
+      "longTasks": [],
+      "scriptMs": 807.741,
+      "layoutMs": 5.486000000000001,
+      "styleMs": 358.97
+    }
+  ],
+  "failures": []
+}

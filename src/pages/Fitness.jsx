@@ -27,7 +27,7 @@ import {
 const OrnatePanel = ({ children, className = '', frameSize = 'panel', ...props }) => {
   return (
     <div className={`elite-panel ornate-surface fitness-framed-panel fitness-framed-panel--${frameSize} ${className}`} {...props}>
-      <OrnateFrame family="hercules" quiet className="fitness-panel-frame" />
+      <OrnateFrame family="hercules" className="fitness-panel-frame" />
       <div className="relative z-10 w-full h-full flex flex-col">
         {children}
       </div>

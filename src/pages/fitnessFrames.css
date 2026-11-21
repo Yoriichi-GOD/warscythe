@@ -1,29 +1,37 @@
-/* Fitness corners follow the panel edge and leave the content gutter clear.
-   The small recovery/metrics panels use less ornament than the main panels. */
+/* Visible frame intersections sit on the panel boundary, as in Forge.
+   Content owns a separate gutter; ornament never substitutes for padding. */
+.fitness-realm .fitness-framed-panel {
+  margin: 16px;
+  padding: 30px 24px 26px !important;
+  overflow: visible !important;
+  border-color: transparent;
+}
 .fitness-realm .fitness-panel-frame {
-  --frame-corner: 30px;
-  inset: 10px;
+  --frame-corner: 76px;
+  inset: 0;
+  opacity: .95;
 }
-.fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame {
-  --frame-corner: 24px;
-  inset: 8px;
+.fitness-realm .fitness-framed-panel--compact {
+  padding: 22px 18px 18px !important;
+  min-height: 170px;
 }
-.fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame {
-  --frame-corner: 20px;
-  inset: 6px;
+.fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame { --frame-corner: 52px; }
+.fitness-realm .fitness-framed-panel--metrics {
+  padding: 22px 18px !important;
 }
-
+.fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame { --frame-corner: 44px; }
+.fitness-realm .fitness-framed-panel > .relative { min-width: 0; }
+.fitness-realm .fitness-framed-panel .panel-header-custom { position: relative; flex-wrap: wrap; gap: 10px; padding-right: 22px; }
+.fitness-realm .fitness-framed-panel .panel-header-custom > svg { position: absolute; right: 0; top: 4px; }
+.fitness-realm .fitness-framed-panel .panel-header-custom > div:first-child { min-width: 0; }
+.fitness-realm .fitness-framed-panel .panel-header-custom h3 { line-height: 1.4; }
+.fitness-realm .fitness-framed-panel .panel-header-custom > div:first-child > div { flex-wrap: wrap; }
+.fitness-realm .fitness-framed-panel #fitness-rest-timer { min-width: 0; }
 @media (max-width: 639px) {
-  .fitness-realm .fitness-panel-frame {
-    --frame-corner: 24px;
-    inset: 7px;
-  }
-  .fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame {
-    --frame-corner: 22px;
-    inset: 7px;
-  }
-  .fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame {
-    --frame-corner: 20px;
-    inset: 6px;
-  }
+  .fitness-realm .fitness-framed-panel { margin: 14px; padding: 26px 18px 24px !important; }
+  .fitness-realm .fitness-panel-frame { --frame-corner: 58px; }
+  .fitness-realm .fitness-framed-panel--compact { padding: 22px 14px 18px !important; }
+  .fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame { --frame-corner: 44px; }
+  .fitness-realm .fitness-framed-panel--metrics { padding: 22px 14px !important; }
+  .fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame { --frame-corner: 40px; }
 }
