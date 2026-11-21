@@ -1,3 +1,6 @@
+import OrnateFrame from './frames/OrnateFrame';
+import { getScrollBehavior } from '../motion/useMotionEnvironment';
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -104,7 +107,7 @@ const getDragonAsset = (lvl) => {
   ];
   const idx = Math.max(0, lvl - 1) % dragonTypes.length;
   const type = dragonTypes[idx];
-  return getAssetUrl(`/dragons/dragon-${type}.png`);
+  return getAssetUrl(`/dragons/dragon-${type}.webp`);
 };
 
 const getDragonName = (lvl) => {
@@ -119,13 +122,13 @@ const getDragonName = (lvl) => {
 
 const getNodeBanner = (nodeId) => {
   const banners = {
-    castle: getAssetUrl('/nodes/node-blackvale.png'),
-    ashendale: getAssetUrl('/nodes/node-ashendale.png'),
-    jail: getAssetUrl('/nodes/node-ironjail.png'),
-    stone: getAssetUrl('/nodes/node-stonehollow.png'),
-    boss: getAssetUrl('/nodes/node-blackvale.png')
+    castle: getAssetUrl('/nodes/node-blackvale.webp'),
+    ashendale: getAssetUrl('/nodes/node-ashendale.webp'),
+    jail: getAssetUrl('/nodes/node-ironjail.webp'),
+    stone: getAssetUrl('/nodes/node-stonehollow.webp'),
+    boss: getAssetUrl('/nodes/node-blackvale.webp')
   };
-  return banners[nodeId] || getAssetUrl('/nodes/node-blackvale.png');
+  return banners[nodeId] || getAssetUrl('/nodes/node-blackvale.webp');
 };
 
 const getRegionNodeInfo = (mapIdx, nodeId) => {
@@ -141,6 +144,7 @@ export default function MapSection({
   onTutorialContinue = null,
   tutorialActive = false
 }) {
+  const ambientMotion = useAmbientMotion();
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const { 
     level: storeLevel, dailyLog, tasks, generateMicroSteps, 
@@ -223,7 +227,7 @@ export default function MapSection({
       viewport.scrollTo({
         top: viewport.scrollTop + targetRect.top - viewportRect.top - (viewport.clientHeight / 2) + (targetRect.height / 2),
         left: viewport.scrollLeft + targetRect.left - viewportRect.left - (viewport.clientWidth / 2) + (targetRect.width / 2),
-        behavior: 'smooth'
+        behavior: getScrollBehavior()
       });
     });
 
@@ -331,10 +335,10 @@ export default function MapSection({
 
   const getRegionBanner = () => {
     if (isBossRescued) {
-      return getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`);
+      return getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.webp`);
     }
     if (selectedNode === 'jail' || selectedNode === 'boss') {
-      return getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.png`);
+      return getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.webp`);
     }
     return getNodeBanner(selectedNode || 'jail');
   };
@@ -392,7 +396,7 @@ export default function MapSection({
               <button 
                 onClick={handlePrevMap} 
                 disabled={activeMapIndex <= 1}
-                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded transition-all disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
+                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded motion-control disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
                 title="Previous Region"
               >
                 <ChevronLeft size={16} className="text-gold-core" />
@@ -405,7 +409,7 @@ export default function MapSection({
               <button 
                 onClick={handleNextMap} 
                 disabled={activeMapIndex >= 10}
-                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded transition-all disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
+                className="p-1 hover:bg-white/5 border border-white/10 hover:border-gold-core/50 rounded motion-control disabled:opacity-30 disabled:hover:border-white/10 cursor-pointer disabled:cursor-not-allowed"
                 title="Next Region"
               >
                 <ChevronRight size={16} className="text-gold-core" />
@@ -437,7 +441,8 @@ export default function MapSection({
         
         {/* LEFT COLUMN: Logs and Legend */}
         <aside className="campaign-aside left">
-          <div className="expansion-log-panel elite-panel-ornate">
+          <div className="expansion-log-panel elite-panel-ornate ornate-surface map-ornate-panel">
+<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
             <div className="corner-ornament corner-tl" />
             <div className="corner-ornament corner-tr" />
             <div className="corner-ornament corner-bl" />
@@ -464,7 +469,8 @@ export default function MapSection({
             </div>
           </div>
 
-          <div className="legend-panel elite-panel-ornate">
+          <div className="legend-panel elite-panel-ornate ornate-surface map-ornate-panel">
+<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
             <div className="corner-ornament corner-tl" />
             <div className="corner-ornament corner-tr" />
             <div className="corner-ornament corner-bl" />
@@ -498,7 +504,7 @@ export default function MapSection({
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    backgroundImage: `url('${getAssetUrl('/maps/map-fog-overlay.png')}')`,
+                    backgroundImage: `url('${getAssetUrl('/maps/map-fog-overlay.webp')}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     zIndex: 100,
@@ -510,7 +516,7 @@ export default function MapSection({
             <div 
               className="map-image-layer" 
               style={{ 
-                backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${activeMapIndex}.png`)}')`,
+                backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${activeMapIndex}.webp`)}')`,
                 filter: activeMapIndex > level ? 'blur(8px) grayscale(30%)' : currentFilter
               }} 
             />
@@ -518,11 +524,11 @@ export default function MapSection({
             {activeMapIndex > level ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 font-times select-none">
                 <motion.img 
-                  src={getAssetUrl('/maps/map-lock-icon.png')} 
+                  src={getAssetUrl('/maps/map-lock-icon.webp')}
                   alt="Locked Sector" 
                   className="w-20 h-20 mb-3 filter drop-shadow-[0_0_15px_rgba(239, 68, 68, 0.6)]"
                   animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                  transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 2.5 : 0, ease: "easeInOut" }}
                   onError={(e) => {
                     e.target.style.display = 'none';
                   }}
@@ -536,7 +542,7 @@ export default function MapSection({
                 <motion.div
                   className="w-16 h-16 mb-4 flex items-center justify-center rounded-full border-2 border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(236,200,128,0.2)]"
                   animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 3 : 0, ease: "easeInOut" }}
                 >
                   <Lock size={28} className="text-gold-core" />
                 </motion.div>
@@ -599,7 +605,7 @@ export default function MapSection({
                           'drop-shadow(0 0 8px rgba(236,200,128,0.5))'
                         ]
                       } : {}}
-                      transition={isTutorialTarget ? { repeat: Infinity, duration: 1.4, ease: 'easeInOut' } : {}}
+                      transition={isTutorialTarget ? { repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 1.4 : 0, ease: 'easeInOut' } : {}}
                       onClick={() => {
                         if (tutorialHighlightNode) {
                           if (isTutorialTarget && onTutorialNodeClick) {
@@ -615,7 +621,7 @@ export default function MapSection({
                         <div className="empress-node-avatar-container relative w-12 h-12 flex items-center justify-center -top-[15px]">
                           <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-md animate-pulse" />
                           <img 
-                            src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
+                            src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.webp`)}
                             alt="Fairy Empress" 
                             className="w-10 h-10 object-cover rounded-full border-2 border-[#ecc880] relative z-10 animate-float shadow-[0_0_8px_rgba(236,200,128,0.6)]"
                             style={{ filter: currentFilter || 'none' }}
@@ -631,7 +637,7 @@ export default function MapSection({
                           {node.type === 'locked' && (
                             node.id === 'jail' ? (
                               <img
-                                src={getAssetUrl('/maps/map-lock-icon.png')}
+                                src={getAssetUrl('/maps/map-lock-icon.webp')}
                                 alt="Iron Jail Locked"
                                 className="map-jail-lock-icon"
                               />
@@ -651,7 +657,8 @@ export default function MapSection({
             )}
           </div>
 
-          <div className="quick-actions-panel elite-panel-ornate">
+          <div className="quick-actions-panel elite-panel-ornate ornate-surface map-ornate-panel">
+<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
             <div className="corner-ornament corner-tl" />
             <div className="corner-ornament corner-tr" />
             <div className="corner-ornament corner-bl" />
@@ -683,7 +690,8 @@ export default function MapSection({
 
         {/* RIGHT COLUMN: Region Intel */}
         <aside className="campaign-aside right">
-          <div className="region-intel-panel elite-panel-ornate">
+          <div className="region-intel-panel elite-panel-ornate ornate-surface map-ornate-panel">
+<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
             <div className="corner-ornament corner-tl" />
             <div className="corner-ornament corner-tr" />
             <div className="corner-ornament corner-bl" />
@@ -698,13 +706,13 @@ export default function MapSection({
               <h4 className="text-gold-gradient text-lg font-bold flex items-center justify-center gap-2">
                 {displayRegion.name}
                 <img 
-                  src={getAssetUrl(`/crests/region-crest-${(displayRegionIdx % 10) + 1}.png`)} 
+                  src={getAssetUrl(`/crests/region-crest-${(displayRegionIdx % 10) + 1}.webp`)}
                   alt={`${displayRegion.name} Crest`} 
                   className="w-7 h-7 object-contain inline-block filter drop-shadow-[0_0_4px_rgba(236,200,128,0.3)]"
                 />
               </h4>
               <div className="region-banner-placeholder border border-white/5 rounded mt-3" style={{ 
-                backgroundImage: `url('${getAssetUrl(`/bg/bg-region-${activeMapIndex}.png`)}')`,
+                backgroundImage: `url('${getAssetUrl(`/bg/bg-region-${activeMapIndex}.webp`)}')`,
                 filter: currentFilter
               }} />
             </div>
@@ -737,7 +745,7 @@ export default function MapSection({
                 <span className="stat-label font-times" style={{ marginTop: 0, color: '#ecc880' }}>SECURED SOVEREIGN</span>
                 <div className="threat-card font-times">
                   <img 
-                    src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)} 
+                    src={getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.webp`)}
                     alt="Fairy Empress" 
                     className="w-11 h-11 object-cover rounded-full border border-[#ecc880]/40 bg-gold-core/5"
                     style={{ filter: `${currentFilter} drop-shadow(0 0 6px rgba(236, 200, 128, 0.5))` }}
@@ -783,12 +791,12 @@ export default function MapSection({
                     {activeMapIndex > level && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                         <motion.img 
-                          src={getAssetUrl('/maps/map-lock-icon.png')} 
+                          src={getAssetUrl('/maps/map-lock-icon.webp')}
                           alt="Locked" 
                           className="filter drop-shadow-[0_0_8px_rgba(239, 68, 68, 0.9)]"
                           style={{ width: '24px', height: '24px', objectFit: 'contain' }}
                           animate={{ scale: [1, 1.15, 1] }}
-                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                          transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 2.5 : 0, ease: "easeInOut" }}
                           onError={(e) => {
                             e.target.style.display = 'none';
                           }}
@@ -853,7 +861,7 @@ export default function MapSection({
                {/* Access Full Vault Button */}
                <button 
                  onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
-                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group flex items-center justify-center rounded cursor-pointer font-times"
+                 className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] motion-control group flex items-center justify-center rounded cursor-pointer font-times"
                >
                  <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
                </button>
@@ -897,7 +905,7 @@ export default function MapSection({
                 && (
                   <div className="node-fairy-guidance">
                     <img
-                      src={getAssetUrl('/fairies/empress-1-liberated.png')}
+                      src={getAssetUrl('/fairies/empress-1-liberated.webp')}
                       alt="Fairy"
                       className="node-fairy-guidance__portrait"
                     />
@@ -961,7 +969,7 @@ export default function MapSection({
                       <div className="w-48 h-48 rounded border border-emerald-500/30 overflow-hidden relative shadow-[0_0_15px_rgba(16,185,129,0.25)] flex items-center justify-center bg-black/40">
                         {!jailImageFailed ? (
                           <img 
-                            src={getAssetUrl('/nodes/node-jail-opened.png')} 
+                            src={getAssetUrl('/nodes/node-jail-opened.webp')}
                             alt="Jail Opened" 
                             className="w-full h-full object-contain p-2"
                             onError={() => setJailImageFailed(true)}
@@ -989,7 +997,7 @@ export default function MapSection({
                       <div 
                         className="threat-avatar" 
                         style={{ 
-                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.png`)}')`,
+                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-caged.webp`)}')`,
                           width: '100%',
                           aspectRatio: '1 / 1',
                           backgroundSize: 'cover',
@@ -1042,7 +1050,7 @@ export default function MapSection({
                       <div 
                         className="threat-avatar" 
                         style={{ 
-                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.png`)}')`,
+                          backgroundImage: `url('${getAssetUrl(`/fairies/empress-${activeMapIndex}-liberated.webp`)}')`,
                           width: '100%',
                           aspectRatio: '1 / 1',
                           backgroundSize: 'cover',
@@ -1115,7 +1123,7 @@ export default function MapSection({
         )}
       </AnimatePresence>
 
-      <style jsx>{`
+      <style>{`
         .campaign-theater {
           width: 100%;
           height: auto;
@@ -1426,7 +1434,7 @@ export default function MapSection({
           border-radius: 50%;
           background: #fff;
           box-shadow: 0 0 10px #fff;
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
         .map-jail-lock-icon {
           width: 34px;
@@ -1568,7 +1576,7 @@ export default function MapSection({
           background: rgba(0, 0, 0, 0.4);
           border: 1px solid rgba(255, 255, 255, 0.15);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: var(--motion-control-transition);
           width: 32px;
           height: 32px;
           display: flex;

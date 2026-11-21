@@ -1,0 +1,18 @@
+.kingdom-chronicle { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:24px clamp(18px,5vw,56px); color:#e9e3d6; }
+.kingdom-chronicle nav { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:24px; }
+.kingdom-chronicle nav button { width:44px; height:44px; border:1px solid #5a4a30; color:#d2b677; background:#11110e; font:12px var(--font-mono); }
+.kingdom-chronicle nav button[aria-current] { background:#c5a059; color:#0c0b09; }
+.kingdom-chronicle nav button:disabled { opacity:.35; cursor:default; }
+.chronicle-kicker { font:10px var(--font-mono); letter-spacing:.12em; color:#c5a059; }
+.kingdom-chronicle h3 { margin:12px 0 16px; font:600 clamp(24px,4vw,36px) var(--font-display); }
+.kingdom-chronicle article > p { font:17px/1.8 Georgia,serif; max-width:68ch; text-wrap:pretty; }
+.kingdom-chronicle aside { margin-top:24px; padding:16px; border-left:2px solid #c5a059; background:#c5a0590b; }
+.kingdom-chronicle aside strong { font:11px var(--font-mono); color:#d4b579; text-transform:uppercase; }
+.kingdom-chronicle aside p { margin:8px 0; font:13px/1.6 var(--font-mono); }
+.kingdom-chronicle aside small,.chronicle-footnote { font:11px/1.6 var(--font-mono); color:#aaa291; }
+.chronicle-continue { min-height:44px; margin-top:20px; padding:12px 18px; font:12px var(--font-mono); color:#0a0907; background:#c5a059; }
+.chronicle-footnote { margin-top:24px; }
+.roadmap-view-tabs { display:flex; flex-wrap:wrap; gap:8px; padding:10px 20px; border-bottom:1px solid #332c20; }
+.roadmap-view-tabs button { min-height:44px; padding:10px 14px; font:11px var(--font-mono); color:#a49a85; border:1px solid transparent; }
+.roadmap-view-tabs button[aria-selected=true] { color:#e7cc91; border-color:#77613a; background:#c5a0590b; }
+@media(max-width:639px) { .kingdom-chronicle { padding:18px; }.kingdom-chronicle article > p { font-size:16px; }.kingdom-chronicle nav { gap:4px; }.kingdom-chronicle nav button { flex:1 0 15%; max-width:48px; }.roadmap-dialog-header { flex-wrap:wrap; gap:12px; }.roadmap-dialog-header > div:first-child { max-width:210px; } }

@@ -1,3 +1,4 @@
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
@@ -23,6 +24,7 @@ const EMPRESS_NAMES = [
 ];
 
 export default function RealmTransferScreen({ regionData, onClose }) {
+  const ambientMotion = useAmbientMotion();
   const [beat, setBeat] = useState(0);
   const currentIndex = Math.max(1, Number(regionData?.mapIndex) || 1);
   const nextIndex = Math.min(10, currentIndex + 1);
@@ -73,12 +75,12 @@ export default function RealmTransferScreen({ regionData, onClose }) {
     >
       <div
         className="realm-landscape old-landscape"
-        style={{ backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${currentIndex}.png`)}')` }}
+        style={{ backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${currentIndex}.webp`)}')` }}
       />
       {hasNext && (
         <div
           className="realm-landscape new-landscape"
-          style={{ backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${nextIndex}.png`)}')` }}
+          style={{ backgroundImage: `url('${getAssetUrl(`/maps/campaign-map-${nextIndex}.webp`)}')` }}
         />
       )}
       <div className="realm-vignette" />
@@ -93,12 +95,12 @@ export default function RealmTransferScreen({ regionData, onClose }) {
             className="character-stage conquered-stage"
           >
             <img
-              src={getAssetUrl(`/dragons/dragon-${DRAGON_TYPES[currentIndex - 1]}.png`)}
+              src={getAssetUrl(`/dragons/dragon-${DRAGON_TYPES[currentIndex - 1]}.webp`)}
               alt=""
               className="defeated-dragon"
             />
             <img
-              src={getAssetUrl(`/fairies/empress-${currentIndex}-liberated.png`)}
+              src={getAssetUrl(`/fairies/empress-${currentIndex}-liberated.webp`)}
               alt={currentEmpress}
               className="liberated-empress"
             />
@@ -116,25 +118,25 @@ export default function RealmTransferScreen({ regionData, onClose }) {
             className="fracture-stage"
           >
             <motion.img
-              src="/transitions/realm-fracture.png"
+              src="/transitions/realm-fracture.webp"
               alt=""
               className="fracture-art"
               animate={{ filter: ['brightness(.8)', 'brightness(1.35)', 'brightness(.8)'] }}
-              transition={{ repeat: Infinity, duration: 2.4 }}
+              transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 2.4 : 0 }}
             />
             <motion.img
-              src={getAssetUrl(`/crests/region-crest-${currentIndex}.png`)}
+              src={getAssetUrl(`/crests/region-crest-${currentIndex}.webp`)}
               alt={`${currentRegion} crest`}
               className="transfer-crest old-crest"
               animate={{ opacity: [1, 0], scale: [1, .55], rotate: [0, -20] }}
-              transition={{ duration: 2.2, repeat: Infinity, repeatDelay: .5 }}
+              transition={{ duration: ambientMotion ? 2.2 : 0, repeat: ambientMotion ? Infinity : 0, repeatDelay: .5 }}
             />
             <motion.img
-              src={getAssetUrl(`/crests/region-crest-${nextIndex}.png`)}
+              src={getAssetUrl(`/crests/region-crest-${nextIndex}.webp`)}
               alt={`${nextRegion} crest`}
               className="transfer-crest new-crest"
               animate={{ opacity: [0, 1], scale: [.55, 1], rotate: [20, 0] }}
-              transition={{ duration: 2.2, repeat: Infinity, repeatDelay: .5 }}
+              transition={{ duration: ambientMotion ? 2.2 : 0, repeat: ambientMotion ? Infinity : 0, repeatDelay: .5 }}
             />
           </motion.div>
         )}
@@ -147,12 +149,12 @@ export default function RealmTransferScreen({ regionData, onClose }) {
             className="character-stage threat-stage"
           >
             <img
-              src={getAssetUrl(`/dragons/dragon-${DRAGON_TYPES[nextIndex - 1]}.png`)}
+              src={getAssetUrl(`/dragons/dragon-${DRAGON_TYPES[nextIndex - 1]}.webp`)}
               alt={nextDragon}
               className="new-dragon"
             />
             <img
-              src={getAssetUrl(`/fairies/empress-${nextIndex}-caged.png`)}
+              src={getAssetUrl(`/fairies/empress-${nextIndex}-caged.webp`)}
               alt={nextEmpress}
               className="imprisoned-empress"
             />
@@ -183,7 +185,7 @@ export default function RealmTransferScreen({ regionData, onClose }) {
         <ChevronRight size={15} />
       </button>
 
-      <style jsx>{`
+      <style>{`
         .realm-transfer {
           position: fixed;
           inset: 0;

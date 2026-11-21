@@ -1,0 +1,498 @@
+{
+  "date": "2026-11-21",
+  "preview": "http://127.0.0.1:5176/",
+  "speeds": [
+    {
+      "width": 390,
+      "beforeLcp": 4240,
+      "afterLcp": 2464,
+      "beforeFcp": 3552,
+      "afterFcp": 2464,
+      "beforeBytes": 1558430,
+      "afterBytes": 271347,
+      "afterCls": 0.003631917287196362
+    },
+    {
+      "width": 1440,
+      "beforeLcp": 4120,
+      "afterLcp": 2020,
+      "beforeFcp": 3312,
+      "afterFcp": 2020,
+      "beforeBytes": 2087008,
+      "afterBytes": 429865,
+      "afterCls": 0.002235244818793403
+    }
+  ],
+  "conditions": {
+    "networkMbps": 1.6,
+    "latencyMs": 40,
+    "cpuSlowdown": 4,
+    "deviceScaleFactor": 1,
+    "samplesPerViewport": 3,
+    "isolatedContexts": true,
+    "serviceWorkerBypassed": true,
+    "measurementEnds": "one second after hero image completes"
+  },
+  "cdn": {
+    "uploaded": 157,
+    "verified": 157,
+    "paired": 155,
+    "legacyBytes": 406668893,
+    "webpBytes": 48284150,
+    "catalogAssetsVerified": 127
+  },
+  "checks": {
+    "landing": 70,
+    "appAudit": 115,
+    "workout": 24,
+    "startup": 8,
+    "imageRouting": 3,
+    "rewardDomain": 8,
+    "productionBuild": true,
+    "newLintFindings": 0
+  },
+  "preservation": {
+    "affinity": [
+      {
+        "file": "src/features/fitness-v2/DeityTitleCard.jsx",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/dev/FitnessV2Harness.jsx",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/domain/deityRoster.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/domain/rewardEngine.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/domain/rewardEngine.test.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/domain/workoutEvidence.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/domain/workoutNormalization.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/featureGate.js",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/fitnessOlympusExperience.css",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/FitnessOlympusExperience.jsx",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/olympus/FitnessOlympusPreview.jsx",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/olympus/fitnessOlympusV2.css",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/olympus/OlympusHallModal.jsx",
+        "unchanged": true
+      },
+      {
+        "file": "src/features/fitness-v2/olympus/OlympusRewardModal.jsx",
+        "unchanged": true
+      }
+    ],
+    "frames": [
+      {
+        "file": "public/frames/buttons/button-center.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/buttons/button-corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/buttons/button-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/buttons/button-terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/circular/blessing-complete.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/circular/blessing-incomplete.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/closure/closure-dominant.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/closure/closure-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/closure/closure-terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/gold-diamond-line.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/gold-diamond-terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/gold-diamond.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/sapphire-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/sapphire-line.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/dividers/sapphire-terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/apollo/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/apollo/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/apollo/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/apollo/top-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/apollo/top-ornament.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/ares/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/ares/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/ares/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/ares/top-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/ares/top-ornament.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hercules/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hercules/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hercules/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hercules/top-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hercules/top-ornament.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hermes/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hermes/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hermes/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hermes/top-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/hermes/top-ornament.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/zeus/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/zeus/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/zeus/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/zeus/top-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/divine/zeus/top-ornament.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/center-artifact.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/center.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/corner-artifact.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/rail-artifact.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/terminal-artifact.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/ledger/terminal.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-01.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-02.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-03.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-04.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-05.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-06.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-07.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-08.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-09.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/legion/avatar-frames/legion-frame-10.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/long-fill.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-cap.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-combined.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-end.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-fill.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-large-start.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-long-combined.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-cap.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-combined.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-end.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-fill.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/progress-small-start.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/rose-pro-left.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/rose-pro-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/rose-pro-right.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/progress/rose-pro.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/quotation/quotation-corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/quotation/quotation-divider.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/quotation/quotation-mark.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/quotation/quotation-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/bottom-center.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/bottom-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/side-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/top-center.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/screen/top-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/special/ritual-rail-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/special/scythe-rail-gem.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/special/scythe-rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/center.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/compact.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/corner.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/junction.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/rail.webp",
+        "unchanged": true
+      },
+      {
+        "file": "public/frames/universal/terminal.webp",
+        "unchanged": true
+      }
+    ],
+    "businessStoreUnchanged": true
+  },
+  "failures": []
+}

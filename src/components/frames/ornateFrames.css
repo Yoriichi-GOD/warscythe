@@ -1,0 +1,77 @@
+.ornate-surface { position: relative; min-width: 0; }
+.ornate-surface.elite-panel::before, .ornate-surface.elite-panel::after { display: none; }
+.frame-asset { display: block; overflow: hidden; pointer-events: none; user-select: none; }
+.frame-asset image { pointer-events: none; }
+.ornate-frame {
+  --frame-corner: clamp(68px, 6vw, 92px);
+  --frame-rail: 2px;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  user-select: none;
+  border-radius: inherit;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .72));
+}
+.ornate-frame--quiet { --frame-corner: 48px; opacity: .82; }
+.ornate-frame-corner { position: absolute; width: 0; height: 0; }
+.ornate-frame-corner > .frame-asset {
+  position: absolute;
+  width: var(--frame-corner);
+  left: calc(var(--frame-corner) * var(--frame-anchor-x) * -1);
+  top: calc(var(--frame-corner) * var(--frame-anchor-y) * -1);
+}
+.ornate-frame-corner--tl { top: 0; left: 0; }
+.ornate-frame-corner--tr { top: 0; right: 0; transform: scaleX(-1); }
+.ornate-frame-corner--bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.ornate-frame-corner--br { bottom: 0; right: 0; transform: scale(-1); }
+.ornate-frame-rail { position: absolute; opacity: .74; }
+.ornate-frame-rail > .frame-asset { width: 100%; height: 100%; }
+.ornate-frame-rail--top, .ornate-frame-rail--bottom {
+  left: calc(var(--frame-corner) * var(--frame-horizontal-reach) * .88);
+  right: calc(var(--frame-corner) * var(--frame-horizontal-reach) * .88);
+  height: var(--frame-rail);
+}
+.ornate-frame-rail--top { top: calc(var(--frame-rail) / -2); }
+.ornate-frame-rail--bottom { bottom: calc(var(--frame-rail) / -2); }
+.ornate-frame-rail--left, .ornate-frame-rail--right {
+  top: calc(var(--frame-corner) * var(--frame-vertical-reach) * .88);
+  bottom: calc(var(--frame-corner) * var(--frame-vertical-reach) * .88);
+  width: var(--frame-rail);
+}
+.ornate-frame-rail--left { left: calc(var(--frame-rail) / -2); }
+.ornate-frame-rail--right { right: calc(var(--frame-rail) / -2); }
+.ornate-frame-crest {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: clamp(70px, 18%, 126px);
+  transform: translate(-50%, -50%);
+}
+.legion-framed-avatar { position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none; }
+.legion-framed-avatar > .frame-asset { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); }
+.legion-framed-avatar-content { display: grid; place-items: center; width: 68%; height: 68%; font: 700 13px var(--font-display); color: var(--gold-bright); background: #090909; }
+.forge-shell { margin: 18px 8px; padding: clamp(18px, 2.4vw, 32px); }
+.forge-preview { min-width: 0; }
+.forge-theme-preview { width: min(380px, 100%); }
+.social-panel-left.ornate-surface, .social-panel-right.ornate-surface { margin: 8px; min-width: 0; }
+.collective-ops-form.ornate-surface { z-index: 5; }
+.member-identity { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.member-identity > div { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 639px) {
+  .ornate-frame { --frame-corner: 58px; }
+  .ornate-frame--quiet { --frame-corner: 38px; }
+  .ornate-frame-crest { width: 76px; }
+  .forge-shell { margin: 12px 7px; padding: 20px 14px; }
+  .scythe-center-section > .forge-shell > :nth-child(3) { flex-wrap: wrap; gap: 6px; }
+  .social-panel-left.ornate-surface, .social-panel-right.ornate-surface { margin: 8px 4px; padding: 20px 16px; }
+}
+
+.ornate-frame--inset { inset:16px; }
+.ornate-dialog { isolation:isolate; }
+.social-grid-layout { padding:24px 20px; scroll-padding:24px; }
+@media(max-width:1023px) { .social-grid-layout { padding:12px 8px; } }
+
+@media(min-width:1024px) { .social-grid-layout { padding-top:30px; padding-bottom:30px; } }
+
+.map-ornate-panel > .corner-ornament { display:none; }

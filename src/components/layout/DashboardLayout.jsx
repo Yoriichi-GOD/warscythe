@@ -8,17 +8,17 @@ export default function DashboardLayout({ children, activeTab }) {
   const regionIndex = ((level - 1) % 10) + 1;
 
   let bgImage = activeTab === 'fitness' 
-    ? getAssetUrl('/olympus-bg.png') 
-    : getAssetUrl(`/bg/bg-region-${regionIndex}.png`);
+    ? getAssetUrl('/olympus-bg.webp')
+    : getAssetUrl(`/bg/bg-region-${regionIndex}.webp`);
 
   if (activeTheme && activeTheme !== 'default') {
     if (activeTheme === 'shiva') {
-      bgImage = getAssetUrl('/themes/kailash/bg.png');
+      bgImage = getAssetUrl('/themes/kailash/bg.webp');
     } else if (activeTheme === 'lava') {
-      bgImage = getAssetUrl('/themes/lava/bg.png');
+      bgImage = getAssetUrl('/themes/lava/bg.webp');
     } else if (activeTheme.startsWith('region-')) {
       const regionNum = activeTheme.replace('region-', '');
-      bgImage = getAssetUrl(`/bg/bg-region-${regionNum}.png`);
+      bgImage = getAssetUrl(`/bg/bg-region-${regionNum}.webp`);
     }
   }
 
@@ -56,7 +56,7 @@ export default function DashboardLayout({ children, activeTab }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.9 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
+            transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
             className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
           />
         </AnimatePresence>
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children, activeTab }) {
         {children}
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .bg-radial-vignette {
           background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
         }

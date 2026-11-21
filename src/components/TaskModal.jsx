@@ -1,5 +1,6 @@
+import { getScrollBehavior } from '../motion/useMotionEnvironment';
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useIsPresent } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, ShieldAlert, Crosshair, Calendar, Clock, Zap, Activity, Plus, Trash2, ChevronDown } from 'lucide-react';
 import RitualTimePicker from './RitualTimePicker';
@@ -116,6 +117,7 @@ export default function TaskModal({
   onDraftChange,
   onSubmitted,
 }) {
+  const isPresent = useIsPresent();
   const [title, setTitle] = useState(initialDraft?.title || '');
   const [category, setCategory] = useState(initialDraft?.category || 'Work');
   const [effort, setEffort] = useState(initialDraft?.effort || initialEffort);
@@ -178,7 +180,7 @@ export default function TaskModal({
       const activeEl = document.getElementById(`tutorial-step-${formTutorialStep}`);
       if (activeEl) {
         setTimeout(() => {
-          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          activeEl.scrollIntoView({ behavior: getScrollBehavior(), block: 'center' });
         }, 100);
       }
     }
@@ -262,17 +264,25 @@ export default function TaskModal({
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleClose}>
+    <motion.div className="modal-backdrop" onClick={handleClose} inert={!isPresent} style={{pointerEvents:isPresent ? undefined : 'none'}} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:0.16}}>
       <motion.div 
-        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className={`modal-content glass-panel tactical-modal custom-scrollbar ${
-          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[78dvh] overflow-y-auto'
-        }`}
+        className="tactical-modal-shell"
         onClick={e => e.stopPropagation()}
       >
+        <span className="tactical-modal-frame" aria-hidden="true">
+          <img className="tactical-modal-frame__crown" src="/frames/closure/closure-dominant.webp" alt="" />
+          <img className="tactical-modal-frame__corner tactical-modal-frame__corner--tl" src="/frames/ledger/corner.webp" alt="" />
+          <img className="tactical-modal-frame__corner tactical-modal-frame__corner--tr" src="/frames/ledger/corner.webp" alt="" />
+          <img className="tactical-modal-frame__corner tactical-modal-frame__corner--bl" src="/frames/ledger/corner.webp" alt="" />
+          <img className="tactical-modal-frame__corner tactical-modal-frame__corner--br" src="/frames/ledger/corner.webp" alt="" />
+        </span>
+        <div className={`modal-content glass-panel tactical-modal custom-scrollbar ${
+          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[78dvh] overflow-y-auto'
+        }`}>
         <div className="modal-header">
           <div className="modal-title-box">
             <Crosshair size={18} className="text-gold" />
@@ -306,7 +316,7 @@ export default function TaskModal({
               </p>
             </div>
           )}
-          <div id="tutorial-step-0" className={`form-group full transition-all duration-300 ${isDimmed(0) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div id="tutorial-step-0" className={`form-group full motion-control duration-300 ${isDimmed(0) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Zap size={10} /> OBJECTIVE IDENTIFIER</label>
             <input 
               type="text" 
@@ -331,7 +341,7 @@ export default function TaskModal({
                     <span className="pointer-tag">GUARDIAN</span>
                     <p className="text-[11px] font-serif text-white">Name your target.</p>
                   </div>
-                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                 </div>
                 <button 
                   type="button" 
@@ -345,7 +355,7 @@ export default function TaskModal({
           </div>
 
           <div className="form-grid">
-            <div id="tutorial-step-1" className={`form-group transition-all duration-300 ${isDimmed(1) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
+            <div id="tutorial-step-1" className={`form-group motion-control duration-300 ${isDimmed(1) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> CATEGORY</label>
               <div className="custom-select-container">
                 <button 
@@ -377,13 +387,13 @@ export default function TaskModal({
                       <span className="pointer-tag">GUARDIAN</span>
                       <p className="text-[11px] font-serif text-white">Where does this strike belong?</p>
                     </div>
-                    <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                    <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                   </div>
                 </div>
               )}
             </div>
 
-            <div id="tutorial-step-2" className={`form-group transition-all duration-300 ${isDimmed(2) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
+            <div id="tutorial-step-2" className={`form-group motion-control duration-300 ${isDimmed(2) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: effortOpen ? 200 : 10 }}>
               <label><Activity size={10} /> RESISTANCE LEVEL</label>
               <div className="custom-select-container">
                 <button 
@@ -415,14 +425,14 @@ export default function TaskModal({
                       <span className="pointer-tag">GUARDIAN</span>
                       <p className="text-[11px] font-serif text-white">How hard will it fight back?</p>
                     </div>
-                    <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                    <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div id="tutorial-step-3" className={`form-group full transition-all duration-300 ${isDimmed(3) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div id="tutorial-step-3" className={`form-group full motion-control duration-300 ${isDimmed(3) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><Calendar size={10} /> TARGET DEADLINE</label>
             <div className="operation-deadline-grid">
               <CustomDatePicker
@@ -445,7 +455,7 @@ export default function TaskModal({
                     <span className="pointer-tag">GUARDIAN</span>
                     <p className="text-[11px] font-serif text-white">Set the clock. No clock, no strike.</p>
                   </div>
-                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                 </div>
                 <button 
                   type="button" 
@@ -458,7 +468,7 @@ export default function TaskModal({
             )}
           </div>
 
-          <div id="tutorial-step-4" className={`form-group full transition-all duration-300 ${isDimmed(4) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div id="tutorial-step-4" className={`form-group full motion-control duration-300 ${isDimmed(4) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <label><ShieldAlert size={10} /> PRIORITY BEACON</label>
             <div className="priority-toggle-group">
               {[
@@ -489,7 +499,7 @@ export default function TaskModal({
                     <span className="pointer-tag">GUARDIAN</span>
                     <p className="text-[11px] font-serif text-white">How loud does this scream?</p>
                   </div>
-                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                 </div>
                 <button 
                   type="button" 
@@ -502,7 +512,7 @@ export default function TaskModal({
             )}
           </div>
 
-          <div className={`form-group full transition-all duration-300 ${isDimmed(-1) ? 'opacity-20 pointer-events-none filter grayscale' : ''}`}>
+          <div className={`form-group full motion-control duration-300 ${isDimmed(-1) ? 'opacity-20 pointer-events-none filter grayscale' : ''}`}>
             <label><Plus size={10} /> ADD TACTICAL SUB-TASKS</label>
             <div className="flex gap-2">
               <input 
@@ -530,8 +540,14 @@ export default function TaskModal({
             )}
           </div>
 
-          <div id="tutorial-step-5" className={`modal-footer transition-all duration-300 ${isDimmed(5) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
+          <div id="tutorial-step-5" className={`modal-footer motion-control duration-300 ${isDimmed(5) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <button type="submit" className="btn-primary deploy-btn">
+              <span className="deploy-btn-frame" aria-hidden="true">
+                <img className="deploy-btn-frame__line" src="/frames/dividers/sapphire-line.webp" alt="" />
+                <img className="deploy-btn-frame__terminal deploy-btn-frame__terminal--left" src="/frames/dividers/sapphire-terminal.webp" alt="" />
+                <img className="deploy-btn-frame__terminal deploy-btn-frame__terminal--right" src="/frames/dividers/sapphire-terminal.webp" alt="" />
+                <img className="deploy-btn-frame__gem" src="/frames/dividers/gold-diamond.webp" alt="" />
+              </span>
               <span>{isSubmitting ? "LOCKING IT IN..." : "CONFIRM DEPLOYMENT"}</span>
             </button>
             {tutorialStep === 'task_modal_open' && formTutorialStep === 5 && (
@@ -541,35 +557,44 @@ export default function TaskModal({
                     <span className="pointer-tag">GUARDIAN</span>
                     <p className="text-[11px] font-serif text-white">Confirm. There's no walking this back.</p>
                   </div>
-                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                 </div>
               </div>
             )}
           </div>
         </form>
+        </div>
       </motion.div>
 
       <style>{`
         .modal-backdrop {
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+          background: rgba(0,0,0,0.68); backdrop-filter: blur(5px);
           display: flex; justify-content: center; align-items: flex-start; z-index: 1000;
           padding: 1rem;
           padding-top: max(1rem, env(safe-area-inset-top));
           overflow-y: auto;
         }
-        
+
+        .tactical-modal-shell {
+          width: 100%;
+          max-width: 500px;
+          margin: auto;
+          position: relative;
+          isolation: isolate;
+        }
+
         .tactical-modal { 
           width: 100%; 
-          max-width: 500px; 
-          padding: 1rem; 
+          max-width: none;
+          padding: 1rem;
           max-height: 78dvh;
           overflow-y: auto;
           overscroll-behavior: contain;
-          border: 1px solid rgba(236, 200, 128, 0.42);
+          border: 0;
           box-shadow: inset 0 0 38px rgba(0,0,0,0.72), 0 0 50px rgba(0,0,0,0.8), 0 0 24px rgba(197,160,89,0.08);
-          background: linear-gradient(135deg, var(--bg-panel), rgba(10,10,15,0.95));
-          margin: auto;
+          background: linear-gradient(135deg, rgba(7, 7, 10, 0.98), rgba(0, 0, 0, 0.99)) !important;
+          margin: 0;
           position: relative;
           scrollbar-width: thin;
           scrollbar-color: rgba(197, 160, 89, 0.35) rgba(255, 255, 255, 0.02);
@@ -578,15 +603,61 @@ export default function TaskModal({
         .tactical-modal::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
         .tactical-modal::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.35); border-radius: 2px; }
 
+        .tactical-modal-frame {
+          position: absolute;
+          inset: 0;
+          z-index: 6;
+          overflow: visible;
+          pointer-events: none;
+        }
+        .tactical-modal-frame img {
+          position: absolute;
+          display: block;
+          object-fit: contain;
+          user-select: none;
+          filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.9));
+        }
+        .tactical-modal-frame__crown {
+          top: -76px;
+          left: 50%;
+          width: min(430px, 86vw);
+          height: 160px;
+          transform: translateX(-50%);
+        }
+        .tactical-modal-frame__corner {
+          --task-modal-ledger-width: clamp(92px, 10vw, 138px);
+          width: var(--task-modal-ledger-width);
+          aspect-ratio: 2 / 3;
+        }
+        .tactical-modal-frame__corner--bl {
+          bottom: calc(var(--task-modal-ledger-width) * -0.322);
+          left: calc(var(--task-modal-ledger-width) * -0.198);
+          transform: scaleY(-1);
+        }
+        .tactical-modal-frame__corner--tl {
+          top: calc(var(--task-modal-ledger-width) * -0.322);
+          left: calc(var(--task-modal-ledger-width) * -0.198);
+        }
+        .tactical-modal-frame__corner--tr {
+          top: calc(var(--task-modal-ledger-width) * -0.322);
+          right: calc(var(--task-modal-ledger-width) * -0.198);
+          transform: scaleX(-1);
+        }
+        .tactical-modal-frame__corner--br {
+          right: calc(var(--task-modal-ledger-width) * -0.198);
+          bottom: calc(var(--task-modal-ledger-width) * -0.322);
+          transform: scale(-1);
+        }
+
         @media (min-width: 640px) {
           .tactical-modal { padding: 2.5rem; max-height: 85dvh; }
         }
 
-        .modal-header { 
-          display: flex; 
-          justify-content: space-between; 
-          align-items: center; 
-          margin-bottom: 2rem; 
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
           border-bottom: 1px solid var(--border);
           padding-bottom: 1rem;
         }
@@ -594,12 +665,12 @@ export default function TaskModal({
         @media (min-width: 640px) {
           .modal-header { margin-bottom: 2.5rem; }
         }
-        
+
         .modal-title-box { display: flex; align-items: center; gap: 1rem; }
-        .modal-title-box h2 { 
-          font-family: var(--font-display); 
-          font-size: 0.9rem; 
-          letter-spacing: 0.2em; 
+        .modal-title-box h2 {
+          font-family: var(--font-display);
+          font-size: 0.9rem;
+          letter-spacing: 0.2em;
           color: var(--text-primary);
           margin: 0;
         }
@@ -608,11 +679,11 @@ export default function TaskModal({
         }
         .text-gold { color: var(--gold-core); filter: drop-shadow(0 0 5px var(--gold-glow)); }
 
-        .btn-close-circle { 
-          width: 32px; height: 32px; border-radius: 50%; 
+        .btn-close-circle {
+          width: 32px; height: 32px; border-radius: 50%;
           background: rgba(255,255,255,0.03); border: 1px solid var(--border);
           color: var(--text-dim); display: flex; align-items: center; justify-content: center;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .btn-close-circle:hover { background: var(--red-core); color: #fff; border-color: var(--red-hot); }
 
@@ -638,13 +709,13 @@ export default function TaskModal({
           .form-grid { grid-template-columns: 1fr 1fr; }
         }
         .form-group { display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
-        
-        label { 
+
+        label {
           display: flex; align-items: center; gap: 0.5rem;
-          font-size: 0.55rem; font-weight: 900; letter-spacing: 0.15em; color: var(--text-dark); 
+          font-size: 0.55rem; font-weight: 900; letter-spacing: 0.15em; color: var(--text-dark);
           text-transform: uppercase;
         }
-        
+
         input, select {
           background: rgba(0, 0, 0, 0.4);
           border: 1px solid var(--border);
@@ -653,17 +724,17 @@ export default function TaskModal({
           color: var(--text-primary);
           font-family: var(--font-mono);
           font-size: 0.8rem;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           flex: 1;
         }
-        
-        input:focus, select:focus { 
-          outline: none; 
-          border-color: var(--gold-core); 
+
+        input:focus, select:focus {
+          outline: none;
+          border-color: var(--gold-core);
           background: rgba(197, 160, 89, 0.05);
           box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
         }
-        
+
         input::placeholder { color: var(--text-dark); opacity: 0.5; }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
@@ -690,7 +761,7 @@ export default function TaskModal({
           font-size: 0.6rem;
           font-weight: 900;
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           letter-spacing: 0.05em;
         }
 
@@ -708,7 +779,7 @@ export default function TaskModal({
           justify-content: center;
           border-radius: 4px;
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           margin-left: 0.5rem;
         }
 
@@ -717,8 +788,11 @@ export default function TaskModal({
           border-color: var(--gold-core);
           color: #fff;
         }
-        
+
         .deploy-btn {
+          position: relative;
+          isolation: isolate;
+          overflow: visible;
           width: 100%;
           height: 54px;
           border-radius: 4px;
@@ -729,17 +803,55 @@ export default function TaskModal({
           border: 1px solid var(--gold-core);
           color: var(--gold-core);
           box-shadow: 0 0 15px rgba(197, 160, 89, 0.2), inset 0 0 10px rgba(197, 160, 89, 0.1);
-          transition: all 0.2s ease;
+          transition: var(--motion-control-transition);
           margin-top: 1rem;
         }
-        
+
         .deploy-btn:hover {
           background: var(--gold-core);
           color: #000;
           box-shadow: 0 0 25px rgba(197, 160, 89, 0.4);
         }
-        
+
         .deploy-btn span { position: relative; z-index: 2; font-weight: 700; }
+        .deploy-btn > span:last-child { z-index: 5; }
+        .deploy-btn-frame {
+          position: absolute !important;
+          inset: 0;
+          z-index: 4 !important;
+          pointer-events: none;
+          overflow: visible;
+        }
+        .deploy-btn-frame img {
+          position: absolute;
+          display: block;
+          object-fit: contain;
+          user-select: none;
+        }
+        .deploy-btn-frame__line {
+          top: -22px;
+          left: 8%;
+          width: 84%;
+          height: 44px;
+          object-fit: fill !important;
+        }
+        .deploy-btn-frame__terminal {
+          top: auto;
+          bottom: -31px;
+          width: 78px;
+          height: 62px;
+          filter: drop-shadow(0 0 7px rgba(52, 105, 190, .34));
+        }
+        .deploy-btn-frame__terminal--left { left: -24px; transform: scaleX(-1); }
+        .deploy-btn-frame__terminal--right { right: -24px; }
+        .deploy-btn-frame__gem {
+          top: -32px;
+          left: 50%;
+          width: 64px;
+          height: 64px;
+          transform: translateX(-50%);
+          filter: drop-shadow(0 0 9px rgba(236, 200, 128, .42));
+        }
 
         /* ═══════════════ CUSTOM SELECT STYLE (BLACK & WHITE) ═══════════════ */
         .custom-select-container {
@@ -761,7 +873,7 @@ export default function TaskModal({
           justify-content: space-between;
           align-items: center;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: var(--motion-control-transition);
         }
         .custom-select-trigger:focus {
           outline: none;
@@ -787,7 +899,7 @@ export default function TaskModal({
           font-family: var(--font-mono);
           font-size: 0.75rem;
           cursor: pointer;
-          transition: all 0.1s ease;
+          transition: var(--motion-control-transition);
         }
         .custom-select-option:hover {
           background: #fff;
@@ -862,7 +974,7 @@ export default function TaskModal({
           margin: 0;
           text-transform: none;
         }
-        
+
         .modal-onboarding-open {
           overflow: visible !important;
           max-height: none !important;
@@ -870,7 +982,7 @@ export default function TaskModal({
         .modal-onboarding-open .tactical-form {
           gap: 1.5rem;
         }
-        
+
         .onboarding-pointer {
           margin-top: 0.5rem;
           border-color: rgba(197, 160, 89, 0.3);
@@ -887,7 +999,7 @@ export default function TaskModal({
           box-shadow: 0 10px 30px rgba(0,0,0,0.8);
           font-family: 'Times New Roman', Georgia, Times, serif;
         }
-        
+
         .calendar-header {
           display: flex;
           justify-content: space-between;
@@ -1053,6 +1165,6 @@ export default function TaskModal({
           .onboarding-pointer { padding: 0.55rem; margin-top: 0.25rem; }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }

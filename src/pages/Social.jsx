@@ -1,3 +1,4 @@
+import OrnateFrame, { LegionAvatarFrame } from '../components/frames/OrnateFrame';
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -493,7 +494,7 @@ export default function Social() {
             onClick={() => {
               useWarscytheStore.getState().openVideoModal('legion');
             }}
-            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gold-core hover:text-gold-bright border border-gold-core/20 hover:border-gold-core/40 bg-gold-core/5 hover:bg-gold-core/10 rounded transition-all cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gold-core hover:text-gold-bright border border-gold-core/20 hover:border-gold-core/40 bg-gold-core/5 hover:bg-gold-core/10 rounded motion-control cursor-pointer"
             title="Play Walkthrough Guide"
           >
             <Play size={10} fill="currentColor" className="text-gold-core" />
@@ -502,7 +503,7 @@ export default function Social() {
           <button 
             type="button"
             onClick={() => useWarscytheStore.getState().openInfoModal('social')}
-            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] rounded transition-all cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] rounded motion-control cursor-pointer"
             title="Social Info"
           >
             <Info size={11} />
@@ -512,7 +513,7 @@ export default function Social() {
       </div>
 
       <div className="social-tab-content">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout" initial={false}>
           
           {/* ==================== 1. LEADERBOARD TAB ==================== */}
           {activeSubTab === 'leaderboard' && (
@@ -524,7 +525,8 @@ export default function Social() {
               className="social-grid-layout"
             >
               {/* LEFT COLUMN: SELF-COMPARISON CAMPFIRE */}
-              <div className="social-panel-left select-none">
+              <div className="social-panel-left select-none ornate-surface ">
+<OrnateFrame family="ares" />
                 <div className="panel-title-row">
                   <Sparkles size={12} className="text-gold-core" />
                   <h3>CAMPFIRE LOG</h3>
@@ -570,9 +572,10 @@ export default function Social() {
               </div>
 
               {/* RIGHT COLUMN: FRIENDS RANKINGS */}
-              <div className="social-panel-right" style={{ position: 'relative', overflow: 'hidden' }}>
+              <div className="social-panel-right ornate-surface " style={{ position: 'relative', overflow: 'visible' }}>
+<OrnateFrame family="ledger" />
                 <div className="standings-black-mask" style={{ position: 'absolute', inset: 0, backgroundColor: '#000000', zIndex: 0 }} />
-                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.25, pointerEvents: 'none', zIndex: 1 }} />
+                <div className="standings-bg-overlay" style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/bonfire.webp)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom center', opacity: 0.25, pointerEvents: 'none', zIndex: 1 }} />
                 <div className="standings-content-wrapper">
                   <div className="panel-title-row flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -590,7 +593,7 @@ export default function Social() {
                   {leaderboardMode === 'solo' ? (
                     <div className="solo-tranquility-card">
                       <Shield size={32} className="text-gold-core/40 animate-pulse" />
-                      <h4 className="font-serif">Solo Tranquility Mode Active</h4>
+                      <h4 className="motion-heading font-serif">Solo Tranquility Mode Active</h4>
                       <p className="font-mono">Other operatives are hidden. Focus entirely on your own execution curve.</p>
                     </div>
                   ) : (
@@ -644,7 +647,8 @@ export default function Social() {
               className="social-grid-layout"
             >
               {/* LEFT COLUMN: PENDING REQUESTS & ADD FRIEND */}
-              <div className="social-panel-left">
+              <div className="social-panel-left ornate-surface ">
+<OrnateFrame family="ares" />
                 <div className="panel-title-row">
                   <UserPlus size={12} className="text-gold-core" />
                   <h3>RECRUIT OPERATIVES</h3>
@@ -708,7 +712,8 @@ export default function Social() {
               </div>
 
               {/* RIGHT COLUMN: FRIENDS DIRECTORY */}
-              <div className="social-panel-right">
+              <div className="social-panel-right ornate-surface ">
+<OrnateFrame family="ledger" />
                 <div className="panel-title-row">
                   <Users size={12} className="text-gold-core" />
                   <h3>OPERATIVE REGISTRY</h3>
@@ -721,8 +726,8 @@ export default function Social() {
                         <div className="friend-avatar-container">
                           {/* Renders frame based on friend's level */}
                           <img 
-                            src={`/legion/frames/legion-frame-${Math.min(friend.stats.level, 10)}.png`}
-                            onError={(e) => { e.target.src = '/command-core.png'; }} 
+                            src={`/legion/frames/legion-frame-${Math.min(friend.stats.level, 10)}.webp`}
+                            onError={(e) => { e.target.src = '/command-core.webp'; }}
                             className="avatar-frame-overlay"
                             alt=""
                           />
@@ -770,9 +775,10 @@ export default function Social() {
               >
               {!activeLegion ? (
                 /* NO LEGION: CREATE OR JOIN */
-                <div className="no-legion-container elite-panel">
+                <div className="no-legion-container elite-panel ornate-surface ">
+<OrnateFrame family="ares" crest />
                   <Shield size={48} className="text-gold-core/40 animate-pulse mb-4" />
-                  <h2 className="font-serif text-lg text-white">FORGE COALITION</h2>
+                  <h2 className="motion-heading font-serif text-lg text-white">FORGE COALITION</h2>
                   <p className="font-mono text-gray-400 text-xs mt-2 max-w-sm">
                     Legion Operations turn shared goals into shared records. Forge a persistent group with other operatives.
                   </p>
@@ -795,12 +801,13 @@ export default function Social() {
                 /* ACTIVE LEGION VIEW */
                 <>
                   {/* LEFT COLUMN: LEGION STATS, MEMBERS & INVITATIONS */}
-                  <div className="social-panel-left select-none">
+                  <div className="social-panel-left select-none ornate-surface ">
+<OrnateFrame family="ares" />
                     <div className="legion-profile-card flex flex-col items-center text-center">
                       <div className="legion-banner-display relative w-full h-36 flex flex-col items-center justify-center border border-white/5 bg-black/40 overflow-hidden mb-4">
                         <img 
-                          src={`/legion/banners/legion-banner-${Math.min(activeLegion.level, 10)}.png`}
-                          onError={(e) => { e.target.src = '/olympus-bg.png'; }}
+                          src={`/legion/banners/legion-banner-${Math.min(activeLegion.level, 10)}.webp`}
+                          onError={(e) => { e.target.src = '/olympus-bg.webp'; }}
                           className="legion-banner-img absolute inset-0 w-full h-full object-cover opacity-60"
                           alt=""
                         />
@@ -843,7 +850,7 @@ export default function Social() {
                         )}
                       </div>
                       <span className="text-[10px] font-mono text-gold-core">LEGION LEVEL {activeLegion.level}</span>
-                      <span className="text-[8px] font-mono text-gray-500 mt-1">TOTAL XP CONTRIBUTED: {activeLegion.total_xp}</span>
+                      <span className="text-[8px] font-mono text-gray-500 mt-1">TOTAL XP CONTRIBUTED: {Number(activeLegion.total_xp ?? activeLegion.xp ?? 0).toLocaleString()}</span>
                     </div>
 
                     <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-4" />
@@ -853,13 +860,15 @@ export default function Social() {
                       <span className="sec-label mb-2 block text-left">Garrison</span>
                       <div className="flex flex-col gap-2">
                         {(legionMembers || []).map(member => {
-                          const isCreator = member.role === 'creator';
+                          const isCreator = member.user_id === activeLegion.owner_id || member.role === 'creator' || member.role === 'owner';
                           return (
                             <div key={member.id} className="member-item flex justify-between items-center text-left">
-                              <div className="flex flex-col font-mono text-[10px]">
+                              <div className="member-identity">
+<LegionAvatarFrame level={activeLegion.level}>{Array.from(member.profile?.username || member.profile?.email || "?")[0]}</LegionAvatarFrame>
+<div className="flex flex-col font-mono text-[10px]">
                                 <span className="font-bold">{member.profile?.username || member.profile?.email?.split('@')[0] || 'Unknown'}</span>
-                                <span className="text-[7px] text-gold-core/80 uppercase">{member.role}</span>
-                              </div>
+                                <span className="text-[7px] text-gold-core/80 uppercase">{isCreator ? "leader" : member.role}</span>
+                              </div></div>
                               <div className="flex items-center gap-2">
                                 {isCreator && <span className="text-[7px] font-mono border border-gold-core/40 text-gold-core px-1 py-0.5 rounded">LEADER</span>}
                                 {!isCreator && activeLegion.owner_id === user?.id && (
@@ -974,7 +983,7 @@ export default function Social() {
                               return (
                                 <div 
                                   key={op.id}
-                                  className="p-3 border border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent rounded flex flex-col gap-2 cursor-pointer hover:border-gold-core/40 transition-all"
+                                  className="p-3 border border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent rounded flex flex-col gap-2 cursor-pointer hover:border-gold-core/40 motion-control"
                                   onClick={() => setSelectedLegionOpId(op.id)}
                                 >
                                   <div className="flex items-start gap-2.5 justify-between">
@@ -983,7 +992,7 @@ export default function Social() {
                                         <Check size={8} />
                                       </div>
                                       <div className="flex flex-col min-w-0 flex-1">
-                                        <h4 className="text-white font-display text-[10px] tracking-wider uppercase leading-snug truncate">
+                                        <h4 className="motion-heading text-white font-display text-[10px] tracking-wider uppercase leading-snug truncate">
                                           {parentTitle}
                                         </h4>
                                         <span className="text-[7px] font-mono text-gray-500 uppercase">
@@ -1019,7 +1028,8 @@ export default function Social() {
                   </div>
 
                   {/* RIGHT COLUMN: COLLABORATIVE OPERATIONS BOARD */}
-                  <div className="social-panel-right">
+                  <div className="social-panel-right ornate-surface ">
+<OrnateFrame family="ledger" />
                     <div className="panel-title-row">
                       <Shield size={12} className="text-gold-core" />
                       <h3>COLLECTIVE OPERATIONS</h3>
@@ -1027,7 +1037,8 @@ export default function Social() {
 
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
                     {activeLegion.owner_id === user?.id && (
-                      <form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded">
+                      <form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded ornate-surface ">
+<OrnateFrame family="universal" quiet />
                         {(effortOpen || assigneeDropdownOpen || priorityDropdownOpen) && (
                           <div 
                             className="fixed inset-0 z-40 bg-transparent" 
@@ -1041,13 +1052,13 @@ export default function Social() {
 
                         <div className="modal-title-box mb-2 border-b border-gold-core/10 pb-3 flex items-center gap-2">
                           <Shield size={16} className="text-gold-core" />
-                          <h2 className="text-[14px] font-serif text-gold-core tracking-widest uppercase">Initiate Tactical Run</h2>
+                          <h2 className="motion-heading text-[14px] font-serif text-gold-core tracking-widest uppercase">Initiate Tactical Run</h2>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* COLUMN 1: CAMPAIGN PARAMETERS */}
                           <div className="flex flex-col gap-4 border-r border-white/5 pr-0 md:pr-6">
-                            <h3 className="text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Campaign Parameters</h3>
+                            <h3 className="motion-heading text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Campaign Parameters</h3>
                             
                             <div className="form-group">
                               <label><Zap size={12} className="text-gold-core" /> Objective Identifier (Parent Operation)</label>
@@ -1098,7 +1109,7 @@ export default function Social() {
 
                           {/* COLUMN 2: SUB-TASKS DECOMPOSITION */}
                           <div className="flex flex-col gap-4">
-                            <h3 className="text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Operative Assignments</h3>
+                            <h3 className="motion-heading text-[10px] font-serif text-gold-core/70 tracking-widest uppercase mb-2 border-b border-white/5 pb-1">Operative Assignments</h3>
 
                             <div className="form-group">
                               <label>Sub-Task Objective Name</label>
@@ -1249,13 +1260,13 @@ export default function Social() {
                         return (
                           <div 
                             key={op.id} 
-                            className="op-run-card glass-panel p-4 border border-white/5 rounded cursor-pointer hover:border-gold-core/30 hover:shadow-[0_0_15px_rgba(197,160,89,0.05)] transition-all"
+                            className="op-run-card glass-panel p-4 border border-white/5 rounded cursor-pointer hover:border-gold-core/30 hover:shadow-[0_0_15px_rgba(197,160,89,0.05)] motion-control"
                             onClick={() => setSelectedLegionOpId(op.id)}
                           >
                             <div className="flex justify-between items-start mb-3">
                               <div className="flex flex-col">
                                 <span className="text-[7px] font-mono text-gold-core uppercase tracking-wider">Active Legion Run</span>
-                                <h4 className="font-serif text-[13px] text-white uppercase">{parentTitle}</h4>
+                                <h4 className="motion-heading font-serif text-[13px] text-white uppercase">{parentTitle}</h4>
                                 <span className="text-[8px] font-mono text-gray-500 uppercase mt-0.5">Status: {(op.status || '').toUpperCase()}</span>
                               </div>
                               <div className="flex flex-col items-end gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
@@ -1466,7 +1477,7 @@ export default function Social() {
         />
       )}
 
-      <style jsx global>{`
+      <style>{`
         .social-page-container {
           display: flex;
           flex-direction: column;
@@ -1476,7 +1487,7 @@ export default function Social() {
           padding-bottom: 7.5rem;
           gap: 1.5rem;
         }
-        
+
         @media (min-width: 1024px) {
           .social-page-container {
             height: calc(100vh - 160px);
@@ -1484,7 +1495,7 @@ export default function Social() {
             padding-bottom: 1.5rem;
           }
         }
-        
+
         .social-sub-nav {
           display: flex;
           justify-content: center;
@@ -1494,7 +1505,7 @@ export default function Social() {
           flex-shrink: 0;
         }
 
-        .social-tab-content {
+        .social-tab-content { position: relative;
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -1503,7 +1514,7 @@ export default function Social() {
         }
 
         @media (min-width: 1024px) {
-          .social-tab-content {
+          .social-tab-content { position: relative;
             overflow: hidden;
           }
         }
@@ -1519,7 +1530,7 @@ export default function Social() {
           align-items: center;
           gap: 0.5rem;
           cursor: pointer;
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
         .social-nav-item.active {
           color: var(--gold-core);
@@ -1758,7 +1769,7 @@ export default function Social() {
           border: none;
           color: rgba(255,255,255,0.3);
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .unfriend-btn:hover {
           color: #ef4444;
@@ -1808,18 +1819,20 @@ export default function Social() {
           letter-spacing: 0.2em;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: var(--motion-control-transition);
           display: flex;
           align-items: center;
           justify-content: center;
           box-shadow: 0 0 10px rgba(197, 160, 89, 0.05);
         }
+        @media (hover: hover) and (pointer: fine) {
         .legion-forge-btn:hover {
           background: var(--gold-core);
           color: #000;
           box-shadow: 0 0 20px rgba(197, 160, 89, 0.35);
           transform: translateY(-1px);
         }
+}
 
         .campfire-visual-container {
           width: 100%;
@@ -1862,7 +1875,7 @@ export default function Social() {
           background: rgba(10, 10, 12, 0.95) !important;
           box-shadow: inset 0 0 20px rgba(197, 160, 89, 0.05), 0 10px 30px rgba(0,0,0,0.6);
         }
-        
+
         .collective-ops-form .form-group {
           display: flex;
           flex-direction: column;
@@ -1883,8 +1896,8 @@ export default function Social() {
           margin-bottom: 0.25rem;
         }
 
-        .collective-ops-form input, 
-        .collective-ops-form select, 
+        .collective-ops-form input,
+        .collective-ops-form select,
         .collective-ops-form .custom-select-trigger {
           background: #000000 !important;
           border: 1px solid rgba(197, 160, 89, 0.25) !important;
@@ -1894,15 +1907,15 @@ export default function Social() {
           font-family: 'Times New Roman', Georgia, Times, serif !important;
           font-size: 11px !important;
           outline: none;
-          transition: all 0.2s ease;
+          transition: var(--motion-control-transition);
           width: 100%;
           box-sizing: border-box;
           height: auto;
           line-height: normal;
         }
 
-        .collective-ops-form input:focus, 
-        .collective-ops-form select:focus, 
+        .collective-ops-form input:focus,
+        .collective-ops-form select:focus,
         .collective-ops-form .custom-select-trigger:focus {
           border-color: #c5a059 !important;
           background: rgba(197, 160, 89, 0.05) !important;
@@ -1937,7 +1950,7 @@ export default function Social() {
           font-family: 'Times New Roman', Georgia, Times, serif;
           font-size: 11px;
           cursor: pointer;
-          transition: all 0.1s ease;
+          transition: var(--motion-control-transition);
           text-align: left;
         }
 
@@ -1964,7 +1977,7 @@ export default function Social() {
           letter-spacing: 0.1em;
           border-radius: 4px;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: var(--motion-control-transition);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1990,7 +2003,7 @@ export default function Social() {
           text-transform: uppercase;
           border-radius: 4px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: var(--motion-control-transition);
           box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
         }
 
@@ -2010,7 +2023,7 @@ export default function Social() {
           box-shadow: 0 10px 30px rgba(0,0,0,0.8);
           font-family: 'Times New Roman', Georgia, Times, serif;
         }
-        
+
         .calendar-header {
           display: flex;
           justify-content: space-between;

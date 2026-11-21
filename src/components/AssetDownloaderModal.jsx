@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -14,6 +15,13 @@ export default function AssetDownloaderModal({ onClose }) {
 
   const isMobileApp = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
 
+  const publishDownloadedIds = ids => {
+    const current = useWarscytheStore.getState().downloadedRegions || [];
+    const normalized = ids.map(String);
+    if (current.length === normalized.length && current.every((id, index) => String(id) === normalized[index])) return;
+    useWarscytheStore.setState({ downloadedRegions:normalized });
+  };
+
   // Dynamic Cache Check
   const runCacheCheck = async () => {
     try {
@@ -26,13 +34,13 @@ export default function AssetDownloaderModal({ onClose }) {
           }
         }
         setDownloadedItemIds(allIds);
-        useWarscytheStore.setState({ downloadedRegions: allIds });
+        publishDownloadedIds(allIds);
         return;
       }
 
       const found = await scanCachedBundleIds();
       setDownloadedItemIds(found);
-      useWarscytheStore.setState({ downloadedRegions: found });
+      publishDownloadedIds(found);
     } catch (e) {
       console.error('Cache scan failed:', e);
     }
@@ -212,15 +220,16 @@ export default function AssetDownloaderModal({ onClose }) {
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-        className="downloader-modal-content"
+        className="downloader-modal-content ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.96)), url("/shop-bg.png")',
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.96)), url("/shop-bg.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           border: '1px solid var(--border-bright)'
         }}
       >
+          <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
         {/* Header */}
         <div className="downloader-header">
           <div className="flex items-center gap-3">
@@ -286,7 +295,7 @@ export default function AssetDownloaderModal({ onClose }) {
                 {/* Category Header Row (styled like a row card) */}
                 <div 
                   onClick={() => toggleExpand(catKey)}
-                  className="category-card p-3 rounded border border-white/10 bg-black/60 flex items-center justify-between transition-all hover:bg-black/80 cursor-pointer select-none"
+                  className="category-card p-3 rounded border border-white/10 bg-black/60 flex items-center justify-between motion-control hover:bg-black/80 cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-2.5">
                     {isExpanded ? <ChevronUp size={12} className="text-gold-core" /> : <ChevronDown size={12} className="text-gray-500" />}
@@ -330,7 +339,7 @@ export default function AssetDownloaderModal({ onClose }) {
                         return (
                           <div 
                             key={subId} 
-                            className={`bundle-row p-3 rounded border flex items-center justify-between transition-all ${
+                            className={`bundle-row p-3 rounded border flex items-center justify-between motion-control ${
                               isItemDownloaded 
                                 ? 'border-gold-core/25 bg-gold-core/[0.02] shadow-[0_0_10px_rgba(197,160,89,0.02)]' 
                                 : 'border-white/5 bg-black/40'
@@ -355,7 +364,7 @@ export default function AssetDownloaderModal({ onClose }) {
                             <button
                               disabled={isBaseGroup || isItemLoading}
                               onClick={() => handleToggleItem(catKey, subId, isItemDownloaded)}
-                              className={`px-3 py-1.5 rounded font-mono text-[8.5px] uppercase font-bold tracking-widest transition-all flex items-center gap-1.5 ${
+                              className={`px-3 py-1.5 rounded font-mono text-[8.5px] uppercase font-bold tracking-widest motion-control flex items-center gap-1.5 ${
                                 isBaseGroup
                                   ? 'bg-transparent text-gray-500 border border-transparent cursor-default'
                                   : isItemLoading
@@ -402,7 +411,7 @@ export default function AssetDownloaderModal({ onClose }) {
           </p>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .downloader-backdrop {
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
@@ -435,13 +444,16 @@ export default function AssetDownloaderModal({ onClose }) {
             border: none;
             color: var(--text-dark);
             cursor: pointer;
-            transition: 0.2s;
+            transition: var(--motion-control-transition);
           }
+
+          @media (hover: hover) and (pointer: fine) {
 
           .downloader-close:hover {
             color: #fff;
             transform: rotate(90deg);
           }
+}
 
           .cinzel-title {
             font-family: 'Cinzel Decorative', 'Cinzel', serif;

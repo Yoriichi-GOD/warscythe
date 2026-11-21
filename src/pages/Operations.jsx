@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import MobileDisplayToggle from '../components/MobileDisplay';
+import { useMobileDisplay } from '../components/useMobileDisplay';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import ObjectiveRitual from '../components/operations/ObjectiveRitual';
@@ -7,6 +10,76 @@ import RitualCard from '../components/operations/RitualCard';
 import ScytheDisplay from '../components/scythe/ScytheDisplay';
 import CommandCenter from '../components/command/CommandCenter';
 import { Zap, Lock, Info, Play } from 'lucide-react';
+
+const ScytheWindowFrame = () => (
+    <div className="scythe-universal-frame" aria-hidden="true">
+      <span className="scythe-frame-corner scythe-frame-corner--tl"><img src="/frames/universal/corner.webp" alt="" /></span>
+      <span className="scythe-frame-corner scythe-frame-corner--tr"><img src="/frames/universal/corner.webp" alt="" /></span>
+      <span className="scythe-frame-corner scythe-frame-corner--bl"><img src="/frames/universal/corner.webp" alt="" /></span>
+      <span className="scythe-frame-corner scythe-frame-corner--br"><img src="/frames/universal/corner.webp" alt="" /></span>
+      <span className="scythe-frame-rail scythe-frame-rail--top"><img src="/frames/universal/rail.webp" alt="" /></span>
+      <span className="scythe-frame-rail scythe-frame-rail--bottom"><img src="/frames/universal/rail.webp" alt="" /></span>
+      <span className="scythe-frame-rail scythe-frame-rail--left"><img src="/frames/universal/rail.webp" alt="" /></span>
+      <span className="scythe-frame-rail scythe-frame-rail--right"><img src="/frames/universal/rail.webp" alt="" /></span>
+      <span className="scythe-frame-side-center scythe-frame-side-center--left"><img src="/frames/universal/center.webp" alt="" /></span>
+      <span className="scythe-frame-side-center scythe-frame-side-center--right"><img src="/frames/universal/center.webp" alt="" /></span>
+      <span className="scythe-column-divider">
+        <img className="scythe-column-divider__line" src="/frames/dividers/gold-diamond-line.webp" alt="" />
+        <img className="scythe-column-divider__gem" src="/frames/dividers/gold-diamond.webp" alt="" />
+      </span>
+    </div>
+);
+
+const OperationsWindowFrame = ({ targetRef }) => {
+  const [rect, setRect] = useState(null);
+
+  useEffect(() => {
+    const target = targetRef.current;
+    if (!target) return undefined;
+    const measure = () => {
+      const next = target.getBoundingClientRect();
+      const headerBottom = document.getElementById('warscythe-header')?.getBoundingClientRect().bottom ?? 0;
+      const clipTop = window.innerWidth <= 1023 ? Math.max(0, headerBottom - next.top) : 0;
+      setRect({ top: next.top, left: next.left, width: next.width, height: next.height, '--ops-frame-clip-top': `${clipTop}px` });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(target);
+    window.addEventListener('resize', measure);
+    document.addEventListener('scroll', measure, true);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+      document.removeEventListener('scroll', measure, true);
+    };
+  }, [targetRef]);
+
+  if (!rect || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="operations-window-frame" style={rect} aria-hidden="true">
+      <span className="operations-screen-corner"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
+    </div>,
+    document.body
+  );
+};
+
+const OrnateButtonFrame = ({ placement }) => (
+  <span className={`operations-button-frame operations-button-frame--${placement}`} aria-hidden="true">
+    {placement === 'strike' ? (
+      <>
+        <img className="operations-button-corner operations-button-corner--tl" src="/frames/buttons/button-corner.webp" alt="" />
+        <img className="operations-button-corner operations-button-corner--tr" src="/frames/buttons/button-corner.webp" alt="" />
+        <img className="operations-button-rail operations-button-rail--bottom" src="/frames/buttons/button-rail.webp" alt="" />
+      </>
+    ) : (
+      <>
+        <img className="operations-button-corner operations-button-corner--bl" src="/frames/buttons/button-corner.webp" alt="" />
+        <img className="operations-button-corner operations-button-corner--br" src="/frames/buttons/button-corner.webp" alt="" />
+        <img className="operations-button-rail operations-button-rail--top" src="/frames/buttons/button-rail.webp" alt="" />
+      </>
+    )}
+  </span>
+);
 
 const WidgetLock = ({ requiredTasks, conceptName }) => {
   const [showNotification, setShowNotification] = useState(false);
@@ -43,6 +116,8 @@ const WidgetLock = ({ requiredTasks, conceptName }) => {
 };
 
 export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOpenGymLog }) {
+  const scythePanelRef = useRef(null);
+  const operationsPanelRef = useRef(null);
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const tasks = useWarscytheStore(state => state.tasks) || [];
@@ -53,6 +128,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
   const onboardingActive = useWarscytheStore(state => state.onboardingActive);
+  const teachingScythe = useWarscytheStore(state => state.pendingGuardianProgress === 1);
+  const scytheDisplay = useMobileDisplay('operations', teachingScythe);
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -111,14 +188,16 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   ];
 
   return (
-    <div className="elite-grid-container">
+    <div className="elite-grid-container" data-scythe-collapsed={scytheDisplay.collapsed}>
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
-      <section className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-6">
+      <section ref={operationsPanelRef} className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-6">
+        <OperationsWindowFrame targetRef={operationsPanelRef} />
+        <span className="operations-screen-corner operations-screen-corner--inline" aria-hidden="true"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
         <div className="flex justify-between items-center mb-8 shrink-0">
           <div className="flex items-center gap-3">
             <Zap size={14} className="text-gold-core" />
-            <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
+            <h2 className="motion-heading text-white font-display text-xs tracking-[0.3em] uppercase">Active Operations</h2>
           </div>
           <div className="flex items-center gap-2">
             <button 
@@ -145,7 +224,10 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
             <ObjectiveRitual onClick={onAddTask} />
           </div>
           
-          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-1 shrink-0" />
+          <div className="operations-sapphire-divider" aria-hidden="true">
+            <img className="operations-sapphire-line" src="/frames/dividers/sapphire-line.webp" alt="" />
+            <img className="operations-sapphire-gem" src="/frames/dividers/sapphire-gem.webp" alt="" />
+          </div>
 
           <div className="flex flex-col gap-4 flex-1 min-h-[220px]">
             <div className="flex justify-between items-center px-1 shrink-0">
@@ -166,7 +248,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                             <span className="pointer-tag">GUARDIAN</span>
                             <p className="text-[11px] font-serif text-white">There's your strike. Tap it when you've moved.</p>
                           </div>
-                          <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                          <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                         </div>
                       </div>
                     )}
@@ -177,12 +259,13 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
               <div className="relative">
                 <button
                   onClick={onAddTask}
-                  className={`w-full py-10 border border-dashed rounded flex items-center justify-center transition-all ${
+                  className={`operations-ornate-button w-full py-10 border border-dashed rounded flex items-center justify-center motion-control ${
                     tutorialStep === 'task_creation'
                       ? 'border-gold-core text-gold-core gold-glow-ring'
                       : 'border-white/20 text-white/40 hover:border-gold-core/40 hover:text-gold-core bg-white/[0.02]'
                   }`}
                 >
+                  <OrnateButtonFrame placement="strike" />
                   <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Initiate Strike</span>
                 </button>
                 {tutorialStep === 'task_creation' && (
@@ -192,7 +275,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
                         <span className="pointer-tag">GUARDIAN</span>
                         <p className="text-[11px] font-serif text-white">Every legend starts with one strike. Tap it.</p>
                       </div>
-                      <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                      <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                     </div>
                   </div>
                 )}
@@ -204,10 +287,11 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
           <button 
             onClick={handleRecalculate}
             disabled={isRecalculating || tutorialStep === 'task_creation'}
-            className={`shrink-0 w-full py-4 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
+            className={`operations-ornate-button shrink-0 w-full py-4 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group disabled:opacity-60 ${
               tutorialStep === 'task_creation' ? 'opacity-10 pointer-events-none filter grayscale' : ''
             }`}
           >
+            <OrnateButtonFrame placement="recalculate" />
             <div className="flex items-center justify-center gap-3">
               <div className={`w-2 h-2 rounded-full border border-gold-core/40 ${isRecalculating ? 'animate-ping' : ''}`} />
               <span className="text-[10px] font-display text-gold-core tracking-[0.4em] uppercase group-hover:text-gold-bright">
@@ -222,17 +306,18 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         </div>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
+      <section ref={scythePanelRef} data-display-collapsed={scytheDisplay.collapsed} className="elite-panel scythe-framed-panel scythe-drawer !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-visible relative">
+        <MobileDisplayToggle sideways id="onboarding-scythe-display" label="Reaper's Scythe" display={scytheDisplay} />
+        <ScytheWindowFrame />
         {onboardingActive && onboardingProgress < 1 && (
           <WidgetLock requiredTasks={1} conceptName="Weapon Evolution" />
         )}
-        
         {/* WEAPON EVOLUTION SIDEBAR */}
         <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
           <div className="flex justify-between items-start mb-6 lg:mb-10">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
-              <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
+              <h4 className="motion-heading text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
             </div>
             <button 
               type="button"
@@ -253,7 +338,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
               return (
                 <div 
                   key={stage.id} 
-                  className={`flex flex-col gap-2 p-3 rounded border transition-all cursor-pointer shrink-0 ${
+                  className={`flex flex-col gap-2 p-3 rounded border motion-control cursor-pointer shrink-0 ${
                     isActive ? 'border-gold-core/40 bg-gold-core/5' : 'border-white/5 hover:bg-white/5'
                   } ${!isUnlocked ? 'opacity-30' : ''}`}
                   onClick={() => isUnlocked && setPreview({ level: stage.id, type: 'standard', pwr: stage.pwr })}
@@ -297,7 +382,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
         {/* SCYTHE DISPLAY AREA */}
         {/* NOTE: lg:left-64 is coupled to the Weapon Evolution Sidebar's width (lg:w-64 = 256px). */}
         {/* If the sidebar width changes, this offset MUST be adjusted to match. */}
-        <div id="onboarding-scythe-display" className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
+        <div id="onboarding-scythe-display" className="mobile-display-content relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}
@@ -312,7 +397,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
            {preview.level && (
              <button 
                onClick={() => setPreview({ level: null, type: 'standard', pwr: null })}
-               className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30 pointer-events-auto"
+               className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 motion-control uppercase tracking-widest z-30 pointer-events-auto"
              >
                Return to Active
              </button>

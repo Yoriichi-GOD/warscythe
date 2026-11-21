@@ -99,9 +99,9 @@ const LEGACY_ARTIFACT_MAP = {
   'Lantern of the Lost': 'lantern',
 };
 const getArtifactImage = (name) => {
-  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
+  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.webp`;
   const type = (name || '').split(' ')[0].toLowerCase();
-  return `/artifacts/artifact-${type}.png`;
+  return `/artifacts/artifact-${type}.webp`;
 };
 
 export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
@@ -397,7 +397,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
         <div className="flex flex-col gap-1">
           <span className="text-[9px] font-mono text-gold-core/60 tracking-[0.4em] uppercase font-bold">Unified Archives</span>
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-display text-white tracking-[0.1em] uppercase">THE LEDGER</h2>
+            <h2 className="motion-heading text-3xl font-display text-white tracking-[0.1em] uppercase">THE LEDGER</h2>
             <button 
               type="button"
               onClick={() => openVideoModal('ledger')}
@@ -412,7 +412,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
         {/* Sub-Tab Navigation */}
         <div className="flex gap-1 border border-white/5 bg-black/40 p-1 rounded">
           <button id="ledger-history-tab"
-            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
+            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded motion-control ${
               subTab === 'history' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -422,7 +422,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             History Logs
           </button>
           <button id="ledger-vault-tab"
-            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
+            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded motion-control ${
               subTab === 'vault' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -432,7 +432,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             Relics & Lore
           </button>
           <button id="ledger-prophecies-tab"
-            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded transition-all ${
+            className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded motion-control ${
               subTab === 'prophecies' 
                 ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -449,8 +449,14 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
         {subTab === 'history' ? (
           <div className="ledger-history-layout flex flex-col gap-6">
             {/* Calendar Widget */}
-            <div className="elite-panel p-6 bg-black/40 border border-white/5 rounded-lg flex flex-col gap-4 relative overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-3 gap-3">
+            <div className="ledger-calendar-panel elite-panel p-6 bg-black/40 border border-white/5 rounded-lg flex flex-col gap-4 relative overflow-visible">
+              <div className="ledger-panel-corners" aria-hidden="true">
+                <img className="ledger-panel-corner ledger-panel-corner--tl ledger-panel-corner--hermes" src="/frames/divine/hermes/corner.webp" alt="" />
+                <img className="ledger-panel-corner ledger-panel-corner--tr" src="/frames/universal/corner.webp" alt="" />
+                <img className="ledger-panel-corner ledger-panel-corner--bl" src="/frames/universal/corner.webp" alt="" />
+                <img className="ledger-panel-corner ledger-panel-corner--br" src="/frames/universal/corner.webp" alt="" />
+              </div>
+              <div className="ledger-section-heading flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 gap-3">
                 <div className="flex items-center gap-2">
                   <Calendar size={14} className="text-gold-core" />
                   <span className="text-[10px] font-mono text-gray-300 uppercase tracking-widest font-bold">TEMPORAL CONQUEST GRID</span>
@@ -476,6 +482,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     <ChevronRight size={14} />
                   </button>
                 </div>
+                <img className="ledger-heading-quotation-rail" src="/frames/quotation/quotation-rail.webp" alt="" aria-hidden="true" />
               </div>
 
               {/* Day Headers (SUN, MON...) */}
@@ -499,7 +506,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                   const circleDetails = getDayCircleStyle(dateStr);
                   const hasLogs = !!circleDetails;
                   
-                  let cellClassName = "ledger-day-cell relative aspect-square flex flex-col items-center justify-center rounded cursor-pointer transition-all border select-none ";
+                  let cellClassName = "ledger-day-cell relative aspect-square flex flex-col items-center justify-center rounded cursor-pointer motion-control border select-none ";
                   
                   if (!hasLogs) {
                     cellClassName += "border-white/[0.02] bg-white/[0.005] opacity-25 hover:opacity-60 hover:border-white/10";
@@ -529,7 +536,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       {/* Circle Indicator around or inside cell */}
                       {hasLogs && (
                         <div
-                          className="absolute inset-1 rounded border pointer-events-none transition-all"
+                          className="absolute inset-1 rounded border pointer-events-none motion-control"
                           style={circleDetails.style}
                         />
                       )}
@@ -575,16 +582,23 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
             </div>
 
-            <div className="ledger-history-detail custom-scrollbar flex flex-col gap-6">
+            <div className="ledger-conquests-frame relative">
+            <div className="ledger-panel-corners" aria-hidden="true">
+              <img className="ledger-panel-corner ledger-panel-corner--tl ledger-panel-corner--artifact" src="/frames/ledger/corner-artifact.webp" alt="" />
+              <img className="ledger-panel-corner ledger-panel-corner--tr ledger-panel-corner--artifact" src="/frames/ledger/corner-artifact.webp" alt="" />
+              <img className="ledger-panel-corner ledger-panel-corner--bl ledger-panel-corner--artifact" src="/frames/ledger/corner-artifact.webp" alt="" />
+              <img className="ledger-panel-corner ledger-panel-corner--br ledger-panel-corner--artifact" src="/frames/ledger/corner-artifact.webp" alt="" />
+            </div>
+            <div className="ledger-history-detail ledger-conquests-panel custom-scrollbar flex flex-col gap-6 relative">
             {/* Selected Date Header and List Filters */}
-            <div className="flex flex-col justify-between items-start gap-4 border-b border-white/5 pb-3">
+            <div className="ledger-section-heading flex flex-col justify-between items-start gap-4 pb-3">
               <div>
                 {selectedDateStr ? (
-                  <h3 className="text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
+                  <h3 className="motion-heading text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
                     CONQUESTS FOR {new Date(selectedDateStr + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </h3>
                 ) : (
-                  <h3 className="text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
+                  <h3 className="motion-heading text-sm font-mono text-gold-core tracking-wider uppercase font-bold text-left">
                     ALL RECORDED CONQUESTS
                   </h3>
                 )}
@@ -597,7 +611,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     <button
                       key={tab}
                       onClick={() => setHistoryFilter(tab)}
-                      className={`px-3 py-1 text-[8.5px] font-mono tracking-widest uppercase rounded transition-all ${
+                      className={`px-3 py-1 text-[8.5px] font-mono tracking-widest uppercase rounded motion-control ${
                         historyFilter === tab 
                           ? 'bg-gold-core text-black font-bold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                           : 'text-text-dim hover:text-white hover:bg-white/5'
@@ -611,12 +625,13 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 {selectedDateStr && (
                   <button 
                     onClick={() => setSelectedDateStr(null)}
-                    className="text-[8.5px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded transition-all uppercase tracking-widest font-bold"
+                    className="text-[8.5px] font-mono text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded motion-control uppercase tracking-widest font-bold"
                   >
                     Clear Filter
                   </button>
                 )}
               </div>
+              <img className="ledger-heading-quotation-rail" src="/frames/quotation/quotation-rail.webp" alt="" aria-hidden="true" />
             </div>
 
             {/* Execution List */}
@@ -645,13 +660,15 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3) }}
-                        className={`elite-panel p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.01] ${
+                        transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.12) }}
+                        className={`ledger-operation-history-card elite-panel p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 motion-control hover:bg-white/[0.01] relative overflow-visible ${
                           isCompleted 
                             ? 'border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent' 
                             : 'border-red-500/20 bg-gradient-to-r from-red-500/[0.02] to-transparent'
                         }`}
                       >
+                        <img className="ledger-history-compact ledger-history-compact--tl" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
+                        <img className="ledger-history-compact ledger-history-compact--br" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div className={`mt-0.5 w-5 h-5 rounded flex items-center justify-center border flex-shrink-0 ${
                             isCompleted ? 'border-gold-core/30 text-gold-core bg-gold-core/5' : 'border-red-500/30 text-red-500 bg-red-500/5'
@@ -660,7 +677,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                           </div>
                           
                           <div className="flex flex-col gap-1 min-w-0 flex-1">
-                            <h4 className="text-white font-display text-[12px] tracking-wider uppercase leading-snug truncate text-left">
+                            <h4 className="motion-heading text-white font-display text-[12px] tracking-wider uppercase leading-snug truncate text-left">
                               {log.title || 'UNSPECIFIED STRIKE'}
                             </h4>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-[8px] font-mono text-text-dim uppercase tracking-wider">
@@ -700,7 +717,19 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
 
                 <div className="flex flex-col gap-4">
                   {dailyGymLogs.map((log) => (
-                    <div key={log.id} className="elite-panel p-5 border border-gold-core/10 bg-gradient-to-r from-gold-core/[0.01] to-transparent rounded-lg flex flex-col gap-4">
+                    <div key={log.id} className="ledger-fitness-history-card elite-panel relative overflow-visible p-5 border border-gold-core/10 bg-gradient-to-r from-gold-core/[0.01] to-transparent rounded-lg flex flex-col gap-4">
+                      <img
+                        className="ledger-fitness-history-corner ledger-fitness-history-corner--ares"
+                        src="/frames/divine/ares/corner.webp"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <img
+                        className="ledger-fitness-history-corner ledger-fitness-history-corner--compact"
+                        src="/frames/universal/compact.webp"
+                        alt=""
+                        aria-hidden="true"
+                      />
                       <div className="flex justify-between items-center border-b border-white/5 pb-2">
                         <div className="flex flex-col text-left">
                           <span className="text-[7.5px] font-mono text-gold-core/70 tracking-widest uppercase font-bold">WORKOUT SPLIT</span>
@@ -750,19 +779,23 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
             )}
             </div>
+            </div>
           </div>
         ) : subTab === 'prophecies' ? (
           <div className="flex flex-col gap-6">
-            <div className="elite-panel-ornate relative p-6 bg-black/40 border border-white/5 rounded-lg">
-              <div className="corner-ornament corner-tl" />
-              <div className="corner-ornament corner-tr" />
-              <div className="corner-ornament corner-bl" />
-              <div className="corner-ornament corner-br" />
+            <div className="elite-panel-ornate guardian-chronicles-frame relative p-6 bg-black/40 border border-white/5 rounded-lg">
+              <div className="guardian-chronicles-frame__art" aria-hidden="true">
+                <img className="guardian-chronicles-corner guardian-chronicles-corner--quotation guardian-chronicles-corner--tl" src="/frames/quotation/quotation-corner.webp" alt="" />
+                <img className="guardian-chronicles-corner guardian-chronicles-corner--universal guardian-chronicles-corner--tr" src="/frames/universal/corner.webp" alt="" />
+                <img className="guardian-chronicles-corner guardian-chronicles-corner--universal guardian-chronicles-corner--bl" src="/frames/universal/corner.webp" alt="" />
+                <img className="guardian-chronicles-corner guardian-chronicles-corner--universal guardian-chronicles-corner--br" src="/frames/universal/corner.webp" alt="" />
+                <img className="guardian-chronicles-top-center" src="/frames/screen/top-center.webp" alt="" />
+              </div>
               <div className="elite-panel-inner-border" />
               
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-display text-gold-core uppercase tracking-widest">GUARDIAN CHRONICLES</h3>
+                  <h3 className="motion-heading text-xl font-display text-gold-core uppercase tracking-widest">GUARDIAN CHRONICLES</h3>
                   <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase tracking-widest">
                     Witnessing your neural peak velocity under pressure
                   </p>
@@ -799,12 +832,12 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       key={idx}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, delay: idx * 0.05 }}
-                      className="flex gap-4 p-4 rounded bg-white/[0.01] border border-white/5 relative hover:border-gold-core/25 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.5)] group"
+                      transition={{ duration: 0.25, delay: Math.min(idx, 4) * 0.03 }}
+                      className="flex gap-4 p-4 rounded bg-white/[0.01] border border-white/5 relative hover:border-gold-core/25 motion-control shadow-[0_4px_12px_rgba(0,0,0,0.5)] group"
                     >
                       <div className="w-12 h-12 border border-gold-core/20 rounded bg-black/60 flex items-center justify-center relative overflow-hidden flex-shrink-0">
                         <img 
-                          src="/guardian-observer.png" 
+                          src="/guardian-observer.webp"
                           alt="Guardian Observer" 
                           className="w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity" 
                         />
@@ -827,11 +860,20 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
         ) : (
           <div className="vault-layout-page">
             {/* Left side: Artifact gallery and dragon heads */}
-            <div className="artifact-gallery-page">
+            <div className="artifact-gallery-page relics-lore-frame">
+              <div className="relics-lore-frame__art" aria-hidden="true">
+                <img className="relics-lore-corner relics-lore-corner--tl" src="/frames/ledger/corner-artifact.webp" alt="" />
+                <img className="relics-lore-corner relics-lore-corner--tr" src="/frames/ledger/corner-artifact.webp" alt="" />
+                <img className="relics-lore-corner relics-lore-corner--bl" src="/frames/ledger/corner-artifact.webp" alt="" />
+                <img className="relics-lore-corner relics-lore-corner--br" src="/frames/ledger/corner-artifact.webp" alt="" />
+                <img className="relics-lore-top-center" src="/frames/screen/top-center.webp" alt="" />
+              </div>
               {/* ── FAIRY FRAGMENTS SECTION ── */}
-              <div className="dragon-trophies-section glass-panel mb-6">
+              <div className="dragon-trophies-section relic-section relic-section--apollo glass-panel mb-6">
+                <img className="relic-section-corner relic-section-corner--tl" src="/frames/divine/apollo/corner.webp" alt="" aria-hidden="true" />
+                <img className="relic-section-compact" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
                 <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold" style={{ color: '#ecc880' }}>
-                  <Sparkles size={12} style={{ color: '#ecc880' }} />
+                  <img className="relic-heading-gem" src="/frames/divine/apollo/top-gem.webp" alt="" aria-hidden="true" />
                   <span>FAIRY FRAGMENTS</span>
                 </div>
                 <p className="text-[8px] font-mono text-gray-500 mt-1 mb-3 tracking-wider italic">
@@ -860,14 +902,14 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                             setSelectedArtifact(null);
                             setSelectedTrophy(null);
                           }}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', delay: mapIndex * 0.06 }}
+                          initial={{ opacity: 0, scale: 0.97 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.2, delay: Math.min(mapIndex - 1, 4) * 0.03 }}
                           whileHover={{ scale: 1.06 }}
                           title={EMPRESS_NAMES[mapIndex - 1]}
                         >
                           <img
-                            src={getAssetUrl(`/crests/region-crest-${mapIndex}.png`)}
+                            src={getAssetUrl(`/crests/region-crest-${mapIndex}.webp`)}
                             alt={`Region ${mapIndex} Crest`}
                             className="w-full h-full object-contain p-0.5"
                             style={{ filter: `drop-shadow(0 0 4px ${accentColor}80)` }}
@@ -884,9 +926,11 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
 
               {/* ── RITUAL CYCLE MEDALS ── */}
-              <div className="dragon-trophies-section glass-panel mb-6">
+              <div className="dragon-trophies-section relic-section relic-section--hercules glass-panel mb-6">
+                <img className="relic-section-corner relic-section-corner--tl" src="/frames/divine/hercules/corner.webp" alt="" aria-hidden="true" />
+                <img className="relic-section-compact" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
                 <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold text-gold-core">
-                  <Award size={12} />
+                  <img className="relic-heading-gem" src="/frames/divine/hercules/top-gem.webp" alt="" aria-hidden="true" />
                   <span>RITUAL CYCLE MEDALS</span>
                 </div>
                 <p className="text-[8px] font-mono text-gray-500 mt-1 mb-3 tracking-wider italic">
@@ -922,24 +966,26 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </div>
 
               {/* ── DRAGON HEAD TROPHIES ── */}
-              <div className="dragon-trophies-section glass-panel mb-6">
+              <div className="dragon-trophies-section relic-section relic-section--ares glass-panel mb-6">
+                <img className="relic-section-corner relic-section-corner--tl" src="/frames/divine/ares/corner.webp" alt="" aria-hidden="true" />
+                <img className="relic-section-compact" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
                 <div className="panel-label flex items-center gap-1.5 text-[9px] font-mono text-red-500/80 tracking-widest uppercase font-bold">
-                  <Star size={12} fill="#ef4444" className="text-red-500" />
+                  <img className="relic-heading-gem" src="/frames/divine/ares/top-gem.webp" alt="" aria-hidden="true" />
                   <span>DRAGON HEAD TROPHIES</span>
                 </div>
                 <div className="dragon-grid flex flex-wrap gap-3 mt-3">
                   {Array.from({ length: bossKills }).map((_, i) => {
                     const type = dragonTrophies[i % dragonTrophies.length];
-                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.png`);
+                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.webp`);
                     const bossTask = bossTasks[i];
                     return (
                       <motion.div 
                         key={i} 
                         className={`dragon-head flex items-center justify-center p-1 bg-black/40 border rounded-md hover:border-red-500/30 transition-colors cursor-pointer ${selectedTrophy && selectedTrophy.index === i ? 'border-red-500 bg-red-950/20' : 'border-white/5'}`}
                         style={{ width: '48px', height: '48px' }}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', delay: i * 0.08 }}
+                        initial={{ opacity: 0, scale: 0.97 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2, delay: Math.min(i, 4) * 0.03 }}
                         title={`${type.toUpperCase()} TROPHY`}
                         onClick={() => {
                           setSelectedTrophy({
@@ -998,8 +1044,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             </div>
 
             {/* Right side: Inspector */}
-            <div className="artifact-inspector-page relative">
-              <AnimatePresence mode="wait">
+            <div className={`artifact-inspector-page relative ${(selectedFairy || selectedTrophy || selectedArtifact) ? 'artifact-inspector-page--framed' : ''}`}>
+              <AnimatePresence mode="popLayout" initial={false}>
                 {onboardingActive && onboardingProgress < 6 && (selectedTrophy || selectedFairy) ? (
                   <motion.div
                     key="ledger-locked"
@@ -1016,8 +1062,16 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="inspector-content-page"
+                    className="inspector-content-page divine-inspector divine-inspector--hercules"
                   >
+                    <div className="divine-inspector__frame" aria-hidden="true">
+                      <img className="divine-inspector__corner divine-inspector__corner--tl" src="/frames/divine/hercules/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--tr" src="/frames/divine/hercules/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--bl" src="/frames/divine/hercules/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--br" src="/frames/divine/hercules/corner.webp" alt="" />
+                      <img className="divine-inspector__ornament" src="/frames/divine/hercules/top-ornament.webp" alt="" />
+                      <img className="divine-inspector__gem" src="/frames/divine/hercules/top-gem.webp" alt="" />
+                    </div>
                     <div className="inspector-visual">
                       <img 
                         src={getArtifactImage(selectedArtifact.name)} 
@@ -1032,7 +1086,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       <span className={`rarity-label rarity-${selectedArtifact.rarity} text-[9px] font-mono tracking-widest font-extrabold uppercase block mb-2`}>
                         {rarities[selectedArtifact.rarity].label} ARTIFACT
                       </span>
-                      <h3 className="font-display text-xl text-white tracking-wide uppercase mb-1">{selectedArtifact.name}</h3>
+                      <h3 className="motion-heading font-display text-xl text-white tracking-wide uppercase mb-1">{selectedArtifact.name}</h3>
                       <p className="artifact-inspector-count">RECOVERED ×{selectedArtifact.count}</p>
                       <p className="art-date text-[9px] font-mono text-gray-500 mb-4">
                         FIRST RECOVERED: {selectedArtifact.recoveries[0]?.date ? new Date(selectedArtifact.recoveries[0].date).toLocaleDateString() : 'UNKNOWN'}
@@ -1088,11 +1142,19 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="inspector-content-page"
+                    className="inspector-content-page divine-inspector divine-inspector--ares"
                   >
+                    <div className="divine-inspector__frame" aria-hidden="true">
+                      <img className="divine-inspector__corner divine-inspector__corner--tl" src="/frames/divine/ares/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--tr" src="/frames/divine/ares/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--bl" src="/frames/divine/ares/corner.webp" alt="" />
+                      <img className="divine-inspector__corner divine-inspector__corner--br" src="/frames/divine/ares/corner.webp" alt="" />
+                      <img className="divine-inspector__ornament" src="/frames/divine/ares/top-ornament.webp" alt="" />
+                      <img className="divine-inspector__gem" src="/frames/divine/ares/top-gem.webp" alt="" />
+                    </div>
                     <div className="inspector-visual">
                       <img 
-                        src={getAssetUrl(`/trophies/trophy-dragon-${selectedTrophy.type}.png`)} 
+                        src={getAssetUrl(`/trophies/trophy-dragon-${selectedTrophy.type}.webp`)}
                         className="large-art-icon-img" 
                         alt={selectedTrophy.type} 
                         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2, filter: 'drop-shadow(0 0 12px rgba(239, 68, 68, 0.45))' }}
@@ -1104,7 +1166,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       <span className="text-red-500 text-[9px] font-mono tracking-widest font-extrabold uppercase block mb-2">
                         CONQUERED DRAGON TROPHY
                       </span>
-                      <h3 className="font-display text-xl text-white tracking-wide uppercase mb-1">{getDragonDetails(selectedTrophy.type).name}</h3>
+                      <h3 className="motion-heading font-display text-xl text-white tracking-wide uppercase mb-1">{getDragonDetails(selectedTrophy.type).name}</h3>
                       <p className="art-date text-[9px] font-mono text-gray-500 mb-4">
                         DEFEATED: {selectedTrophy.taskDate ? new Date(selectedTrophy.taskDate).toLocaleDateString() : 'UNKNOWN DATE'}
                       </p>
@@ -1135,12 +1197,22 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="inspector-content-page"
+                    className="inspector-content-page fairy-inspector-apollo"
                   >
+                    <div className="fairy-inspector-apollo__frame" aria-hidden="true">
+                      <img className="fairy-apollo-corner fairy-apollo-corner--tl" src="/frames/divine/apollo/corner.webp" alt="" />
+                      <img className="fairy-apollo-corner fairy-apollo-corner--tr" src="/frames/divine/apollo/corner.webp" alt="" />
+                      <img className="fairy-apollo-corner fairy-apollo-corner--bl" src="/frames/divine/apollo/corner.webp" alt="" />
+                      <img className="fairy-apollo-corner fairy-apollo-corner--br" src="/frames/divine/apollo/corner.webp" alt="" />
+                      <img className="fairy-apollo-rail fairy-apollo-rail--left" src="/frames/divine/apollo/rail.webp" alt="" />
+                      <img className="fairy-apollo-rail fairy-apollo-rail--right" src="/frames/divine/apollo/rail.webp" alt="" />
+                      <img className="fairy-apollo-ornament" src="/frames/divine/apollo/top-ornament.webp" alt="" />
+                      <img className="fairy-apollo-gem" src="/frames/divine/apollo/top-gem.webp" alt="" />
+                    </div>
                     {/* Crest as visual */}
                     <div className="inspector-visual" style={{ width: 120, height: 120 }}>
                       <img
-                        src={getAssetUrl(`/crests/region-crest-${selectedFairy.mapIndex}.png`)}
+                        src={getAssetUrl(`/crests/region-crest-${selectedFairy.mapIndex}.webp`)}
                         alt="Region Crest"
                         style={{
                           maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2, position: 'relative',
@@ -1160,7 +1232,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       >
                         FAIRY FRAGMENT — REGION {selectedFairy.mapIndex}
                       </span>
-                      <h3 className="font-display text-lg text-white tracking-wide uppercase mb-1">
+                      <h3 className="motion-heading font-display text-lg text-white tracking-wide uppercase mb-1">
                         {EMPRESS_NAMES[selectedFairy.mapIndex - 1]}
                       </h3>
                       <p className="art-date text-[9px] font-mono text-gray-500 mb-4">
@@ -1199,7 +1271,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       {/* Liberation portrait thumbnail */}
                       <div className="mt-4 w-full rounded overflow-hidden border border-white/5" style={{ aspectRatio: '1/1' }}>
                         <img
-                          src={getAssetUrl(`/fairies/empress-${selectedFairy.mapIndex}-liberated.png`)}
+                          src={getAssetUrl(`/fairies/empress-${selectedFairy.mapIndex}-liberated.webp`)}
                           alt={EMPRESS_NAMES[selectedFairy.mapIndex - 1]}
                           className="w-full h-full object-cover object-top"
                           style={{ filter: `${currentFilter} drop-shadow(0 0 8px ${REGION_COLORS[selectedFairy.mapIndex] || '#ecc880'}50)` }}
@@ -1220,7 +1292,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .vault-layout-page {
           display: flex;
           flex-direction: column;
@@ -1262,7 +1334,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
           justify-content: center;
           cursor: pointer;
           position: relative;
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
 
         .art-card:hover { 
@@ -1349,13 +1421,16 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
           justify-content: center;
           cursor: pointer;
           position: relative;
-          transition: all 0.25s;
+          transition: var(--motion-control-transition);
           overflow: hidden;
         }
+
+        @media (hover: hover) and (pointer: fine) {
 
         .fairy-frag-card:hover {
           transform: scale(1.08);
         }
+}
 
         .glass-panel {
           background: rgba(10, 10, 14, 0.3);

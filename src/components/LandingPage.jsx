@@ -1,5 +1,8 @@
+import { getScrollBehavior, useAmbientMotion, useReducedMotionPreference } from '../motion/useMotionEnvironment';
+import LandingRealmStory from './LandingRealmStory';
+import { landingImageProps } from '../utils/responsiveAssets';
 import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
+import { AnimatePresence, MotionConfig, motion as Motion, useScroll, useSpring } from 'framer-motion';
 import {
   Activity,
   Archive,
@@ -24,6 +27,7 @@ import {
   X,
 } from 'lucide-react';
 import './LandingPage.css';
+import './landingPolish.css';
 
 const LANDING_ASSET = '/landing-page/';
 
@@ -71,7 +75,7 @@ const proofItems = [
 ];
 
 function scrollToRealm(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
 }
 
 function RuneCorners() {
@@ -85,7 +89,9 @@ function ProductFrame({ src, caption, className = '' }) {
       <RuneCorners />
       {!missing ? (
         <img
-          src={`${LANDING_ASSET}${src}`}
+          {...landingImageProps(src)}
+          decoding="async"
+          fetchPriority="low"
           alt={caption}
           loading="lazy"
           onError={() => setMissing(true)}
@@ -93,9 +99,8 @@ function ProductFrame({ src, caption, className = '' }) {
       ) : (
         <div className="lp-product-placeholder">
           <div className="lp-placeholder-sigil"><Sparkles size={22} /></div>
-          <span>REAL PRODUCT CAPTURE</span>
+          <span>Preview unavailable</span>
           <strong>{caption}</strong>
-          <small>{src}</small>
         </div>
       )}
       <figcaption>{caption}</figcaption>
@@ -113,7 +118,30 @@ function SectionHeading({ eyebrow, title, copy, align = 'left' }) {
   );
 }
 
+function useLandingDialog(onClose) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusable = () => [...ref.current.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), [tabindex="0"]')];
+    focusable()[0]?.focus();
+    const onKey = event => {
+      if (event.key === 'Escape') { event.preventDefault(); onClose(); }
+      if (event.key === 'Tab') {
+        const items = focusable(), first = items[0], last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', onKey); if (previous?.isConnected) previous.focus(); };
+  }, [onClose]);
+  return ref;
+}
+
 function DemoModal({ onClose }) {
+  const dialog = useLandingDialog(onClose);
   const videoRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
@@ -134,15 +162,15 @@ function DemoModal({ onClose }) {
   };
 
   return (
-    <motion.div
+    <Motion.div
       className="lp-modal-backdrop"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
-      <motion.div
-        className="lp-demo-modal"
+      <Motion.div
+        className="lp-demo-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="landing-demo-title"
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -152,7 +180,7 @@ function DemoModal({ onClose }) {
         <header>
           <div>
             <span>FOUNDER FIELD RECORDING</span>
-            <h2>SEE THE REALM RESPOND</h2>
+            <h2 id="landing-demo-title">SEE THE REALM RESPOND</h2>
           </div>
           <button type="button" onClick={onClose} aria-label="Close demo"><X size={18} /></button>
         </header>
@@ -170,18 +198,19 @@ function DemoModal({ onClose }) {
             {unavailable ? <><Sparkles size={20} /><span>DEMO RECORDING ARRIVES SOON</span></> : playing ? <><Pause size={20} /><span>PAUSE FIELD RECORDING</span></> : <><Play size={20} fill="currentColor" /><span>WATCH THE DEMO</span></>}
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 }
 
 function LegalModal({ type, onClose }) {
+  const dialog = useLandingDialog(onClose);
   const isTerms = type === 'terms';
   return (
-    <motion.div className="lp-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-      <motion.div className="lp-legal-modal" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 12, opacity: 0 }} onClick={event => event.stopPropagation()}>
+    <Motion.div className="lp-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+      <Motion.div className="lp-legal-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="landing-legal-title" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 12, opacity: 0 }} onClick={event => event.stopPropagation()}>
         <header>
-          <div><ScrollText size={16} /><h2>{isTerms ? 'TERMS OF SERVICE' : 'PRIVACY POLICY'}</h2></div>
+          <div><ScrollText size={16} /><h2 id="landing-legal-title">{isTerms ? 'TERMS OF SERVICE' : 'PRIVACY POLICY'}</h2></div>
           <button type="button" onClick={onClose} aria-label="Close legal notice"><X size={17} /></button>
         </header>
         <div className="lp-legal-copy">
@@ -205,13 +234,17 @@ function LegalModal({ type, onClose }) {
             </>
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 }
 
 export default function LandingPage({ onLaunch }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const ambient = useAmbientMotion();
+  const reduced = useReducedMotionPreference();
+  const motionEnabled = ambient && !motionPaused;
   const [mapOpen, setMapOpen] = useState(false);
   const [activeRealm, setActiveRealm] = useState('gate');
   const [showDemo, setShowDemo] = useState(false);
@@ -227,7 +260,7 @@ export default function LandingPage({ onLaunch }) {
       if (visible?.target?.id) setActiveRealm(visible.target.id);
     }, { rootMargin: '-30% 0px -55%', threshold: [0.05, 0.25, 0.5] });
 
-    realms.forEach(realm => {
+    [...realms, { id: 'realm-map' }].forEach(realm => {
       const section = document.getElementById(realm.id);
       if (section) observer.observe(section);
     });
@@ -242,12 +275,13 @@ export default function LandingPage({ onLaunch }) {
   };
 
   return (
-    <div className="landing-page-root">
-      <motion.div className="lp-scroll-progress" style={{ scaleX: progress }} />
+    <MotionConfig reducedMotion={motionEnabled ? 'user' : 'always'}>
+    <div className="landing-page-root" data-landing-motion={motionEnabled}>
+      <Motion.div className="lp-scroll-progress" style={{ scaleX: motionEnabled ? progress : scrollYProgress }} />
 
       <header className="lp-header">
         <button className="lp-brand" type="button" onClick={() => jump('gate')} aria-label="Warscythe home">
-          <img src="/command-core.png" alt="" />
+          <img src="/generated/ui/command-core-96.webp" srcSet="/generated/ui/command-core-96.webp 96w, /generated/ui/command-core-192.webp 192w" sizes="38px" width="38" height="38" alt="" decoding="async" />
           <span><strong>WARSCYTHE</strong><small>VERSION 1.0 // GENESIS</small></span>
         </button>
         <nav className="lp-desktop-nav" aria-label="Landing page navigation">
@@ -261,40 +295,40 @@ export default function LandingPage({ onLaunch }) {
           ].map(([id, label]) => <button key={id} className={activeRealm === id ? 'active' : ''} onClick={() => jump(id)}>{label}</button>)}
         </nav>
         <div className="lp-header-actions">
+          <button type="button" className="lp-motion-toggle" aria-pressed={motionPaused || reduced} disabled={reduced} onClick={() => setMotionPaused(value => !value)} aria-label={reduced ? 'Reduced motion enabled' : motionPaused ? 'Resume page motion' : 'Pause page motion'}>{motionPaused || reduced ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}<span>{reduced ? 'Reduced motion' : motionPaused ? 'Resume motion' : 'Pause motion'}</span></button>
           <button className="lp-nav-demo" onClick={() => setShowDemo(true)}><Play size={12} /> DEMO</button>
           <button className="lp-primary-small" onClick={onLaunch}>ENTER WARSCYTHE</button>
-          <button className="lp-mobile-menu" onClick={() => setMobileNavOpen(open => !open)} aria-label="Open navigation"><Menu size={19} /></button>
+          <button className="lp-mobile-menu" onClick={() => setMobileNavOpen(open => !open)} aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileNavOpen} aria-controls="landing-mobile-nav"><Menu size={19} /></button>
         </div>
       </header>
 
       <AnimatePresence>
         {mobileNavOpen && (
-          <motion.nav className="lp-mobile-nav" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+          <Motion.nav id="landing-mobile-nav" aria-label="Mobile landing navigation" className="lp-mobile-nav" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
             {realms.map(realm => <button key={realm.id} onClick={() => jump(realm.id)}>{realm.label}</button>)}
             <button onClick={() => { setMobileNavOpen(false); setShowDemo(true); }}>Watch Demo</button>
-          </motion.nav>
+          </Motion.nav>
         )}
       </AnimatePresence>
 
       <main>
-        <section id="gate" className="lp-hero">
+        <section id="gate" className="lp-hero" data-ambient-motion>
           <picture className="lp-hero-art">
-            <source media="(max-width: 700px)" srcSet={`${LANDING_ASSET}hero-gate-mobile.webp`} />
-            <img src={`${LANDING_ASSET}hero-gate-desktop.webp`} alt="A warrior overlooking the illuminated Warscythe realm" />
+            <source media="(max-width: 700px)" {...landingImageProps('hero-gate-mobile.webp', '100vw')} />
+            <img {...landingImageProps('hero-gate-desktop.webp', '100vw')} alt="A warrior overlooking the illuminated Warscythe realm" fetchPriority="high" decoding="async" />
           </picture>
-          <div className="lp-embers" style={{ backgroundImage: `url("${LANDING_ASSET}ember-particles.webp")` }} />
+          <div className="lp-embers" style={{ backgroundImage: 'url("/generated/landing-page/ember-particles-480.webp")' }} />
           <div className="lp-hero-shade" />
 
-          <motion.div className="lp-hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.85 }}>
-            <span className="lp-kicker">THE EXECUTION RPG</span>
-            <h1>Execution,<br /><em>Forged into Legend.</em></h1>
+          <Motion.div className="lp-hero-copy" initial={false}>
+            <h1><span>Execution,</span><em>Forged into Legend.</em></h1>
             <p>Warscythe is an execution RPG where your real tasks, habits and workouts shape a persistent fantasy world.</p>
             <strong>There is no customizable avatar. You are the avatar.</strong>
             <div className="lp-hero-actions">
               <button className="lp-primary-cta" onClick={onLaunch}>ENTER WARSCYTHE <ExternalLink size={15} /></button>
               <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} fill="currentColor" /> WATCH THE DEMO</button>
             </div>
-          </motion.div>
+          </Motion.div>
 
           <button className="lp-scroll-cue" onClick={() => jump('realm-map')}>
             <span>EXPLORE THE REALM</span><ArrowDown size={17} />
@@ -302,35 +336,17 @@ export default function LandingPage({ onLaunch }) {
         </section>
 
         <section id="realm-map" className="lp-map-section">
-          <SectionHeading align="center" eyebrow="THE KINGDOM RESPONDS" title="Choose your path." copy="Every territory is another form of execution. Explore the realm, then enter the system that makes it move." />
-          <div className="lp-map-shell">
-            <RuneCorners />
-            <img src={`${LANDING_ASSET}realm-map-base.webp`} alt="The connected territories of the Warscythe realm" loading="eager" />
-            <div className="lp-map-vignette" />
-            {realms.map(realm => {
-              const Icon = realm.icon;
-              return (
-                <button
-                  key={realm.id}
-                  className={`lp-map-node ${realm.x >= 70 ? 'label-left' : ''} ${activeRealm === realm.id ? 'active' : ''}`}
-                  style={{ left: `${realm.x}%`, top: `${realm.y}%` }}
-                  onClick={() => jump(realm.id)}
-                  aria-label={`${realm.label}: ${realm.short}`}
-                >
-                  <i><Icon size={13} /></i>
-                  <span><strong>{realm.label}</strong><small>{realm.short}</small></span>
-                </button>
-              );
-            })}
-          </div>
+          <SectionHeading align="center" eyebrow="THE KINGDOM RESPONDS" title="Your work moves this world." copy="Every territory is another form of execution. Explore the realm, then enter the system that makes it move." />
+          <button type="button" className="lp-story-skip" onClick={() => jump('operations')}>Go straight to the product <ArrowDown size={15} aria-hidden="true" /></button>
+          <LandingRealmStory realms={realms} onJump={jump} motionEnabled={motionEnabled} />
 
           <div className="lp-mobile-realm-nav">
             <button onClick={() => setMapOpen(open => !open)}><Map size={15} /><span>EXPLORE THE REALM</span><ChevronDown size={15} className={mapOpen ? 'rotate' : ''} /></button>
             <AnimatePresence>
               {mapOpen && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                <Motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                   {realms.map(realm => <button key={realm.id} onClick={() => jump(realm.id)}><realm.icon size={13} /><span>{realm.label}</span><small>{realm.short}</small></button>)}
-                </motion.div>
+                </Motion.div>
               )}
             </AnimatePresence>
           </div>
@@ -346,24 +362,24 @@ export default function LandingPage({ onLaunch }) {
           const Icon = section.icon;
           return (
             <section id={section.id} className={`lp-feature-section ${sectionIndex % 2 ? 'reverse' : ''}`} key={section.id}>
-              <motion.div className="lp-feature-copy" initial={{ opacity: 0, x: sectionIndex % 2 ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.25 }}>
+              <Motion.div className="lp-feature-copy" initial={{ opacity: 0, x: sectionIndex % 2 ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.25 }}>
                 <div className="lp-feature-icon"><Icon size={20} /></div>
                 <SectionHeading eyebrow={section.eyebrow} title={section.title} copy={section.copy} />
                 <blockquote>{section.line}</blockquote>
                 <div className="lp-outcomes">
                   {section.stats.map(stat => <span key={stat}><Check size={11} /> {stat}</span>)}
                 </div>
-              </motion.div>
-              <motion.div className="lp-feature-media" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }}>
+              </Motion.div>
+              <Motion.div className="lp-feature-media" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }}>
                 <ProductFrame src={section.media[0]} caption={section.captions[0]} />
                 <ProductFrame src={section.media[1]} caption={section.captions[1]} className="lp-secondary-frame" />
-              </motion.div>
+              </Motion.div>
             </section>
           );
         })}
 
         <section id="fitness" className="lp-olympus">
-          <img src={`${LANDING_ASSET}olympus-hall.webp`} alt="" loading="lazy" />
+          <img {...landingImageProps('olympus-hall.webp', '100vw')} alt="" loading="lazy" />
           <div className="lp-environment-shade" />
           <div className="lp-olympus-content">
             <SectionHeading align="center" eyebrow="HALL OF OLYMPUS // FITNESS" title="The body becomes mythology." copy="Most fitness apps show graphs. Warscythe shows ascension. Your sessions, tonnage and personal records become permanent evidence of what your body has actually done." />
@@ -402,9 +418,9 @@ export default function LandingPage({ onLaunch }) {
         </section>
 
         <section id="terminal" className="lp-terminal">
-          <img src={`${LANDING_ASSET}terminal-bastion.webp`} alt="" loading="lazy" />
+          <img {...landingImageProps('terminal-bastion.webp', '100vw')} alt="" loading="lazy" />
           <div className="lp-environment-shade" />
-          <motion.div className="lp-terminal-panel" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }}>
+          <Motion.div className="lp-terminal-panel" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }}>
             <RuneCorners />
             <span>THE ROAD AHEAD // FUTURE ROADMAP</span>
             <h2>The Terminal Bastion</h2>
@@ -412,7 +428,7 @@ export default function LandingPage({ onLaunch }) {
             <strong>This layer is future roadmap, not current product.</strong>
             <blockquote>“I want to be killing the dragon in one Warscythe region while using Warscythe to build the next one.”</blockquote>
             <small>SSS // SELF-SUSTAINED SYSTEM</small>
-          </motion.div>
+          </Motion.div>
         </section>
 
         <section id="proof" className="lp-proof">
@@ -424,9 +440,9 @@ export default function LandingPage({ onLaunch }) {
         </section>
 
         <section id="final-gate" className="lp-final-gate">
-          <img src={`${LANDING_ASSET}final-gate.webp`} alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
+          <img {...landingImageProps('final-gate.webp', '100vw')} alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
           <div className="lp-final-shade" />
-          <motion.div className="lp-final-copy" initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }}>
+          <Motion.div className="lp-final-copy" initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }}>
             <span>THE FINAL GATE</span>
             <h2>Your life already has battles.<br /><em>Give them a world.</em></h2>
             <p>Warscythe is for people who know what they need to do—and are tired of doing it in systems that make it feel like nothing.</p>
@@ -435,13 +451,13 @@ export default function LandingPage({ onLaunch }) {
               <button className="lp-secondary-cta" onClick={() => setShowDemo(true)}><Play size={14} /> WATCH DEMO</button>
             </div>
             <strong>EXECUTION SHOULD LEAVE EVIDENCE.</strong>
-          </motion.div>
+          </Motion.div>
         </section>
       </main>
 
       <footer className="lp-footer">
         <button className="lp-brand" type="button" onClick={() => jump('gate')}>
-          <img src="/command-core.png" alt="" />
+          <img src="/generated/ui/command-core-96.webp" srcSet="/generated/ui/command-core-96.webp 96w, /generated/ui/command-core-192.webp 192w" sizes="38px" width="38" height="38" alt="" decoding="async" loading="lazy" />
           <span><strong>WARSCYTHE</strong><small>EXECUTION, FORGED INTO LEGEND</small></span>
         </button>
         <div><button onClick={() => setShowLegal('terms')}>TERMS</button><button onClick={() => setShowLegal('privacy')}>PRIVACY</button><button onClick={() => jump('realm-map')}>REALM MAP</button></div>
@@ -453,5 +469,6 @@ export default function LandingPage({ onLaunch }) {
         {showLegal && <LegalModal type={showLegal} onClose={() => setShowLegal(null)} />}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

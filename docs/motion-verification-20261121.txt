@@ -1,0 +1,34 @@
+WARSCYTHE MOTION VERIFICATION — 21 NOVEMBER 2026
+
+Scope
+Motion refinement in the existing scratch checkout. Preserve layout, copy, typography, palette, and frame artwork. Leave all work uncommitted. No push or deployment.
+
+Implemented
+Shared 160ms control feedback and 200–240ms panel transitions; explicit transition properties across shared controls; short heading fades; continuous tab handoffs; Ritual dialog entrances and exits; immediate slider feedback; progress animation through lightweight transforms; compositor-driven ambient artwork; offscreen/hidden-tab pause; reduced-motion and touch-hover handling; Fitness reward counters without per-frame panel rerenders. No new dependencies.
+
+Coverage
+Operations, Rituals, Fitness, Ledger, Relics, Guardian Chronicles/shared dialogs, Legion, Friends, Leaderboard, Forge, Quest Map, header/navigation, and their shared controls. 63 source files changed. Business stores, domain/reward calculations, data fixtures, service libraries, utilities, and asset files were not edited by this pass.
+
+Verification
+- Production build: passed (direct Vite build; skipped the asset-conversion step).
+- Fitness domain regression tests: 8/8 passed.
+- Browser interaction checks: 24/24 passed; no browser exceptions.
+- Desktop/mobile comparison: 20 screen pairs at 1440x1000 and 390x844. 94 headings, frames, navigation elements, and progress caps matched in position, size, typography, and color within 0.5px. No page-width overflow.
+- Reduced-motion checks: recurring artwork stopped, dialog position stayed fixed, reward values appeared immediately, and Continue remained usable.
+- Lint: 150 errors before, 149 after; zero new diagnostics. The whole-project lint check still fails on existing issues.
+
+Measured local animation work (3-second samples, Chromium)
+- Operations layout recalculations: 631 before; 0 after.
+- Fitness affinity React commits: 45 before; 2 after.
+- Fitness affinity layout recalculations: 385 before; 29 after.
+These are local workload observations. They do not establish a frame-rate guarantee on physical phones.
+
+Evidence
+Full results: C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\verification.json
+Screen comparisons: C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\baseline-matched and C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\final-matched
+Interaction checks: C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\interactions-final\results.json
+Original source snapshot: C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\before-src
+Build log: C:\Users\nrgen\OneDrive\Documents\ChatGPT\warscythe codede\motion-evidence\final-build.log
+
+Remaining limits
+Physical Android/iOS devices and Safari were not tested. Live account, payment, cross-device sync, and multi-user backend flows were outside this pass. Existing lint errors and a pre-existing MapSection CSS fragment remain. No production-readiness claim follows from these motion checks.

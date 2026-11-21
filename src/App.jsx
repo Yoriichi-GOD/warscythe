@@ -1,3 +1,7 @@
+import { WorkoutResumeDock } from './components/WorkoutStatus';
+import './components/workoutSession.css';
+import { useWorkoutUi } from './store/workoutUi';
+import { useAmbientMotion } from './motion/useMotionEnvironment';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from './store/useWarscytheStore';
@@ -119,7 +123,8 @@ const hasRestorableAuthSession = () => {
   return false;
 };
 
-export default function App() {
+export default function App({ initialAuthOnWeb = false }) {
+  const ambientMotion = useAmbientMotion();
   const user = useWarscytheStore(state => state.user);
   const username = useWarscytheStore(state => state.username);
   const onboardingActive = useWarscytheStore(state => state.onboardingActive);
@@ -145,6 +150,9 @@ export default function App() {
   const hasSeenFitnessPeek = useWarscytheStore(state => state.hasSeenFitnessPeek);
 
   const [activeTab, setActiveTab] = useState('ops');
+  const workoutFocusedId = useWorkoutUi(state => state.focusedId);
+  const currentWorkout = useWarscytheStore(state => state.activeWorkout);
+  const focusedWorkout = activeTab === 'fitness' && currentWorkout?.id === workoutFocusedId && !!currentWorkout;
   const [ledgerSubTab, setLedgerSubTab] = useState('history');
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -176,13 +184,17 @@ export default function App() {
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
-  const [showAuthOnWeb, setShowAuthOnWeb] = useState(false);
+  const [showAuthOnWeb, setShowAuthOnWeb] = useState(initialAuthOnWeb);
   const [showTutorialEndFlash, setShowTutorialEndFlash] = useState(false);
   const [tutorialMapNodeClicked, setTutorialMapNodeClicked] = useState(null);
   const [tutorialMapNodeContinued, setTutorialMapNodeContinued] = useState(null);
   const [mapTutorialHighlightNode, setMapTutorialHighlightNode] = useState(null);
   const [fitnessTutorialActive, setFitnessTutorialActive] = useState(false);
   const [expectsSessionAtStartup] = useState(hasRestorableAuthSession);
+  const [devTestRealmVisible, setDevTestRealmVisible] = useState(() => (
+    import.meta.env.DEV
+      && localStorage.getItem('warscythe_test_realm_active') === 'true'
+  ));
 
   useEffect(() => {
     if (activeTab !== 'fitness' || hasSeenFitnessPeek) return;
@@ -193,6 +205,7 @@ export default function App() {
   useEffect(() => {
     if (!import.meta.env.DEV) return undefined;
     const handleTestTab = (event) => {
+      setDevTestRealmVisible(true);
       if (event.detail) setActiveTab(event.detail);
     };
     const handleCaptureScene = (event) => {
@@ -595,7 +608,7 @@ export default function App() {
     );
   }
 
-  if (!user) {
+  if (!user && !devTestRealmVisible) {
     const isMobile = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
     
     if (isMobile) {
@@ -646,7 +659,8 @@ export default function App() {
 
   return (
     <DashboardLayout activeTab={activeTab}>
-      <Header 
+      {!focusedWorkout && <Header
+        activeTab={activeTab}
         onOpenMap={() => guardedTabChange('map')} 
         onOpenVault={() => guardedTabChange('ledger')} 
         onOpenAuth={() => setShowAuth(true)}
@@ -657,16 +671,16 @@ export default function App() {
         onOpenLore={() => setShowLoreModal(true)}
         onOpenSocial={() => guardedTabChange('social')}
         onOpenRoadmap={() => setShowRoadmap(true)}
-      />
+      />}
 
       {/* Sticky Walkthrough Guide Banner */}
-      {!guideBannerDismissed && (
+      {!focusedWorkout && !guideBannerDismissed && (
         <div className="w-full shrink-0 bg-zinc-950/90 border-b border-gold-core/25 backdrop-blur-md px-4 py-2 flex items-center justify-between z-40 text-left relative">
           <div 
             onClick={() => openVideoModal('global_intro')}
             className="flex items-center gap-2.5 text-gold-core hover:text-white transition-colors cursor-pointer group flex-1 mr-4"
           >
-            <div className="w-5 h-5 rounded-full border border-gold-core/40 flex items-center justify-center group-hover:border-white shrink-0 bg-gold-core/5 transition-all">
+            <div className="w-5 h-5 rounded-full border border-gold-core/40 flex items-center justify-center group-hover:border-white shrink-0 bg-gold-core/5 motion-control">
               <Play size={8} className="ml-0.5" fill="currentColor" />
             </div>
             <span className="text-[9px] md:text-[10px] font-mono tracking-widest uppercase font-bold text-gold-core group-hover:text-gold-bright transition-colors">
@@ -713,10 +727,17 @@ export default function App() {
           style={{ display: activeTab === 'fitness' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {activeTab === 'fitness' && <Fitness
-            tutorialActive={fitnessTutorialActive}
-            onTutorialComplete={() => setFitnessTutorialActive(false)}
-          />}
+          {activeTab === 'fitness' && (
+            <div className={onboardingActive && !hasSeenFitnessPeek
+              ? 'pointer-events-none select-none blur-[5px] brightness-[.32] saturate-[.7]'
+              : undefined}
+            >
+              <Fitness
+                tutorialActive={fitnessTutorialActive}
+                onTutorialComplete={() => setFitnessTutorialActive(false)}
+              />
+            </div>
+          )}
           {activeTab === 'fitness' && onboardingActive && !hasSeenFitnessPeek && (
             <FitnessOathGate
               onComplete={() => {
@@ -729,7 +750,7 @@ export default function App() {
         
         <div 
           style={{ display: activeTab === 'rituals' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar relative"
+          className="rituals-page-scroll h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {activeTab === 'rituals' && (onboardingActive && onboardingProgress < 3 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
@@ -797,7 +818,7 @@ export default function App() {
         
         <div 
           style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
-          className="h-full w-full overflow-y-auto custom-scrollbar relative"
+          className="ledger-page-scroll h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {activeTab === 'ledger' && (onboardingActive && onboardingProgress < 4 ? (
             <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
@@ -829,11 +850,12 @@ export default function App() {
         </React.Suspense>
       </main>
 
-      <EliteNavigation 
+      {!focusedWorkout && <EliteNavigation
         activeTab={activeTab} 
         onTabChange={guardedTabChange}
         navigationLocked={navigationSealed}
-      />
+      />}
+      {currentWorkout && !focusedWorkout && !navigationSealed && <WorkoutResumeDock workout={currentWorkout} onResume={() => { guardedTabChange('fitness'); useWorkoutUi.getState().focus(currentWorkout.id); }} />}
 
       <AnimatePresence>
         {showTaskModal && (
@@ -892,6 +914,14 @@ export default function App() {
                animate={{ opacity: 1, scale: 1, y: 0 }}
                className="modal-content reality-lock-panel"
              >
+                <div className="reality-ares-frame" aria-hidden="true">
+                  <img className="reality-ares-corner reality-ares-corner--tl" src="/frames/divine/ares/corner.webp" alt="" />
+                  <img className="reality-ares-corner reality-ares-corner--tr" src="/frames/divine/ares/corner.webp" alt="" />
+                  <img className="reality-ares-corner reality-ares-corner--bl" src="/frames/divine/ares/corner.webp" alt="" />
+                  <img className="reality-ares-corner reality-ares-corner--br" src="/frames/divine/ares/corner.webp" alt="" />
+                  <img className="reality-ares-ornament" src="/frames/divine/ares/top-ornament.webp" alt="" />
+                  <img className="reality-ares-gem" src="/frames/divine/ares/top-gem.webp" alt="" />
+                </div>
                 <div className="lock-icon-shield">
                    <ShieldAlert size={32} />
                 </div>
@@ -914,6 +944,7 @@ export default function App() {
 
                   <button className="return-btn" onClick={handleReturn}>
                     <span>RETURN TO BATTLE</span>
+                    <img className="return-btn-rose-corner" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
                   </button>
                 </div>
 
@@ -930,7 +961,7 @@ export default function App() {
           <div className="modal-backdrop validating-overlay">
             <motion.div 
               animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
+              transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 1.5 : 0 }}
               className="validating-text"
             >
               V A L I D A T I N G
@@ -1051,7 +1082,7 @@ export default function App() {
             <div className="prophecy-card-inner">
               <div className="prophecy-header-row">
                 <div className="prophecy-avatar-mini">
-                  <img src="/guardian-observer.png" alt="Guardian" />
+                  <img src="/guardian-observer.webp" alt="Guardian" />
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="prophecy-title-type">{activeProphecy.type}</span>
@@ -1110,13 +1141,14 @@ export default function App() {
       {/* Floating War Terminal Trigger Button */}
       <button
         onClick={() => setShowTerminal(true)}
-        className="fixed bottom-24 right-6 z-50 p-3 rounded-full bg-black/90 border border-gold-core/40 shadow-[0_0_15px_rgba(197,160,89,0.25)] hover:border-gold-bright hover:shadow-[0_0_20px_rgba(197,160,89,0.5)] transition-all flex items-center justify-center cursor-pointer"
+        className="fixed bottom-24 right-6 z-50 p-3 rounded-full bg-black/90 border border-gold-core/40 shadow-[0_0_15px_rgba(197,160,89,0.25)] hover:border-gold-bright hover:shadow-[0_0_20px_rgba(197,160,89,0.5)] motion-control flex items-center justify-center cursor-pointer"
         title="Open War Terminal (Ctrl+K)"
+        style={{display:focusedWorkout ? 'none' : undefined}}
       >
         <Terminal size={18} className="text-gold-core" />
       </button>
 
-      <WarTerminal isOpen={showTerminal} onClose={() => setShowTerminal(false)} />
+      <WarTerminal isOpen={!focusedWorkout && showTerminal} onClose={() => setShowTerminal(false)} />
 
       <InfoModal />
       <VideoGuideModal />

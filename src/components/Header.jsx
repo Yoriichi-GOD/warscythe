@@ -4,7 +4,7 @@ import { Trophy, Map, Brain, Shield, Crosshair, Award, ShieldCheck, Settings, Fi
 import { motion } from 'framer-motion';
 import { TASKS_PER_LEVEL, TITLES } from '../store/constants';
 
-export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial, onOpenRoadmap }) {
+export default function Header({ activeTab, onOpenMap, onOpenVault, onOpenAuth, onOpenGymLog, onOpenPremium, onOpenShop, onOpenDownloader, onOpenLore, onOpenSocial, onOpenRoadmap }) {
   const { 
     executionScore: xp, 
     level, 
@@ -182,7 +182,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
   notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
-    <header id="warscythe-header" className="main-header glass-panel shrink-0">
+    <header id="warscythe-header" className={`main-header glass-panel shrink-0 ${activeTab === 'fitness' ? 'fitness-header-transparent' : ''}`}>
       <div className={`header-left ${isTutorialActive ? 'pointer-events-none opacity-20 filter grayscale' : ''}`}>
         <div className="logo-section">
           <div className="logo-icon-box" style={{ background: 'transparent', boxShadow: 'none', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -190,7 +190,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               <div className="text-2xl font-bold text-[#5dade2] drop-shadow-[0_0_8px_rgba(93,173,226,0.85)] font-sans select-none" style={{ lineHeight: 1 }}>ॐ</div>
             ) : (
               <img 
-                src="/command-core.png" 
+                src="/command-core.webp"
                 alt="Warscythe" 
                 style={{ 
                   width: '100%', 
@@ -210,7 +210,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         <div className="divider" />
 
         <div 
-          className="rank-badge cursor-pointer hover:bg-white/5 rounded px-2 py-1 transition-all select-none relative"
+          className="rank-badge cursor-pointer hover:bg-white/5 rounded px-2 py-1 motion-control select-none relative"
           onClick={() => setShowTitlePicker(prev => !prev)}
         >
           <div className="rank-icon text-gold-core"><ShieldCheck size={14} /></div>
@@ -272,13 +272,22 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
             <span className="progress-value">{displayProgress}/{TASKS_PER_LEVEL}</span>
           </div>
           <div className="progress-bar-container">
-            <motion.div 
-              className="progress-bar-fill"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            />
-            <div className="progress-bar-glow" style={{ width: `${progress}%` }} />
+            <img className="progress-combined-track" src="/frames/progress/progress-long-combined.webp" alt="" aria-hidden="true" />
+            <motion.div
+              className="progress-energy-clip"
+              initial={false}
+              animate={{ clipPath: `inset(0 ${100 - progress}% 0 0)` }}
+              transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <img className="progress-energy-fill" src="/frames/progress/long-fill.webp" alt="" />
+            </motion.div>
+            {progress > 0 && (
+              <div className="progress-cap-track" aria-hidden="true">
+                <motion.div className="progress-cap-position" initial={false} animate={{ transform: `translateX(${progress}%)` }} transition={{ duration: .24, ease: [0.23, 1, 0.32, 1] }}>
+                  <img className="progress-energy-cap" src="/frames/progress/progress-large-cap.webp" alt="" />
+                </motion.div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -300,7 +309,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
               </div>
             ) : (
               <button 
-                className="upgrade-elite-badge font-mono font-black tracking-widest text-[8px] bg-gold-core text-black rounded px-2.5 py-1.5 shadow-[0_0_15px_rgba(236,200,128,0.4)] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] cursor-pointer transition-all duration-300"
+                className="upgrade-elite-badge font-mono font-black tracking-widest text-[8px] bg-gold-core text-black rounded px-2.5 py-1.5 shadow-[0_0_15px_rgba(236,200,128,0.4)] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] cursor-pointer motion-control duration-300"
                 onClick={onOpenPremium}
               >
                 UPGRADE TO ELITE
@@ -540,7 +549,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .main-header {
           display: flex;
           align-items: center;
@@ -554,6 +563,12 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           position: relative;
           z-index: 60;
           flex: 0 0 auto;
+        }
+
+        .main-header.fitness-header-transparent {
+          background: transparent !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
         }
 
         @media (max-width: 1023px) {
@@ -601,8 +616,8 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         }
 
         .header-left { display: flex; align-items: center; gap: 1rem; }
-        @media (min-width: 1024px) { .header-left { gap: 2rem; } }
-        
+        @media (min-width: 1024px) { .header-left { gap: 1rem; } }
+
         .logo-section { display: flex; align-items: center; gap: 0.75rem; }
         .logo-icon-box {
           width: 32px;
@@ -668,20 +683,72 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           .header-center { display: block; }
         }
 
-        .progress-hub { width: 220px; }
-        .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .progress-hub { width: 300px; transform: translateY(-5px); }
+        .progress-header { display: flex; justify-content: space-between; margin: 0 34px 3px; position: relative; z-index: 5; transform: translateY(3px); }
         .progress-label { font-size: 0.55rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; }
         .progress-value { font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold-core); font-weight: 700; }
-        
-        .progress-bar-container { height: 4px; background: rgba(255,255,255,0.05); border-radius: 100px; position: relative; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--gold-core); border-radius: 100px; position: relative; z-index: 2; }
-        .progress-bar-glow { position: absolute; top: 0; left: 0; height: 100%; background: var(--gold-core); filter: blur(4px); opacity: 0.5; }
+
+        .progress-bar-container { height: 44px; position: relative; isolation: isolate; transform: translateY(-4px); }
+        .progress-combined-track {
+          position: absolute;
+          z-index: 4;
+          inset: 0;
+          width: 100%;
+          height: 70px;
+          top: 50%;
+          object-fit: contain;
+          transform: translateY(-50%);
+          filter: drop-shadow(0 1px 3px rgba(0,0,0,.8));
+          pointer-events: none;
+        }
+        .progress-energy-clip {
+          position: absolute;
+          z-index: 2;
+          left: 35px;
+          right: 35px;
+          top: 13px;
+          height: 14px;
+          overflow: hidden;
+          border-radius: 100px;
+          filter: drop-shadow(0 0 5px rgba(255,190,45,.75));
+        }
+        .progress-energy-fill {
+          position: absolute;
+          left: 0;
+          top: 50%;
+          width: 100%;
+          height: 30px;
+          transform: translateY(-50%);
+          object-fit: fill;
+          animation: region-energy-flow 2.8s ease-in-out infinite alternate;
+        }
+        .progress-energy-cap {
+          position: absolute;
+          z-index: 5;
+          top: 50%;
+          width: 34px;
+          height: 34px;
+          object-fit: contain;
+          transform: translate(-50%, -50%);
+          filter: drop-shadow(0 0 7px rgba(255,190,45,.82));
+          pointer-events: none;
+        }
+        @keyframes region-energy-flow {
+          from { transform: translateY(-50%) translateX(-3px); filter: brightness(.92) saturate(1.05); }
+          to { transform: translateY(-50%) translateX(3px); filter: brightness(1.22) saturate(1.2); }
+        }
+        @media (min-width: 1024px) and (max-width: 1199px) {
+          .progress-hub { width: 250px; }
+          .progress-header { margin-inline: 30px; }
+          .progress-energy-cap { width: 31px; height: 31px; }
+        }
 
         .header-right { display: flex; align-items: center; gap: 1rem; }
         @media (min-width: 1024px) { .header-right { gap: 2rem; } }
 
         .xp-counter { display: none; text-align: right; }
         @media (min-width: 768px) { .xp-counter { display: block; } }
+        @media (min-width: 1200px) { .xp-counter { margin-left: 0.75rem; } }
 
         .xp-label { display: block; font-size: 0.5rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; }
         .xp-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--gold-core); }
@@ -699,7 +766,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
 
         @media (min-width: 1024px) {
@@ -710,7 +777,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
         }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
         .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-bright); }
-        
+
         .sync-btn {
           cursor: pointer;
           position: relative;
@@ -753,7 +820,7 @@ export default function Header({ onOpenMap, onOpenVault, onOpenAuth, onOpenGymLo
           letter-spacing: 0.1em;
           text-align: left;
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .header-dropdown-menu button:last-child {
           border-bottom: none;

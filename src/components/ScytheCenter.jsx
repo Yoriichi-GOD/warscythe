@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -159,18 +160,18 @@ export default function ScytheCenter({ onOpenShop }) {
 
   const getWeaponImage = (item) => {
     if (item.type === 'streak') {
-      if (item.id === 'dormant') return getAssetUrl('/scythe/DORMANT.png');
-      return getAssetUrl(`/ultimate/${item.id}.png`);
+      if (item.id === 'dormant') return getAssetUrl('/scythe/DORMANT.webp');
+      return getAssetUrl(`/ultimate/${item.id}.webp`);
     }
     if (item.type === 'premium') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
-      return getAssetUrl(`/scythe/premium/${item.id}/${item.id}_${stage}.png`);
+      return getAssetUrl(`/scythe/premium/${item.id}/${item.id}_${stage}.webp`);
     }
     if (item.type === 'coin') {
       const stage = (scytheLevel || 'DORMANT').toLowerCase();
-      return getAssetUrl(`/scythe/coin/${item.id}/${item.id}_${stage}.png`);
+      return getAssetUrl(`/scythe/coin/${item.id}/${item.id}_${stage}.webp`);
     }
-    return getAssetUrl(`/scythe/${item.id}.png`);
+    return getAssetUrl(`/scythe/${item.id}.webp`);
   };
 
   const auraColor = auraColors[selectedItem.id] || 'rgba(255,255,255,0.05)';
@@ -195,13 +196,14 @@ export default function ScytheCenter({ onOpenShop }) {
 
   return (
     <section className="scythe-center-section relative">
-      <div className="elite-panel">
+      <div className="elite-panel ornate-surface forge-shell">
+<OrnateFrame family="hercules" crest />
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div>
               <span className="panel-tag">WEAPON FORGE & COSMETICS</span>
-              <h4 className="text-white font-display text-lg">THE OPERATIVE\'S ARMORY</h4>
+              <h4 className="motion-heading text-white font-display text-lg">THE OPERATIVE'S ARMORY</h4>
             </div>
             <button 
               type="button"
@@ -230,7 +232,7 @@ export default function ScytheCenter({ onOpenShop }) {
           <button
             id="forge-streak-tab"
             onClick={() => handleTabChange('streak')}
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'streak'
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border motion-control ${activeTab === 'streak'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'
               : 'bg-transparent border-transparent text-gray-400 hover:text-white'
               }`}
@@ -240,7 +242,7 @@ export default function ScytheCenter({ onOpenShop }) {
           <button
             id="forge-shop-tab"
             onClick={() => handleTabChange('shop')}
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'shop'
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border motion-control ${activeTab === 'shop'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'
               : 'bg-transparent border-transparent text-gray-400 hover:text-white'
               }`}
@@ -250,7 +252,7 @@ export default function ScytheCenter({ onOpenShop }) {
           <button
             id="forge-theme-tab"
             onClick={() => handleTabChange('theme')}
-            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border transition-all ${activeTab === 'theme'
+            className={`font-mono text-[9px] tracking-widest px-3 py-1.5 rounded uppercase font-bold border motion-control ${activeTab === 'theme'
               ? 'bg-gold-core/10 border-gold-core text-gold-core'
               : 'bg-transparent border-transparent text-gray-400 hover:text-white'
               }`}
@@ -306,7 +308,7 @@ export default function ScytheCenter({ onOpenShop }) {
           </div>
 
           {/* Preview/Action Column */}
-          <div className="flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8 lg:pr-8 pr-4">
+          <div className="forge-preview ornate-surface flex flex-col items-center justify-center relative border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8 lg:pr-8 pr-4">
 
             {/* Scythe Slash Render */}
             {selectedItem.type !== 'theme' ? (
@@ -330,7 +332,7 @@ export default function ScytheCenter({ onOpenShop }) {
                     src={getWeaponImage(selectedItem)}
                     className="w-full h-full object-contain scythe-img"
                     onError={(e) => {
-                      e.target.src = getAssetUrl('/scythe/DORMANT.png');
+                      e.target.src = getAssetUrl('/scythe/DORMANT.webp');
                     }}
                     alt={selectedItem.name}
                   />
@@ -340,12 +342,12 @@ export default function ScytheCenter({ onOpenShop }) {
               /* Theme Render Preview */
               /* Theme Render Preview */
               <div 
-                className="w-[380px] h-[209px] rounded border border-white/10 flex flex-col justify-end p-5 relative overflow-hidden"
+                className="forge-theme-preview h-[209px] rounded border border-white/10 flex flex-col justify-end p-5 relative overflow-hidden"
                 style={{
                   backgroundImage: selectedItem.id === 'shiva'
-                    ? `url(${getAssetUrl('/themes/kailash/shiva_preview.png')})`
+                    ? `url(${getAssetUrl('/themes/kailash/shiva_preview.webp')})`
                     : selectedItem.id === 'lava'
-                      ? `url(${getAssetUrl('/themes/lava/lava_preview.png')})`
+                      ? `url(${getAssetUrl('/themes/lava/lava_preview.webp')})`
                       : 'linear-gradient(135deg, #111, #222)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
@@ -376,7 +378,7 @@ export default function ScytheCenter({ onOpenShop }) {
                     activeScytheSkin === selectedItem.id ? (
                       <button
                         onClick={() => equipScythe('default')}
-                        className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/10 hover:bg-gold-core/20 text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                        className="px-6 py-2 border border-gold-core text-gold-core bg-gold-core/10 hover:bg-gold-core/20 text-[9px] font-mono rounded font-bold tracking-widest motion-control cursor-pointer"
                         title="Click to unequip"
                       >
                         EQUIPPED (UNEQUIP)
@@ -395,7 +397,7 @@ export default function ScytheCenter({ onOpenShop }) {
                               setIsDownloading(false);
                             }
                           }}
-                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest motion-control cursor-pointer flex items-center justify-center gap-1.5"
                         >
                           {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
                           <span>DOWNLOAD & EQUIP</span>
@@ -403,7 +405,7 @@ export default function ScytheCenter({ onOpenShop }) {
                       ) : (
                         <button
                           onClick={() => equipScythe(selectedItem.id)}
-                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest motion-control cursor-pointer"
                         >
                           EQUIP WEAPON
                         </button>
@@ -419,7 +421,7 @@ export default function ScytheCenter({ onOpenShop }) {
                     ) : (
                       <button
                         onClick={onOpenShop}
-                        className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                        className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest motion-control cursor-pointer"
                       >
                         ACQUIRE IN SHOP
                       </button>
@@ -446,7 +448,7 @@ export default function ScytheCenter({ onOpenShop }) {
                               setIsDownloading(false);
                             }
                           }}
-                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest motion-control cursor-pointer flex items-center justify-center gap-1.5"
                         >
                           {isDownloading ? <Loader2 size={10} className="animate-spin" /> : <CloudDownload size={10} />}
                           <span>DOWNLOAD & APPLY</span>
@@ -454,7 +456,7 @@ export default function ScytheCenter({ onOpenShop }) {
                       ) : (
                         <button
                           onClick={() => applyTheme(selectedItem.id)}
-                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest transition-all cursor-pointer"
+                          className="px-6 py-2 bg-gold-core text-black hover:bg-white text-[9px] font-mono rounded font-black tracking-widest motion-control cursor-pointer"
                         >
                           APPLY THEME
                         </button>
@@ -463,7 +465,7 @@ export default function ScytheCenter({ onOpenShop }) {
                     /* Locked Theme */
                     <button
                       onClick={onOpenShop}
-                      className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all cursor-pointer"
+                      className="px-6 py-2 bg-gold-core/10 hover:bg-gold-core/25 border border-gold-core/30 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest motion-control cursor-pointer"
                     >
                       ACQUIRE IN SHOP
                     </button>
@@ -474,7 +476,7 @@ export default function ScytheCenter({ onOpenShop }) {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style>{`
         .scythe-center-section {
           width: 100%;
           max-width: 860px;
@@ -508,7 +510,7 @@ export default function ScytheCenter({ onOpenShop }) {
           border-radius: 5px;
           border: 1px solid rgba(255,255,255,0.03);
           background: rgba(255,255,255,0.01);
-          transition: all 0.2s;
+          transition: var(--motion-control-transition);
           cursor: pointer;
           font-family: var(--font-display);
           color: #fff;

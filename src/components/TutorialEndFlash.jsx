@@ -17,7 +17,7 @@ export default function TutorialEndFlash({ onClose }) {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          src={getAssetUrl('/guardian-observer.png')}
+          src={getAssetUrl('/guardian-observer.webp')}
           alt="Guardian Observer"
           className="w-64 h-64 md:w-80 md:h-80 object-contain drop-shadow-[0_0_30px_rgba(197,160,89,0.25)]"
         />
@@ -45,7 +45,7 @@ export default function TutorialEndFlash({ onClose }) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 1.8 }}
           onClick={onClose}
-          className="mt-4 font-mono text-[10px] tracking-[0.2em] text-gold-core hover:text-white uppercase border border-gold-core/30 hover:border-white px-8 py-3 rounded bg-black/40 hover:bg-gold-core/10 cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(197,160,89,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+          className="mt-4 font-mono text-[10px] tracking-[0.2em] text-gold-core hover:text-white uppercase border border-gold-core/30 hover:border-white px-8 py-3 rounded bg-black/40 hover:bg-gold-core/10 cursor-pointer motion-control duration-300 shadow-[0_0_15px_rgba(197,160,89,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
         >
           EXECUTE PROTOCOL
         </motion.button>

@@ -13,7 +13,7 @@ export default function LevelUpModal({ data, onClose }) {
   const loreTemplate = loreList[0] || "A new horizon awaits your command.";
 
   const crestIndex = ((newLevel - 1) % 10) + 1;
-  const crestPath = getAssetUrl(`/crests/region-crest-${crestIndex}.png`);
+  const crestPath = getAssetUrl(`/crests/region-crest-${crestIndex}.webp`);
 
   const downloadedRegions = useWarscytheStore(state => state.downloadedRegions) || [];
   const downloadRegionBundle = useWarscytheStore(state => state.downloadRegionBundle);
@@ -126,13 +126,13 @@ export default function LevelUpModal({ data, onClose }) {
                 <div className="flex gap-2 w-full mt-1">
                   <button 
                     onClick={handleDownload}
-                    className="flex-1 bg-gold-core text-black font-extrabold py-2 px-1 rounded shadow-[0_0_10px_rgba(197,160,89,0.3)] hover:bg-white transition-all cursor-pointer"
+                    className="flex-1 bg-gold-core text-black font-extrabold py-2 px-1 rounded shadow-[0_0_10px_rgba(197,160,89,0.3)] hover:bg-white motion-control cursor-pointer"
                   >
                     CACHE NOW
                   </button>
                   <button 
                     onClick={onClose}
-                    className="flex-1 border border-white/20 text-gray-300 font-extrabold py-2 px-1 rounded hover:bg-white/5 transition-all cursor-pointer"
+                    className="flex-1 border border-white/20 text-gray-300 font-extrabold py-2 px-1 rounded hover:bg-white/5 motion-control cursor-pointer"
                   >
                     LATER
                   </button>
@@ -149,7 +149,7 @@ export default function LevelUpModal({ data, onClose }) {
                   <span className="text-red-400 font-bold">[ CACHE FAILED ]</span>
                   <button 
                     onClick={handleDownload}
-                    className="bg-red-500 text-white font-bold py-2 rounded transition-all cursor-pointer"
+                    className="bg-red-500 text-white font-bold py-2 rounded motion-control cursor-pointer"
                   >
                     TRY AGAIN
                   </button>
@@ -170,7 +170,7 @@ export default function LevelUpModal({ data, onClose }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .levelup-backdrop { 
           background: #020203;
           z-index: 2000;
@@ -185,7 +185,7 @@ export default function LevelUpModal({ data, onClose }) {
         .ascension-art {
           position: fixed;
           inset: 0;
-          background: url('/reward-screens/ascension-altar.png') center center / cover no-repeat;
+          background: url('/reward-screens/ascension-altar.webp') center center / cover no-repeat;
           pointer-events: none;
         }
         .ascension-veil {
@@ -439,7 +439,7 @@ export default function LevelUpModal({ data, onClose }) {
           background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(197, 160, 89, 0.25);
           color: rgba(255, 255, 255, 0.5); width: 36px; height: 36px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center; cursor: pointer;
-          transition: all 0.2s;
+          transition: var(--motion-control-transition);
         }
         .levelup-close-btn:hover {
           background: rgba(197, 160, 89, 0.1); border-color: #ecc880; color: #ecc880;

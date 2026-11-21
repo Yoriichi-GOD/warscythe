@@ -304,7 +304,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
                             {isUserAssigned ? (
                               <button 
                                 onClick={() => completeLegionSubtask(s.id, 'completed')}
-                                className="text-[9px] font-mono font-bold tracking-widest bg-gold-core/25 border border-gold-core text-gold-bright px-3 py-1.5 rounded flex items-center gap-1 hover:bg-gold-core/45 hover:scale-[1.02] active:scale-100 transition-all cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.1)]"
+                                className="text-[9px] font-mono font-bold tracking-widest bg-gold-core/25 border border-gold-core text-gold-bright px-3 py-1.5 rounded flex items-center gap-1 hover:bg-gold-core/45 hover:scale-[1.02] active:scale-100 motion-control cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.1)]"
                               >
                                 <CheckCircle size={10} /> VALIDATE EXECUTION
                               </button>
@@ -419,7 +419,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           </button>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .modal-backdrop {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
@@ -447,8 +447,10 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           .td-title-group { display: flex; flex-direction: column; gap: 0.4rem; }
           .td-category { font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-core); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 900; }
           .td-title { font-family: var(--font-display); font-size: 1.25rem; color: #fff; letter-spacing: 0.05em; line-height: 1.3; margin: 0; }
-          .td-close { color: rgba(255,255,255,0.4); cursor: pointer; transition: 0.2s; padding: 0.25rem; background: transparent; border: none; }
+          .td-close { color: rgba(255,255,255,0.4); cursor: pointer; transition: var(--motion-control-transition); padding: 0.25rem; background: transparent; border: none; }
+          @media (hover: hover) and (pointer: fine) {
           .td-close:hover { color: #fff; transform: rotate(90deg); }
+}
 
           /* BODY */
           .td-body {
@@ -456,7 +458,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
             overflow-y: auto;
             display: flex; flex-direction: column; gap: 2rem;
           }
-          
+
           .td-section { display: flex; flex-direction: column; gap: 0.75rem; }
           .td-section-header { display: flex; justify-content: space-between; align-items: center; }
           .td-section-header label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 900; color: rgba(255,255,255,0.6); letter-spacing: 0.15em; margin: 0; }
@@ -465,7 +467,7 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           /* SLIDER */
           .td-slider-container { position: relative; height: 24px; display: flex; align-items: center; margin-top: 0.5rem; }
           .td-slider-track { position: absolute; left: 0; right: 0; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: visible; }
-          .td-slider-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease, background 0.3s ease; position: relative; }
+          .td-slider-fill { height: 100%; border-radius: 4px; transition: none; position: relative; }
           .td-slider-fill::after {
             content: '';
             position: absolute;
@@ -484,11 +486,11 @@ export default function LegionOperationDetail({ operationId, onClose }) {
 
           /* MICRO STEPS */
           .td-steps-list { display: flex; flex-direction: column; gap: 0.5rem; }
-          .td-step-item { 
-            display: flex; align-items: flex-start; gap: 0.8rem; 
-            background: rgba(255,255,255,0.02); padding: 1rem; 
+          .td-step-item {
+            display: flex; align-items: flex-start; gap: 0.8rem;
+            background: rgba(255,255,255,0.02); padding: 1rem;
             border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: var(--motion-control-transition);
           }
           .td-step-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
 
@@ -513,30 +515,34 @@ export default function LegionOperationDetail({ operationId, onClose }) {
           .td-btn-danger {
             width: 54px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
             background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px;
-            color: rgba(220, 38, 38, 0.8); cursor: pointer; transition: 0.2s;
+            color: rgba(220, 38, 38, 0.8); cursor: pointer; transition: var(--motion-control-transition);
           }
+          @media (hover: hover) and (pointer: fine) {
           .td-btn-danger:hover {
             background: rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.6); color: #ef4444; transform: translateY(-2px);
           }
+}
 
           .td-btn-validate {
             flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
             background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(197, 160, 89, 0.05) 100%);
             border: 1px solid var(--gold-core); border-radius: 8px;
             color: var(--gold-bright); font-family: var(--font-mono); font-weight: 900; font-size: 0.85rem; letter-spacing: 0.15em;
-            padding: 1rem; cursor: pointer; transition: 0.3s;
+            padding: 1rem; cursor: pointer; transition: var(--motion-control-transition);
             box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
           }
+          @media (hover: hover) and (pointer: fine) {
           .td-btn-validate:hover {
             background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
           }
+}
 
           .td-textarea {
-            width: 100%; min-height: 100px; 
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 8px; color: #fff; padding: 1rem; 
+            width: 100%; min-height: 100px;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; padding: 1rem;
             font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.5;
-            resize: vertical; transition: 0.2s;
+            resize: vertical; transition: var(--motion-control-transition);
           }
           .td-textarea:focus { outline: none; border-color: rgba(197, 160, 89, 0.4); background: rgba(0,0,0,0.5); }
         `}</style>

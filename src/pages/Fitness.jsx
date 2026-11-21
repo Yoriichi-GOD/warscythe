@@ -1,8 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { WorkoutModeBar } from '../components/WorkoutStatus';
+import './fitnessFrames.css';
+import MobileDisplayToggle from '../components/MobileDisplay';
+import { useMobileDisplay } from '../components/useMobileDisplay';
+import WorkoutSession from '../components/WorkoutSession';
+import { useWorkoutUi, useRestTimer } from '../store/workoutUi';
+import OrnateFrame from '../components/frames/OrnateFrame';
+import { revealUiTarget } from '../utils/revealUiTarget';
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { getAssetUrl } from '../utils/assetResolver';
 import UnlockCeremonyModal from '../components/UnlockCeremonyModal';
+import FitnessOlympusExperience, { calculateAverageRpe, FitnessOlympusRecognition } from '../features/fitness-v2/FitnessOlympusExperience';
+import DeityTitleCard from '../features/fitness-v2/DeityTitleCard';
+import { calculateWorkoutEvidence } from '../features/fitness-v2/domain/workoutEvidence';
+import { isFitnessV2PreviewEnabled } from '../features/fitness-v2/featureGate';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
   RotateCcw, ShieldAlert, Award, Star, TrendingUp, 
@@ -11,9 +24,10 @@ import {
 } from 'lucide-react';
 
 
-const OrnatePanel = ({ children, className = '', ...props }) => {
+const OrnatePanel = ({ children, className = '', frameSize = 'panel', ...props }) => {
   return (
-    <div className={`elite-panel ${className}`} {...props}>
+    <div className={`elite-panel ornate-surface fitness-framed-panel fitness-framed-panel--${frameSize} ${className}`} {...props}>
+      <OrnateFrame family="hercules" quiet className="fitness-panel-frame" />
       <div className="relative z-10 w-full h-full flex flex-col">
         {children}
       </div>
@@ -34,6 +48,7 @@ const FITNESS_GUIDE = [
 ];
 
 function FitnessWalkthrough({ step, onNext }) {
+  const ambientMotion = useAmbientMotion();
   const [rect, setRect] = useState(null);
   const guide = FITNESS_GUIDE[step];
   useEffect(() => {
@@ -45,7 +60,7 @@ function FitnessWalkthrough({ step, onNext }) {
       setRect({ top:r.top, left:r.left, right:r.right, bottom:r.bottom, width:r.width, height:r.height });
     };
     const reveal = window.setTimeout(() => {
-      document.getElementById(guide.id)?.scrollIntoView({ behavior:'smooth', block:'center' });
+      revealUiTarget(document.getElementById(guide.id));
       window.setTimeout(update, 240);
     }, 80);
     const timer = window.setInterval(update, 160);
@@ -68,7 +83,7 @@ function FitnessWalkthrough({ step, onNext }) {
         className="fixed z-[2200] pointer-events-none rounded"
         style={{top:rect.top-5,left:rect.left-5,width:rect.width+10,height:rect.height+10}}
         animate={{boxShadow:['0 0 0 2px #e8c675,0 0 18px #e8c67555','0 0 0 4px #e8c675,0 0 35px #e8c67588','0 0 0 2px #e8c675,0 0 18px #e8c67555']}}
-        transition={{duration:1.3,repeat:Infinity}}
+        transition={{duration:ambientMotion ? 1.3 : 0,repeat:ambientMotion ? Infinity : 0}}
       />
       <motion.aside
         initial={{opacity:0,y:10}} animate={{opacity:1,y:0}}
@@ -78,7 +93,7 @@ function FitnessWalkthrough({ step, onNext }) {
           : {left:placeRight ? rect.right+18 : Math.max(12,rect.left-358),top}}
       >
         <small className="font-mono text-[8px] tracking-[.28em] text-gold-core">ARETE // OATHBOUND LESSON {step+1}/{FITNESS_GUIDE.length}</small>
-        <h3 className="font-display text-lg text-white mt-2">{guide.title}</h3>
+        <h3 className="motion-heading font-display text-lg text-white mt-2">{guide.title}</h3>
         <p className="font-serif italic text-sm leading-relaxed text-stone-300 mt-2">{guide.text}</p>
         {guide.manual && (
           <button onClick={onNext} className="mt-4 w-full border border-gold-core/40 bg-gold-core/10 py-2 font-mono text-[8px] font-black tracking-widest text-gold-core">
@@ -113,6 +128,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showTutorialFarewell, setShowTutorialFarewell] = useState(false);
   const activeWorkout = tutorialActive ? sandboxWorkout : storedActiveWorkout;
+  const focusedId = useWorkoutUi(state => state.focusedId);
+  const workoutMode = !tutorialActive && !!activeWorkout && focusedId === activeWorkout.id;
+  const deityDisplay = useMobileDisplay('fitness-deity', tutorialActive);
   const advanceTutorial = (expected) => {
     if (tutorialActive && tutorialStep === expected) setTutorialStep(value => Math.min(FITNESS_GUIDE.length - 1, value + 1));
   };
@@ -124,7 +142,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const cancelWorkout = () => tutorialActive ? setSandboxWorkout(null) : storeCancelWorkout();
   const addMovement = (name) => {
     if (!tutorialActive) return storeAddMovement(name);
-    setSandboxWorkout(workout => ({...workout, movements:[...workout.movements,{id:'oathbound-movement',name:name || 'Chosen Movement',sets:[]}]}));
+    setSandboxWorkout(workout => ({...workout, movements:[...workout.movements,{id:crypto.randomUUID(),name:name || 'Chosen Movement',sets:[]}]}));
     advanceTutorial(1);
   };
   const removeMovement = (movementId) => tutorialActive
@@ -132,7 +150,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
     : storeRemoveMovement(movementId);
   const addSetToMovement = (movementId, detail={}) => {
     if (!tutorialActive) return storeAddSetToMovement(movementId, detail);
-    const newSet = {id:'oathbound-set',weight:Number(detail.weight)||0,reps:Number(detail.reps)||0,rpe:Number(detail.rpe)||8,type:detail.type||'working',completed:false};
+    const newSet = {id:crypto.randomUUID(),weight:Number(detail.weight)||0,reps:Number(detail.reps)||0,rpe:Number(detail.rpe)||8,type:detail.type||'working',completed:false};
     setSandboxWorkout(workout => ({...workout,movements:workout.movements.map(m=>m.id===movementId?{...m,sets:[...m.sets,newSet]}:m)}));
     setFocusedSet({movementId,setId:newSet.id});
     advanceTutorial(2);
@@ -186,7 +204,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   };
 
   useEffect(() => {
-    if (tutorialActive || !activeDeity?.id || !activeDeity?.threshold || totalTonnage < activeDeity.threshold) return;
+    if (isFitnessV2PreviewEnabled() || tutorialActive || !activeDeity?.id || !activeDeity?.threshold || totalTonnage < activeDeity.threshold) return;
     let claimed = [];
     try { claimed = JSON.parse(localStorage.getItem('warscythe-claimed-deity-tiers') || '[]'); } catch { claimed = []; }
     if (!claimed.includes(activeDeity.id)) setDeityCeremony(activeDeity);
@@ -205,22 +223,19 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const [showCustomSplitInput, setShowCustomSplitInput] = useState(false);
 
   // New Movement state
-  const [newMovementName, setNewMovementName] = useState('');
-  const [movementDropdownOpen, setMovementDropdownOpen] = useState(false);
+
 
   // Selected/Focused set for the RPE Dial
   const [focusedSet, setFocusedSet] = useState(null); // { movementId, setId }
 
-  // Rest Timer state
-  const [timerDuration, setTimerDuration] = useState(90); // default 90s
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [timerActive, setTimerActive] = useState(false);
+  const { timerDuration, timerSeconds, timerActive, setTimerDuration, setTimerSeconds, setTimerActive } = useRestTimer(activeWorkout?.id || null);
   const [timerDurationOpen, setTimerDurationOpen] = useState(false);
-  const timerRef = useRef(null);
 
   // Detailed History Modal state
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [expandedHistoryId, setExpandedHistoryId] = useState(null);
+  const [ironReport, setIronReport] = useState(null);
+  const [archiveDropdownOpen, setArchiveDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!import.meta.env.DEV) return undefined;
@@ -268,33 +283,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
     }
   };
 
-  // Timer loop (Only restarts when active state changes, avoiding the per-second restart bug)
-  useEffect(() => {
-    if (timerActive) {
-      timerRef.current = setInterval(() => {
-        setTimerSeconds(prev => {
-          if (prev <= 1) {
-            setTimerActive(false);
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [timerActive]);
-
   const handleStartWorkout = (split) => {
     startWorkout(split);
+    if (!tutorialActive) useWorkoutUi.getState().begin(useWarscytheStore.getState().activeWorkout.id);
     setSplitDropdownOpen(false);
     setShowCustomSplitInput(false);
     setCustomSplitName('');
@@ -343,14 +334,94 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
   // Count total logged workouts
   const totalWorkouts = gymLog.length;
+  const fitnessV2PreviewEnabled = isFitnessV2PreviewEnabled() && !tutorialActive;
+  const workoutTemplates = useMemo(() => {
+    const seen = new Set();
+    return (gymLog || []).filter(workout => {
+      const key = String(workout.split || '').trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 12);
+  }, [gymLog]);
+
+  const initializeWorkoutTemplate = (template) => {
+    if (!template) return;
+    if (activeWorkout && !window.confirm('Replace the current unarchived session with this Iron Decree?')) return;
+    if (activeWorkout) storeCancelWorkout();
+    storeStartWorkout(template.split || 'Archived Iron Decree');
+    const state = useWarscytheStore.getState();
+    (template.movements || []).forEach(movement => {
+      state.addMovement(movement.name);
+      const active = useWarscytheStore.getState().activeWorkout;
+      const created = active?.movements?.[active.movements.length - 1];
+      if (!created) return;
+      (movement.sets || []).forEach(setItem => state.addSetToMovement(created.id, {
+        weight: Number(setItem.weight) || 0,
+        reps: Number(setItem.reps) || 0,
+        rpe: Number(setItem.rpe) || 8,
+        type: setItem.type || 'working',
+        completed: false,
+      }));
+    });
+    setArchiveDropdownOpen(false);
+    useWorkoutUi.getState().begin(useWarscytheStore.getState().activeWorkout.id);
+  };
+
+  const archiveWorkoutWithReport = () => {
+    if (!activeWorkout) return;
+    if (tutorialActive) {
+      // Practice must never enter the real reward ceremony when the lesson ends.
+      setIronReport(null);
+      logWorkout();
+      setFocusedSet(null);
+      return;
+    }
+    const volume = getSessionTonnage(activeWorkout);
+    const comparable = (gymLog || []).find(item => String(item.split || '').toLowerCase() === String(activeWorkout.split || '').toLowerCase());
+    const totalSets = (activeWorkout.movements || []).reduce((sum, movement) => sum + (movement.sets || []).length, 0);
+    const completedSets = (activeWorkout.movements || []).reduce((sum, movement) => sum + (movement.sets || []).filter(setItem => setItem.type !== 'warmup' && (setItem.completed || (Number(setItem.weight) > 0 && Number(setItem.reps) > 0))).length, 0);
+    const totalReps = (activeWorkout.movements || []).reduce((sum, movement) => sum + (movement.sets || [])
+      .filter(setItem => setItem.type !== 'warmup' && (setItem.completed || (Number(setItem.weight) > 0 && Number(setItem.reps) > 0)))
+      .reduce((setSum, setItem) => setSum + (Number(setItem.reps) || 0), 0), 0);
+    const movementCount = (activeWorkout.movements || []).filter(movement => (movement.sets || []).some(setItem => setItem.completed || (Number(setItem.weight) > 0 && Number(setItem.reps) > 0))).length;
+    const averageRpe = calculateAverageRpe(activeWorkout);
+    const affinityGain = calculateWorkoutEvidence({ completedSets, totalReps, volume }).affinity;
+    setIronReport({
+      split: activeWorkout.split || 'Completed Session',
+      volume,
+      previousVolume: comparable ? getSessionTonnage(comparable) : 0,
+      averageRpe,
+      totalSets,
+      completedSets,
+      totalReps,
+      movementCount,
+      affinityGain,
+      fragmentReason: volume >= 5000 ? 'Volume execution examined for Fragment recovery' : null,
+      id: Date.now(),
+    });
+    logWorkout();
+    if (!tutorialActive) useWorkoutUi.getState().clear();
+    setFocusedSet(null);
+  };
 
   return (
-    <div className="fitness-realm w-full pt-4 pb-32">
-      {deityCeremony && (
+    <div className={`fitness-realm w-full pt-4 pb-32 ${workoutMode ? 'workout-mode' : ''}`}>
+      {activeWorkout && !tutorialActive && <WorkoutModeBar focused={workoutMode} seconds={timerSeconds} time={formatTime(timerSeconds)} running={timerActive} onToggleRest={() => setTimerActive(!timerActive)} onToggleMode={() => workoutMode ? useWorkoutUi.getState().minimize() : useWorkoutUi.getState().focus(activeWorkout.id)} />}
+      {fitnessV2PreviewEnabled && (
+        <FitnessOlympusExperience
+          gymLog={gymLog}
+          report={ironReport}
+          templates={workoutTemplates}
+          onInitializeTemplate={initializeWorkoutTemplate}
+          showRecognition={false}
+        />
+      )}
+      {deityCeremony && !fitnessV2PreviewEnabled && (
         <UnlockCeremonyModal
           kind="deity"
           name={deityCeremony.name}
-          image={`/deity/${deityCeremony.id}.png`}
+          image={`/deity/${deityCeremony.id}.webp`}
           prophecy={`The iron you lifted has crossed the threshold of ${deityCeremony.threshold.toLocaleString()} kilograms. ${deityCeremony.name} now walks within your discipline. ${deityCeremony.buff}`}
           onClose={acceptDeityTier}
           requiresDownload={!isDeityDownloaded(deityCeremony.id)}
@@ -370,23 +441,23 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
             initial={{opacity:0}}
             animate={{opacity:1}}
             exit={{opacity:0,filter:'blur(10px)'}}
-            transition={{duration:.65}}
+            transition={{duration:.2}}
             className="fixed inset-x-0 top-[72px] bottom-[82px] z-[2500] grid place-items-center bg-black/75 backdrop-blur-sm p-4"
           >
             <motion.div
               initial={{opacity:0,y:30,scale:.96}}
               animate={{opacity:1,y:0,scale:1}}
               exit={{opacity:0,y:-25,scale:1.03}}
-              transition={{duration:.7}}
+              transition={{duration:.24}}
               className="w-full max-w-4xl max-h-full overflow-y-auto border border-gold-core/30 bg-zinc-950/96 grid md:grid-cols-[.8fr_1.2fr] shadow-[0_0_90px_#000]"
             >
               <div className="relative aspect-[2/3] md:aspect-auto md:min-h-[560px] bg-black">
-                <img src="/deity/fitness-goddess.png" alt="Arete" className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center"/>
+                <img src="/deity/fitness-goddess.webp" alt="Arete" className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center"/>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"/>
               </div>
               <div className="p-7 md:p-10 flex flex-col justify-center text-center">
                 <small className="font-mono text-[8px] tracking-[.32em] text-gold-core">ARETE // THE PROPHECY REMEMBERS</small>
-                <h2 className="font-display text-2xl md:text-4xl text-white mt-4">THE THUNDERED THRONE AWAITS</h2>
+                <h2 className="motion-heading font-display text-2xl md:text-4xl text-white mt-4">THE THUNDERED THRONE AWAITS</h2>
                 <p className="font-serif italic text-base md:text-lg leading-relaxed text-stone-200 mt-5">
                   I have seen your name written where mortal sinew meets divine will. You are the promised bearer who will raise iron without worshipping pride, endure fire without becoming cruel, and climb until Olympus can no longer call you stranger. Go now. Let every honest repetition become thunder. If you remain faithful to the oath, the road will not merely lead toward Zeus. One day, the heavens will speak your name beside his.
                 </p>
@@ -403,13 +474,13 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
-        <div className="lg:col-span-5 flex flex-col gap-4 relative" style={{ zIndex: splitDropdownOpen ? 500 : 1 }}>
+        <div className="fitness-workout-column lg:col-span-5 flex flex-col gap-4 relative" style={{ zIndex: splitDropdownOpen ? 500 : 1 }}>
           <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass" style={{ position:'relative', zIndex: splitDropdownOpen ? 500 : 1 }}>
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display text-lg text-white tracking-wider uppercase">THE IRON LEDGER</h3>
+                  <h3 className="motion-heading font-display text-lg text-white tracking-wider uppercase">THE IRON LEDGER</h3>
                   <button 
                     type="button"
                     onClick={() => useWarscytheStore.getState().openVideoModal('fitness')}
@@ -426,6 +497,27 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                   >
                     <Info size={14} />
                   </button>
+                  {fitnessV2PreviewEnabled && (
+                    <div className="relative ml-2">
+                      <button
+                        type="button"
+                        onClick={() => setArchiveDropdownOpen(value => !value)}
+                        className="flex items-center gap-1.5 border border-gold-core/30 bg-black/75 px-2.5 py-1.5 font-mono text-[8px] font-black tracking-widest text-gold-core"
+                      >
+                        CHOOSE DECREE <ChevronDown size={11}/>
+                      </button>
+                      {archiveDropdownOpen && (
+                        <div className="absolute left-0 top-full z-[700] mt-1 w-64 max-h-64 overflow-y-auto border border-gold-core/30 bg-[#020203] shadow-2xl custom-scrollbar">
+                          {workoutTemplates.length ? workoutTemplates.map(template => (
+                            <button key={template.id} type="button" onClick={() => initializeWorkoutTemplate(template)} className="block w-full border-b border-white/5 bg-[#020203] px-3 py-3 text-left hover:bg-gold-core/10">
+                              <strong className="block font-display text-[10px] tracking-wider text-white uppercase">{template.split}</strong>
+                              <span className="mt-1 block font-mono text-[7px] text-stone-500">{template.movements?.length || 0} MOVEMENTS · EDITABLE COPY</span>
+                            </button>
+                          )) : <span className="block p-3 font-mono text-[8px] text-stone-500">ARCHIVE A SESSION TO FORGE YOUR FIRST DECREE.</span>}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <Dumbbell size={16} className="text-gold-core" />
@@ -443,7 +535,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                   <button 
                     id="fitness-split-select"
                     onClick={() => setSplitDropdownOpen(!splitDropdownOpen)}
-                    className="w-full bg-black border border-white/10 hover:border-gold-core text-white px-4 py-2.5 rounded font-mono text-[10px] tracking-widest uppercase flex justify-between items-center transition-all"
+                    className="w-full bg-black border border-white/10 hover:border-gold-core text-white px-4 py-2.5 rounded font-mono text-[10px] tracking-widest uppercase flex justify-between items-center motion-control"
                   >
                     <span>SELECT TRAINING SPLIT</span>
                     <ChevronDown size={14} className={`text-gold-core transition-transform ${splitDropdownOpen ? 'rotate-185' : ''}`} />
@@ -469,7 +561,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                                 handleStartWorkout(preset);
                               }
                             }}
-                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 transition-all"
+                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 motion-control"
                             style={{ backgroundColor: '#020203' }}
                           >
                             {preset.toUpperCase()}
@@ -507,255 +599,21 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                 )}
               </div>
             ) : (
-              /* ACTIVE WORKOUT PANEL */
-              <div className="flex flex-col gap-4">
-                {/* Active Split Details */}
-                <div className="flex justify-between items-center bg-gold-core/5 border border-gold-core/15 p-3 rounded">
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-gold-core/70 tracking-widest uppercase">ACTIVE LIFTS</span>
-                    <span className="font-display text-xs text-white tracking-widest uppercase font-bold">{activeWorkout.split}</span>
-                  </div>
-                  <button 
-                    onClick={cancelWorkout}
-                    className="border border-red-500/20 hover:border-red-500 text-red-500/80 hover:text-red-500 bg-red-500/5 px-2.5 py-1 rounded font-mono text-[8px] tracking-widest uppercase transition-all"
-                  >
-                    ABANDON
-                  </button>
-                </div>
-
-                {/* Add Movement Selector */}
-                <div id="fitness-movement-selector" className="relative">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="ADD MOVEMENT (E.G. SQUAT)"
-                      value={newMovementName}
-                      onChange={(e) => setNewMovementName(e.target.value)}
-                      onFocus={() => setMovementDropdownOpen(true)}
-                      className="flex-1 bg-black border border-white/15 rounded p-2 text-[10px] text-white font-mono placeholder-gray-600 focus:outline-none focus:border-gold-core uppercase"
-                    />
-                    <button 
-                      onClick={() => {
-                        if (newMovementName.trim()) {
-                          addMovement(newMovementName.trim());
-                          setNewMovementName('');
-                          setMovementDropdownOpen(false);
-                        }
-                      }}
-                      className="bg-white/5 border border-white/10 hover:border-gold-core hover:bg-gold-core/10 text-white hover:text-gold-core px-3 rounded font-mono text-[10px] transition-all flex items-center justify-center"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-
-                  {movementDropdownOpen && (
-                    <div className="absolute left-0 right-0 mt-1 bg-black border border-white/15 rounded z-50 max-h-[160px] overflow-y-auto custom-scrollbar shadow-2xl">
-                      {movementPresets
-                        .filter(p => p.toLowerCase().includes(newMovementName.toLowerCase()))
-                        .map((preset, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              addMovement(preset);
-                              setNewMovementName('');
-                              setMovementDropdownOpen(false);
-                            }}
-                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white hover:bg-white/[0.04] px-4 py-2 border-b border-white/5 transition-all"
-                          >
-                            {preset.toUpperCase()}
-                          </button>
-                        ))
-                      }
-                      <button 
-                        onClick={() => setMovementDropdownOpen(false)}
-                        className="w-full text-center font-mono text-[8px] text-gray-500 py-1.5 bg-white/[0.01]"
-                      >
-                        CLOSE PRESETS
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Movements and Sets list */}
-                <div className="flex flex-col gap-4 mt-2 max-h-[380px] overflow-y-auto custom-scrollbar pr-1.5">
-                  {activeWorkout.movements.length === 0 ? (
-                    <p className="text-[10px] font-mono text-gray-600 uppercase tracking-widest text-center py-6">
-                      Add movements to begin structure.
-                    </p>
-                  ) : (
-                    activeWorkout.movements.map((movement) => (
-                      <div key={movement.id} className="border border-white/5 bg-white/[0.01] p-3 rounded flex flex-col gap-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-display text-[11px] text-white tracking-widest uppercase font-bold">
-                            {movement.name}
-                          </span>
-                          <button 
-                            onClick={() => removeMovement(movement.id)}
-                            className="text-gray-500 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-
-                        {/* Set Builder List */}
-                        <div className="flex flex-col gap-2">
-                          {(movement.sets || []).map((setObj, index) => {
-                            const isFocused = focusedSet?.movementId === movement.id && focusedSet?.setId === setObj.id;
-                            return (
-                              <div 
-                                key={setObj.id} 
-                                onClick={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
-                                className={`flex items-center gap-1.5 p-1.5 rounded transition-all cursor-pointer ${
-                                  isFocused 
-                                    ? 'bg-gold-core/5 border border-gold-core/30 shadow-[0_0_8px_rgba(197,160,89,0.15)]' 
-                                    : 'border border-transparent bg-black/40 hover:border-white/5'
-                                }`}
-                              >
-                                {/* Set Number and type select dropdown */}
-                                <select
-                                  value={setObj.type}
-                                  onChange={(e) => updateSetInMovement(movement.id, setObj.id, { type: e.target.value })}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="bg-black border border-white/10 text-white font-mono text-[8px] rounded px-1.5 py-0.5 focus:outline-none uppercase shrink-0"
-                                >
-                                  <option value="warmup">WU</option>
-                                  <option value="working">WORK</option>
-                                  <option value="topset">TOP</option>
-                                  <option value="amrap">AMRAP</option>
-                                </select>
-
-                                {/* Weight Input */}
-                                <div className="flex items-center gap-0.5 flex-1 min-w-0">
-                                  <input 
-                                    id="fitness-weight-input"
-                                    type="number"
-                                    placeholder="KG"
-                                    value={setObj.weight || ''}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
-                                    onChange={(e) => {
-                                      updateSetInMovement(movement.id, setObj.id, { weight: e.target.value });
-                                      if (Number(e.target.value) > 0) advanceTutorial(3);
-                                    }}
-                                    className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
-                                  />
-                                  <span className="text-[7px] font-mono text-gray-500">KG</span>
-                                </div>
-
-                                {/* Reps Input */}
-                                <div className="flex items-center gap-0.5 flex-1 min-w-0">
-                                  <input 
-                                    id="fitness-reps-input"
-                                    type="number"
-                                    placeholder="RPS"
-                                    value={setObj.reps || ''}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
-                                    onChange={(e) => {
-                                      updateSetInMovement(movement.id, setObj.id, { reps: e.target.value });
-                                      if (Number(e.target.value) > 0) advanceTutorial(4);
-                                    }}
-                                    className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
-                                  />
-                                  <span className="text-[7px] font-mono text-gray-500">RPS</span>
-                                </div>
-
-                                {/* RPE input block */}
-                                <div className="flex items-center gap-0.5 w-[50px] shrink-0">
-                                  <span className="text-[7px] font-mono text-gray-500 uppercase">@</span>
-                                  <input 
-                                    type="number"
-                                    step="0.5"
-                                    placeholder="RPE"
-                                    value={setObj.rpe || ''}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onFocus={() => setFocusedSet({ movementId: movement.id, setId: setObj.id })}
-                                    onChange={(e) => updateSetInMovement(movement.id, setObj.id, { rpe: e.target.value })}
-                                    className="w-full bg-black border border-white/10 text-white font-mono text-[9px] text-center rounded py-0.5 focus:outline-none focus:border-gold-core"
-                                  />
-                                </div>
-
-                                {/* Completed Checkbox */}
-                                <button
-                                  id="fitness-complete-set"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleToggleSetComplete(movement.id, setObj.id, setObj.completed);
-                                    if (!setObj.completed) advanceTutorial(5);
-                                  }}
-                                  className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${
-                                    setObj.completed
-                                      ? 'border-gold-core text-black bg-gold-core shadow-[0_0_8px_rgba(197,160,89,0.3)]'
-                                      : 'border-white/10 text-transparent hover:border-gold-core/50 bg-black/60'
-                                  }`}
-                                >
-                                  <Check size={10} strokeWidth={3} />
-                                </button>
-
-                                {/* Delete Set */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteSetFromMovement(movement.id, setObj.id);
-                                    if (focusedSet?.setId === setObj.id) setFocusedSet(null);
-                                  }}
-                                  className="text-gray-600 hover:text-red-500 transition-colors"
-                                >
-                                  <Trash2 size={10} />
-                                </button>
-                              </div>
-                            );
-                          })}
-
-                          {/* Add Set Button */}
-                          <button
-                            id="fitness-add-set"
-                            onClick={() => addSetToMovement(movement.id, { weight: 0, reps: 0, rpe: 8, type: 'working' })}
-                            className="w-full border border-dashed border-white/10 hover:border-gold-core/35 text-[8px] font-mono text-gray-400 hover:text-gold-core py-1 rounded transition-all uppercase tracking-widest flex items-center justify-center gap-1 mt-1"
-                          >
-                            <Plus size={10} /> ADD SET
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Session Notes Input */}
-                <div className="flex flex-col gap-1 mt-2">
-                  <label className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">
-                    SESSION NOTES
-                  </label>
-                  <textarea 
-                    placeholder="ENTER TRAINING NOTES (E.G. FEELING STRONG, SLEEP QUALITY, ETC.)" 
-                    value={activeWorkout.notes || ''} 
-                    onChange={e => updateWorkoutNotes(e.target.value)} 
-                    className="w-full bg-black border border-white/10 hover:border-gold-core/30 rounded p-2 text-[9px] text-white font-mono placeholder-gray-600 focus:outline-none focus:border-gold-core h-16 resize-none uppercase"
-                  />
-                </div>
-
-                {/* Submit Session Button */}
-                <button
-                  id="fitness-archive"
-                  onClick={() => {
-                    logWorkout();
-                    setFocusedSet(null);
-                  }}
-                  disabled={activeWorkout.movements.length === 0}
-                  className="w-full bg-gold-core hover:bg-gold-bright disabled:opacity-40 disabled:cursor-not-allowed text-black font-extrabold font-mono text-[10px] py-2.5 rounded uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(197,160,89,0.2)] mt-2"
-                >
-                  ARCHIVE COMPLETED SESSION
-                </button>
-              </div>
+              <WorkoutSession workout={activeWorkout} history={gymLog || []} presets={movementPresets}
+                addMovement={addMovement} removeMovement={removeMovement} addSet={addSetToMovement}
+                updateSet={updateSetInMovement} deleteSet={deleteSetFromMovement} toggleComplete={handleToggleSetComplete}
+                notes={updateWorkoutNotes} archive={archiveWorkoutWithReport} advance={advanceTutorial}
+                discard={() => { cancelWorkout(); if (!tutorialActive) useWorkoutUi.getState().clear(); }}
+                focusedSet={focusedSet} setFocusedSet={setFocusedSet} />
             )}
           </OrnatePanel>
 
           {/* Training Controls widgets: RPE Dial and Rest Timer */}
           {activeWorkout && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="workout-controls grid grid-cols-2 gap-4">
               
               {/* RPE Dial Widget */}
-              <OrnatePanel id="fitness-rpe-dial" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel frameSize="compact" id="fitness-rpe-dial" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-start mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
@@ -841,13 +699,13 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                           <div className="flex gap-1 w-full">
                             <button 
                               onClick={() => handleAdjustRpe(-0.5)}
-                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none transition-all flex items-center justify-center font-bold cursor-pointer"
+                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none motion-control flex items-center justify-center font-bold cursor-pointer"
                             >
                               -
                             </button>
                             <button 
                               onClick={() => handleAdjustRpe(0.5)}
-                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none transition-all flex items-center justify-center font-bold cursor-pointer"
+                              className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-white font-mono text-[9px] py-1 rounded select-none motion-control flex items-center justify-center font-bold cursor-pointer"
                             >
                               +
                             </button>
@@ -864,7 +722,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               </OrnatePanel>
 
               {/* Rest Timer Widget */}
-              <OrnatePanel id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel frameSize="compact" id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className={`relative flex justify-between items-center mb-1 ${timerDurationOpen ? 'z-[320]' : 'z-10'}`}>
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>
@@ -936,7 +794,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
                 <div className="flex items-center justify-between gap-1 z-10 flex-1">
                   {/* Circular Dial Column */}
-                  <div className="flex items-center justify-center relative w-[80px] h-[80px] select-none cursor-pointer shrink-0"
+                  <div role="button" tabIndex={0} aria-label={timerActive ? "Pause rest timer" : "Start rest timer"} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!timerActive && timerSeconds === 0) setTimerSeconds(timerDuration); setTimerActive(!timerActive); } }} className="flex items-center justify-center relative w-[80px] h-[80px] select-none cursor-pointer shrink-0"
                     onClick={() => {
                       if (!timerActive && timerSeconds === 0) {
                         setTimerSeconds(timerDuration);
@@ -986,7 +844,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                           e.stopPropagation();
                           setTimerSeconds(prev => Math.max(0, prev - 30));
                         }}
-                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none transition-all cursor-pointer"
+                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none motion-control cursor-pointer"
                       >
                         -30s
                       </button>
@@ -995,7 +853,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                           e.stopPropagation();
                           setTimerSeconds(prev => prev + 30);
                         }}
-                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none transition-all cursor-pointer"
+                        className="flex-1 bg-white/[0.02] border border-white/10 hover:border-gold-core/30 hover:bg-gold-core/5 text-gray-400 hover:text-white font-mono text-[7px] py-1 rounded uppercase select-none motion-control cursor-pointer"
                       >
                         +30s
                       </button>
@@ -1006,7 +864,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                         setTimerSeconds(timerDuration);
                         setTimerActive(false);
                       }}
-                      className="w-full bg-white/[0.02] border border-white/10 hover:border-red-500/40 hover:bg-red-500/5 text-gray-400 hover:text-red-400 font-mono text-[7px] py-1 rounded uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      className="w-full bg-white/[0.02] border border-white/10 hover:border-red-500/40 hover:bg-red-500/5 text-gray-400 hover:text-red-400 font-mono text-[7px] py-1 rounded uppercase motion-control flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <RotateCcw size={8} /> RESET
                     </button>
@@ -1019,16 +877,17 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
         </div>
 
         {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 4) ================= */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
+        <div className="fitness-deity-column lg:col-span-4 flex flex-col gap-4">
           <OrnatePanel className="text-center relative overflow-hidden !p-4 elite-panel-clear">
             
             {/* Background God Aura Light */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.12)_0%,transparent_70%)] pointer-events-none" />
 
-            <div className="flex flex-col items-center relative z-10 pt-1 w-full">
+            <div data-display-collapsed={deityDisplay.collapsed} className="flex flex-col items-center relative z-10 pt-1 w-full">
+              <MobileDisplayToggle id="fitness-deity-decoration" label="Deity display" display={deityDisplay} />
+              <div id="fitness-deity-decoration" className="mobile-display-content w-full flex flex-col items-center">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold mb-1">ACTIVE DEITY AVATAR</span>
-              <h2 className="font-display text-2xl text-white tracking-[0.1em] uppercase mb-1">{activeDeity.name}</h2>
-              <p className="text-[8.5px] font-mono text-gray-500 uppercase tracking-wider mb-4 px-2 leading-relaxed italic">"{activeDeity.desc}"</p>
+              <DeityTitleCard deity={activeDeity} className="fitness-dashboard-title-card" />
 
               {/* Progress Slider towards next Deity (Gold Theme) - Moved Under Header */}
               <div className="w-full mb-4 px-1">
@@ -1043,10 +902,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                     <div className="w-full h-2 bg-black border border-white/10 rounded-full overflow-hidden p-0.5">
                       <motion.div 
                         className="h-full bg-gold-core rounded-full"
-                        style={{ width: `${progressPercent}%` }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPercent}%` }}
-                        transition={{ duration: 1 }}
+                        style={{ width: '100%', transformOrigin: 'left' }}
+                        initial={false}
+                        animate={{ transform: `scaleX(${Math.max(0, Math.min(1, progressPercent / 100))})` }}
                       />
                     </div>
                     
@@ -1065,7 +923,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
               {/* Deity Statue Visualizer (Expanded h-[420px], no inner gray box, golden halo) */}
               <div 
-                className="relative w-full h-[420px] bg-black/40 rounded flex items-end justify-center overflow-hidden mb-4 border border-white/5"
+                data-ambient-motion className="relative w-full h-[420px] bg-black/40 rounded flex items-end justify-center overflow-hidden mb-4 border border-white/5"
                 style={{
                   background: activeTheme === 'shiva'
                     ? 'linear-gradient(to top, rgba(9, 26, 47, 0.95), rgba(27, 53, 90, 0.45)), repeating-linear-gradient(45deg, rgba(93, 173, 226, 0.03) 0px, rgba(93, 173, 226, 0.03) 2px, transparent 2px, transparent 10px)'
@@ -1077,30 +935,24 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.18)_0%,transparent_65%)] pointer-events-none" />
                 
                 <motion.div 
-                  className="w-full h-full flex items-end justify-center relative pb-12"
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                  className="motion-deity-float w-full h-full flex items-end justify-center relative pb-12"
                 >
                   {/* Glowing Divine Aura (Pulsing background light) */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     {/* Outer soft glow */}
                     <motion.div 
-                      className="absolute w-72 h-72 rounded-full bg-gold-core/5 filter blur-3xl"
-                      animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-                      transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                      className="motion-deity-aura absolute w-72 h-72 rounded-full bg-gold-core/5 filter blur-3xl"
                     />
                     {/* Inner glowing halo ring */}
                     <motion.div 
-                      className="absolute w-56 h-56 rounded-full border border-gold-core/10 bg-gradient-to-t from-transparent via-gold-core/[0.02] to-gold-core/[0.05] filter blur-[2px]"
-                      animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.3, 0.6, 0.3] }}
-                      transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                      className="motion-deity-halo absolute w-56 h-56 rounded-full border border-gold-core/10 bg-gradient-to-t from-transparent via-gold-core/[0.02] to-gold-core/[0.05] filter blur-[2px]"
                     />
                   </div>
 
                   {/* Deity Statue Image - Full height, standing on bottom */}
                   <div className="relative z-10 w-full h-[360px] flex items-end justify-center">
                     <img 
-                      src={getAssetUrl(`/deity/${activeDeity.id}.png`)} 
+                      src={`/fitness-v2/olympus/statues/olympus-${activeDeity.id}-statue.webp`}
                       alt={activeDeity.name}
                       className="max-w-[90%] max-h-full object-contain"
                       onError={(e) => {
@@ -1141,6 +993,9 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                   </span>
                 </div>
               </div>
+
+              </div>
+              {fitnessV2PreviewEnabled && <FitnessOlympusRecognition gymLog={gymLog} />}
 
               {activeTheme === 'shiva' && (
                 <div className="w-full bg-[#0d2238]/60 border border-[#5dade2]/30 rounded p-3 flex flex-col gap-1.5 text-left relative overflow-hidden mt-3 shadow-[0_0_15px_rgba(93,173,226,0.15)]">
@@ -1189,10 +1044,10 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
         </div>
 
         {/* ================= RIGHT COLUMN: PANTHEON PROGRESSION (Columns: 3) ================= */}
-        <div className="lg:col-span-3 flex flex-col gap-4 sticky top-4">
+        <div className="fitness-secondary-column lg:col-span-3 flex flex-col gap-4 sticky top-4">
           
           {/* Quick Metrics Widget */}
-          <OrnatePanel className="fitness-panel-glass">
+          <OrnatePanel frameSize="metrics" className="fitness-panel-glass">
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="flex flex-col gap-1 border-r border-white/5 py-1">
                 <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">TOTAL VOLUME</span>
@@ -1222,7 +1077,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">ASCENSION PATH</span>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display text-lg text-white tracking-wider uppercase">PANTHEON TIER</h3>
+                  <h3 className="motion-heading font-display text-lg text-white tracking-wider uppercase">PANTHEON TIER</h3>
                   <button 
                     type="button"
                     onClick={() => useWarscytheStore.getState().openInfoModal('fitness')}
@@ -1247,7 +1102,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                 return (
                   <div 
                     key={deity.id}
-                    className={`p-2.5 rounded border flex items-center gap-3 transition-all relative ${
+                    className={`p-2.5 rounded border flex items-center gap-3 motion-control relative ${
                       isCurrent 
                         ? 'border-gold-core bg-gold-core/[0.03] shadow-[0_0_12px_rgba(197,160,89,0.15)]' 
                         : isUnlocked 
@@ -1270,7 +1125,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                     )}
                     {/* Circle Avatar Face Preview */}
                     <div className="relative shrink-0">
-                      <div className={`w-9 h-9 rounded-full overflow-hidden border flex items-center justify-center bg-black/60 transition-all ${
+                      <div className={`w-9 h-9 rounded-full overflow-hidden border flex items-center justify-center bg-black/60 motion-control ${
                         isCurrent 
                           ? 'border-2 border-gold-bright shadow-[0_0_10px_rgba(236,200,128,0.4)]' 
                           : isUnlocked 
@@ -1278,7 +1133,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                             : 'border-white/10'
                       }`}>
                         <img 
-                          src={getAssetUrl(`/deity/avatar/${deity.id}.png`)} 
+                          src={getAssetUrl(`/deity/avatar/${deity.id}.webp`)}
                           alt={deity.name} 
                           className={`w-full h-full object-cover ${!isUnlocked ? 'grayscale opacity-30' : ''}`}
                           onError={(e) => {
@@ -1321,6 +1176,15 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                 );
               })}
             </div>
+            {fitnessV2PreviewEnabled && (
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('warscythe:fitness-scene', { detail: { scene:'hall' } }))}
+                className="mt-3 w-full border border-gold-core/40 bg-black/70 py-3 font-mono text-[8px] font-black tracking-[.18em] text-gold-core hover:bg-gold-core hover:text-black"
+              >
+                EXPLORE HALL OF OLYMPUS
+              </button>
+            )}
           </OrnatePanel>
 
           {/* Historical Logs List */}
@@ -1336,7 +1200,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                 </span>
               ) : (
                 gymLog.slice(0, 5).map((log) => (
-                  <div key={log.id} className="border border-white/5 bg-white/[0.01] p-2 rounded flex flex-col gap-1.5 hover:border-gold-core/20 transition-all">
+                  <div key={log.id} className="border border-white/5 bg-white/[0.01] p-2 rounded flex flex-col gap-1.5 hover:border-gold-core/20 motion-control">
                     <div className="flex justify-between items-center text-[9px] font-mono">
                       <span className="text-white font-extrabold uppercase tracking-wide truncate max-w-[70%]">{log.split}</span>
                       <span className="text-gray-500 text-[8px] flex items-center gap-1 font-mono">
@@ -1354,7 +1218,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
             {gymLog.length > 0 && (
               <button
                 onClick={() => setShowHistoryModal(true)}
-                className="w-full mt-3 border border-white/10 hover:border-gold-core/40 bg-white/[0.02] hover:bg-gold-core/5 text-gray-300 hover:text-gold-core font-mono text-[8px] py-1.5 rounded uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full mt-3 border border-white/10 hover:border-gold-core/40 bg-white/[0.02] hover:bg-gold-core/5 text-gray-300 hover:text-gold-core font-mono text-[8px] py-1.5 rounded uppercase tracking-widest motion-control flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ClipboardList size={10} /> VIEW FULL DETAILED HISTORY
               </button>
@@ -1376,10 +1240,10 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               <div className="flex justify-between items-center border-b border-white/5 pb-3">
                 <div className="flex items-center gap-2">
                   <ClipboardList size={18} className="text-gold-core" />
-                  <h2 className="font-display text-[11px] sm:text-sm text-white tracking-widest uppercase">THE IRON ARCHIVES // WORKOUT HISTORY</h2>
+                  <h2 className="motion-heading font-display text-[11px] sm:text-sm text-white tracking-widest uppercase">THE IRON ARCHIVES // WORKOUT HISTORY</h2>
                 </div>
                 <button 
-                  className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center motion-control"
                   onClick={() => setShowHistoryModal(false)}
                 >
                   <X size={16} />
@@ -1488,7 +1352,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                     </thead>
                     <tbody className="divide-y divide-white/[0.03] text-[10px] font-mono">
                       {gymLog.map((log) => (
-                        <tr key={log.id} className="hover:bg-white/[0.01] transition-all align-top">
+                        <tr key={log.id} className="hover:bg-white/[0.01] motion-control align-top">
                           <td className="p-3">
                             <div className="text-white font-extrabold uppercase tracking-wide">{log.split}</div>
                             <div className="text-gray-500 text-[8px] mt-1 flex items-center gap-1">

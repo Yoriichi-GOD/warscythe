@@ -11,6 +11,7 @@
     "android:sync": "npm run build && node scripts/prepare-android-assets.mjs && cap sync android",
     "android:apk": "npm run android:sync && cd android && gradlew.bat clean assembleDebug",
     "verify:cdn": "node scripts/verify-cdn-assets.mjs",
+    "test:fitness-v2": "node --test src/features/fitness-v2/domain/rewardEngine.test.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

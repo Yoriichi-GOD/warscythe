@@ -1,3 +1,5 @@
+import OrnateFrame from './frames/OrnateFrame';
+import { motion as Motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { AlertTriangle, BookOpen, CheckCircle, Flame, ShieldAlert, Trash2, X } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -39,11 +41,12 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
   };
 
   return (
-    <div className="ritual-modal-backdrop" onClick={onClose}>
-      <div
-        className="ritual-modal-panel ritual-edit-panel"
+    <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="ritual-modal-backdrop" onClick={onClose}>
+      <Motion.div initial={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }} animate={{ opacity: 1, transform: 'translateY(0) scale(1)' }} exit={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }}
+        className="ritual-modal-panel ritual-edit-panel ornate-surface ornate-dialog"
         onClick={event => event.stopPropagation()}
       >
+          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
         <header className="ritual-modal-header">
           <div>
             <Flame size={16} />
@@ -55,7 +58,7 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
 
         <div className="ritual-edit-body custom-scrollbar">
           <div className="ritual-guardian-brief">
-            <img src="/guardian-observer.png" alt="Guardian" />
+            <img src="/guardian-observer.webp" alt="Guardian" />
             <div>
               <span>GUARDIAN // VOW CONTROL</span>
               <p>Nothing is sealed beyond correction. Rename the vow, change its cadence, resistance or hour, add field notes, conquer it for today, or discard it entirely.</p>
@@ -132,7 +135,7 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </Motion.div>
+    </Motion.div>
   );
 }

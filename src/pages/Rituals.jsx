@@ -1,4 +1,7 @@
+import MobileDisplayToggle from '../components/MobileDisplay';
+import { useMobileDisplay } from '../components/useMobileDisplay';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import RitualCard from '../components/operations/RitualCard';
@@ -18,7 +21,76 @@ const MEDAL_PROPHECIES = {
   gold: 'Twenty-eight answered days stand inside a single vow cycle. Consistency has crossed into mastery.',
 };
 
+const RitualPanelPortal = ({ targetRef, variant }) => {
+  const [rect, setRect] = useState(null);
+
+  useEffect(() => {
+    const target = targetRef.current;
+    if (!target) return undefined;
+    const measure = () => {
+      const next = target.getBoundingClientRect();
+      const headerBottom = document.getElementById('warscythe-header')?.getBoundingClientRect().bottom ?? 0;
+      const clipTop = window.innerWidth <= 1023 ? Math.max(0, headerBottom - next.top) : 0;
+      setRect({
+        top: next.top,
+        left: next.left,
+        width: next.width,
+        height: next.height,
+        '--ritual-frame-clip-top': `${clipTop}px`
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(target);
+    window.addEventListener('resize', measure);
+    document.addEventListener('scroll', measure, true);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+      document.removeEventListener('scroll', measure, true);
+    };
+  }, [targetRef]);
+
+  if (variant === 'scythe') {
+    return (
+      <div className="scythe-universal-frame ritual-scythe-window-frame" aria-hidden="true">
+        <span className="scythe-frame-corner scythe-frame-corner--tl"><img src="/frames/universal/corner.webp" alt="" /></span>
+        <span className="scythe-frame-corner scythe-frame-corner--tr"><img src="/frames/universal/corner.webp" alt="" /></span>
+        <span className="scythe-frame-corner scythe-frame-corner--bl"><img src="/frames/universal/corner.webp" alt="" /></span>
+        <span className="scythe-frame-corner scythe-frame-corner--br"><img src="/frames/universal/corner.webp" alt="" /></span>
+        <span className="scythe-frame-rail scythe-frame-rail--top"><img src="/frames/universal/rail.webp" alt="" /></span>
+        <span className="scythe-frame-rail scythe-frame-rail--bottom"><img src="/frames/universal/rail.webp" alt="" /></span>
+        <span className="scythe-frame-rail scythe-frame-rail--left"><img src="/frames/universal/rail.webp" alt="" /></span>
+        <span className="scythe-frame-rail scythe-frame-rail--right"><img src="/frames/universal/rail.webp" alt="" /></span>
+        <span className="scythe-frame-side-center scythe-frame-side-center--left"><img src="/frames/universal/center.webp" alt="" /></span>
+        <span className="scythe-frame-side-center scythe-frame-side-center--right"><img src="/frames/universal/center.webp" alt="" /></span>
+        <span className="scythe-column-divider ritual-scythe-column-divider">
+          <img className="scythe-column-divider__line" src="/frames/dividers/gold-diamond-line.webp" alt="" />
+          <img className="scythe-column-divider__gem ritual-scythe-column-divider__gem" src="/frames/special/ritual-rail-gem.webp" alt="" />
+        </span>
+      </div>
+    );
+  }
+
+  if (!rect || typeof document === 'undefined') return null;
+
+  if (variant === 'active') {
+    return createPortal(
+      <div className="operations-window-frame ritual-active-window-frame" style={rect} aria-hidden="true">
+        <span className="operations-screen-corner"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
+        <img className="ritual-active-compact-corner" src="/frames/universal/compact.webp" alt="" />
+      </div>,
+      document.body
+    );
+  }
+
+  return null;
+};
+
 export default function Rituals({ onAddTask }) {
+  const ritualsPanelRef = useRef(null);
+  const ritualScythePanelRef = useRef(null);
+  const scytheDisplay = useMobileDisplay('rituals');
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const rituals = useWarscytheStore(state => state.rituals) || [];
@@ -142,7 +214,7 @@ export default function Rituals({ onAddTask }) {
   ];
 
   return (
-    <div className="elite-grid-container rituals-grid relative">
+    <div className="elite-grid-container rituals-grid relative" data-scythe-collapsed={scytheDisplay.collapsed}>
       {pendingMedal && (
         <UnlockCeremonyModal
           kind="ritual-medal"
@@ -154,11 +226,13 @@ export default function Rituals({ onAddTask }) {
       )}
       
       {/* ═══ LEFT COLUMN: ACTIVE RITUALS ═══ */}
-      <section className="elite-panel h-[520px] lg:h-auto overflow-hidden lg:overflow-visible">
+      <section ref={ritualsPanelRef} className="elite-panel operations-primary-panel ritual-primary-panel h-[520px] lg:h-auto overflow-hidden lg:overflow-visible">
+        <RitualPanelPortal targetRef={ritualsPanelRef} variant="active" />
+        <span className="operations-screen-corner operations-screen-corner--inline" aria-hidden="true"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <Flame size={14} className="text-gold-core" />
-            <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Active Rituals</h2>
+            <h2 className="motion-heading text-white font-display text-xs tracking-[0.3em] uppercase">Active Rituals</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -253,22 +327,29 @@ export default function Rituals({ onAddTask }) {
                 }
                 onAddTask();
               }}
-              className="w-full py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core transition-all bg-white/[0.02] shrink-0"
+              className="operations-ornate-button ritual-enshrine-button w-full py-5 border border-dashed border-white/20 rounded flex items-center justify-center text-white/40 hover:border-gold-core/40 hover:text-gold-core motion-control bg-white/[0.02] shrink-0"
             >
+              <span className="operations-button-frame ritual-enshrine-button-frame" aria-hidden="true">
+                <img className="operations-button-corner operations-button-corner--bl" src="/frames/buttons/button-corner.webp" alt="" />
+                <img className="operations-button-corner operations-button-corner--br" src="/frames/buttons/button-corner.webp" alt="" />
+                <img className="operations-button-rail operations-button-rail--top" src="/frames/buttons/button-rail.webp" alt="" />
+              </span>
               <span className="text-[11px] font-mono tracking-[0.4em] uppercase font-black">+ Enshrine Ritual</span>
             </button>
           </div>
         </div>
       </section>
 
-      <section className="elite-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-hidden relative">
+      <section ref={ritualScythePanelRef} data-display-collapsed={scytheDisplay.collapsed} className="elite-panel scythe-framed-panel scythe-drawer ritual-scythe-framed-panel !p-0 flex flex-row h-auto min-h-[520px] lg:h-[calc(100vh-160px)] overflow-visible relative">
+        <MobileDisplayToggle sideways id="ritual-scythe-display" label="Reaper's Scythe" display={scytheDisplay} />
+        <RitualPanelPortal targetRef={ritualScythePanelRef} variant="scythe" />
         
         {/* WEAPON EVOLUTION SIDEBAR — Desktop only */}
         <div className="hidden lg:flex w-full lg:w-64 shrink-0 border-b-0 lg:border-r border-white/5 flex-col py-3 lg:py-10 px-3 lg:px-8 bg-transparent lg:bg-black/20 overflow-y-auto custom-scrollbar relative z-10">
           <div className="flex justify-between items-start mb-6 lg:mb-10">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-gray-300 tracking-widest uppercase block mb-1">Weapon Evolution</span>
-              <h4 className="text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
+              <h4 className="motion-heading text-white font-display text-[11px] tracking-[0.2em] uppercase">Reaper's Scythe</h4>
             </div>
             <button 
               type="button"
@@ -289,7 +370,7 @@ export default function Rituals({ onAddTask }) {
               return (
                 <div 
                   key={stage.id} 
-                  className={`flex flex-col gap-2 p-3 rounded border transition-all cursor-pointer shrink-0 ${
+                  className={`flex flex-col gap-2 p-3 rounded border motion-control cursor-pointer shrink-0 ${
                     isActive ? 'border-gold-core/40 bg-gold-core/5' : 'border-white/5 hover:bg-white/5'
                   } ${!isUnlocked ? 'opacity-30' : ''}`}
                   onClick={() => isUnlocked && setPreview({ level: stage.id, type: 'standard', pwr: stage.pwr })}
@@ -333,7 +414,7 @@ export default function Rituals({ onAddTask }) {
         {/* SCYTHE DISPLAY AREA */}
         {/* NOTE: lg:left-64 is coupled to the Weapon Evolution Sidebar's width (lg:w-64 = 256px). */}
         {/* If the sidebar width changes, this offset MUST be adjusted to match. */}
-        <div className="relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
+        <div id="ritual-scythe-display" className="mobile-display-content relative w-full lg:w-auto lg:absolute lg:inset-0 lg:left-64 h-full z-10 pointer-events-auto bg-gradient-to-b from-transparent to-black/40 opacity-100">
            <ScytheDisplay 
              level={activeDisplayLevel} 
              type={activeDisplayType}
@@ -348,7 +429,7 @@ export default function Rituals({ onAddTask }) {
            {preview.level && (
              <button 
                onClick={() => setPreview({ level: null, type: 'standard', pwr: null })}
-               className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest z-30 pointer-events-auto"
+               className="hidden lg:block absolute top-6 right-8 text-[8px] font-mono text-gold-core border border-gold-core/20 px-3 py-1.5 rounded hover:bg-gold-core/10 motion-control uppercase tracking-widest z-30 pointer-events-auto"
              >
                Return to Active
              </button>

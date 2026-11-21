@@ -1,13 +1,15 @@
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, Trophy } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
 
 export default function BossFlashScreen({ type, onClose }) {
+  const ambientMotion = useAmbientMotion();
   const config = {
     initiate: {
-      image: '/boss-kill/boss-initiate-screen.png',
-      mobileImage: '/boss-kill/boss-initiate-screen-mobile.png',
+      image: '/boss-kill/boss-initiate-screen.webp',
+      mobileImage: '/boss-kill/boss-initiate-screen-mobile.webp',
       icon: <ShieldAlert className="text-red-500 animate-pulse" size={24} />,
       title: 'BOSS RAID INITIATED',
       subtitle: 'THE DREAD WYRM MALGRATH AWAITS',
@@ -16,8 +18,8 @@ export default function BossFlashScreen({ type, onClose }) {
       titleColor: '#ff3c3c'
     },
     victory: {
-      image: '/boss-kill/boss-kill-screen.png',
-      mobileImage: '/boss-kill/boss-kill-screen-mobile.png',
+      image: '/boss-kill/boss-kill-screen.webp',
+      mobileImage: '/boss-kill/boss-kill-screen-mobile.webp',
       icon: <Trophy className="text-gold-core" size={24} />,
       title: 'BOSS CONQUERED',
       subtitle: 'MALGRATH THE DREAD HAS FALLEN',
@@ -96,7 +98,7 @@ export default function BossFlashScreen({ type, onClose }) {
           <motion.div 
             initial={{ left: '-100%' }}
             animate={{ left: '100%' }}
-            transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+            transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 3 : 0, ease: 'linear' }}
             className="absolute top-0 bottom-0 w-24 bg-gradient-to-r from-transparent via-white/50 to-transparent"
             style={{ 
               background: `linear-gradient(to right, transparent, ${screen.titleColor}, transparent)` 
@@ -111,7 +113,7 @@ export default function BossFlashScreen({ type, onClose }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 1.5 }}
         onClick={onClose}
-        className="absolute bottom-8 right-8 z-30 font-display text-xs sm:text-sm tracking-[0.2em] uppercase font-bold py-3 px-8 rounded-sm bg-black/80 cursor-pointer border transition-all duration-300 pointer-events-auto continue-btn-mobile"
+        className="absolute bottom-8 right-8 z-30 font-display text-xs sm:text-sm tracking-[0.2em] uppercase font-bold py-3 px-8 rounded-sm bg-black/80 cursor-pointer border motion-control duration-300 pointer-events-auto continue-btn-mobile"
         style={{
           borderColor: screen.titleColor,
           color: screen.titleColor,
@@ -131,7 +133,7 @@ export default function BossFlashScreen({ type, onClose }) {
         CONTINUE
       </motion.button>
 
-      <style jsx>{`
+      <style>{`
         .bg-radial-vignette {
           background: radial-gradient(circle at 30% 50%, transparent 20%, rgba(0,0,0,0.85) 100%);
         }

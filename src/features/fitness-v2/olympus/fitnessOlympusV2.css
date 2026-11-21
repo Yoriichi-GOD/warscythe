@@ -1,0 +1,380 @@
+.olympus-v2-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(214, 180, 103, 0.3);
+  background:
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--deity-color) 20%, transparent), transparent 36%),
+    linear-gradient(115deg, color-mix(in srgb, var(--deity-color) 6%, transparent), transparent 42%),
+    linear-gradient(145deg, rgba(15, 14, 13, 0.96), rgba(3, 4, 5, 0.98));
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.82), 0 18px 50px rgba(0, 0, 0, 0.34);
+  padding: 18px;
+  color: #f4efe4;
+}
+
+.olympus-v2-panel::before,
+.olympus-v2-hall::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(214, 180, 103, 0.08);
+  pointer-events: none;
+}
+
+.olympus-v2-panel-kicker,
+.olympus-v2-hall-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(213, 181, 107, 0.7);
+}
+
+.olympus-v2-panel-kicker span { display: flex; align-items: center; gap: 7px; }
+.olympus-v2-panel-kicker small { color: #78736a; letter-spacing: 0.08em; }
+
+.olympus-v2-panel-heading { margin: 21px 0 17px; text-align: center; }
+.olympus-v2-panel-heading small,
+.olympus-v2-chamber-title small,
+.olympus-v2-chamber-record > small {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #ad8e4e;
+}
+.olympus-v2-panel-heading h3,
+.olympus-v2-chamber-title h3 {
+  margin: 3px 0;
+  font-family: var(--font-display, serif);
+  font-size: 29px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.olympus-v2-panel-heading p,
+.olympus-v2-chamber-title span {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #7d7a74;
+}
+
+.olympus-v2-active-reward {
+  min-height: 150px;
+  display: grid;
+  grid-template-columns: 112px 1fr 90px;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid color-mix(in srgb, var(--deity-color) 28%, transparent);
+  background:
+    radial-gradient(circle at 12% 50%, color-mix(in srgb, var(--deity-color) 12%, transparent), transparent 35%),
+    rgba(0, 0, 0, 0.52);
+  box-shadow: inset 0 0 32px rgba(0,0,0,.35);
+  padding: 13px;
+}
+
+.olympus-v2-affinity-dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 104px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--deity-color) var(--affinity), rgba(255,255,255,.055) 0);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--deity-color) 28%, transparent));
+}
+.olympus-v2-affinity-dial::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--deity-color) 10%, #080808), #050505 72%);
+}
+.olympus-v2-affinity-dial img { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); object-fit: contain; z-index: 2; }
+.olympus-v2-affinity-dial div { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; width: 64%; text-align: center; }
+.olympus-v2-affinity-dial strong { font-family: var(--font-display, serif); font-size: 28px; line-height: .95; }
+.olympus-v2-affinity-dial small { margin-top: 5px; font: 7px/1 monospace; letter-spacing: .04em; white-space: nowrap; color: #b7ad9b; }
+
+.olympus-v2-reward-copy { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.olympus-v2-reward-copy small { font: 10px monospace; letter-spacing: .16em; color: #b0955d; }
+.olympus-v2-reward-copy strong { font-family: var(--font-display, serif); font-size: 15px; line-height: 1.25; letter-spacing: .09em; text-transform: uppercase; }
+.olympus-v2-reward-copy span { font: 10px monospace; letter-spacing: .08em; color: #c0b6a5; }
+.olympus-v2-progress-track { width: 100%; height: 4px; overflow: hidden; background: rgba(255,255,255,.06); }
+.olympus-v2-progress-track i { display: block; height: 100%; background: linear-gradient(90deg, #755b2b, #e2c374); box-shadow: 0 0 9px #d9b65c; }
+.olympus-v2-fragment { width: 88px; height: 104px; object-fit: contain; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--deity-color) 34%, transparent)); }
+
+.olympus-v2-sealed-gate {
+  min-height: 116px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(213,181,107,.14);
+  background: rgba(0,0,0,.4);
+  padding: 18px;
+  color: #a8905a;
+}
+.olympus-v2-sealed-gate div { display: flex; flex-direction: column; gap: 5px; }
+.olympus-v2-sealed-gate strong { font: 10px var(--font-display, serif); letter-spacing: .13em; color: #e9dfca; }
+.olympus-v2-sealed-gate span { font: 8px monospace; line-height: 1.6; color: #77736d; }
+
+.olympus-v2-recognition-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 12px 0;
+  border-block: 1px solid rgba(255,255,255,.05);
+}
+.olympus-v2-recognition-summary div { padding: 10px 6px; text-align: center; border-right: 1px solid rgba(255,255,255,.05); }
+.olympus-v2-recognition-summary div:last-child { border-right: 0; }
+.olympus-v2-recognition-summary small { display: block; min-height: 24px; font: 9px/1.35 monospace; letter-spacing: .1em; color: #9b9389; }
+.olympus-v2-recognition-summary strong { display: block; margin-top: 5px; font: 19px var(--font-display, serif); color: var(--deity-color); }
+
+.olympus-v2-enter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #927538;
+  background: linear-gradient(100deg, #15110a, #080808 48%, #17130b);
+  padding: 14px;
+  font: 10px monospace;
+  font-weight: 900;
+  letter-spacing: .18em;
+  color: #e3c273;
+  transition: var(--motion-control-transition);
+}
+.olympus-v2-enter:hover { border-color: #e3c273; box-shadow: inset 0 0 22px rgba(227,194,115,.08), 0 0 18px rgba(227,194,115,.08); }
+.olympus-v2-integrity { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 11px; font: 9px monospace; letter-spacing: .07em; color: #8d857a; }
+.olympus-v2-integrity small { color: #8c7446; }
+
+.olympus-v2-modal-shell {
+  position: fixed;
+  z-index: 2600;
+  inset: 72px 0 82px;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,.92);
+  backdrop-filter: blur(12px);
+  padding: 12px;
+}
+.olympus-v2-hall {
+  position: relative;
+  width: min(1420px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  border: 1px solid rgba(220,184,99,.38);
+  background: #050505;
+  box-shadow: 0 0 100px #000, inset 0 0 60px rgba(0,0,0,.8);
+  color: #f5efe2;
+}
+.olympus-v2-hall-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: linear-gradient(90deg, #090806, #050505);
+}
+.olympus-v2-hall-header small { font: 10px monospace; letter-spacing: .22em; color: #c4a257; }
+.olympus-v2-hall-header h2 { margin: 5px 0 2px; font: 28px var(--font-display, serif); letter-spacing: .17em; }
+.olympus-v2-hall-header p { margin: 0; font: italic 14px serif; color: #9a948a; }
+.olympus-v2-hall-header button,
+.olympus-v2-chamber-arrow {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.7);
+  color: #a7a29a;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+}
+
+.olympus-v2-deity-nav { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid rgba(255,255,255,.06); }
+.olympus-v2-deity-nav button { display: grid; grid-template-columns: auto 1fr; gap: 0 9px; padding: 11px 14px; text-align: left; border-right: 1px solid rgba(255,255,255,.05); background: #080808; color: #77736c; }
+.olympus-v2-deity-nav button.is-selected { background: linear-gradient(180deg, rgba(199,161,75,.15), rgba(0,0,0,.2)); color: #e4c679; }
+.olympus-v2-deity-nav button > span { grid-row: 1 / 3; font: 9px monospace; color: #6f5c35; }
+.olympus-v2-deity-nav strong { font: 12px var(--font-display, serif); letter-spacing: .12em; text-transform: uppercase; }
+.olympus-v2-deity-nav small { margin-top: 3px; font: 9px monospace; letter-spacing: .08em; }
+
+.olympus-v2-chamber { position: relative; min-height: 590px; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,.06); background: #060606; isolation: isolate; }
+.olympus-v2-chamber-bg,
+.olympus-v2-chamber-bg img,
+.olympus-v2-chamber-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.olympus-v2-chamber-bg img { object-fit: cover; filter: saturate(1.22) contrast(1.07) brightness(1.07); transform: scale(1.004); }
+.olympus-v2-chamber-shade { z-index: 1; background: linear-gradient(90deg, rgba(0,0,0,.48), rgba(0,0,0,.035) 31%, rgba(0,0,0,.025) 69%, rgba(0,0,0,.48)), linear-gradient(0deg, rgba(0,0,0,.42), transparent 34%); }
+.olympus-v2-rays { position: absolute; z-index: 2; inset: -3% 20% auto; width: 60%; height: 82%; object-fit: contain; opacity: .55; pointer-events: none; mix-blend-mode: screen; }
+.olympus-v2-clouds {
+  position: absolute;
+  z-index: 3;
+  left: 7%;
+  bottom: -5%;
+  width: 86%;
+  height: 45%;
+  object-fit: contain;
+  object-position: center bottom;
+  opacity: .72;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 68% 54% at 50% 55%, #000 42%, rgba(0,0,0,.84) 61%, transparent 100%);
+  mask-image: radial-gradient(ellipse 68% 54% at 50% 55%, #000 42%, rgba(0,0,0,.84) 61%, transparent 100%);
+}
+.olympus-v2-statue-stage { position: absolute; z-index: 4; inset: 4% 31% 0; display: flex; align-items: flex-end; justify-content: center; }
+.olympus-v2-statue-stage > img:first-child { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 20px 35px rgba(0,0,0,.85)); }
+.olympus-v2-statue-stage > img.is-locked { filter: grayscale(1) brightness(.28) drop-shadow(0 20px 35px #000); }
+.olympus-v2-statue-stage .olympus-v2-veil {
+  position: absolute;
+  left: 12%;
+  bottom: 1.5%;
+  width: 76%;
+  height: 89%;
+  object-fit: contain;
+  object-position: center bottom;
+  opacity: .97;
+  filter: drop-shadow(0 18px 26px rgba(0,0,0,.78));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 94%, transparent 100%);
+}
+.olympus-v2-chamber-title { position: absolute; z-index: 5; left: 28px; top: 50%; transform: translateY(-50%); width: 24%; padding: 18px; border: 1px solid color-mix(in srgb, var(--deity-color) 24%, transparent); background: linear-gradient(115deg, rgba(0,0,0,.72), rgba(0,0,0,.34)); backdrop-filter: blur(4px); text-shadow: 0 2px 12px #000; }
+.olympus-v2-chamber-title h3 { font-size: clamp(25px, 3vw, 43px); }
+.olympus-v2-chamber-record { position: absolute; z-index: 5; right: 28px; top: 50%; transform: translateY(-50%); width: 22%; display: flex; flex-direction: column; gap: 9px; padding: 19px; border: 1px solid color-mix(in srgb, var(--deity-color) 28%, transparent); background: linear-gradient(130deg, rgba(0,0,0,.78), rgba(0,0,0,.48)); backdrop-filter: blur(5px); box-shadow: 0 16px 40px rgba(0,0,0,.24); }
+.olympus-v2-chamber-record strong { font: 26px var(--font-display, serif); color: var(--deity-color); }
+.olympus-v2-chamber-record span { display: flex; align-items: center; gap: 5px; font: 9px monospace; letter-spacing: .07em; color: #c3bbb0; }
+.olympus-v2-chamber-arrow { position: absolute; z-index: 7; top: 50%; transform: translateY(-50%); }
+.olympus-v2-chamber-arrow.left { left: 8px; }
+.olympus-v2-chamber-arrow.right { right: 8px; }
+.olympus-v2-chamber-arrow:disabled { opacity: .16; }
+
+.olympus-v2-blessings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; }
+.olympus-v2-blessing { min-width: 0; display: grid; grid-template-columns: 108px 1fr; align-items: center; border: 1px solid rgba(255,255,255,.09); background: linear-gradient(120deg, #0b0a09, #050505); padding: 11px; opacity: .64; }
+.olympus-v2-blessing.is-active { opacity: 1; border-color: rgba(218,181,91,.45); box-shadow: inset 0 0 22px rgba(218,181,91,.05); }
+.olympus-v2-blessing.is-complete { opacity: 1; border-color: rgba(104,194,151,.35); }
+.olympus-v2-blessing-art { position: relative; width: 102px; height: 102px; background: radial-gradient(circle, rgba(210,174,86,.13), transparent 68%); }
+.olympus-v2-blessing-art img { width: 100%; height: 100%; object-fit: contain; }
+.olympus-v2-blessing-check { position: absolute; right: 2px; bottom: 2px; color: #79d6a5; }
+.olympus-v2-blessing-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.olympus-v2-blessing-copy small { font: 9px monospace; letter-spacing: .13em; color: #b69755; }
+.olympus-v2-blessing-copy strong { overflow: hidden; text-overflow: ellipsis; font: 13px var(--font-display, serif); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.olympus-v2-blessing-copy span { font: 9px monospace; letter-spacing: .07em; color: #aaa199; }
+.olympus-v2-blessing-copy button,
+.olympus-v2-chamber-record button {
+  width: max-content;
+  margin-top: 3px;
+  border-bottom: 1px solid rgba(218,181,91,.45);
+  padding: 2px 0;
+  font: 9px monospace;
+  letter-spacing: .1em;
+  color: #cfad62;
+}
+.olympus-v2-hall-footer { padding: 13px 18px; border-top: 1px solid rgba(255,255,255,.05); font-size: 9px; }
+.olympus-v2-hall-footer { position: sticky; z-index: 8; bottom: 0; background: rgba(5,5,5,.94); backdrop-filter: blur(10px); }
+
+.olympus-v2-panel,
+.olympus-v2-active-reward,
+.olympus-v2-sealed-gate,
+.olympus-v2-hall,
+.olympus-v2-blessing,
+.olympus-v2-reward-modal > section,
+.olympus-v2-deity-nav button,
+.olympus-v2-enter,
+.olympus-v2-reward-message > button {
+  border-radius: 16px;
+}
+.olympus-v2-asset-fallback { background: radial-gradient(circle, rgba(210,174,86,.12), transparent 65%); }
+
+.olympus-v2-reward-modal {
+  position: fixed;
+  z-index: 2850;
+  inset: 72px 0 82px;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(0,0,0,.94);
+  backdrop-filter: blur(14px);
+}
+.olympus-v2-reward-modal > section {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+  border: 1px solid rgba(222,184,95,.4);
+  background: radial-gradient(circle at 28% 30%, rgba(210,170,79,.1), transparent 35%), #050505;
+  box-shadow: 0 0 100px #000, inset 0 0 55px rgba(0,0,0,.8);
+}
+.olympus-v2-reward-close { position: absolute; z-index: 5; right: 12px; top: 12px; display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; background: rgba(0,0,0,.78); color: #aaa39a; }
+.olympus-v2-reward-visual { position: relative; min-height: 570px; overflow: hidden; background: radial-gradient(circle, rgba(215,180,94,.15), transparent 53%); }
+.olympus-v2-reward-rays,
+.olympus-v2-reward-burst,
+.olympus-v2-reward-primary,
+.olympus-v2-reward-pedestal { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.olympus-v2-reward-rays { opacity: .46; }
+.olympus-v2-reward-burst { inset: 10%; width: 80%; height: 80%; opacity: .7; }
+.olympus-v2-reward-pedestal { inset: auto 13% 2%; width: 74%; height: 30%; object-position: center bottom; }
+.olympus-v2-reward-primary { z-index: 2; padding: 5%; filter: drop-shadow(0 18px 30px rgba(0,0,0,.8)); }
+.olympus-v2-reward-modal.is-fragment .olympus-v2-reward-primary { inset: 15% 15% 22%; width: 70%; height: 63%; }
+.olympus-v2-reward-message .fitness-deity-title-card { width: min(280px, 26vw); margin: -24px auto -28px; }
+.olympus-v2-reward-message .fitness-deity-title-card.deity-hermes { width: min(320px, 30vw); margin-top: -38px; margin-bottom: -34px; }
+.olympus-v2-reward-message .fitness-deity-title-card.deity-zeus { width: min(170px, 17vw); margin: -8px auto -14px; }
+.olympus-v2-reward-message { display: flex; flex-direction: column; justify-content: center; padding: 52px 42px; border-left: 1px solid rgba(255,255,255,.06); }
+.olympus-v2-reward-message small { font: 7px monospace; letter-spacing: .22em; color: #b89348; }
+.olympus-v2-reward-message h3 { margin: 12px 0; font: 31px var(--font-display, serif); letter-spacing: .12em; text-transform: uppercase; color: #f1e9da; }
+.olympus-v2-reward-message p { font: italic 15px/1.65 serif; color: #aaa399; }
+.olympus-v2-reward-count { display: flex; align-items: center; gap: 7px; margin-top: 14px; font: 8px monospace; letter-spacing: .12em; color: #d3b365; }
+.olympus-v2-reward-message > button { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 28px; border: 1px solid #8b6e34; padding: 12px; font: 8px monospace; font-weight: 900; letter-spacing: .14em; color: #e2c172; }
+
+@media (max-width: 900px) {
+  .olympus-v2-active-reward { grid-template-columns: 104px 1fr; }
+  .olympus-v2-fragment { display: none; }
+  .olympus-v2-chamber-title { left: 22px; width: 26%; }
+  .olympus-v2-chamber-record { right: 22px; width: 26%; }
+  .olympus-v2-statue-stage { inset-inline: 28%; }
+}
+
+@media (max-width: 720px) {
+  .olympus-v2-modal-shell { inset: 138px 0 78px; padding: 6px; }
+  .olympus-v2-hall-header { padding: 13px 15px; }
+  .olympus-v2-hall-header h2 { font-size: 18px; }
+  .olympus-v2-hall-header p { font-size: 10px; }
+  .olympus-v2-deity-nav { display: flex; overflow-x: auto; }
+  .olympus-v2-deity-nav button { min-width: 126px; }
+  .olympus-v2-chamber { min-height: 590px; }
+  .olympus-v2-chamber-bg img { filter: saturate(1.18) contrast(1.05) brightness(1.04); }
+  .olympus-v2-chamber-shade { background: linear-gradient(0deg, rgba(0,0,0,.56), transparent 44%), linear-gradient(90deg, rgba(0,0,0,.2), transparent 32%, rgba(0,0,0,.2)); }
+  .olympus-v2-clouds { left: -1%; bottom: 2%; width: 102%; height: 34%; opacity: .68; }
+  .olympus-v2-statue-stage { inset: 3% 8% 21%; }
+  .olympus-v2-statue-stage .olympus-v2-veil { left: 13%; width: 74%; height: 86%; bottom: 4%; }
+  .olympus-v2-chamber-title { left: 18px; right: 18px; top: auto; bottom: 84px; width: auto; transform: none; text-align: center; }
+  .olympus-v2-chamber-title h3 { font-size: 28px; }
+  .olympus-v2-chamber-record { left: 18px; right: 18px; top: auto; bottom: 14px; width: auto; transform: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px 12px; padding: 11px 13px; }
+  .olympus-v2-chamber-record > small { grid-column: 1 / -1; }
+  .olympus-v2-chamber-record strong { font-size: 14px; }
+  .olympus-v2-blessings-grid { grid-template-columns: 1fr; }
+  .olympus-v2-hall-footer { overflow-x: auto; white-space: nowrap; gap: 18px; }
+  .olympus-v2-reward-modal { inset: 138px 0 78px; padding: 6px; }
+  .olympus-v2-reward-modal > section { grid-template-columns: 1fr; }
+  .olympus-v2-reward-message .fitness-deity-title-card { width: min(310px, 82vw); }
+  .olympus-v2-reward-message .fitness-deity-title-card.deity-hermes { width: min(340px, 88vw); }
+  .olympus-v2-reward-message .fitness-deity-title-card.deity-zeus { width: min(190px, 50vw); }
+  .olympus-v2-reward-visual { min-height: 330px; }
+  .olympus-v2-reward-message { padding: 24px 22px 28px; border-left: 0; border-top: 1px solid rgba(255,255,255,.06); text-align: center; }
+  .olympus-v2-reward-message h3 { font-size: 22px; }
+  .olympus-v2-reward-message p { font-size: 13px; }
+  .olympus-v2-reward-count { justify-content: center; }
+}
+
+@media (max-width: 420px) {
+  .olympus-v2-panel { padding: 14px; }
+  .olympus-v2-panel-kicker small { display: none; }
+  .olympus-v2-active-reward { grid-template-columns: 92px 1fr; padding: 10px; }
+  .olympus-v2-affinity-dial { width: 88px; }
+  .olympus-v2-affinity-dial strong { font-size: 24px; }
+  .olympus-v2-affinity-dial small { font-size: 6.5px; }
+  .olympus-v2-reward-copy strong { font-size: 14px; }
+  .olympus-v2-recognition-summary small { font-size: 8px; }
+}

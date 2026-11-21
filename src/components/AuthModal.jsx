@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -114,13 +115,14 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="auth-modal glass-panel"
+        className="auth-modal glass-panel ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
+          <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
         <aside className="auth-realm-panel" aria-hidden="true">
           <div className="auth-realm-shade" />
           <div className="auth-realm-sigil">
-            <img src="/command-core.png" alt="" />
+            <img src="/command-core.webp" alt="" />
             <span>THE REALM AWAITS</span>
           </div>
           <div className="auth-realm-copy">
@@ -420,7 +422,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
 
 
-      <style jsx>{`
+      <style>{`
         .auth-backdrop { 
           position: fixed;
           inset: 0;
@@ -597,12 +599,14 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           font-weight: 500;
           letter-spacing: 0.05em;
           cursor: pointer;
-          transition: all 0.2s ease-in-out;
+          transition: var(--motion-control-transition);
         }
 
         .auth-option-btn :global(.auth-btn-icon) {
           flex-shrink: 0;
         }
+
+        @media (hover: hover) and (pointer: fine) {
 
         .auth-option-btn:hover {
           background: rgba(197, 160, 89, 0.05);
@@ -611,6 +615,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           box-shadow: 0 0 15px rgba(197,160,89,0.1);
           transform: translateY(-1px);
         }
+}
 
         .auth-option-btn.google:hover {
           background: rgba(66, 133, 244, 0.05);
@@ -645,7 +650,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
         .auth-form { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 1rem; }
         .auth-error { background: rgba(255, 60, 60, 0.08); border: 1px solid #ff3c3c; color: #ff3c3c; padding: 0.65rem; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; text-align: left; }
-        
+
         .auth-input-group { position: relative; display: flex; align-items: center; }
         .auth-input-group :global(svg) { position: absolute; left: 1rem; color: #4a4a4a; pointer-events: none; }
         .auth-input-group input {
@@ -657,13 +662,13 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.75rem;
           border-radius: 4px;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           letter-spacing: 0.05em;
         }
         .auth-input-group input::placeholder { color: #4a4a4a; }
-        .auth-input-group input:focus { 
-          border-color: #c5a059; 
-          background: rgba(197, 160, 89, 0.04); 
+        .auth-input-group input:focus {
+          border-color: #c5a059;
+          background: rgba(197, 160, 89, 0.04);
           outline: none;
           box-shadow: 0 0 12px rgba(197,160,89,0.1);
         }
@@ -697,14 +702,16 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           border-radius: 4px;
           cursor: pointer;
           box-shadow: 0 0 20px rgba(197,160,89,0.2);
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           text-transform: uppercase;
         }
-        .auth-submit-btn:hover { 
-          transform: translateY(-1px); 
+        @media (hover: hover) and (pointer: fine) {
+        .auth-submit-btn:hover {
+          transform: translateY(-1px);
           background: #e8d0a0;
-          box-shadow: 0 0 30px rgba(197,160,89,0.4); 
+          box-shadow: 0 0 30px rgba(197,160,89,0.4);
         }
+}
         .auth-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .auth-footer-links {
@@ -781,18 +788,20 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           margin-top: 0.5rem;
         }
 
-        .auth-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; color: #4a4a4a; transition: 0.2s; border: none; cursor: pointer; }
+        .auth-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; color: #4a4a4a; transition: var(--motion-control-transition); border: none; cursor: pointer; }
+        @media (hover: hover) and (pointer: fine) {
         .auth-close:hover { color: #fff; transform: rotate(90deg); }
+}
 
-        .auth-security-tag { 
-          margin-top: 2rem; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          gap: 0.5rem; 
-          color: rgba(255,255,255,0.12); 
-          font-size: 0.5rem; 
-          font-weight: 900; 
+        .auth-security-tag {
+          margin-top: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          color: rgba(255,255,255,0.12);
+          font-size: 0.5rem;
+          font-weight: 900;
           letter-spacing: 0.15em;
           font-family: 'JetBrains Mono', monospace;
           text-transform: uppercase;
@@ -880,7 +889,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           font-size: 0.65rem;
           letter-spacing: 0.1em;
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           text-transform: uppercase;
         }
         .referral-mcq-btn:hover {
@@ -942,12 +951,14 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
           font-size: .46rem;
           letter-spacing: .2em;
         }
+        @media (hover: hover) and (pointer: fine) {
         .auth-option-btn:hover {
           border-color: rgba(228,189,109,.72);
           background: linear-gradient(90deg, rgba(228,189,109,.14), rgba(228,189,109,.025));
           box-shadow: inset 3px 0 #e4bd6d, 0 0 26px rgba(197,160,89,.08);
           transform: translateX(3px);
         }
+}
         .auth-option-btn:disabled::after { content: "SEALED"; }
         .auth-option-btn.google:hover {
           background: linear-gradient(90deg, rgba(66,133,244,.09), rgba(228,189,109,.025));

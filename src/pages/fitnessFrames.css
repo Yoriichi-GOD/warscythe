@@ -1,0 +1,29 @@
+/* Fitness corners follow the panel edge and leave the content gutter clear.
+   The small recovery/metrics panels use less ornament than the main panels. */
+.fitness-realm .fitness-panel-frame {
+  --frame-corner: 30px;
+  inset: 10px;
+}
+.fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame {
+  --frame-corner: 24px;
+  inset: 8px;
+}
+.fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame {
+  --frame-corner: 20px;
+  inset: 6px;
+}
+
+@media (max-width: 639px) {
+  .fitness-realm .fitness-panel-frame {
+    --frame-corner: 24px;
+    inset: 7px;
+  }
+  .fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame {
+    --frame-corner: 22px;
+    inset: 7px;
+  }
+  .fitness-realm .fitness-framed-panel--metrics > .fitness-panel-frame {
+    --frame-corner: 20px;
+    inset: 6px;
+  }
+}

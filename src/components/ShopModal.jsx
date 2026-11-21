@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -210,18 +211,19 @@ export default function ShopModal({ onClose, onOpenAuth }) {
       onClose();
     }}>
       <motion.div 
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="shop-modal-content"
+        exit={{ opacity: 0, y: 12 }}
+        transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+        className="shop-modal-content ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7)), url("/shop-bg.png")',
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7)), url("/shop-bg.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
+          <OrnateFrame family="hercules" quiet className="ornate-frame--inset" />
         {/* Header */}
         <div className="shop-header">
           <div className="flex items-center gap-3">
@@ -293,7 +295,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeScytheSkin === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 motion-control relative">
                     {isUnlocked && !isAssetDownloaded(item.id, 'scythe') && (
                       <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
                         <CloudDownload size={12} className="animate-pulse" />
@@ -312,7 +314,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         !isAssetDownloaded(item.id, 'scythe') ? (
                           <button 
                             disabled={isDownloading}
-                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control cursor-pointer"
                             onClick={async () => {
                               setIsDownloading(true);
                               try {
@@ -329,7 +331,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                           </button>
                         ) : (
                           <button 
-                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest motion-control ${
                               isActive 
                                 ? 'bg-gold-core text-black border border-gold-core' 
                                 : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
@@ -341,7 +343,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         )
                       ) : (
                         <button 
-                          className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
+                          className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control"
                           onClick={() => handlePurchase(item)}
                           disabled={loadingItem === item.id}
                         >
@@ -374,7 +376,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeScytheSkin === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 motion-control relative">
                     {isUnlocked && !isAssetDownloaded(item.id, 'scythe') && (
                       <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
                         <CloudDownload size={12} className="animate-pulse" />
@@ -393,7 +395,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         !isAssetDownloaded(item.id, 'scythe') ? (
                           <button 
                             disabled={isDownloading}
-                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            className="w-full bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control cursor-pointer"
                             onClick={async () => {
                               setIsDownloading(true);
                               try {
@@ -410,7 +412,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                           </button>
                         ) : (
                           <button 
-                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                            className={`w-full font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest motion-control ${
                               isActive 
                                 ? 'bg-gold-core text-black border border-gold-core' 
                                 : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
@@ -422,7 +424,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         )
                       ) : (
                         <button 
-                          className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
+                          className="w-full bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control"
                           onClick={() => handleCoinPurchase(item)}
                         >
                           <Lock size={12} />
@@ -455,7 +457,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                 const isActive = activeTheme === item.id;
                 
                 return (
-                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 transition-all relative">
+                  <div key={item.id} className="item-card flex flex-col justify-between p-4 rounded-lg border border-white/5 bg-black/60 hover:border-white/10 motion-control relative">
                     {isUnlocked && !isAssetDownloaded(item.id, 'theme') && (
                       <div className="absolute top-3 right-3 text-gold-core/70" title="Not Downloaded">
                         <CloudDownload size={12} className="animate-pulse" />
@@ -471,7 +473,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
 
                     <div className="flex gap-2">
                       <button 
-                        className="px-3 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white rounded flex items-center justify-center transition-all"
+                        className="px-3 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white rounded flex items-center justify-center motion-control"
                         onClick={() => handlePreviewTheme(item.id)}
                         title="Preview theme colors in background"
                       >
@@ -482,7 +484,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         !isAssetDownloaded(item.id, 'theme') ? (
                           <button 
                             disabled={isDownloading}
-                            className="flex-1 bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            className="flex-1 bg-gold-core text-black hover:bg-white font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control cursor-pointer"
                             onClick={async () => {
                               setIsDownloading(true);
                               try {
@@ -499,7 +501,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                           </button>
                         ) : (
                           <button 
-                            className={`flex-1 font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest transition-all ${
+                            className={`flex-1 font-mono text-[9px] py-2 rounded uppercase font-bold tracking-widest motion-control ${
                               isActive 
                                 ? 'bg-gold-core text-black border border-gold-core' 
                                 : 'bg-transparent text-gray-400 border border-white/10 hover:text-white hover:border-white/20'
@@ -513,7 +515,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
                         )
                       ) : (
                         <button 
-                          className="flex-1 bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 transition-all"
+                          className="flex-1 bg-gold-core text-black hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] font-mono text-[9px] py-2 rounded uppercase font-black tracking-widest flex items-center justify-center gap-1.5 motion-control"
                           onClick={() => handlePurchase(item)}
                           disabled={loadingItem === item.id}
                         >
@@ -547,7 +549,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           </p>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .shop-backdrop {
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: none !important;
@@ -582,13 +584,16 @@ export default function ShopModal({ onClose, onOpenAuth }) {
             border: none;
             color: var(--text-dark);
             cursor: pointer;
-            transition: 0.2s;
+            transition: var(--motion-control-transition);
           }
+
+          @media (hover: hover) and (pointer: fine) {
 
           .shop-close:hover {
             color: #fff;
             transform: rotate(90deg);
           }
+}
 
           .cinzel-title {
             font-family: 'Cinzel Decorative', 'Cinzel', serif;

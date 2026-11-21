@@ -40,7 +40,7 @@ export default function CompletionLog() {
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-1.5 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+            className={`px-4 py-1.5 text-[9px] font-mono tracking-widest uppercase rounded motion-control ${
               filter === tab 
                 ? 'bg-gold-core text-black font-bold shadow-[0_0_12px_rgba(197,160,89,0.3)]' 
                 : 'text-text-dim hover:text-white hover:bg-white/5'
@@ -77,8 +77,8 @@ export default function CompletionLog() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3) }}
-                  className={`elite-panel p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.01] ${
+                  transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.12) }}
+                  className={`elite-panel p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 motion-control hover:bg-white/[0.01] ${
                     isCompleted 
                       ? 'border-gold-core/20 bg-gradient-to-r from-gold-core/[0.02] to-transparent' 
                       : 'border-red-500/20 bg-gradient-to-r from-red-500/[0.02] to-transparent'

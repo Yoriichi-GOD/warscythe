@@ -210,8 +210,9 @@
   background: rgba(7, 7, 9, .62);
   backdrop-filter: blur(9px);
 }
-.lp-primary-cta:hover,
-.lp-secondary-cta:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(240, 201, 119, .24); }
+@media (hover: hover) and (pointer: fine) {
+.lp-primary-cta:hover, .lp-secondary-cta:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(240, 201, 119, .24); }
+}
 .lp-scroll-cue {
   position: absolute;
   z-index: 6;
@@ -298,7 +299,7 @@
   flex: none;
   color: var(--lp-bright);
   filter: drop-shadow(0 0 7px rgba(240, 201, 119, .75));
-  transition: .2s ease;
+  transition: var(--motion-control-transition);
 }
 .lp-map-node i::before,
 .lp-map-node i::after {
@@ -329,7 +330,7 @@
   background: linear-gradient(90deg, rgba(4, 4, 6, .84), transparent);
   opacity: 0;
   transform: translate(-8px, -50%);
-  transition: .2s ease;
+  transition: var(--motion-control-transition);
 }
 .lp-map-node.label-left span {
   right: calc(100% + .55rem);
@@ -340,10 +341,14 @@
   text-align: right;
   transform: translate(8px, -50%);
 }
-.lp-map-node:hover span,
 .lp-map-node:focus-visible span { opacity: 1; transform: translate(0, -50%); }
-.lp-map-node:hover i,
+@media (hover: hover) and (pointer: fine) {
+.lp-map-node:hover span { opacity: 1; transform: translate(0, -50%); }
+}
 .lp-map-node.active i { color: #fff1bd; transform: scale(1.2); filter: drop-shadow(0 0 11px rgba(240, 201, 119, .95)); }
+@media (hover: hover) and (pointer: fine) {
+.lp-map-node:hover i { color: #fff1bd; transform: scale(1.2); filter: drop-shadow(0 0 11px rgba(240, 201, 119, .95)); }
+}
 .lp-map-node strong,
 .lp-map-node small { display: block; }
 .lp-map-node strong { color: var(--lp-ivory); font: 800 .52rem var(--font-display, Cinzel, serif); letter-spacing: .11em; }

@@ -919,7 +919,7 @@ export const useWarscytheStore = create(
             subscription_id: subscription_id,
             name: 'Warscythe',
             description: 'Warscythe Ad-Free Subscription',
-            image: '/command-core.png',
+            image: '/command-core.webp',
             theme: {
               color: '#ecc880'
             },
@@ -2270,7 +2270,7 @@ export const useWarscytheStore = create(
             order_id: order_id,
             name: 'Warscythe',
             description: `Acquire ${itemId} ${itemType}`,
-            image: '/command-core.png',
+            image: '/command-core.webp',
             theme: {
               color: '#ecc880'
             },

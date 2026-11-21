@@ -1,0 +1,82 @@
+{
+  "ember-particles.webp": {
+    "width": 1536,
+    "height": 1024
+  },
+  "final-gate.webp": {
+    "width": 1630,
+    "height": 965
+  },
+  "fitness-olympus-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "fitness-session-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "hero-foreground-left.webp": {
+    "width": 1536,
+    "height": 1024
+  },
+  "hero-foreground-right.webp": {
+    "width": 1024,
+    "height": 1536
+  },
+  "hero-gate-desktop.webp": {
+    "width": 1672,
+    "height": 941
+  },
+  "hero-gate-mobile.webp": {
+    "width": 941,
+    "height": 1672
+  },
+  "ledger-calendar-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "ledger-relics-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "legion-command-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "legion-objective-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "olympus-hall.webp": {
+    "width": 1556,
+    "height": 1011
+  },
+  "operations-command-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "operations-detail-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "realm-map-base.webp": {
+    "width": 1518,
+    "height": 1036
+  },
+  "rituals-command-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "rituals-medal-screen.webp": {
+    "width": 1920,
+    "height": 1080
+  },
+  "terminal-bastion.webp": {
+    "width": 1556,
+    "height": 1011
+  },
+  "warscythe-demo-poster.webp": {
+    "width": 1672,
+    "height": 941
+  }
+}

@@ -42,9 +42,9 @@ export default function LoreModal({ onClose }) {
           <button onClick={() => setPageIdx(i => Math.min(4, i + 1))} disabled={pageIdx === 4}><ChevronRight size={18}/></button>
         </footer>
       </motion.article>
-      <style jsx global>{`
+      <style>{`
         .lore-backdrop{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(10px)}
-        .lore-sheet{position:relative;width:min(96vw,1500px);height:min(90vh,844px);padding:clamp(50px,6vw,90px) clamp(58px,8vw,130px);display:flex;flex-direction:column;color:#ecebea;background:url('/lore-codex-wide.png') center/100% 100% no-repeat;filter:drop-shadow(0 24px 45px #000);box-sizing:border-box}
+        .lore-sheet{position:relative;width:min(96vw,1500px);height:min(90vh,844px);padding:clamp(50px,6vw,90px) clamp(58px,8vw,130px);display:flex;flex-direction:column;color:#ecebea;background:url('/lore-codex-wide.webp') center/100% 100% no-repeat;filter:drop-shadow(0 24px 45px #000);box-sizing:border-box}
         .lore-close{position:absolute;z-index:5;right:3.5%;top:5%;width:40px;height:40px;display:grid;place-items:center;border:1px solid #c7c9cc99;border-radius:50%;background:#050607dd;color:#f4f5f6;cursor:pointer;box-shadow:0 0 16px #bfc4cc22}
         .lore-sheet header{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;border-bottom:1px solid #bbc0c655;padding-bottom:12px}
         .lore-sheet header button,.lore-sheet footer button{display:grid;place-items:center;border:1px solid #bbc0c666;background:#dce1e611;color:#e6e8eb;cursor:pointer}
@@ -54,7 +54,7 @@ export default function LoreModal({ onClose }) {
         .lore-sheet main p{width:100%;margin:0;max-width:900px;color:#e7e5df;font:700 clamp(16px,1.6vw,22px)/1.75 Georgia,serif;text-align:left;text-wrap:pretty;text-shadow:0 2px 7px #000}.lore-sheet main p::first-letter{float:left;margin:4px 8px 0 0;font:900 3.2em/0.8 var(--font-display);color:#f2f3f4}
         .sealed{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;color:#aeb3b9}.sealed strong{font:800 20px Georgia;color:#eceef0}.sealed span{font:700 9px var(--font-mono);letter-spacing:.15em;text-transform:uppercase}
         .lore-sheet footer{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;border-top:1px solid #bbc0c655;padding-top:14px;text-align:center}.lore-sheet footer button{height:34px}.lore-sheet footer b{font:900 11px var(--font-mono);letter-spacing:.22em;color:#e6e8eb}
-        @media(max-width:700px),(max-aspect-ratio:3/4){.lore-backdrop{padding:6px}.lore-sheet{width:min(96vw,520px);height:min(94vh,924px);padding:64px 42px 46px;background-image:url('/lore-codex-mobile.png')}.lore-sheet header{grid-template-columns:34px 1fr 34px}.lore-sheet h2{font-size:17px}.lore-sheet nav{gap:5px;margin:12px 0}.lore-sheet nav button{width:31px;height:29px}.lore-sheet main{padding:3% 1%}.lore-sheet main p{font-size:15px;line-height:1.58}.lore-close{right:7%;top:3%;width:36px;height:36px}}
+        @media(max-width:700px),(max-aspect-ratio:3/4){.lore-backdrop{padding:6px}.lore-sheet{width:min(96vw,520px);height:min(94vh,924px);padding:64px 42px 46px;background-image:url('/lore-codex-mobile.webp')}.lore-sheet header{grid-template-columns:34px 1fr 34px}.lore-sheet h2{font-size:17px}.lore-sheet nav{gap:5px;margin:12px 0}.lore-sheet nav button{width:31px;height:29px}.lore-sheet main{padding:3% 1%}.lore-sheet main p{font-size:15px;line-height:1.58}.lore-close{right:7%;top:3%;width:36px;height:36px}}
       `}</style>
     </div>
   );

@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -178,7 +179,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           </button>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .focus-fullscreen-overlay {
             position: fixed; inset: 0; background: #050507; z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -260,7 +261,8 @@ export default function FocusOverlay({ onTriggerProphecy }) {
 
         </div>
 
-        <div className="focus-task-info">
+        <div className="focus-task-info ornate-surface ornate-dialog">
+          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
           <div className="task-focus-header">
             <span className="task-focus-cat">{task.category}</span>
             <h2 className="task-focus-title">{task.title}</h2>
@@ -316,7 +318,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .focus-fullscreen-overlay {
           position: fixed;
           inset: 0;
@@ -379,7 +381,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           font-weight: 800;
           font-size: 0.7rem;
           letter-spacing: 0.1em;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .focus-exit-btn:hover { background: var(--red-core); color: #fff; }
 
@@ -417,7 +419,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           background: rgba(197, 160, 89, 0.1);
           color: var(--gold-core);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: var(--motion-control-transition);
           text-transform: uppercase;
           z-index: 10;
         }
@@ -454,7 +456,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           padding: 0.35rem 0.65rem;
           border-radius: 3px;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: var(--motion-control-transition);
           letter-spacing: 0.05em;
         }
         .preset-btn:hover {
@@ -479,9 +481,9 @@ export default function FocusOverlay({ onTriggerProphecy }) {
         .focus-micro-steps { display: flex; flex-direction: column; gap: 1.5rem; }
         .steps-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
         .steps-header label { font-size: 0.6rem; font-weight: 900; color: var(--text-dark); letter-spacing: 0.2em; }
-        
-        .recalc-btn { 
-          display: flex; align-items: center; gap: 0.5rem; 
+
+        .recalc-btn {
+          display: flex; align-items: center; gap: 0.5rem;
           background: rgba(197, 160, 89, 0.1); border: 1px solid var(--gold-core);
           color: var(--gold-core); font-size: 0.55rem; font-weight: 900;
           padding: 4px 10px; border-radius: 4px;
@@ -497,11 +499,11 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           align-items: center;
           gap: 1.25rem;
           cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .focus-step-item:hover { background: rgba(255,255,255,0.07); border-color: var(--border-bright); }
         .focus-step-item.checked { opacity: 0.3; background: transparent; }
-        
+
         .focus-checkbox { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--gold-core); }
         .step-label-text { font-size: 1rem; font-weight: 600; color: var(--text-dim); }
         .focus-step-item.checked .step-label-text { text-decoration: line-through; }

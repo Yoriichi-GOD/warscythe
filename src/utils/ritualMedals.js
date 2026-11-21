@@ -2,17 +2,17 @@ export const RITUAL_MEDAL_TIERS = {
   bronze: {
     label: 'BRONZE',
     ratio: 15 / 30,
-    image: '/medals/ritual-medal-bronze.png',
+    image: '/medals/ritual-medal-bronze.webp',
   },
   silver: {
     label: 'SILVER',
     ratio: 22 / 30,
-    image: '/medals/ritual-medal-silver.png',
+    image: '/medals/ritual-medal-silver.webp',
   },
   gold: {
     label: 'GOLD',
     ratio: 28 / 30,
-    image: '/medals/ritual-medal-gold.png',
+    image: '/medals/ritual-medal-gold.webp',
   },
 };
 

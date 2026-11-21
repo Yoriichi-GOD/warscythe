@@ -33,14 +33,14 @@ export default function CacheAlertPopup({ regionId, onClose, onOpenDownloader })
               onOpenDownloader();
               onClose();
             }}
-            className="w-full bg-[#ecc880] text-black font-bold py-2.5 rounded shadow-[0_0_15px_rgba(236,200,128,0.25)] hover:bg-white transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full bg-[#ecc880] text-black font-bold py-2.5 rounded shadow-[0_0_15px_rgba(236,200,128,0.25)] hover:bg-white motion-control cursor-pointer flex items-center justify-center gap-1.5"
           >
             <CloudDownload size={12} />
             <span>OPEN CACHE CORE</span>
           </button>
           <button 
             onClick={onClose}
-            className="w-full border border-white/10 text-gray-400 font-bold py-2.5 rounded hover:bg-white/5 transition-all cursor-pointer"
+            className="w-full border border-white/10 text-gray-400 font-bold py-2.5 rounded hover:bg-white/5 motion-control cursor-pointer"
           >
             DISMISS
           </button>

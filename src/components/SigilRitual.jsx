@@ -1,7 +1,9 @@
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SigilRitual({ onActivate }) {
+  const ambientMotion = useAmbientMotion();
   const [isHovered, setIsHovered] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const canvasRef = useRef(null);
@@ -12,6 +14,7 @@ export default function SigilRitual({ onActivate }) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
+    let running = false;
     
     // Setup Canvas Resolution
     const size = 200;
@@ -69,13 +72,19 @@ export default function SigilRitual({ onActivate }) {
         ctx.fill();
       });
 
-      animationFrameId = requestAnimationFrame(render);
+      if (running) animationFrameId = requestAnimationFrame(render);
     };
 
     render();
 
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isHovered, isActivating]);
+    const observer = new IntersectionObserver(entries => {
+      running = ambientMotion && entries[0].isIntersecting;
+      cancelAnimationFrame(animationFrameId);
+      if (running) render();
+    });
+    observer.observe(canvas);
+    return () => { running = false; observer.disconnect(); cancelAnimationFrame(animationFrameId); };
+  }, [isHovered, isActivating, ambientMotion]);
 
   const handleClick = () => {
     if (isActivating) return;
@@ -103,7 +112,7 @@ export default function SigilRitual({ onActivate }) {
           style={{ 
             filter: isActivating ? 'blur(2px) brightness(2)' : isHovered ? 'brightness(1.5)' : 'none',
             transform: isActivating ? 'scale(1.2)' : isHovered ? 'scale(1.05)' : 'scale(1)',
-            transition: 'all 0.5s ease-out'
+            transition: 'var(--motion-control-transition)'
           }}
         />
         
@@ -118,7 +127,7 @@ export default function SigilRitual({ onActivate }) {
         {isActivating ? "ESTABLISHING LINK..." : isHovered ? "INITIATE STRIKE" : "The void awaits purpose..."}
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .sigil-container {
           display: flex;
           flex-direction: column;
@@ -162,7 +171,7 @@ export default function SigilRitual({ onActivate }) {
           color: var(--gold-core);
           text-transform: uppercase;
           text-shadow: 0 0 10px rgba(197, 160, 89, 0.2);
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
       `}</style>
     </div>

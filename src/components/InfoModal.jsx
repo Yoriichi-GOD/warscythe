@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -76,9 +77,10 @@ export default function InfoModal() {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full max-w-lg min-h-[420px] max-h-[85vh] flex flex-col bg-[#08080a] border border-[#c5a059]/30 rounded shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto"
+          transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+          className="relative w-full max-w-lg min-h-[420px] max-h-[85vh] flex flex-col bg-[#08080a] border border-[#c5a059]/30 rounded shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto ornate-surface ornate-dialog"
         >
+          <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
           {/* Gothic Decorative Corners */}
           <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#c5a059]/40 pointer-events-none" />
           <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#c5a059]/40 pointer-events-none" />
@@ -130,12 +132,12 @@ export default function InfoModal() {
                     <button
                       key={feat.id}
                       onClick={() => setInfoFeatureId(feat.id)}
-                      className="w-full text-left p-3.5 border border-white/5 rounded bg-white/[0.01] hover:border-[#c5a059]/30 hover:bg-[#c5a059]/5 transition-all flex items-center justify-between group"
+                      className="w-full text-left p-3.5 border border-white/5 rounded bg-white/[0.01] hover:border-[#c5a059]/30 hover:bg-[#c5a059]/5 motion-control flex items-center justify-between group"
                     >
                       <span className="text-[11px] font-mono text-gray-300 group-hover:text-white font-bold uppercase tracking-wider">
                         {feat.title}
                       </span>
-                      <ChevronRight size={12} className="text-gray-600 group-hover:text-[#c5a059] group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight size={12} className="text-gray-600 group-hover:text-[#c5a059] group-hover:translate-x-0.5 motion-control" />
                     </button>
                   ))}
                 </motion.div>
@@ -236,7 +238,7 @@ export default function InfoModal() {
                   {/* Back Link Button inside detail view */}
                   <button
                     onClick={handleBack}
-                    className="mt-4 py-2 px-4 border border-white/10 rounded flex items-center justify-center gap-2 text-[8px] font-mono tracking-widest text-[#c5a059] hover:bg-[#c5a059]/5 hover:border-[#c5a059]/30 transition-all uppercase"
+                    className="mt-4 py-2 px-4 border border-white/10 rounded flex items-center justify-center gap-2 text-[8px] font-mono tracking-widest text-[#c5a059] hover:bg-[#c5a059]/5 hover:border-[#c5a059]/30 motion-control uppercase"
                   >
                     <ArrowLeft size={10} /> Back to features list
                   </button>

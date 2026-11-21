@@ -1,0 +1,29 @@
+/* One book face across the application. The ID includes body-level portals,
+   whose older component styles also contain hard-coded font declarations. */
+#warscythe-app,
+#warscythe-app :where(*) {
+  font-family: var(--font-main) !important;
+}
+
+#warscythe-app :where(h1, h2, h3, h4, h5, h6, p, blockquote, em, cite, .font-serif, .italic, .workout-resume-caption, .workout-resume-dock button, .workout-mode-copy > strong, .workout-mode-description, .workout-previous),
+#warscythe-app :where(h1, h2, h3, h4, h5, h6, .font-serif, .italic) :where(*),
+#warscythe-app :where(.workout-resume-dock button) :where(*) {
+  font-family: var(--font-literary) !important;
+  font-style: italic;
+}
+
+#warscythe-app :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+#warscythe-app :where(p, blockquote) { text-wrap: pretty; }
+#warscythe-app :where(input, select, textarea) { font-style: normal; }
+#warscythe-app :where(input, textarea)::placeholder { font-style: italic; }
+#warscythe-app :where(input[type=number], [role=timer], [role=timer] *) {
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Literal code and keyboard shortcuts retain their functional code face. */
+#warscythe-app :where(code, pre, kbd, samp),
+#warscythe-app :where(code, pre, kbd, samp) :where(*) {
+  font-family: var(--font-code) !important;
+  font-style: normal;
+}

@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-21",
+  "scope": "Local Warscythe motion refinement; preserve the existing UI; no commit, push, or deployment.",
+  "definitionOfDone": {
+    "designPreserved": true,
+    "buildPassed": true,
+    "domainTestsPassed": 8,
+    "interactionChecksPassed": 24,
+    "interactionChecksTotal": 24,
+    "noNewLintDiagnostics": true,
+    "sourceBusinessAreasUnchanged": true,
+    "noSourceDeletions": true
+  },
+  "sourceFilesChanged": 63,
+  "changedFiles": [
+    "src/App.jsx",
+    "src/components/AssetDownloaderModal.jsx",
+    "src/components/AuthModal.jsx",
+    "src/components/BossFlashScreen.jsx",
+    "src/components/CacheAlertPopup.jsx",
+    "src/components/command/CommandCenter.jsx",
+    "src/components/command/WarTerminal.jsx",
+    "src/components/Dashboard.jsx",
+    "src/components/EliteNavigation.jsx",
+    "src/components/FocusOverlay.jsx",
+    "src/components/GuardianOverlay.jsx",
+    "src/components/GymLogBook.jsx",
+    "src/components/Header.jsx",
+    "src/components/InfoModal.jsx",
+    "src/components/LandingPage.css",
+    "src/components/LandingPage.jsx",
+    "src/components/layout/DashboardLayout.jsx",
+    "src/components/LegionOperationDetail.jsx",
+    "src/components/LevelUpModal.jsx",
+    "src/components/MapModal.jsx",
+    "src/components/MapSection.jsx",
+    "src/components/OperationList.jsx",
+    "src/components/operations/MissionCard.jsx",
+    "src/components/operations/ObjectiveRitual.jsx",
+    "src/components/operations/RitualCard.jsx",
+    "src/components/PremiumModal.jsx",
+    "src/components/RealmTransferScreen.jsx",
+    "src/components/RegionFlashScreen.jsx",
+    "src/components/RitualDetail.jsx",
+    "src/components/RitualModal.jsx",
+    "src/components/RoadmapModal.jsx",
+    "src/components/ScratchCard.jsx",
+    "src/components/scythe/ScytheDisplay.jsx",
+    "src/components/ScytheCenter.jsx",
+    "src/components/ShopModal.jsx",
+    "src/components/SigilRitual.jsx",
+    "src/components/StreakScrollModal.jsx",
+    "src/components/TabTutorialOverlay.jsx",
+    "src/components/TaskDetail.jsx",
+    "src/components/TaskModal.jsx",
+    "src/components/TitleUnlockFlash.jsx",
+    "src/components/TutorialEndFlash.jsx",
+    "src/components/UnlockCeremonyModal.jsx",
+    "src/components/UsernameSetup.jsx",
+    "src/components/VaultModal.jsx",
+    "src/components/VideoGuideModal.jsx",
+    "src/features/fitness-v2/fitnessOlympusExperience.css",
+    "src/features/fitness-v2/FitnessOlympusExperience.jsx",
+    "src/features/fitness-v2/olympus/fitnessOlympusV2.css",
+    "src/features/fitness-v2/olympus/OlympusHallModal.jsx",
+    "src/features/fitness-v2/olympus/OlympusRewardModal.jsx",
+    "src/main.jsx",
+    "src/motion/MotionEnvironment.jsx",
+    "src/motion/tokens.js",
+    "src/motion/useMotionEnvironment.js",
+    "src/pages/CompletionLog.jsx",
+    "src/pages/Fitness.jsx",
+    "src/pages/Ledger.jsx",
+    "src/pages/Operations.jsx",
+    "src/pages/Rituals.jsx",
+    "src/pages/Social.jsx",
+    "src/styles/main.css",
+    "src/styles/motion.css"
+  ],
+  "counts": {
+    "before": {
+      "broadUtilities": 125,
+      "explicitAllDeclarations": 23
+    },
+    "after": {
+      "broadUtilities": 0,
+      "explicitAllDeclarations": 0
+    }
+  },
+  "visualComparison": {
+    "screens": 20,
+    "measuredElements": 94,
+    "differences": [],
+    "browserErrors": []
+  },
+  "interactionErrors": [],
+  "performance": {
+    "sampleSeconds": 3,
+    "before": [
+      {
+        "name": "operations-idle",
+        "frames": 631,
+        "p95ms": 8.399999999999636,
+        "maxMs": 16.600000000000364,
+        "over33ms": 0,
+        "commits": 0,
+        "LayoutCount": 631,
+        "RecalcStyleCount": 632,
+        "LayoutDuration": 0.10092999999999999,
+        "ScriptDuration": 0.071272,
+        "TaskDuration": 1.685807
+      },
+      {
+        "name": "fitness-affinity",
+        "frames": 382,
+        "p95ms": 12.599999999998545,
+        "maxMs": 271.3000000000002,
+        "over33ms": 4,
+        "commits": 45,
+        "LayoutCount": 385,
+        "RecalcStyleCount": 385,
+        "LayoutDuration": 0.09627999999999998,
+        "ScriptDuration": 0.319168,
+        "TaskDuration": 1.2639179999999999
+      }
+    ],
+    "after": [
+      {
+        "name": "operations-idle",
+        "frames": 670,
+        "p95ms": 8.299999999999272,
+        "maxMs": 16.700000000000728,
+        "over33ms": 0,
+        "commits": 0,
+        "LayoutCount": 0,
+        "RecalcStyleCount": 672,
+        "LayoutDuration": 0,
+        "ScriptDuration": 0.014304999999999346,
+        "TaskDuration": 0.5072809999999999
+      },
+      {
+        "name": "fitness-affinity",
+        "frames": 639,
+        "p95ms": 4.30000000000291,
+        "maxMs": 146.10000000000218,
+        "over33ms": 3,
+        "commits": 2,
+        "LayoutCount": 29,
+        "RecalcStyleCount": 643,
+        "LayoutDuration": 0.032487000000000044,
+        "ScriptDuration": 0.06326499999999946,
+        "TaskDuration": 0.8252649999999999
+      }
+    ],
+    "interpretation": "Local Chromium workload counts, not a universal frame-rate or device-performance guarantee."
+  },
+  "lint": {
+    "baselineErrors": 150,
+    "finalErrors": 149,
+    "newDiagnostics": []
+  },
+  "protectedChanges": [],
+  "knownLimits": [
+    "Physical Android/iOS devices and Safari were not tested.",
+    "149 existing lint errors remain; no new diagnostics were introduced.",
+    "Authentication, payments, live synchronization, and multi-user backend correctness were outside this motion-only pass.",
+    "The preserved MapSection stylesheet contains a pre-existing mt-3 syntax fragment; this pass did not expand into unrelated CSS cleanup."
+  ]
+}

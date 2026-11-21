@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -14,9 +15,9 @@ const LEGACY_ARTIFACT_MAP = {
   'Lantern of the Lost': 'lantern',
 };
 const getArtifactImage = (name) => {
-  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
+  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.webp`;
   const type = (name || '').split(' ')[0].toLowerCase();
-  return `/artifacts/artifact-${type}.png`;
+  return `/artifacts/artifact-${type}.webp`;
 };
 
 
@@ -32,9 +33,10 @@ export default function MapModal({ onClose }) {
         animate={{ opacity: 1, scale: [0.7, 1.08, 1] }}
         exit={{ opacity: 0, scale: 0.8 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="modal-content map-modal glass-panel"
+        className="modal-content map-modal glass-panel ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
+          <OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
         <div className="modal-header">
           <div className="header-title">
             <MapIcon size={20} className="gold-text" />
@@ -114,7 +116,7 @@ export default function MapModal({ onClose }) {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .map-modal { max-width: 900px; width: 95%; height: 85vh; padding: 2rem; display: flex; flex-direction: column; }
         .header-title { display: flex; align-items: center; gap: 1rem; }
         .header-title h2 { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.2rem; }
@@ -131,7 +133,7 @@ export default function MapModal({ onClose }) {
           background: rgba(255,255,255,0.03); border: 1px solid var(--border);
           border-radius: 8px; padding: 1rem; display: flex; flex-direction: column;
           align-items: center; text-align: center; gap: 0.5rem; position: relative;
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
         .region-tile.current { border-color: var(--gold-core); background: rgba(212,175,55,0.05); }
         .region-tile.completed { border-color: var(--stage-ship); opacity: 0.7; }

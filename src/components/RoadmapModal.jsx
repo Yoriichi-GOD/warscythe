@@ -1,3 +1,6 @@
+import KingdomChronicle from './KingdomChronicle';
+import OrnateFrame from './frames/OrnateFrame';
+import { getScrollBehavior } from '../motion/useMotionEnvironment';
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -20,6 +23,7 @@ export default function RoadmapModal({ onClose }) {
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress) || 0;
   const onboardingActive = useWarscytheStore(state => state.onboardingActive);
   const scrollContainerRef = useRef(null);
+  const [storyOpen, setStoryOpen] = useState(true);
   const [scrollEdges, setScrollEdges] = useState({ left: true, right: false });
   const roadmapPoints = NODES_DATA
     .map(node => `${parseFloat(node.x)},${parseFloat(node.y)}`)
@@ -42,7 +46,7 @@ export default function RoadmapModal({ onClose }) {
     if (!container) return;
     container.scrollBy({
       left: direction * Math.max(280, container.clientWidth * 0.62),
-      behavior: 'smooth'
+      behavior: getScrollBehavior()
     });
   };
 
@@ -59,11 +63,11 @@ export default function RoadmapModal({ onClose }) {
       
       container.scrollTo({
         left: Math.max(0, scrollPos),
-        behavior: 'smooth'
+        behavior: getScrollBehavior()
       });
       window.setTimeout(updateScrollEdges, 450);
     }
-  }, [onboardingProgress]);
+  }, [onboardingProgress, storyOpen]);
 
   const getStatus = (nodeId) => {
     if (nodeId <= onboardingProgress) return 'completed';
@@ -77,13 +81,14 @@ export default function RoadmapModal({ onClose }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl h-[90vh] md:h-[600px] flex flex-col rounded-lg border border-white/5 bg-zinc-950 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
+        className="relative w-full max-w-4xl h-[90vh] md:h-[600px] flex flex-col rounded-lg border border-white/5 bg-zinc-950 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden ornate-surface ornate-dialog"
       >
+          <OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/40">
+        <div className="roadmap-dialog-header flex items-center justify-between p-5 border-b border-white/5 bg-black/40">
           <div>
             <h2 className="font-display font-bold text-sm tracking-widest text-gold-core uppercase">Execution Roadmap</h2>
-            <p className="font-mono text-[8px] text-stone-500 tracking-wider uppercase mt-1">Unlock your path from Recruit to Seasoned Wanderer</p>
+            <p className="font-mono text-[8px] text-stone-500 tracking-wider uppercase mt-1">Kingdom Chronicle · discover one chapter at a time</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="font-mono text-[9px] px-3 py-1.5 rounded border border-gold-core/20 text-gold-core bg-gold-core/5 tracking-widest uppercase">
@@ -99,7 +104,9 @@ export default function RoadmapModal({ onClose }) {
         </div>
 
         {/* Dynamic Journey Map Area */}
-        <div className="flex-1 min-h-0 relative bg-black">
+        <div className="roadmap-view-tabs" role="tablist" aria-label="Roadmap view"><button type="button" role="tab" aria-selected={storyOpen} onClick={() => setStoryOpen(true)}>Kingdom Chronicle</button><button type="button" role="tab" aria-selected={!storyOpen} onClick={() => setStoryOpen(false)}>Unlock map</button></div>
+        {storyOpen && <KingdomChronicle progress={onboardingProgress} onContinue={onClose} />}
+        <div className="flex-1 min-h-0 relative bg-black" style={{display:storyOpen ? 'none' : undefined}}>
           <div 
             ref={scrollContainerRef}
             onScroll={updateScrollEdges}
@@ -144,7 +151,7 @@ export default function RoadmapModal({ onClose }) {
                 strokeDasharray="100"
                 strokeDashoffset={100 - completedPathPercent}
                 vectorEffect="non-scaling-stroke"
-                className="transition-all duration-[1500ms] ease-out"
+                className="motion-control duration-[1500ms] ease-out"
               />
             </svg>
 
@@ -161,7 +168,7 @@ export default function RoadmapModal({ onClose }) {
                   {/* Node Circle */}
                   <motion.div
                     whileHover={{ scale: status !== 'locked' ? 1.1 : 1 }}
-                    className={`relative flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(0,0,0,0.6)] cursor-default transition-all duration-300 ${
+                    className={`relative flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(0,0,0,0.6)] cursor-default motion-control duration-300 ${
                       node.isMilestone ? 'w-11 h-11' : 'w-8 h-8'
                     } ${
                       status === 'completed'
@@ -188,7 +195,7 @@ export default function RoadmapModal({ onClose }) {
                   </motion.div>
 
                   {/* Title / Description Card */}
-                  <div className={`mt-3 flex flex-col items-center max-w-[130px] p-2 bg-black/85 border border-white/5 rounded backdrop-blur text-center pointer-events-none transition-all duration-300 ${
+                  <div className={`mt-3 flex flex-col items-center max-w-[130px] p-2 bg-black/85 border border-white/5 rounded backdrop-blur text-center pointer-events-none motion-control duration-300 ${
                     status === 'locked' ? 'opacity-40 filter grayscale' : 'opacity-100'
                   }`}>
                     <span className="font-mono text-[8px] font-bold text-white uppercase truncate max-w-[120px]">{node.label}</span>
@@ -208,7 +215,7 @@ export default function RoadmapModal({ onClose }) {
             aria-label="Slide roadmap left"
             onClick={() => slideMap(-1)}
             disabled={scrollEdges.left}
-            className="absolute left-2 top-1/2 z-30 -translate-y-1/2 w-8 h-8 rounded-full border border-gold-core/40 bg-black/80 text-gold-core grid place-items-center shadow-[0_0_18px_rgba(0,0,0,0.8)] hover:bg-gold-core hover:text-black disabled:opacity-20 disabled:hover:bg-black disabled:hover:text-gold-core transition-all"
+            className="absolute left-2 top-1/2 z-30 -translate-y-1/2 w-8 h-8 rounded-full border border-gold-core/40 bg-black/80 text-gold-core grid place-items-center shadow-[0_0_18px_rgba(0,0,0,0.8)] hover:bg-gold-core hover:text-black disabled:opacity-20 disabled:hover:bg-black disabled:hover:text-gold-core motion-control"
           >
             <ChevronLeft size={15} />
           </button>
@@ -217,7 +224,7 @@ export default function RoadmapModal({ onClose }) {
             aria-label="Slide roadmap right"
             onClick={() => slideMap(1)}
             disabled={scrollEdges.right}
-            className="absolute right-2 top-1/2 z-30 -translate-y-1/2 w-8 h-8 rounded-full border border-gold-core/40 bg-black/80 text-gold-core grid place-items-center shadow-[0_0_18px_rgba(0,0,0,0.8)] hover:bg-gold-core hover:text-black disabled:opacity-20 disabled:hover:bg-black disabled:hover:text-gold-core transition-all"
+            className="absolute right-2 top-1/2 z-30 -translate-y-1/2 w-8 h-8 rounded-full border border-gold-core/40 bg-black/80 text-gold-core grid place-items-center shadow-[0_0_18px_rgba(0,0,0,0.8)] hover:bg-gold-core hover:text-black disabled:opacity-20 disabled:hover:bg-black disabled:hover:text-gold-core motion-control"
           >
             <ChevronRight size={15} />
           </button>
@@ -231,7 +238,7 @@ export default function RoadmapModal({ onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="flex items-center gap-2 px-4 py-2 border border-gold-core/40 text-gold-core hover:text-black hover:bg-gold-core font-mono text-[9px] font-bold tracking-widest uppercase rounded shadow-[0_0_15px_rgba(236,200,128,0.1)] cursor-pointer transition-all duration-300"
+            className="flex items-center gap-2 px-4 py-2 border border-gold-core/40 text-gold-core hover:text-black hover:bg-gold-core font-mono text-[9px] font-bold tracking-widest uppercase rounded shadow-[0_0_15px_rgba(236,200,128,0.1)] cursor-pointer motion-control duration-300"
           >
             <span>CONTINUE JOURNEY</span>
             <ChevronRight size={10} />

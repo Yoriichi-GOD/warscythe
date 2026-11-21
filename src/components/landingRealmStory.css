@@ -1,0 +1,59 @@
+.lp-map-section:has(.lp-realm-story) { padding: 96px max(24px, 5vw) 48px; }
+.lp-realm-story { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr); gap: clamp(36px, 6vw, 88px); max-width: 1320px; margin: 48px auto 0; align-items: start; }
+.lp-story-stage { position: sticky; top: 112px; min-width: 0; }
+.lp-story-map { position: relative; aspect-ratio: 1518 / 1036; overflow: hidden; border: 1px solid #c8a86a55; border-radius: 16px; background: #10100f; }
+.lp-story-map-plane { position: absolute; inset: 0; transform: scale(1.04); transition: transform 800ms var(--motion-ease-out); }
+.lp-story-map-plane > img { width: 100%; height: 100%; object-fit: cover; opacity: .86; }
+.lp-story-map-plane::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #08090966, transparent 35%); }
+.lp-story-route { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lp-story-route path { fill: none; stroke: #f0c977; stroke-width: .35; vector-effect: non-scaling-stroke; }
+.lp-story-route .lp-story-route-base { stroke: #e7c78966; stroke-width: 1; }
+.lp-story-route .lp-story-route-ink { stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: .65; transition: stroke-dashoffset 700ms var(--motion-ease-out); }
+.lp-realm-story[data-chapter-active='1'] .lp-story-route-ink { stroke-dashoffset: .4; }
+.lp-realm-story[data-chapter-active='2'] .lp-story-route-ink { stroke-dashoffset: .17; }
+.lp-realm-story[data-chapter-active='3'] .lp-story-route-ink { stroke-dashoffset: 0; }
+.lp-realm-story[data-story-motion='true'][data-chapter-active='1'] .lp-story-map-plane { transform: scale(1.08) translate(1%, 0); }
+.lp-realm-story[data-story-motion='true'][data-chapter-active='2'] .lp-story-map-plane { transform: scale(1.08) translate(-2%, 1%); }
+.lp-realm-story[data-story-motion='true'][data-chapter-active='3'] .lp-story-map-plane { transform: scale(1.04); }
+.lp-story-node { position: absolute; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #eed29a99; border-radius: 50%; background: #161511e8; color: #f0d59f; transform: translate(-50%, -50%); transition: background-color 160ms ease, color 160ms ease; }
+.lp-story-node.is-current { background: #ebcd8b; color: #23190a; }
+.lp-story-node:focus-visible { outline: 2px solid #fff1bd; outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) { .lp-story-node:hover { background: #f0d59f; color: #23190a; } }
+.lp-story-instrument { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0 14px; border-bottom: 1px solid #c8a86a44; }
+.lp-story-instrument > div:first-child { display: flex; align-items: center; gap: 16px; font-size: 16px; color: #ecd5ac; }
+.lp-story-page-number { color: #f0c977; font-size: 27px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lp-story-page-number small { color: #bda984; font-size: 14px; }
+.lp-story-chapter-nav { display: flex; gap: 2px; }
+.lp-story-chapter-nav a { display: grid; place-items: center; width: 32px; height: 44px; }
+.lp-story-chapter-nav a span { width: 6px; height: 6px; border: 1px solid #bda984; transform: rotate(45deg); }
+.lp-story-chapter-nav a[aria-current='step'] span { background: #edce8d; border-color: #edce8d; }
+.lp-story-chapter-nav a:focus-visible { outline: 2px solid #edce8d; outline-offset: -2px; border-radius: 8px; }
+.lp-story-map-hint { margin-top: 14px; color: #c6b798; font-size: 15px; }
+.lp-story-act { display: flex; flex-direction: column; justify-content: center; min-height: 70svh; padding: 64px 0; scroll-margin-top: 120px; }
+.lp-story-act h3 { font-size: clamp(32px, 3.4vw, 52px); font-weight: 500; line-height: 1.1; color: #f4e8d1; letter-spacing: -.025em; }
+.lp-story-act > p { margin-top: 24px; font-size: 19px; line-height: 1.65; color: #d1c5ac; max-width: 36ch; }
+.lp-story-act blockquote { margin: 28px 0 20px; font-size: 22px; line-height: 1.45; color: #e6c588; }
+.lp-story-link { align-self: flex-start; display: inline-flex; gap: 10px; align-items: center; min-height: 44px; padding: 8px 0; color: #f4d599; font-size: 16px; text-decoration: underline; text-underline-offset: 5px; }
+.lp-story-next { display: flex; gap: 12px; margin-top: 40px; align-items: center; font-size: 14px; color: #beac88; }
+.lp-story-skip { display: flex; justify-content: center; align-items: center; gap: 8px; width: fit-content; min-height: 44px; margin: 24px auto 0; color: #dcc18d; text-decoration: underline; text-underline-offset: 5px; font-size: 16px; }
+.lp-realm-story[data-story-motion='false'] .lp-story-map-plane { transform: none; transition: none; }
+.lp-realm-story[data-story-motion='false'] .lp-story-route-ink { stroke-dashoffset: 0; transition: none; }
+@media (max-width: 1000px) { .lp-realm-story { gap: 32px; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); } .lp-story-stage { top: 96px; } .lp-story-instrument > div:first-child { gap: 10px; font-size: 14px; } .lp-story-chapter-nav a { width: 24px; } }
+@media (max-width: 700px) {
+  .lp-map-section:has(.lp-realm-story) { padding: 64px 20px 40px; }
+  .lp-realm-story { display: block; margin-top: 28px; }
+  .lp-story-stage { top: 64px; z-index: 10; padding-top: 12px; padding-bottom: 12px; background: #090909; }
+  .lp-story-map { border-radius: 12px; }
+  .lp-story-instrument { padding: 8px 0; gap: 8px; }
+  .lp-story-instrument > div:first-child { font-size: 14px; gap: 10px; }
+  .lp-story-page-number { font-size: 23px; }
+  .lp-story-chapter-nav a { width: 26px; }
+  .lp-story-map-hint { margin: 4px 0 0; font-size: 13px; }
+  .lp-story-act { min-height: 62svh; padding: 40px 0; scroll-margin-top: calc(64px + 78vw + 36px); }
+  .lp-story-act h3 { font-size: 36px; }
+  .lp-story-act > p { font-size: 18px; margin-top: 20px; }
+  .lp-story-act blockquote { font-size: 21px; margin-top: 24px; }
+  .lp-story-next { margin-top: 24px; }
+}
+@media (max-height: 560px) { .lp-story-stage { position: relative; top: auto; } .lp-story-act { min-height: 480px; } }
+@media (prefers-reduced-motion: reduce) { .lp-story-map-plane { transform: none !important; transition: none !important; } .lp-story-route-ink { stroke-dashoffset: 0 !important; transition: none !important; } }

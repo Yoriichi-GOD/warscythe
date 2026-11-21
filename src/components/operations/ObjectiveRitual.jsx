@@ -5,11 +5,11 @@ import { getAssetUrl } from "../../utils/assetResolver";
 export default function ObjectiveRitual({ onClick }) {
   const activeTheme = useWarscytheStore(state => state.activeTheme);
   
-  let platformSrc = "/ritual-platform.png";
+  let platformSrc = "/ritual-platform.webp";
   if (activeTheme === 'shiva') {
-    platformSrc = getAssetUrl('/themes/kailash/ritual-platform.png');
+    platformSrc = getAssetUrl('/themes/kailash/ritual-platform.webp');
   } else if (activeTheme === 'lava') {
-    platformSrc = getAssetUrl('/themes/lava/ritual-platform.png');
+    platformSrc = getAssetUrl('/themes/lava/ritual-platform.webp');
   }
 
   return (
@@ -19,7 +19,7 @@ export default function ObjectiveRitual({ onClick }) {
         <p className="text-[9px] font-mono text-white tracking-[0.3em] uppercase italic opacity-100">Every task is a strike. Every strike shapes your legend.</p>
       </div>
       
-      <div className="relative flex flex-col items-center justify-center w-full max-w-[400px] mt-[-30px] ritual-platform-container">
+      <div data-ambient-motion className="relative flex flex-col items-center justify-center w-full max-w-[400px] mt-[-30px] ritual-platform-container">
         {/* THE RITUAL PLATFORM ASSET */}
         <div className="relative w-full aspect-video flex items-center justify-center">
           <img 
@@ -31,24 +31,9 @@ export default function ObjectiveRitual({ onClick }) {
           {/* ⚡ THE RADIANT BEAM (Masterpiece Rebuild) */}
           <div className="absolute bottom-[40%] flex flex-col items-center">
              {/* Core Inner Beam */}
-             <motion.div 
-               animate={{ 
-                 height: [100, 180, 100],
-                 opacity: [0.6, 1, 0.6],
-                 filter: ['blur(1px)', 'blur(3px)', 'blur(1px)']
-               }}
-               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-               className="w-[2px] bg-white shadow-[0_0_20px_#fff]"
-             />
+             <div className="ritual-beam-core w-[2px] bg-white shadow-[0_0_20px_#fff]" />
              {/* Radiant Outer Glow */}
-             <motion.div 
-               animate={{ 
-                 scaleX: [1, 2.5, 1],
-                 opacity: [0.2, 0.4, 0.2]
-               }}
-               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-               className="absolute top-0 w-8 h-full bg-gradient-to-t from-gold-bright via-gold-core to-transparent blur-[15px]"
-             />
+             <div className="ritual-beam-glow absolute top-0 w-8 h-full bg-gradient-to-t from-gold-bright via-gold-core to-transparent blur-[15px]" />
           </div>
         </div>
 
@@ -59,7 +44,7 @@ export default function ObjectiveRitual({ onClick }) {
           onClick={onClick}
           className="mt-[-45px] z-20 cursor-pointer group ritual-initiate-btn"
         >
-          <div className="bg-black/80 backdrop-blur-xl border border-gold-core/30 px-10 py-2.5 rounded-full group-hover:bg-gold-core transition-all shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-3">
+          <div className="bg-black/80 backdrop-blur-xl border border-gold-core/30 px-10 py-2.5 rounded-full group-hover:bg-gold-core motion-control shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-3">
              <div className="w-1 h-1 rounded-full bg-gold-core group-hover:bg-black" />
              <span className="text-[10px] font-mono tracking-[0.5em] uppercase font-black text-white group-hover:text-black">
                Initiate Objective

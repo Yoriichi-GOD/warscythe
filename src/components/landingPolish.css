@@ -1,0 +1,50 @@
+.landing-page-root ::selection { background: #d7b46e; color: #15110a; }
+.landing-page-root button:focus-visible, .landing-page-root a:focus-visible { outline: 2px solid #f0d394; outline-offset: 4px; }
+.lp-motion-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 44px; min-height: 44px; padding: 8px; color: #d9c59f; font-size: 13px; white-space: nowrap; border-radius: 10px; }
+.lp-motion-toggle:disabled { color: #c5b595; cursor: default; }
+.lp-header-actions { gap: 4px; }
+.lp-header .lp-desktop-nav button { min-height: 44px; color: #cebea1; font-size: 12px; letter-spacing: .06em; }
+.lp-header .lp-nav-demo { min-height: 44px; font-size: 12px; letter-spacing: .06em; color: #ead8b5; }
+.lp-primary-small { min-height: 44px; font-size: 12px; letter-spacing: .06em; border-radius: 10px; }
+.lp-hero { min-height: max(760px, 100svh); }
+.lp-hero-art img { animation: none; }
+.lp-hero-copy { padding: 112px 0 100px; }
+.lp-hero-copy h1 { font-size: clamp(54px, 7vw, 96px); line-height: 1.02; letter-spacing: -.025em; font-weight: 500; }
+.lp-hero-copy h1 > span, .lp-hero-copy h1 > em { display: block; }
+.lp-hero-copy p { max-width: 52ch; font-weight: 400; }
+.lp-hero-copy > strong { font-size: 18px; font-weight: 400; letter-spacing: .015em; }
+.lp-primary-cta, .lp-secondary-cta { border-radius: 12px; font-size: 14px; letter-spacing: .07em; transition: transform 160ms var(--motion-ease-out), background-color 160ms ease, color 160ms ease; }
+.lp-scroll-cue { color: #cfbd97; font-size: 12px; letter-spacing: .1em; }
+.lp-section-heading > p { color: #cbbda2; }
+.lp-section-heading h2 { font-weight: 500; letter-spacing: -.025em; }
+.lp-feature-copy p, .lp-ledger-copy p { color: #cbbda2; }
+.lp-product-frame { border-radius: 12px; }
+.lp-footer > small, .lp-footer > div button { min-height: 44px; display: inline-flex; align-items: center; color: #cab997; font-size: 12px; letter-spacing: .08em; }
+.lp-demo-modal, .lp-legal-modal { border-radius: 16px; overflow: hidden; }
+.lp-mobile-menu { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+.lp-mobile-nav button { min-height: 44px; font-size: 15px; }
+.landing-page-root[data-landing-motion='false'] .lp-embers, .landing-page-root[data-landing-motion='false'] .lp-scroll-cue svg,
+.lp-hero[data-motion-offscreen='true'] .lp-embers, .lp-hero[data-motion-offscreen='true'] .lp-scroll-cue svg { animation-play-state: paused; }
+@media (prefers-reduced-motion: no-preference) {
+  .landing-page-root[data-landing-motion='true'] .lp-hero-copy h1 > span { animation: lp-title-arrive 700ms var(--motion-ease-out) both; }
+  .landing-page-root[data-landing-motion='true'] .lp-hero-copy h1 > em { animation: lp-title-arrive 700ms 70ms var(--motion-ease-out) both; }
+  @keyframes lp-title-arrive { from { opacity: .65; transform: translateY(18px); clip-path: inset(0 0 16% 0); } to { opacity: 1; transform: none; clip-path: inset(0); } }
+}
+@media (max-width: 1240px) { .lp-motion-toggle span { display: none; } }
+@media (max-width: 700px) {
+  .lp-hero { min-height: max(700px, 100svh); }
+  .lp-hero-copy { width: calc(100% - 40px); padding: 96px 0 100px; }
+  .lp-hero-copy h1 { font-size: clamp(46px, 12.5vw, 74px); line-height: 1.05; margin: 0 0 24px; }
+  .lp-hero-copy p { width: 100%; font-size: 17px; line-height: 1.6; }
+  .lp-hero-copy > strong { width: 100%; font-size: 15px; line-height: 1.5; margin-top: 20px; }
+  .lp-hero-actions { width: 100%; margin-top: 28px; }
+  .lp-hero-actions button { min-height: 48px; }
+  .lp-mobile-menu { display: inline-flex; }
+  .lp-header .lp-nav-demo { display: none; }
+  .lp-header .lp-brand small { font-size: 9px; letter-spacing: .08em; }
+  .lp-mobile-realm-nav > button { font-size: 13px; border-radius: 12px; }
+  .lp-mobile-realm-nav > div { border-radius: 0 0 12px 12px; }
+  .lp-mobile-realm-nav > div button span { font-size: 14px; }
+  .lp-mobile-realm-nav > div button small { font-size: 12px; color: #c1af8d; }
+}
+@media (prefers-reduced-motion: reduce) { .lp-hero-copy h1 > span, .lp-hero-copy h1 > em { animation: none; } }

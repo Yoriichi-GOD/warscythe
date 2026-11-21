@@ -66,11 +66,11 @@ export default function Dashboard({ onOpenTask }) {
         </div>
       </div>
 
-      <style jsx>{`
-        .dashboard-section { 
-          display: flex; 
-          flex-direction: column; 
-          gap: 1.5rem; 
+      <style>{`
+        .dashboard-section {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
           padding: 2rem;
           background: rgba(0,0,0,0.3);
           height: 100%;
@@ -94,13 +94,13 @@ export default function Dashboard({ onOpenTask }) {
         .text-gold { color: var(--gold-core); }
 
         .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        
-        .premium-stat-card { 
-          padding: 1.25rem; 
-          display: flex; 
-          flex-direction: column; 
-          gap: 1rem; 
-          border-radius: var(--radius-sm); 
+
+        .premium-stat-card {
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          border-radius: var(--radius-sm);
           position: relative;
           overflow: hidden;
         }
@@ -109,19 +109,19 @@ export default function Dashboard({ onOpenTask }) {
         }
         .stat-icon-row { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); align-self: flex-start; z-index: 2; }
         .stat-label { font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; }
-        
+
         .history-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 1rem; }
         .header-with-icon { display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); }
         .history-panel .panel-header { padding: 1.5rem 1.5rem 0.75rem 1.5rem; border-bottom: 1px solid var(--border); }
-        
+
         .intel-list { height: 450px; overflow-y: auto; display: flex; flex-direction: column; }
-        .intel-item { 
-          display: flex; 
-          align-items: center; 
-          gap: 1rem; 
+        .intel-item {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
           padding: 1rem 1.5rem;
           border-bottom: 1px solid var(--border);
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
           cursor: pointer;
         }
         .intel-item:hover { background: rgba(255,255,255,0.02); }
@@ -129,7 +129,7 @@ export default function Dashboard({ onOpenTask }) {
         .intel-content { display: flex; flex-direction: column; gap: 2px; }
         .intel-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
         .intel-meta { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dark); letter-spacing: 0.05em; }
-        
+
         .empty-intel { padding: 3rem 1rem; text-align: center; color: var(--text-dark); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.2em; }
       `}</style>
     </aside>
@@ -148,7 +148,7 @@ function AnimatedCounter({ value }) {
     <div className="counter-wrapper">
       <motion.span className="counter-value">{displayValue}</motion.span>
       <div className="counter-glow" />
-      <style jsx>{`
+      <style>{`
         .counter-wrapper { position: relative; display: flex; justify-content: center; margin-top: 0.5rem; }
         .counter-value { font-family: var(--font-display); font-size: 3rem; font-weight: 900; color: var(--gold-bright); text-shadow: 0 0 20px var(--gold-glow); z-index: 2; }
         .counter-glow { position: absolute; bottom: 0; width: 40px; height: 10px; background: var(--gold-core); filter: blur(15px); opacity: 0.5; }
@@ -180,7 +180,7 @@ function ExecutionRadial({ percentage }) {
         />
       </svg>
       <motion.div className="radial-text">{displayValue}</motion.div>
-      <style jsx>{`
+      <style>{`
         .radial-container { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
         .radial-svg { transform: rotate(-90deg); position: absolute; top: 0; left: 0; }
         .radial-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
@@ -215,7 +215,7 @@ function TypewriterLog({ task, delay, onClick }) {
         <span className="intel-title">{text}<span className="cursor">_</span></span>
         <span className="intel-meta">DECRYPTED {new Date(task.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
-      <style jsx>{`
+      <style>{`
         .cursor { animation: blink 1s step-end infinite; opacity: 0.5; }
         @keyframes blink { 50% { opacity: 0; } }
       `}</style>

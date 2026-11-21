@@ -1,3 +1,5 @@
+import OrnateFrame from './frames/OrnateFrame';
+import { motion as Motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { Activity, ChevronDown, Crosshair, ShieldAlert, X, Zap } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -115,8 +117,9 @@ export default function RitualModal({
   };
 
   return (
-    <div className="ritual-modal-backdrop" onClick={tutorialMode ? undefined : onClose}>
-      <div className="ritual-modal-panel" onClick={event => event.stopPropagation()}>
+    <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="ritual-modal-backdrop" onClick={tutorialMode ? undefined : onClose}>
+      <Motion.div initial={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }} animate={{ opacity: 1, transform: 'translateY(0) scale(1)' }} exit={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }} className="ritual-modal-panel ornate-surface ornate-dialog" onClick={event => event.stopPropagation()}>
+          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
         <header className="ritual-modal-header">
           <div>
             <Crosshair size={16} />
@@ -214,7 +217,7 @@ export default function RitualModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </Motion.div>
+    </Motion.div>
   );
 }

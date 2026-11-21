@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: { watch: { ignored: ['**/output/**', '**/public/generated/**'] } },
   build: {
     // Feature pages are lazy-loaded. The remaining shared runtime is intentionally
     // substantial, but stays below 200 kB over the wire after gzip.
@@ -44,15 +45,15 @@ export default defineConfig({
         theme_color: '#0a090c',
         icons: [
           {
-            src: 'wrath-192.png',
+            src: 'wrath-192.webp',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/webp',
             purpose: "any maskable"
           },
           {
-            src: 'wrath-512.png',
+            src: 'wrath-512.webp',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/webp',
             purpose: "any maskable"
           }
         ]

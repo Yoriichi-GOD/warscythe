@@ -6,11 +6,11 @@ import { getAssetUrl } from '../utils/assetResolver';
 
 const getFoilPath = (rarity) => {
   const foils = {
-    common: getAssetUrl('/scratch/scratch-foil-common.png'),
-    uncommon: getAssetUrl('/scratch/scratch-foil-uncommon.png'),
-    rare: getAssetUrl('/scratch/scratch-foil-rare.png'),
-    epic: getAssetUrl('/scratch/scratch-foil-epic.png'),
-    mythic: getAssetUrl('/scratch/scratch-foil-mythic.png')
+    common: getAssetUrl('/scratch/scratch-foil-common.webp'),
+    uncommon: getAssetUrl('/scratch/scratch-foil-uncommon.webp'),
+    rare: getAssetUrl('/scratch/scratch-foil-rare.webp'),
+    epic: getAssetUrl('/scratch/scratch-foil-epic.webp'),
+    mythic: getAssetUrl('/scratch/scratch-foil-mythic.webp')
   };
   return foils[rarity.toLowerCase()] || foils.common;
 };
@@ -41,11 +41,11 @@ const LEGACY_ARTIFACT_MAP = {
 const getArtifactImage = (name) => {
   // Check legacy map first (for existing users with old save data)
   if (LEGACY_ARTIFACT_MAP[name]) {
-    return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
+    return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.webp`;
   }
   // New names: first word is always the asset type
   const type = (name || '').split(' ')[0].toLowerCase();
-  return `/artifacts/artifact-${type}.png`;
+  return `/artifacts/artifact-${type}.webp`;
 };
 
 
@@ -81,7 +81,7 @@ export default function ScratchCard({ data, onClose }) {
       for(let j=0;j<h;j+=20) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(w,j); ctx.stroke(); }
 
       // Surface text
-      ctx.font = '900 11px var(--font-mono)';
+      ctx.font = 'bold 11px "Times New Roman", Times, serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       
       // Shadow
@@ -161,11 +161,16 @@ export default function ScratchCard({ data, onClose }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="loot-card-modal glass-panel"
       >
-        <div className="loot-corner loot-corner-tl" />
-        <div className="loot-corner loot-corner-tr" />
+        <div className="loot-modal-furniture" aria-hidden="true">
+          <img className="loot-frame-top-corner loot-frame-top-corner--left" src="/frames/ledger/center-artifact.webp" alt="" />
+          <img className="loot-frame-top-corner loot-frame-top-corner--right" src="/frames/ledger/center-artifact.webp" alt="" />
+          <img className="loot-frame-bottom-corner loot-frame-bottom-corner--left" src="/frames/ledger/corner.webp" alt="" />
+          <img className="loot-frame-bottom-corner loot-frame-bottom-corner--right" src="/frames/ledger/corner.webp" alt="" />
+          <img className="loot-frame-dominant" src="/frames/quotation/quotation-divider.webp" alt="" />
+        </div>
         <div className="loot-header">
           <div className="validation-pill">
-            <Sparkles size={12} />
+            <img className="validation-pill-gold-diamond" src="/frames/dividers/gold-diamond.webp" alt="" />
             <span>{isRevealed ? 'ENCRYPTION BROKEN' : 'SEALED RELIQUARY'}</span>
           </div>
           <span className="loot-overline">WARSCYTHE // SPOILS OF EXECUTION</span>
@@ -181,7 +186,7 @@ export default function ScratchCard({ data, onClose }) {
                     <span className="pointer-tag">GUARDIAN</span>
                     <p className="text-[11px] font-serif text-white">Claim it.</p>
                   </div>
-                  <img src="/guardian-observer.png" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
+                  <img src="/guardian-observer.webp" alt="Guardian" className="w-10 h-10 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]" />
                 </div>
              </div>
           </div>
@@ -226,7 +231,7 @@ export default function ScratchCard({ data, onClose }) {
                    transition={{ delay: 0.15 }}
                  >
                     <img 
-                      src={getAssetUrl(`/keys/key-${keyElement}.png`)} 
+                      src={getAssetUrl(`/keys/key-${keyElement}.webp`)}
                       className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]" 
                       alt={`${keyElement} Key`} 
                       style={{ zIndex: 2 }}
@@ -255,7 +260,7 @@ export default function ScratchCard({ data, onClose }) {
 
         {!isRevealed && (
           <button 
-            className="text-[9px] font-mono tracking-widest text-gold-core/60 hover:text-gold-bright uppercase transition-all mb-4 px-3 py-1 border border-gold-core/20 hover:border-gold-core/60 rounded bg-black/40"
+            className="text-[9px] font-mono tracking-widest text-gold-core/60 hover:text-gold-bright uppercase motion-control mb-4 px-3 py-1 border border-gold-core/20 hover:border-gold-core/60 rounded bg-black/40"
             onClick={revealAll}
           >
             [ DECRYPT IMMEDIATELY ]
@@ -284,7 +289,7 @@ export default function ScratchCard({ data, onClose }) {
         </AnimatePresence>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .modal-backdrop {
           position: fixed;
           inset: 0;
@@ -292,8 +297,8 @@ export default function ScratchCard({ data, onClose }) {
           align-items: center;
           justify-content: center;
           z-index: 2000;
-          background: rgba(0, 0, 0, 0.94);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.68);
+          backdrop-filter: blur(5px);
           padding: 1rem;
           overflow-y: auto;
         }
@@ -324,21 +329,21 @@ export default function ScratchCard({ data, onClose }) {
           width: 100%;
           padding: clamp(1.2rem, 3vw, 2.25rem);
           text-align: center;
-          border: 1px solid rgba(236,200,128,.3);
+          border: 0;
           background: linear-gradient(155deg, rgba(13,13,15,.97), rgba(2,2,3,.98));
           box-shadow: 0 35px 100px rgba(0,0,0,.9), 0 0 60px rgba(197,160,89,.1), inset 0 0 50px rgba(255,255,255,.015);
           position: relative;
           margin: auto;
         }
-        .loot-corner {
-          position: absolute;
-          top: 12px;
-          width: 38px;
-          height: 1px;
-          background: linear-gradient(90deg, #ecc880, transparent);
-        }
-        .loot-corner-tl { left: 12px; }
-        .loot-corner-tr { right: 12px; transform: scaleX(-1); }
+        .loot-modal-furniture { position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: visible; }
+        .loot-modal-furniture img { position: absolute; display: block; object-fit: contain; filter: drop-shadow(0 3px 7px rgba(0,0,0,.88)); }
+        .loot-frame-top-corner { top: -31px; width: clamp(76px, 9vw, 108px); height: 76px; }
+        .loot-frame-top-corner--left { left: -36px; transform: rotate(-45deg); }
+        .loot-frame-top-corner--right { right: -36px; transform: rotate(45deg); }
+        .loot-frame-bottom-corner { bottom: -31px; width: clamp(82px, 9.5vw, 116px); aspect-ratio: 2 / 3; }
+        .loot-frame-bottom-corner--left { left: -18px; transform: scaleY(-1); }
+        .loot-frame-bottom-corner--right { right: -18px; transform: scale(-1); }
+        .loot-frame-dominant { top: -42px; left: 50%; width: min(360px, 68%); height: 96px; transform: translateX(-50%); }
         
         .validation-pill {
           display: inline-flex;
@@ -354,6 +359,7 @@ export default function ScratchCard({ data, onClose }) {
           letter-spacing: 0.2em;
           margin-bottom: .65rem;
         }
+        .validation-pill-gold-diamond { width: 15px; height: 15px; object-fit: contain; flex: none; }
 
         .loot-overline {
           display: block;
@@ -389,7 +395,7 @@ export default function ScratchCard({ data, onClose }) {
         .reliquary-frame {
           position: absolute;
           inset: 0;
-          background: url('/reward-screens/scratch-reliquary.png') center/100% 100% no-repeat;
+          background: url('/reward-screens/scratch-reliquary.webp') center/100% 100% no-repeat;
           z-index: 0;
           pointer-events: none;
         }
@@ -422,7 +428,7 @@ export default function ScratchCard({ data, onClose }) {
         .loot-content { 
           position: absolute; top: 16%; left: 16%; width: 68%; height: 63%;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          gap: .75rem; opacity: 0; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          gap: .75rem; opacity: 0; transition: var(--motion-control-transition);
           z-index: 1;
         }
         .loot-content.revealed { opacity: 1; }
@@ -471,12 +477,14 @@ export default function ScratchCard({ data, onClose }) {
           background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(197, 160, 89, 0.05) 100%);
           border: 1px solid var(--gold-core); border-radius: 8px;
           color: var(--gold-bright); font-family: var(--font-mono); font-weight: 900; font-size: 0.85rem; letter-spacing: 0.15em;
-          cursor: pointer; transition: 0.3s;
+          cursor: pointer; transition: var(--motion-control-transition);
           box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
         }
+        @media (hover: hover) and (pointer: fine) {
         .loot-claim-btn:hover {
           background: rgba(197, 160, 89, 0.2); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); transform: translateY(-2px);
         }
+}
 
         .onboarding-scratch-hint {
           color: var(--gold-bright);
@@ -521,6 +529,13 @@ export default function ScratchCard({ data, onClose }) {
         }
 
         @media (max-width: 520px) {
+          .loot-frame-top-corner { top: -23px; width: 70px; height: 62px; }
+          .loot-frame-top-corner--left { left: -23px; }
+          .loot-frame-top-corner--right { right: -23px; }
+          .loot-frame-bottom-corner { bottom: -22px; width: 72px; }
+          .loot-frame-bottom-corner--left { left: -10px; }
+          .loot-frame-bottom-corner--right { right: -10px; }
+          .loot-frame-dominant { top: -31px; width: 64%; height: 76px; }
           .loot-card-modal { padding: 1.15rem .85rem; }
           .loot-overline { font-size: .4rem; }
           .scratch-container { width: min(100%, 360px); }

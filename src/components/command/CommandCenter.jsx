@@ -1,3 +1,4 @@
+import { motion as Motion } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import { Swords, History, Flame, Award, Dumbbell, Info, ChevronDown } from 'lucide-react';
@@ -34,9 +35,9 @@ const LEGACY_ARTIFACT_MAP = {
   'Lantern of the Lost': 'lantern',
 };
 const getArtifactImage = (name) => {
-  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
+  if (LEGACY_ARTIFACT_MAP[name]) return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.webp`;
   const type = (name || '').split(' ')[0].toLowerCase();
-  return `/artifacts/artifact-${type}.png`;
+  return `/artifacts/artifact-${type}.webp`;
 };
 
 
@@ -172,6 +173,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
   const ritualCycleProgress = medalProjection?.totalOpportunities
     ? Math.min(100, (medalProjection.completed / medalProjection.totalOpportunities) * 100)
     : 0;
+  const ascentProgress = isRitualMode ? ritualCycleProgress : streakProgress;
   const canAcquireCurrentTier = streakCount >= currentTier.days && !claimedScythes.includes(currentTier.name);
   const acquireTier = (tier) => {
     const nextClaimed = [...new Set([...claimedScythes, tier.name])];
@@ -185,18 +187,21 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
       {/* 📊 COMMAND CENTER HEADER */}
       <div className="cc-header flex items-center gap-3 mb-2 px-2 shrink-0">
         <Swords size={14} className="text-gold-core" />
-        <h2 className="text-white font-display text-xs tracking-[0.3em] uppercase">Command Center</h2>
+        <h2 className="motion-heading text-white font-display text-xs tracking-[0.3em] uppercase">Command Center</h2>
       </div>
 
       {/* 🎵 SOUNDSCAPE JUKEBOX */}
       <div 
         id="onboarding-soundscape"
-        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-between gap-1 transition-all relative ${
+        className={`cc-soundscape elite-panel p-4 flex flex-col items-center justify-between gap-1 motion-control relative ${
           soundscapeEnabled 
             ? 'border-gold-core/40 bg-gold-core/5 shadow-[0_0_15px_rgba(197,160,89,0.15)]' 
             : 'border-white/5 opacity-55 hover:opacity-100 hover:border-white/10'
         }`}
       >
+        <span className="cc-compact-corner" aria-hidden="true">
+          <img src="/frames/universal/compact.webp" alt="" />
+        </span>
         {onboardingActive && onboardingProgress < 2 && (
           <WidgetLock requiredTasks={2} conceptName="Soundscape" />
         )}
@@ -216,14 +221,14 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           className="flex-1 w-full flex items-center justify-center relative min-h-0 cursor-pointer group"
         >
           <img 
-            src="/soundscape-jukebox.png" 
-            className={`w-[60px] h-[60px] object-contain transition-transform group-hover:scale-105 ${soundscapeEnabled ? 'animate-spin' : ''}`}
+            src="/soundscape-jukebox.webp"
+            className={`w-[84px] h-[84px] object-contain transition-transform group-hover:scale-105 ${soundscapeEnabled ? 'animate-spin' : ''}`}
             style={{ animationDuration: '8s' }}
-            onError={(e) => { e.target.src = '/command-core.png'; }} 
+            onError={(e) => { e.target.src = '/command-core.webp'; }}
             alt="Soundscape Jukebox" 
           />
           {soundscapeEnabled && (
-            <div className="absolute w-[70px] h-[70px] bg-gold-core/10 rounded-full filter blur-md animate-pulse pointer-events-none" />
+            <div className="absolute w-[94px] h-[94px] bg-gold-core/10 rounded-full filter blur-md animate-pulse pointer-events-none" />
           )}
         </div>
         <div className="w-full mt-2 relative z-20">
@@ -271,8 +276,11 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
       {/* 🔮 GUARDIAN OBSERVER */}
       <button 
         onClick={() => window.dispatchEvent(new CustomEvent('triggerProphecy'))}
-        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 transition-all relative"
+        className="cc-guardian elite-panel p-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-white/5 opacity-70 hover:opacity-100 hover:border-gold-core/40 motion-control relative"
       >
+        <span className="cc-compact-corner" aria-hidden="true">
+          <img src="/frames/universal/compact.webp" alt="" />
+        </span>
         {onboardingActive && onboardingProgress < 2 && (
           <WidgetLock requiredTasks={2} conceptName="Guardian Prophecies" />
         )}
@@ -289,9 +297,9 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
         </div>
         <div className="flex-1 w-full flex items-center justify-center relative min-h-0">
           <img 
-            src="/guardian-observer.png" 
-            className="w-[75%] h-[75%] object-contain hover:scale-110 transition-transform"
-            onError={(e) => { e.target.src = '/command-core.png'; }} 
+            src="/guardian-observer.webp"
+            className="cc-guardian-image object-contain hover:scale-110 transition-transform"
+            onError={(e) => { e.target.src = '/command-core.webp'; }}
             alt="Guardian Observer" 
           />
         </div>
@@ -310,13 +318,20 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* 🗡️ ULTIMATE ARTIFACT (Streak-based Evolution) */}
       <div 
-        className={`cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden transition-all bg-[#050505] ${isRitualMode ? '' : 'cursor-pointer hover:border-gold-core/40'}`}
+        className={`cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden motion-control bg-[#050505] ${isRitualMode ? '' : 'cursor-pointer hover:border-gold-core/40'}`}
         onClick={() => {
           if (onboardingActive && onboardingProgress < 4) return;
           if (isRitualMode) return;
           onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500');
         }}
       >
+        <span className="cc-artifact-frame" aria-hidden="true">
+          <img className="cc-artifact-corner cc-artifact-corner--tl" src="/frames/universal/corner.webp" alt="" />
+          <img className="cc-artifact-corner cc-artifact-corner--tr" src="/frames/universal/corner.webp" alt="" />
+          <img className="cc-artifact-corner cc-artifact-corner--bl" src="/frames/universal/corner.webp" alt="" />
+          <img className="cc-artifact-corner cc-artifact-corner--br" src="/frames/universal/corner.webp" alt="" />
+          <img className="cc-artifact-divider" src="/frames/quotation/quotation-divider.webp" alt="" />
+        </span>
         {onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Ultimate Artifact" />
         )}
@@ -324,10 +339,10 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
         <div className="absolute inset-0 z-0 flex items-center justify-center p-4 bg-black/40">
            <img
              src={isRitualMode
-               ? (projectedMedal?.image || '/medals/ritual-medal-bronze.png')
-               : getAssetUrl(`/ultimate/${currentTier.name.toLowerCase()}.png`)}
+               ? (projectedMedal?.image || '/medals/ritual-medal-bronze.webp')
+               : getAssetUrl(`/ultimate/${currentTier.name.toLowerCase()}.webp`)}
              alt={isRitualMode ? `${projectedMedal?.label || 'Unattained'} ritual medal` : currentTier.name}
-             className={`w-[85%] h-[85%] object-contain transition-all duration-300 ${
+             className={`w-[85%] h-[85%] object-contain motion-control duration-300 ${
                isRitualMode && !projectedMedal
                  ? 'opacity-10 grayscale'
                  : 'opacity-70 group-hover:opacity-100'
@@ -342,7 +357,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           <span className="text-[7px] font-mono text-gold-core/60 tracking-[0.3em] uppercase font-bold">
             {isRitualMode ? '31-Day Consistency' : 'Ultimate Artifact'}
           </span>
-          <h4 className="text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">
+          <h4 className="motion-heading text-white font-display text-[12px] tracking-[0.2em] uppercase drop-shadow-md">
             {isRitualMode ? 'Projected Medal' : 'Cosmic Reaper'}
           </h4>
         </div>
@@ -395,11 +410,15 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* STREAK PROGRESS BAR */}
       <div className="cc-streak-ascent elite-panel p-5 flex flex-col gap-4 bg-black/20 relative">
+        <span className="cc-streak-frame" aria-hidden="true">
+          <img className="cc-streak-corner cc-streak-corner--tl" src="/frames/quotation/quotation-corner.webp" alt="" />
+          <img className="cc-streak-corner cc-streak-corner--br" src="/frames/quotation/quotation-corner.webp" alt="" />
+        </span>
         {onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Streak Ascent" />
         )}
          <div className="flex justify-between items-center">
-            <span className="text-[8px] font-mono text-gray-300 uppercase tracking-widest">
+            <span className="cc-streak-ascent__label text-gray-300 uppercase tracking-widest">
               {isRitualMode ? 'Ritual Ascent' : 'Streak Ascent'}
             </span>
             <span className="text-[8px] font-mono text-gold-core uppercase font-bold">
@@ -414,11 +433,12 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
            </p>
          )}
          
-         <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <div 
-              className="h-full bg-gradient-to-r from-gold-core/50 to-gold-bright shadow-[0_0_15px_rgba(197,160,89,0.4)] transition-all duration-1000"
-              style={{ width: `${isRitualMode ? ritualCycleProgress : streakProgress}%` }}
-            />
+         <div className="cc-forged-progress" style={{ '--ascent-progress': `${ascentProgress}%` }}>
+            <img className="cc-forged-progress__combined" src="/frames/progress/progress-long-combined.webp" alt="" aria-hidden="true" />
+            <div className="cc-forged-progress__energy" aria-hidden="true">
+              <img src="/frames/progress/long-fill.webp" alt="" />
+            </div>
+            {ascentProgress > 0 && <div className="cc-forged-progress__cap-track" aria-hidden="true"><Motion.div className="cc-forged-progress__cap-position" initial={false} animate={{ transform: `translateX(${ascentProgress}%)` }} transition={{ duration: .24, ease: [0.23, 1, 0.32, 1] }}><img className="cc-forged-progress__cap" src="/frames/progress/progress-small-cap.webp" alt="" /></Motion.div></div>}
          </div>
 
          <div className="flex justify-between items-center px-1">
@@ -438,7 +458,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
                       onPreviewUltimate && onPreviewUltimate(tier.name, 'ultimate', (100 + (idx * 50)).toString());
                     }
                   }}
-                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                  className={`w-1.5 h-1.5 rounded-full motion-control ${
                     isUnlocked ? 'bg-gold-core scale-125 shadow-[0_0_8px_#c5a059]' : 'bg-white/10 hover:bg-white/20'
                   } hover:scale-150`}
                   title={isRitualMode ? `${tier.name} ${Math.round(tier.days)}%` : tier.name}
@@ -450,13 +470,19 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* 🏆 ARSENAL (Trophy Wall) */}
       <div className="cc-arsenal elite-panel p-5 flex flex-col shrink-0 bg-black/20 relative">
+        <span className="cc-arsenal-frame" aria-hidden="true">
+          <img className="cc-arsenal-corner cc-arsenal-corner--tl cc-arsenal-corner--hercules" src="/frames/divine/hercules/corner.webp" alt="" />
+          <img className="cc-arsenal-corner cc-arsenal-corner--tr cc-arsenal-corner--button" src="/frames/buttons/button-corner.webp" alt="" />
+          <img className="cc-arsenal-corner cc-arsenal-corner--bl cc-arsenal-corner--button" src="/frames/buttons/button-corner.webp" alt="" />
+          <img className="cc-arsenal-corner cc-arsenal-corner--br cc-arsenal-corner--hercules" src="/frames/divine/hercules/corner.webp" alt="" />
+        </span>
         {onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Trophy Arsenal" />
         )}
          <div className="flex justify-between items-center mb-4">
             <div className="flex flex-col gap-1">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Arsenal</span>
-              <h4 className="text-white font-display text-[10px] tracking-[0.3em] uppercase">Battle Trophies</h4>
+              <h4 className="motion-heading text-white font-display text-[10px] tracking-[0.3em] uppercase">Battle Trophies</h4>
             </div>
             <Award size={14} className="text-gold-core/30" />
          </div>
@@ -469,7 +495,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
                 const rarityLower = (artifact.rarity || 'common').toLowerCase();
                 return (
                   <div key={i} className="group relative shrink-0">
-                     <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 transition-all cursor-pointer p-1">
+                     <div className="w-12 h-12 rounded border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden hover:border-gold-core/40 motion-control cursor-pointer p-1">
                        <img 
                          src={getArtifactImage(artifact.name)} 
                          className={`w-full h-full object-contain art-img-filter ${rarityLower}`} 
@@ -477,7 +503,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
                        />
                      </div>
                      {/* Hover Tooltip */}
-                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 rounded">
+                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-[#0a0a0e] border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none motion-control z-50 rounded">
                        <span className={`text-[8px] font-mono tracking-widest uppercase font-bold mb-1 block ${
                           rarityLower === 'mythic' ? 'text-red-500' :
                           rarityLower === 'epic' ? 'text-red-400' :
@@ -514,7 +540,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
          {collectedArtifacts.length > 0 && (
            <button 
              onClick={() => window.dispatchEvent(new CustomEvent('navToLedgerVault'))}
-             className="w-full mt-3 py-2 border border-white/5 rounded flex items-center justify-center hover:bg-white/5 hover:border-white/10 transition-all group"
+             className="w-full mt-3 py-2 border border-white/5 rounded flex items-center justify-center hover:bg-white/5 hover:border-white/10 motion-control group"
            >
              <span className="text-[8px] font-mono text-gray-500 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
            </button>
@@ -523,6 +549,9 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* 🔢 DAILY COMPLETIONS */}
       <div className="cc-daily-completions elite-panel p-4 flex flex-col items-center justify-center gap-2 bg-black/20">
+        <span className="cc-compact-corner" aria-hidden="true">
+          <img src="/frames/universal/compact.webp" alt="" />
+        </span>
         <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase">
           {isRitualMode ? 'Rituals Today' : 'Daily Completions'}
         </span>
@@ -536,6 +565,9 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* 🔢 EXECUTION RATIO */}
       <div className="cc-execution-ratio elite-panel p-4 flex flex-col items-center justify-center gap-1 text-center bg-black/20">
+         <span className="cc-compact-corner" aria-hidden="true">
+           <img src="/frames/universal/compact.webp" alt="" />
+         </span>
          <span className="text-[8px] font-mono text-gray-300 tracking-[0.3em] uppercase block">
            {isRitualMode ? 'Ritual' : 'Execution'}
          </span>
@@ -551,10 +583,20 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
 
       {/* 📜 RECENT INTEL */}
       <div className="cc-completion-log elite-panel p-5 flex flex-col h-[450px] shrink-0">
+         <span className="cc-completion-frame" aria-hidden="true">
+           <img className="cc-completion-corner cc-completion-corner--tl cc-completion-corner--ledger" src="/frames/ledger/corner-artifact.webp" alt="" />
+           <img className="cc-completion-corner cc-completion-corner--tr cc-completion-corner--universal" src="/frames/universal/corner.webp" alt="" />
+           <img className="cc-completion-corner cc-completion-corner--bl cc-completion-corner--universal" src="/frames/universal/corner.webp" alt="" />
+           <img className="cc-completion-corner cc-completion-corner--br cc-completion-corner--ledger" src="/frames/ledger/corner-artifact.webp" alt="" />
+           <span className="cc-completion-crown">
+             <img className="cc-completion-crown__line" src="/frames/dividers/gold-diamond-line.webp" alt="" />
+             <img className="cc-completion-crown__gem" src="/frames/dividers/gold-diamond.webp" alt="" />
+           </span>
+         </span>
          <div className="flex justify-between items-center mb-4">
             <div className="flex flex-col gap-1">
               <span className="text-[8px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">Recent Intel</span>
-              <h4 className="text-white font-display text-[10px] tracking-[0.3em] uppercase">Completion Log</h4>
+              <h4 className="motion-heading text-white font-display text-[10px] tracking-[0.3em] uppercase">Completion Log</h4>
             </div>
             <History size={14} className="text-gold-core/30" />
          </div>
@@ -594,7 +636,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           kind="scythe"
           name={ceremonyTier.name}
           days={ceremonyTier.days}
-          image={`/ultimate/${ceremonyTier.name.toLowerCase()}.png`}
+          image={`/ultimate/${ceremonyTier.name.toLowerCase()}.webp`}
           onClose={() => setCeremonyTier(null)}
           onAcquire={() => acquireTier(ceremonyTier)}
         />
@@ -604,7 +646,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
         <div className="fixed inset-0 z-[6400] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4">
           <div className="w-full max-w-lg border border-gold-core/40 bg-zinc-950 p-7 text-center shadow-[0_0_60px_rgba(197,160,89,.2)]">
             <span className="font-mono text-[8px] tracking-[.3em] text-gold-core uppercase">Task IV // Twin Systems Unsealed</span>
-            <h2 className="mt-3 font-display text-2xl text-white tracking-[.15em] uppercase">Artifact and Ascent</h2>
+            <h2 className="motion-heading mt-3 font-display text-2xl text-white tracking-[.15em] uppercase">Artifact and Ascent</h2>
             <p className="mt-5 font-serif italic text-sm leading-relaxed text-stone-300">
               The Ultimate Artifact shows the streak Scythe your discipline has earned. Streak Ascent measures the next vow-bound threshold. When a milestone is reached, return to the glowing Acquire seal and claim the weapon through its prophecy.
             </p>

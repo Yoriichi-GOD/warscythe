@@ -1,3 +1,4 @@
+import { getScrollBehavior } from '../../motion/useMotionEnvironment';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
@@ -27,7 +28,7 @@ export default function WarTerminal({ isOpen, onClose }) {
 
   // Scroll to bottom of history
   useEffect(() => {
-    historyEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    historyEndRef.current?.scrollIntoView({ behavior: getScrollBehavior() });
   }, [history]);
 
   // Core Commands
@@ -442,7 +443,7 @@ export default function WarTerminal({ isOpen, onClose }) {
             </div>
           </motion.div>
 
-          <style jsx>{`
+          <style>{`
             .terminal-backdrop {
               position: fixed;
               inset: 0;
@@ -511,7 +512,7 @@ export default function WarTerminal({ isOpen, onClose }) {
               align-items: center;
               justify-content: space-between;
               cursor: pointer;
-              transition: 0.1s;
+              transition: var(--motion-control-transition);
             }
 
             .autocomplete-row:hover, .autocomplete-row.active {
@@ -552,13 +553,16 @@ export default function WarTerminal({ isOpen, onClose }) {
               cursor: pointer;
               padding: 4px;
               opacity: 0.7;
-              transition: 0.2s;
+              transition: var(--motion-control-transition);
             }
+
+            @media (hover: hover) and (pointer: fine) {
 
             .terminal-enter-btn:hover {
               opacity: 1;
               transform: scale(1.1);
             }
+}
           `}</style>
         </div>
       )}

@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -43,8 +44,9 @@ export default function UsernameSetup() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="setup-modal glass-panel"
+        className="setup-modal glass-panel ornate-surface ornate-dialog"
       >
+          <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
         <div className="setup-header">
           <Fingerprint size={36} className="setup-icon" />
           <h2>IDENTITY DEPLOYMENT</h2>
@@ -95,7 +97,7 @@ export default function UsernameSetup() {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .setup-backdrop { 
           position: fixed;
           inset: 0;
@@ -187,7 +189,7 @@ export default function UsernameSetup() {
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.8rem;
           border-radius: 4px;
-          transition: 0.25s;
+          transition: var(--motion-control-transition);
           letter-spacing: 0.05em;
         }
         .setup-input-group input::placeholder { 
@@ -225,14 +227,16 @@ export default function UsernameSetup() {
           border-radius: 4px;
           cursor: pointer;
           box-shadow: 0 0 25px rgba(197,160,89,0.25);
-          transition: 0.25s;
+          transition: var(--motion-control-transition);
           text-transform: uppercase;
         }
+        @media (hover: hover) and (pointer: fine) {
         .setup-submit-btn:hover { 
           transform: translateY(-1px); 
           background: #e8d0a0;
           box-shadow: 0 0 35px rgba(197,160,89,0.45); 
         }
+}
         .setup-submit-btn:disabled { 
           opacity: 0.35; 
           cursor: not-allowed; 

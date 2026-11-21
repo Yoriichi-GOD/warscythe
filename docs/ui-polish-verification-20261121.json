@@ -1,0 +1,738 @@
+{
+  "date": "2026-11-21",
+  "localOnly": true,
+  "commit": false,
+  "preview": "http://127.0.0.1:5176/",
+  "sourceFiles": 54,
+  "changed": [
+    {
+      "file": "src/App.jsx",
+      "status": "modified",
+      "sha256": "fe850c521ac582e2339bb7ac32d771285089c2a5b00c3b3a1e0049d08b23d0f6"
+    },
+    {
+      "file": "src/components/AssetDownloaderModal.jsx",
+      "status": "modified",
+      "sha256": "1ae340a78edcd1dee2a24668642081221ba6d6ebd7d080f1fa21d0a71749bae1"
+    },
+    {
+      "file": "src/components/AuthModal.jsx",
+      "status": "modified",
+      "sha256": "30bbf5b705716b40ed564e18ab062a0a8556c82390c13def6c0d532cd55bbe4a"
+    },
+    {
+      "file": "src/components/BossFlashScreen.jsx",
+      "status": "modified",
+      "sha256": "a95a43e809dfec38d7eeb0585759c1afb371a4a6628d933fbdb354afa3cae713"
+    },
+    {
+      "file": "src/components/command/WarTerminal.jsx",
+      "status": "modified",
+      "sha256": "04d0ebd7ef2c9133feae9f68a0c95449b6c4b6c83c2d3e7a3481cba48f7fa528"
+    },
+    {
+      "file": "src/components/Dashboard.jsx",
+      "status": "modified",
+      "sha256": "ef37d015ecfe678bbe5786b1775d50ebbcbb86220375c244f6ef4c8f8ef2729a"
+    },
+    {
+      "file": "src/components/FocusOverlay.jsx",
+      "status": "modified",
+      "sha256": "e14653de8ccc4b3f76c5b9ec8d2e502a1d980723f72016fe399bc94b24b36fe4"
+    },
+    {
+      "file": "src/components/frames/frameAssets.json",
+      "status": "added",
+      "sha256": "6ce4470015924098b8ff09075bb493893770a553a6d5159b09c081228902709c"
+    },
+    {
+      "file": "src/components/frames/OrnateFrame.jsx",
+      "status": "added",
+      "sha256": "f536fca6c244139d7e607aa0abf71499cd6db147eb41d40613e44e01e8daa0fd"
+    },
+    {
+      "file": "src/components/frames/ornateFrames.css",
+      "status": "added",
+      "sha256": "3db9442c4e56a50aae4fdff4cb10b722e2eb756d3f0eb781a586ab68dd40a929"
+    },
+    {
+      "file": "src/components/GuardianOverlay.jsx",
+      "status": "modified",
+      "sha256": "a56415b54aae6e03464259b4f14476e468dbf86b450897a73af4b3c7aaa16987"
+    },
+    {
+      "file": "src/components/GymLogBook.jsx",
+      "status": "modified",
+      "sha256": "6409b0425fd7a00676663a63b5d51d9e82295c721d3971ba9d11924d44eed564"
+    },
+    {
+      "file": "src/components/Header.jsx",
+      "status": "modified",
+      "sha256": "53623378ccd229608ac45bbb8c378dbec17e41aa73ea7eea524ba0f92c47e5f2"
+    },
+    {
+      "file": "src/components/InfoModal.jsx",
+      "status": "modified",
+      "sha256": "46205969fe1b09d72c5909b5a64b675c825dfb0ede6c0f550e58addb26044f0f"
+    },
+    {
+      "file": "src/components/kingdomChronicle.css",
+      "status": "added",
+      "sha256": "edfed688fcc2bcf1662631d03413180772c842d1d94f43c24fcc280f7d2ab78d"
+    },
+    {
+      "file": "src/components/KingdomChronicle.jsx",
+      "status": "added",
+      "sha256": "daf46efbd622b271d07d88ec4e36687c8ce53ed96491dd183c944f87cc93bc65"
+    },
+    {
+      "file": "src/components/layout/DashboardLayout.jsx",
+      "status": "modified",
+      "sha256": "173c5ecfbf6a0c1bf09e1716298a72029948ae25a9c67d9706d33c0776656e46"
+    },
+    {
+      "file": "src/components/LegionOperationDetail.jsx",
+      "status": "modified",
+      "sha256": "8fffc4aa252a2a16df62691e80e319ee22ca12d4337034e47308aaa24d18c48f"
+    },
+    {
+      "file": "src/components/LevelUpModal.jsx",
+      "status": "modified",
+      "sha256": "a3672fdd5e599db6bbaa917bb49795d54c1699cabb9202bd7bc51206a49c6a0d"
+    },
+    {
+      "file": "src/components/LoreModal.jsx",
+      "status": "modified",
+      "sha256": "e4fd2348461b14a0aa5a6bb89c5f44197f1cd2b3cb196d89925ebdbd0098268d"
+    },
+    {
+      "file": "src/components/MapModal.jsx",
+      "status": "modified",
+      "sha256": "212b4b6bb1e1586b310ab0e6bdc9c895d7689ba27ba84e5f5c0e5ef14af2e477"
+    },
+    {
+      "file": "src/components/MapSection.jsx",
+      "status": "modified",
+      "sha256": "87c068ae2d528fb9d5aa2a857b3cd929172c3a929807b8b1704aed206b305682"
+    },
+    {
+      "file": "src/components/mobileDisplay.css",
+      "status": "added",
+      "sha256": "700080336cadcbbd736da7e89231f07b7a881e61d0ccbedd3f3223c07a013b82"
+    },
+    {
+      "file": "src/components/MobileDisplay.jsx",
+      "status": "added",
+      "sha256": "03430265d9ade90bcc9542972415b8741f1a31875f9697c6625cf19d210b4c2f"
+    },
+    {
+      "file": "src/components/PremiumModal.jsx",
+      "status": "modified",
+      "sha256": "75057ba6918a68c0943273021a157a3cf86c526e586fd96ae308884b993e162b"
+    },
+    {
+      "file": "src/components/RealmTransferScreen.jsx",
+      "status": "modified",
+      "sha256": "5791884e560a48b53441938f8462ef189d1558ac72da49bae0f7d659bf3da0a6"
+    },
+    {
+      "file": "src/components/RegionFlashScreen.jsx",
+      "status": "modified",
+      "sha256": "9fa5316b927aabd1a67a713736096cddcf002967d3b41a94f49a2d2c65fd3706"
+    },
+    {
+      "file": "src/components/RitualDetail.jsx",
+      "status": "modified",
+      "sha256": "bb39607c38feb60553d10c31615467e99752b307056a1a1d3f32ea09152e5f48"
+    },
+    {
+      "file": "src/components/RitualModal.jsx",
+      "status": "modified",
+      "sha256": "02d662f540245a11e5141336a61ed3774a4cd1244c80fe01882f56ef54c546cd"
+    },
+    {
+      "file": "src/components/RoadmapModal.jsx",
+      "status": "modified",
+      "sha256": "871612bdfb3312711c68be4c70ed03fe411bfac26dff6a9af07a5f6be233ae27"
+    },
+    {
+      "file": "src/components/ScratchCard.jsx",
+      "status": "modified",
+      "sha256": "21500298887be57d9aa4c23b3b95433ff6ddaddded5277339e2359b19fa389ab"
+    },
+    {
+      "file": "src/components/scythe/ScytheDisplay.jsx",
+      "status": "modified",
+      "sha256": "64f521e1b9164cae3cb0a910acc0e8c680ba9d0d56f1526047ae19a1225473b0"
+    },
+    {
+      "file": "src/components/ScytheCenter.jsx",
+      "status": "modified",
+      "sha256": "b3cc2788fe1c2d093e5e6e94b4c281459754cbcff2e403588ac5374620132370"
+    },
+    {
+      "file": "src/components/ShopModal.jsx",
+      "status": "modified",
+      "sha256": "452c593c568450c7f788678df8d031d8a6218ae7b3c4e8feb47c5ed5f50536e5"
+    },
+    {
+      "file": "src/components/SigilRitual.jsx",
+      "status": "modified",
+      "sha256": "d26a2a0ef5b385a1ac3d7c96e281be8a1d89ea11cba193725a6d7b5f6a88f52f"
+    },
+    {
+      "file": "src/components/StreakScrollModal.jsx",
+      "status": "modified",
+      "sha256": "7a47ddaba21ec053935254b2d55d7b70600fe4079a8b1ec82ef52671ff307ab3"
+    },
+    {
+      "file": "src/components/TabTutorialOverlay.jsx",
+      "status": "modified",
+      "sha256": "ee9d8f6caa031abd0038015318d5e15ef7349f8de6a470e4ae87f6b3fa99127f"
+    },
+    {
+      "file": "src/components/TaskModal.jsx",
+      "status": "modified",
+      "sha256": "dbacb3b7753fecc2f98396d47c485d2a11b174407b81a159e9e48c1c77b41235"
+    },
+    {
+      "file": "src/components/TitleUnlockFlash.jsx",
+      "status": "modified",
+      "sha256": "922997ec784a21e4d57873e5e7048b8d4f4b94cbf76501ff72a2e31bade3b770"
+    },
+    {
+      "file": "src/components/UnlockCeremonyModal.jsx",
+      "status": "modified",
+      "sha256": "a9224eb6b082d3800c60863447a24fb78abbd64edbe511f6fc6774401d81997c"
+    },
+    {
+      "file": "src/components/useMobileDisplay.js",
+      "status": "added",
+      "sha256": "26663be18c820d5a750f3e127190d7bbf26cda6dad95243cf0e873e5e2e5f597"
+    },
+    {
+      "file": "src/components/UsernameSetup.jsx",
+      "status": "modified",
+      "sha256": "9c98b9e4c5899db664f8713e118e4d6264a563d60e90c8e06e4c4419979ebd36"
+    },
+    {
+      "file": "src/components/VaultModal.jsx",
+      "status": "modified",
+      "sha256": "b717a36e1d8cab16575f46f14ae9d7d59789f9226553b0965c841cd097cfd7fe"
+    },
+    {
+      "file": "src/components/VideoGuideModal.jsx",
+      "status": "modified",
+      "sha256": "9b288455c374796f839bf98e5f783dda0f59c5ccbfa353ca8c4fe7ca0b9072fe"
+    },
+    {
+      "file": "src/components/workoutSession.css",
+      "status": "added",
+      "sha256": "c92a2eb690571d7cad1a92fa0d326b1b07bccb28dee4cb986c6b884cc0e595ea"
+    },
+    {
+      "file": "src/components/WorkoutSession.jsx",
+      "status": "added",
+      "sha256": "d81c76be109e0b55124305e69f1f826c6f8d3505b44391ccd2e02f813ea5f07a"
+    },
+    {
+      "file": "src/data/kingdomChapters.js",
+      "status": "added",
+      "sha256": "cb8b4b294a5d9dba90e77a33c5f5149b9cac8910c0eee380b82d34668258afb9"
+    },
+    {
+      "file": "src/pages/Fitness.jsx",
+      "status": "modified",
+      "sha256": "fcec9c7397754ecc9db656cf127cdf49ffa073cbc81f6304fb91c040da8d6e01"
+    },
+    {
+      "file": "src/pages/Ledger.jsx",
+      "status": "modified",
+      "sha256": "ca1563494b6b4b37db0da1ed30eee9dfd07aaf35e481b12e38fee88080e87105"
+    },
+    {
+      "file": "src/pages/Operations.jsx",
+      "status": "modified",
+      "sha256": "6173104538ae01215da1b4297c6acf0e8096e27020868e4f98f437fa33965a02"
+    },
+    {
+      "file": "src/pages/Rituals.jsx",
+      "status": "modified",
+      "sha256": "cfa1572da286d6086a6a60851f56604f890136f34e801198a0c9272b91c34630"
+    },
+    {
+      "file": "src/pages/Social.jsx",
+      "status": "modified",
+      "sha256": "cb1d681ecebb3cbe589354aa0b62aa5489aab989dcd681d22b1859ca0f3c09e9"
+    },
+    {
+      "file": "src/store/workoutUi.js",
+      "status": "added",
+      "sha256": "cc1f8f5da927aff0036e1799c8ea005e4f46ae9cd46ade143541dc46d3f9b3a5"
+    },
+    {
+      "file": "src/utils/revealUiTarget.js",
+      "status": "added",
+      "sha256": "6708499019e67668656945f94f88f8cc81d9f40495470a9ae84449bb75a87d14"
+    }
+  ],
+  "protectedAffinity": [
+    {
+      "file": "src/features/fitness-v2/DeityTitleCard.jsx",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/dev/FitnessV2Harness.jsx",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/domain/deityRoster.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/domain/rewardEngine.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/domain/rewardEngine.test.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/domain/workoutEvidence.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/domain/workoutNormalization.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/featureGate.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/fitnessOlympusExperience.css",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/FitnessOlympusExperience.jsx",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/olympus/FitnessOlympusPreview.jsx",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/olympus/fitnessOlympusV2.css",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/olympus/OlympusHallModal.jsx",
+      "unchanged": true
+    },
+    {
+      "file": "src/features/fitness-v2/olympus/OlympusRewardModal.jsx",
+      "unchanged": true
+    }
+  ],
+  "frameAssets": [
+    {
+      "file": "public/frames/buttons/button-center.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/buttons/button-corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/buttons/button-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/buttons/button-terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/circular/blessing-complete.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/circular/blessing-incomplete.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/closure/closure-dominant.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/closure/closure-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/closure/closure-terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/gold-diamond-line.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/gold-diamond-terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/gold-diamond.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/sapphire-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/sapphire-line.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/dividers/sapphire-terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/apollo/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/apollo/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/apollo/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/apollo/top-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/apollo/top-ornament.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/ares/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/ares/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/ares/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/ares/top-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/ares/top-ornament.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hercules/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hercules/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hercules/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hercules/top-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hercules/top-ornament.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hermes/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hermes/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hermes/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hermes/top-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/hermes/top-ornament.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/zeus/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/zeus/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/zeus/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/zeus/top-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/divine/zeus/top-ornament.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/center-artifact.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/center.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/corner-artifact.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/rail-artifact.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/terminal-artifact.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/ledger/terminal.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-01.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-02.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-03.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-04.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-05.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-06.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-07.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-08.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-09.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/legion/avatar-frames/legion-frame-10.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/long-fill.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-cap.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-combined.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-end.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-fill.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-large-start.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-long-combined.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-cap.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-combined.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-end.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-fill.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/progress-small-start.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/rose-pro-left.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/rose-pro-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/rose-pro-right.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/progress/rose-pro.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/quotation/quotation-corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/quotation/quotation-divider.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/quotation/quotation-mark.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/quotation/quotation-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/bottom-center.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/bottom-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/side-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/top-center.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/screen/top-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/special/ritual-rail-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/special/scythe-rail-gem.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/special/scythe-rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/center.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/compact.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/corner.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/junction.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/rail.webp",
+      "unchanged": true
+    },
+    {
+      "file": "public/frames/universal/terminal.webp",
+      "unchanged": true
+    }
+  ],
+  "businessStoreUnchanged": true,
+  "checks": {
+    "responsive": 115,
+    "workout": 24,
+    "recovery": 46,
+    "review": 12,
+    "interaction": 24,
+    "fullPhoneCampaign": 10,
+    "fitnessPractice": 12,
+    "rewardDomain": 8,
+    "timerUnit": 3,
+    "chronicle": 18
+  },
+  "lint": {
+    "baseline": 161,
+    "current": 160,
+    "added": []
+  },
+  "failures": []
+}

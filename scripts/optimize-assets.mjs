@@ -7,6 +7,7 @@ const outputRoot = path.join(root, 'public', 'generated');
 const sources = [
   { root: path.join(root, 'public', 'scythe'), route: 'scythe' },
   { root: path.join(root, 'assets-cdn-backup', 'scythe'), route: 'scythe' },
+  { root: path.join(root, 'public', 'landing-page'), route: 'landing-page' },
 ];
 const widths = [320, 640, 1280];
 
@@ -28,10 +29,12 @@ await fs.rm(outputRoot, { recursive: true, force: true });
 let generated = 0;
 for (const source of sources) {
   for (const file of await walk(source.root)) {
-    if (!/\.(png|jpe?g)$/i.test(file)) continue;
+    if (!/\.(png|jpe?g|webp)$/i.test(file)) continue;
     const relative = path.relative(source.root, file);
     const parsed = path.parse(relative);
-    for (const width of widths) {
+    const metadata = await sharp(file).metadata();
+    const candidates = source.route === 'landing-page' ? [480, 940, 1440].filter(width => width < metadata.width) : widths;
+    for (const width of candidates) {
       const output = path.join(outputRoot, source.route, parsed.dir, `${parsed.name}-${width}.webp`);
       await fs.mkdir(path.dirname(output), { recursive: true });
       await sharp(file)
@@ -43,4 +46,9 @@ for (const source of sources) {
   }
 }
 
+await fs.mkdir(path.join(outputRoot, 'ui'), { recursive: true });
+for (const width of [96, 192]) {
+  await sharp(path.join(root, 'public', 'command-core.webp')).resize({ width, height: width, fit: 'inside' }).webp({ quality: 85, alphaQuality: 90 }).toFile(path.join(outputRoot, 'ui', 'command-core-' + width + '.webp'));
+  generated += 1;
+}
 console.log(`Generated ${generated} responsive WebP assets.`);

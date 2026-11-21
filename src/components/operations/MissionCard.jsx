@@ -47,7 +47,7 @@ export default function MissionCard({ task, onOpen }) {
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
-      className="relative group cursor-pointer rounded-xl border border-gold-core/10 bg-white/[0.02] hover:bg-white/[0.05] transition-all overflow-hidden"
+      className="relative group cursor-pointer rounded-xl border border-gold-core/10 bg-white/[0.02] hover:bg-white/[0.05] motion-control overflow-hidden"
       onClick={() => onOpen(task.id)}
     >
       <div className="flex items-center gap-4 p-4">
@@ -100,8 +100,9 @@ export default function MissionCard({ task, onOpen }) {
           <div className="hidden md:flex items-center gap-2 mt-0.5">
             <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
               <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
+                initial={false}
+                animate={{ transform: `scaleX(${Math.max(0, Math.min(1, progress / 100))})` }}
+                style={{ width: '100%', transformOrigin: 'left' }}
                 className="h-full bg-gradient-to-r from-gold-core/40 to-gold-bright"
               />
             </div>

@@ -21,6 +21,27 @@ const TEST_THEMES = [
   ['shiva', 'Kailash Ascension'],
   ['lava', 'Lava Citadel'],
 ];
+const FITNESS_SCENES = [
+  ['Main Hall', 'main'],
+  ['War Ledger', 'warLedger'],
+  ['Ambrosia', 'ambrosia'],
+  ['Nectar', 'nectar'],
+  ['Olympus Hall', 'hall'],
+  ['Deity Chamber', 'chamber'],
+  ['Olympus Gates', 'gates'],
+  ['Iron Report', 'report'],
+  ['Affinity Reward', 'affinity'],
+  ['Fragment Reward', 'reward'],
+  ['Blessing Ceremony', 'ceremony'],
+  ['Deity Ascension', 'ascension'],
+];
+const FITNESS_TEST_DEITIES = [
+  ['hermes', 'messengers-cloak'],
+  ['apollo', 'laurel-crown'],
+  ['ares', 'spartan-helm'],
+  ['hercules', 'nemean-lion-pelt'],
+  ['zeus', 'eagle-crest'],
+];
 const TEST_USER = {
   id: '00000000-0000-4000-8000-000000000001',
   email: 'test-realm@warscythe.local',
@@ -31,6 +52,7 @@ const TEST_USER = {
 const BASE_STATE = {
   tasks: [],
   rituals: [],
+  ritualCompletionEvents: [],
   completedTasks: [],
   abandonedTasks: [],
   executionScore: 0,
@@ -93,6 +115,65 @@ const BASE_STATE = {
 
 const SNAPSHOT_FIELDS = Object.keys(BASE_STATE).filter(key => key !== 'user');
 
+const createVeteranGymLog = () => [
+  ['SBD POWERLIFTING DAY', '2026-07-31T18:30:00.000Z', [['Competition Squat', 155, 5, 8], ['Competition Bench Press', 102.5, 5, 8.5], ['Conventional Deadlift', 190, 3, 8.5]]],
+  ['UPPER PUSH // BENCH FOCUS', '2026-07-28T17:45:00.000Z', [['Competition Bench Press', 100, 5, 8], ['Overhead Press', 62.5, 6, 8], ['Weighted Dip', 30, 8, 9]]],
+  ['LOWER // SQUAT VOLUME', '2026-07-25T18:10:00.000Z', [['Low Bar Squat', 135, 6, 8], ['Paused Squat', 110, 5, 8], ['Romanian Deadlift', 120, 8, 8.5]]],
+  ['DEADLIFT & PULL DAY', '2026-07-22T18:20:00.000Z', [['Conventional Deadlift', 180, 4, 8], ['Barbell Row', 90, 8, 8], ['Weighted Pull-Up', 20, 6, 9]]],
+  ['UPPER PUSH // BENCH FOCUS', '2026-07-18T17:50:00.000Z', [['Competition Bench Press', 97.5, 5, 8], ['Overhead Press', 60, 6, 8], ['Weighted Dip', 25, 8, 8.5]]],
+].map(([split, date, movements], workoutIndex) => ({
+  id: `test-fitness-${workoutIndex}`,
+  split,
+  date,
+  notes: 'Founder training block // competition preparation',
+  movements: movements.map(([name, weight, reps, rpe], movementIndex) => ({
+    id: `test-fitness-${workoutIndex}-${movementIndex}`,
+    name,
+    sets: [0, 1, 2].map(setIndex => ({
+      id: `test-fitness-${workoutIndex}-${movementIndex}-${setIndex}`,
+      type: 'working',
+      weight,
+      reps,
+      rpe,
+      completed: true,
+    })),
+  })),
+}));
+
+const createTestRitualMedals = () => {
+  const cycleStart = new Date('2026-07-01T09:00:00.000Z');
+  const definitions = [
+    ['test-ritual-bronze', 'IRON MORNING RITE', 16],
+    ['test-ritual-silver', 'SILENT FOCUS VOW', 23],
+    ['test-ritual-gold', 'SOVEREIGN DISCIPLINE', 29],
+  ];
+  const rituals = definitions.map(([id, title]) => ({
+    id,
+    ritualUuid: id,
+    title,
+    frequency: 'daily',
+    createdAt: cycleStart.toISOString(),
+    active: false,
+  }));
+  const ritualCompletionEvents = definitions.flatMap(([id, title, count]) => (
+    Array.from({ length: count }, (_, dayIndex) => {
+      const occurredAt = new Date(cycleStart);
+      occurredAt.setUTCDate(cycleStart.getUTCDate() + dayIndex);
+      return {
+        id: `${id}-completion-${dayIndex + 1}`,
+        ritualId: id,
+        ritualUuid: id,
+        ritualTitle: title,
+        ritualCreatedAt: cycleStart.toISOString(),
+        frequency: 'daily',
+        date: occurredAt.toISOString(),
+        occurredAt: occurredAt.toISOString(),
+      };
+    })
+  ));
+  return { rituals, ritualCompletionEvents };
+};
+
 const scenarioState = (scenario) => {
   if (scenario === 'fresh') return { ...BASE_STATE };
   if (scenario === 'rituals') return {
@@ -129,6 +210,7 @@ const scenarioState = (scenario) => {
   };
   if (scenario === 'veteran') return {
     ...BASE_STATE,
+    ...createTestRitualMedals(),
     onboardingProgress: 10,
     onboardingActive: false,
     tutorialStep: 'completed',
@@ -139,6 +221,7 @@ const scenarioState = (scenario) => {
     coins: 2400,
     executionScore: 6665,
     streakCount: 21,
+    gymLog: createVeteranGymLog(),
     bossKills: 5,
     scytheLevel: 'AWAKENED',
     rescuedFairies: { 1: true, 2: true, 3: true, 4: true, 5: true },
@@ -195,6 +278,7 @@ export default function TestRealm() {
   const [snapshotName, setSnapshotName] = useState('');
   const [snapshots, setSnapshots] = useState(readSnapshots);
   const [captureMode, setCaptureMode] = useState(() => localStorage.getItem(CAPTURE_MODE_KEY) === 'true');
+  const [fitnessTestDeity, setFitnessTestDeity] = useState('hermes');
 
   useEffect(() => {
     document.body.classList.toggle('warscythe-capture-mode', captureMode);
@@ -512,6 +596,57 @@ export default function TestRealm() {
             </button>
           ) : (
             <div className="space-y-5">
+              <section className="rounded-lg border border-amber-300/30 bg-amber-300/[0.06] p-3">
+                <div className="mb-1 text-[9px] tracking-[0.25em] text-amber-300">FITNESS V2 // NORMAL APP</div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-400">
+                  Opens the real Fitness tab with the Olympus preview embedded beside the existing Iron Ledger. The standalone link is only an isolated visual harness.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCaptureMode(false);
+                    setOpen(false);
+                    window.dispatchEvent(new CustomEvent('warscythe:test-tab', { detail: 'fitness' }));
+                  }}
+                  className="w-full rounded border border-amber-300/50 bg-amber-300/[0.1] px-3 py-3 text-[9px] font-black tracking-[0.2em] text-amber-200 hover:bg-amber-300 hover:text-black"
+                >
+                  ENTER FITNESS // OLYMPUS V2
+                </button>
+              </section>
+
+              <section className="rounded-lg border border-sky-300/25 bg-sky-300/[0.05] p-3">
+                <div className="mb-1 text-[9px] tracking-[0.25em] text-sky-300">FITNESS // SCENE FORGE</div>
+                <p className="mb-3 text-[8px] leading-relaxed text-zinc-500">
+                  Opens every integrated Fitness surface inside the normal app using the selected deity as the deterministic test state.
+                </p>
+                <div className="mb-2 grid grid-cols-5 gap-1">
+                  {FITNESS_TEST_DEITIES.map(([deityId]) => <button
+                    key={deityId}
+                    type="button"
+                    onClick={() => setFitnessTestDeity(deityId)}
+                    className={`rounded border px-1 py-2 text-[7px] uppercase ${fitnessTestDeity === deityId ? 'border-amber-300/70 bg-amber-300/15 text-amber-200' : 'border-white/10 bg-black/30 text-zinc-500'}`}
+                  >{deityId}</button>)}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {FITNESS_SCENES.map(([label, scene]) => (
+                    <button
+                      key={scene}
+                      type="button"
+                      onClick={() => {
+                        setCaptureMode(false);
+                        window.dispatchEvent(new CustomEvent('warscythe:test-tab', { detail: 'fitness' }));
+                        setOpen(false);
+                        const blessingId = FITNESS_TEST_DEITIES.find(([deityId]) => deityId === fitnessTestDeity)?.[1];
+                        if (scene !== 'main') window.setTimeout(() => window.dispatchEvent(new CustomEvent('warscythe:fitness-scene', { detail: { scene, deityId:fitnessTestDeity, blessingId, fragmentCount:8, destination:'chamber', previousAffinity:27, nextAffinity:39, affinityGain:12 } })), 350);
+                      }}
+                      className="rounded border border-sky-300/15 bg-black/30 px-2 py-2 text-left text-[8px] text-sky-100/80 hover:border-sky-300/50 hover:text-sky-200"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
               <section>
                 <div className="mb-2 text-[9px] tracking-[0.25em] text-cyan-400">SCENARIOS</div>
                 <div className="grid grid-cols-2 gap-2">

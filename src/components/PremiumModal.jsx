@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -28,9 +29,10 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-        className="premium-modal-content glass-panel"
+        className="premium-modal-content glass-panel ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
+          <OrnateFrame family="zeus" quiet className="ornate-frame--inset" />
         {/* Header */}
         <div className="premium-header">
           <div className="flex items-center gap-2">
@@ -79,7 +81,7 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
 
               {/* Benefits */}
               <div className="flex flex-col gap-4 mb-8">
-                <div className="benefit-card flex gap-4 p-4 rounded-md border border-white/5 bg-white/[0.01] hover:border-gold-core/20 transition-all duration-300">
+                <div className="benefit-card flex gap-4 p-4 rounded-md border border-white/5 bg-white/[0.01] hover:border-gold-core/20 motion-control duration-300">
                   <div className="benefit-icon-box flex items-center justify-center bg-gold-core/5 text-gold-core rounded-md w-10 h-10 border border-gold-core/10">
                     <Zap size={20} className="glow-icon" />
                   </div>
@@ -91,7 +93,7 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
                   </div>
                 </div>
 
-                <div className="benefit-card flex gap-4 p-4 rounded-md border border-white/5 bg-white/[0.01] hover:border-gold-core/20 transition-all duration-300">
+                <div className="benefit-card flex gap-4 p-4 rounded-md border border-white/5 bg-white/[0.01] hover:border-gold-core/20 motion-control duration-300">
                   <div className="benefit-icon-box flex items-center justify-center bg-gold-core/5 text-gold-core rounded-md w-10 h-10 border border-gold-core/10">
                     <ShieldCheck size={20} className="glow-icon" />
                   </div>
@@ -155,7 +157,7 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
         </div>
 
         {/* CSS Styling scoped to PremiumModal */}
-        <style jsx>{`
+        <style>{`
           .premium-backdrop {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(12px);
@@ -187,15 +189,18 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
           .premium-close {
             background: none;
             color: var(--text-dark);
-            transition: 0.2s;
+            transition: var(--motion-control-transition);
             border: none;
             cursor: pointer;
           }
+
+          @media (hover: hover) and (pointer: fine) {
 
           .premium-close:hover {
             color: #fff;
             transform: rotate(90deg);
           }
+}
 
           .cinzel-title {
             font-family: 'Cinzel Decorative', 'Cinzel', serif;
@@ -222,15 +227,18 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
             letter-spacing: 0.2em;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--motion-control-transition);
             box-shadow: 0 0 15px rgba(236, 200, 128, 0.2);
           }
+
+          @media (hover: hover) and (pointer: fine) {
 
           .premium-action-btn:hover {
             background: #fff;
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
             transform: translateY(-1px);
           }
+}
 
           .success-badge-glow {
             position: relative;
@@ -263,7 +271,7 @@ export default function PremiumModal({ onClose, onOpenAuth }) {
             text-transform: uppercase;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--motion-control-transition);
           }
 
           .premium-confirm-btn:hover {

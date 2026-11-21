@@ -21,9 +21,9 @@ export default function TitleUnlockFlash({ data, onClose }) {
         className="title-unlock-card relative w-full max-w-4xl aspect-[1.536/1] max-h-[88vh] overflow-hidden border border-gold-core/40 bg-black shadow-[0_0_90px_rgba(197,160,89,0.24)]"
       >
         <picture>
-          <source media="(max-width: 700px), (max-aspect-ratio: 3/4)" srcSet="/title-unlocks/curious-explorer-mobile.png" />
+          <source media="(max-width: 700px), (max-aspect-ratio: 3/4)" srcSet="/title-unlocks/curious-explorer-mobile.webp" />
           <img
-            src="/title-unlocks/curious-explorer.png"
+            src="/title-unlocks/curious-explorer.webp"
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -51,14 +51,14 @@ export default function TitleUnlockFlash({ data, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 flex items-center gap-2 border border-gold-core/50 bg-black/70 px-5 py-2 font-mono text-[8px] sm:text-[9px] font-bold tracking-[0.22em] uppercase text-gold-core transition-all hover:bg-gold-core hover:text-black"
+            className="mt-4 flex items-center gap-2 border border-gold-core/50 bg-black/70 px-5 py-2 font-mono text-[8px] sm:text-[9px] font-bold tracking-[0.22em] uppercase text-gold-core motion-control hover:bg-gold-core hover:text-black"
           >
             Wear the title
             <ChevronRight size={12} />
           </button>
         </div>
       </motion.section>
-      <style jsx>{`
+      <style>{`
         @media (max-width: 700px), (max-aspect-ratio: 3/4) {
           .title-unlock-card {
             width: min(94vw, 470px);

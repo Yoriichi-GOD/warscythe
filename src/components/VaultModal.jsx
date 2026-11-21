@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
@@ -35,10 +36,10 @@ const LEGACY_ARTIFACT_MAP = {
 
 const getArtifactImage = (name) => {
   if (LEGACY_ARTIFACT_MAP[name]) {
-    return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.png`;
+    return `/artifacts/artifact-${LEGACY_ARTIFACT_MAP[name]}.webp`;
   }
   const type = (name || '').split(' ')[0].toLowerCase();
-  return `/artifacts/artifact-${type}.png`;
+  return `/artifacts/artifact-${type}.webp`;
 };
 
 
@@ -61,9 +62,10 @@ export default function VaultModal({ onClose }) {
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-        className="vault-modal-content"
+        className="vault-modal-content ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
+          <OrnateFrame family="ledger" quiet className="ornate-frame--inset" />
         <div className="vault-header">
           <div className="vault-title-group flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -77,7 +79,7 @@ export default function VaultModal({ onClose }) {
             {/* Tab Toggles */}
             <div className="flex gap-1 border border-white/5 bg-black/40 p-1 rounded ml-4">
               <button 
-                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded motion-control ${
                   activeTab === 'artifacts' 
                     ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -87,7 +89,7 @@ export default function VaultModal({ onClose }) {
                 Artifacts
               </button>
               <button 
-                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded transition-all ${
+                className={`px-3 py-1 text-[9px] font-mono tracking-widest uppercase rounded motion-control ${
                   activeTab === 'scythes' 
                     ? 'bg-gold-core text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -113,15 +115,15 @@ export default function VaultModal({ onClose }) {
                <div className="dragon-grid">
                   {Array.from({ length: useWarscytheStore.getState().bossKills }).map((_, i) => {
                     const type = dragonTrophies[i % dragonTrophies.length];
-                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.png`);
+                    const trophyPath = getAssetUrl(`/trophies/trophy-dragon-${type}.webp`);
                     return (
                       <motion.div 
                         key={i} 
                         className="dragon-head flex items-center justify-center p-1 bg-black/40 border border-white/5 rounded-md hover:border-red-500/30 transition-colors"
                         style={{ width: '48px', height: '48px', display: 'flex' }}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', delay: i * 0.1 }}
+                        initial={{ opacity: 0, scale: .97 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: .2, delay: Math.min(i, 4) * .03 }}
                         title={`${type.toUpperCase()} TROPHY`}
                       >
                         <img src={trophyPath} alt={`${type} Trophy`} className="w-full h-full object-contain" />
@@ -233,9 +235,9 @@ export default function VaultModal({ onClose }) {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .vault-backdrop { background: rgba(0,0,0,0.96); backdrop-filter: blur(10px); z-index: 2100; }
-        
+
         .vault-modal-content {
           width: 95vw;
           height: 90vh;
@@ -261,7 +263,7 @@ export default function VaultModal({ onClose }) {
         @media (min-width: 1024px) {
           .vault-header { padding: 2rem 3rem; }
         }
-        
+
         .vault-title-group { display: flex; align-items: center; gap: 1rem; }
         @media (min-width: 1024px) { .vault-title-group { gap: 1.5rem; } }
 
@@ -270,17 +272,18 @@ export default function VaultModal({ onClose }) {
 
         .title-text span { font-family: var(--font-mono); font-size: 0.5rem; color: var(--gold-core); letter-spacing: 0.1em; }
         @media (min-width: 1024px) { .title-text span { font-size: 0.6rem; letter-spacing: 0.2em; } }
-        
-        .vault-close { background: none; color: var(--text-dark); transition: 0.2s; }
-        .vault-close:hover { color: #fff; transform: rotate(90deg); }
+
+        .vault-close { background: none; color: var(--text-dark); transition: var(--motion-control-transition); }
+        @media (hover: hover) and (pointer: fine) {
+        .vault-close:hover { color: #fff; transform: rotate(90deg); } }
 
         .vault-layout { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         @media (min-width: 1024px) {
           .vault-layout { display: grid; grid-template-columns: 1fr 450px; overflow: hidden; }
         }
 
-        .artifact-gallery { 
-          padding: 1.5rem; 
+        .artifact-gallery {
+          padding: 1.5rem;
           background: radial-gradient(circle at center, rgba(197, 160, 89, 0.03) 0%, transparent 70%);
           display: flex;
           flex-direction: column;
@@ -296,11 +299,11 @@ export default function VaultModal({ onClose }) {
           background: rgba(158, 27, 27, 0.05);
           border: 1px solid rgba(158, 27, 27, 0.1);
         }
-        
+
         .dragon-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
         .dragon-head { font-size: 1.5rem; filter: drop-shadow(0 0 10px rgba(158, 27, 27, 0.4)); }
         @media (min-width: 1024px) { .dragon-head { font-size: 2rem; } }
-        
+
         .gallery-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -324,11 +327,11 @@ export default function VaultModal({ onClose }) {
           justify-content: center;
           cursor: pointer;
           position: relative;
-          transition: 0.3s;
+          transition: var(--motion-control-transition);
         }
         .art-card:hover { border-color: var(--border-bright); background: rgba(255,255,255,0.06); }
         .art-card.active { border-color: var(--gold-core); background: rgba(197, 160, 89, 0.05); box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
-        
+
         .art-card-icon { font-size: 1.5rem; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
         @media (min-width: 1024px) { .art-card-icon { font-size: 2.5rem; } }
         .rarity-dot { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; border-radius: 50%; }
@@ -339,8 +342,8 @@ export default function VaultModal({ onClose }) {
         .rarity-epic .rarity-dot { background: var(--stage-finish); box-shadow: 0 0 5px var(--stage-finish); }
         .rarity-mythic .rarity-dot { background: #ff3d00; box-shadow: 0 0 5px #ff3d00; }
 
-        .artifact-inspector { 
-          background: rgba(0,0,0,0.4); 
+        .artifact-inspector {
+          background: rgba(0,0,0,0.4);
           border-top: 1px solid var(--border);
           display: flex;
           flex-direction: column;
@@ -371,7 +374,7 @@ export default function VaultModal({ onClose }) {
         .inspector-placeholder p { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; max-width: 200px; }
 
         .inspector-content { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        
+
         .inspector-visual {
           position: relative;
           width: 120px;
@@ -390,7 +393,7 @@ export default function VaultModal({ onClose }) {
         @media (min-width: 1024px) { .large-art-icon { font-size: 8rem; } }
         .large-glow { position: absolute; inset: 0; border-radius: 50%; filter: blur(40px); opacity: 0.3; }
         @media (min-width: 1024px) { .large-glow { filter: blur(50px); } }
-        
+
          .large-glow.rarity-common { background: #fff; }
         .large-glow.rarity-uncommon { background: var(--stage-ship); }
         .large-glow.rarity-rare { background: var(--stage-build); }
@@ -410,7 +413,7 @@ export default function VaultModal({ onClose }) {
         .inspector-details h3 { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: 0.05em; }
         @media (min-width: 1024px) { .inspector-details h3 { font-size: 2rem; } }
         .art-date { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dark); }
-        
+
         .lore-box {
           margin-top: 1.5rem;
           background: rgba(255,255,255,0.02);

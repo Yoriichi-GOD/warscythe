@@ -1,3 +1,6 @@
+import { revealUiTarget } from '../utils/revealUiTarget';
+import OrnateFrame from './frames/OrnateFrame';
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scroll, ChevronRight, Flame, Sparkles, Map as MapIcon } from 'lucide-react';
@@ -10,28 +13,28 @@ const LEGACY_RITUALS_STEPS = [
   {
     type: 'ritual_complete',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "The vow is enshrined inside this rehearsal. In the living Rituals ledger, the circle beside its name is how you conquer that vow each day.",
     cta: "Continue →"
   },
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "The Forge is where consistency becomes power. Streak-based evolution, scythe skins, acquired themes — all of it lives here.",
     cta: "Show me →"
   },
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Your Rituals are daily vows — not tasks you complete once, but habits you keep without exception. Miss one, and the whole streak falls. That is not cruelty. That is honesty.",
     cta: "Understood →"
   },
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Enshrine your first Ritual now. Give it a name. Set its difficulty. Seal it. From this moment, it runs every day.",
     cta: "Enshrine a Ritual →",
     openRitualForm: true
@@ -40,7 +43,7 @@ const LEGACY_RITUALS_STEPS = [
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Your first Ritual is sworn. Hold it every day. Now let me show you the Forge — your Scythe evolution, acquired skins, and themes live here.",
     cta: "To the Forge →",
     nextTutorial: 'forge_intro'
@@ -51,7 +54,7 @@ const RITUALS_STEPS = [
   {
     type: 'highlight',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     title: 'BEGIN WITH A VOW',
     text: "Press Enshrine Ritual. You will rehearse the complete flow—preset, frequency, resistance, and hour—without changing your true ledger.",
     highlightId: 'ritual-enshrine-button',
@@ -60,14 +63,14 @@ const RITUALS_STEPS = [
   {
     type: 'ritual_complete',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Your rehearsal vow now stands inside Active Rituals. Conquer it through the circle beside its name. The path to the Forge remains sealed until the vow is fulfilled.",
     cta: null
   },
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     title: 'VOW ENSHRINED',
     text: "The vow has answered your hand. Remember this rhythm: enshrine, return, conquer. Now the Forge may open, where your Scythe evolution, acquired skins, and themes await.",
     cta: "Enter the Forge",
@@ -79,22 +82,22 @@ const FORGE_STEPS = [
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
-    text: "This is the Forge — WEAPON FORGE & COSMETICS. Three sections: Streak Weapons (earned by maintaining your daily ritual streak), Acquired Skins (premium scythes from the shop), and Acquired Themes (region themes).",
+    portrait: '/guardian-observer.webp',
+    text: "The Forge keeps the forms and appearances your Scythe can wear. We will visit its three shelves one at a time.",
     cta: "Next →"
   },
   {
     type: 'highlight',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
-    text: "First — your Streak Weapons. Every consecutive-chain milestone unlocks a more powerful form, beginning with Neophyte and ending with Eternal Reaper at 300 days. Reaching a milestone again adds another mark to that weapon. Click 'Streak Weapons' above.",
+    portrait: '/guardian-observer.webp',
+    text: "Streak Weapons record your returning Rituals. Open this shelf to inspect its milestones; you do not need to memorize them now.",
     highlightId: 'forge-streak-tab',
     cta: null // user must click the highlighted element
   },
   {
     type: 'highlight',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Now look at your Acquired Skins. These are premium Scythe cosmetics from the Shop — unique skins that follow your Scythe through all evolution tiers. Click 'Acquired Skins'.",
     highlightId: 'forge-shop-tab',
     cta: null
@@ -102,7 +105,7 @@ const FORGE_STEPS = [
   {
     type: 'highlight',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "Finally — Acquired Themes. These change the entire visual environment of the Forge, tied to the regions you unlock. Click 'Acquired Themes'.",
     highlightId: 'forge-theme-tab',
     cta: null
@@ -110,7 +113,7 @@ const FORGE_STEPS = [
   {
     type: 'dialogue',
     speaker: 'Guardian',
-    portrait: '/guardian-observer.png',
+    portrait: '/guardian-observer.webp',
     text: "The Forge is yours to explore. Every skin you acquire from the Shop lives here. Every streak milestone your Scythe has earned — visible, owned, ready to equip. Come back often.",
     cta: "Let's go →"
   }
@@ -120,7 +123,7 @@ const QUEST_MAP_STEPS = [
   {
     type: 'dialogue',
     speaker: 'Fairy',
-    portrait: null, // will be crests/region-crest-5.png
+    portrait: null, // will be crests/region-crest-5.webp
     text: "Thank you for freeing me! Let me show you what you've won — the Quest Map.",
     cta: "Show me →"
   },
@@ -235,20 +238,21 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
   const isFairy = step.speaker === 'Fairy';
   const isTrader = step.speaker === 'Trader';
   const portrait = isFairy
-    ? '/fairies/empress-1-liberated.png'
+    ? '/fairies/empress-1-liberated.webp'
     : isTrader
-      ? '/dread-armory-trader.png'
-      : step.portrait || '/guardian-observer.png';
+      ? '/dread-armory-trader.webp'
+      : step.portrait || '/guardian-observer.webp';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="relative w-full max-w-md max-h-[calc(100dvh-180px)] overflow-y-auto custom-scrollbar bg-zinc-950/98 border border-white/8 rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.9)] p-5 flex flex-col items-center gap-4"
+      className="ornate-surface max-sm:max-h-[42dvh] max-sm:p-3 max-sm:gap-2 relative w-full max-w-md max-h-[calc(100dvh-180px)] overflow-y-auto custom-scrollbar bg-zinc-950/98 border border-white/8 rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.9)] p-5 flex flex-col items-center gap-4"
     >
+      <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
       {/* Portrait */}
-      <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gold-core/20 bg-black/40 flex-shrink-0">
+      <div className="relative w-32 h-32 max-sm:w-16 max-sm:h-16 rounded-lg overflow-hidden border border-gold-core/20 bg-black/40 flex-shrink-0">
         <img src={portrait} alt={step.speaker} className="w-full h-full object-contain" />
         <div className="absolute inset-x-0 bottom-0 py-1 bg-black/80 border-t border-white/5 text-center">
           <span className={`font-mono text-[9px] font-black tracking-widest uppercase ${isFairy ? 'text-emerald-400' : isTrader ? 'text-amber-400' : 'text-gold-core'}`}>
@@ -258,7 +262,7 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
       </div>
 
       {/* Text */}
-      <div className="w-full border border-stone-800/40 bg-black/50 p-4 rounded-lg">
+      <div className="w-full border border-stone-800/40 bg-black/50 p-4 max-sm:p-3 rounded-lg">
         {step.title && (
           <h3 className="mb-3 text-center font-display text-lg tracking-[.2em] text-gold-core uppercase">
             {step.title}
@@ -274,7 +278,7 @@ function GuardianCard({ step, onNext, onOpenRitual }) {
       {step.cta && (
         <button
           onClick={() => step.openRitualForm ? onOpenRitual() : onNext()}
-          className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-gold-core text-black hover:bg-white font-mono text-[9px] font-black tracking-widest uppercase rounded shadow-[0_0_15px_rgba(236,200,128,0.2)] cursor-pointer transition-all duration-300"
+          className="w-full min-h-11 flex items-center justify-center gap-2 px-5 py-2.5 bg-gold-core text-black hover:bg-white font-mono text-[9px] font-black tracking-widest uppercase rounded shadow-[0_0_15px_rgba(236,200,128,0.2)] cursor-pointer motion-control duration-300"
         >
           <span>{step.cta}</span>
           <ChevronRight size={12} />
@@ -361,6 +365,7 @@ const getClippedHighlightRect = (element) => {
 };
 
 function HighlightRing({ elementId }) {
+  const ambientMotion = useAmbientMotion();
   const [pos, setPos] = useState(null);
   const revealedElementRef = useRef(null);
 
@@ -378,12 +383,7 @@ function HighlightRing({ elementId }) {
       if (!el) return;
       if (revealedElementRef.current !== el) {
         revealedElementRef.current = el;
-        const insideFixedChrome = Boolean(el.closest('#warscythe-header, #warscythe-taskbar'));
-        el.scrollIntoView({
-          behavior: 'smooth',
-          block: insideFixedChrome ? 'nearest' : 'start',
-          inline: 'nearest',
-        });
+        revealUiTarget(el);
       }
       setPos(getClippedHighlightRect(el));
     };
@@ -404,7 +404,7 @@ function HighlightRing({ elementId }) {
     <motion.div
       style={{ position: 'fixed', ...pos, zIndex: 9999, pointerEvents: 'none', borderRadius: 8 }}
       animate={{ boxShadow: ['0 0 0 2px rgba(236,200,128,0.7), 0 0 20px rgba(236,200,128,0.3)', '0 0 0 4px rgba(236,200,128,1), 0 0 40px rgba(236,200,128,0.6)', '0 0 0 2px rgba(236,200,128,0.7), 0 0 20px rgba(236,200,128,0.3)'] }}
-      transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+      transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 1.4 : 0, ease: 'easeInOut' }}
     />
   );
 }
@@ -478,7 +478,6 @@ export default function TabTutorialOverlay({
     if (tutorialId !== 'rituals_intro' || currentStep?.highlightId !== 'ritual-enshrine-button') return undefined;
     const openForm = () => {
       setShowRitualForm(true);
-      setStepIndex(index => Math.min(index + 1, steps.length - 1));
     };
     window.addEventListener('warscythe:tutorial-enshrine', openForm);
     return () => window.removeEventListener('warscythe:tutorial-enshrine', openForm);
@@ -507,11 +506,19 @@ export default function TabTutorialOverlay({
 
   useEffect(() => {
     if (currentStep?.type !== 'highlight' || !currentStep.highlightId) return undefined;
-    const element = document.getElementById(currentStep.highlightId);
-    if (!element) return undefined;
-    const handleClick = () => window.setTimeout(() => advanceRef.current(), 180);
-    element.addEventListener('click', handleClick);
-    return () => element.removeEventListener('click', handleClick);
+    const highlightedId = currentStep.highlightId;
+    // Ritual creation owns its own submit/completion gates. A generic click
+    // advance here used to skip the practice completion and the Forge handoff.
+    if (highlightedId === 'ritual-enshrine-button') return undefined;
+    let timer;
+    let scheduled = false;
+    const handleClick = (event) => {
+      if (scheduled || !event.target.closest?.(`#${highlightedId}`)) return;
+      scheduled = true;
+      timer = window.setTimeout(() => advanceRef.current(), 180);
+    };
+    document.addEventListener('click', handleClick, true);
+    return () => { window.clearTimeout(timer); document.removeEventListener('click', handleClick, true); };
   }, [currentStep?.highlightId, currentStep?.type]);
 
   useEffect(() => {

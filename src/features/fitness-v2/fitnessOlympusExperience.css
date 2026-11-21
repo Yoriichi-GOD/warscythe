@@ -1,0 +1,584 @@
+.fitness-realm{position:relative;isolation:isolate}.fitness-realm:before{content:"";position:fixed;inset:0;z-index:-2;background-image:url('/fitness-v2/olympus/pantheon/olympus-grand-hall-desktop.webp');background-size:cover;background-position:center center;background-repeat:no-repeat}.fitness-realm:after{display:none}
+.fitness-olympus-integrated{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:14px;border:1px solid color-mix(in srgb,var(--deity-color),transparent 55%);background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}.fitness-olympus-integrated div{display:flex;flex-direction:column;gap:3px}.fitness-olympus-integrated small,.fitness-olympus-integrated span{font:700 8px/1.3 monospace;letter-spacing:.16em;color:#a99d83}.fitness-olympus-integrated strong{font:700 14px/1.2 var(--font-display,serif);color:#fff;letter-spacing:.08em}.fitness-olympus-integrated button,.fitness-subrealm-links button{border:1px solid rgba(218,181,100,.35);background:rgba(0,0,0,.72);color:#e5c777;padding:10px 12px;font:800 8px monospace;letter-spacing:.12em}.fitness-subrealm-links{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.fitness-subrealm-links button{display:flex;align-items:center;justify-content:center;gap:7px}.fitness-subrealm-links svg{width:13px}
+.fitness-olympus-recognition{width:100%;margin-top:10px;padding:12px;border:1px solid color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 55%);background:rgba(4,4,4,.18);backdrop-filter:blur(2px);display:grid;gap:10px;text-align:left}.fitness-recognition-heading{display:flex;justify-content:space-between;align-items:end;gap:10px}.fitness-recognition-heading small,.fitness-recognition-metrics span{font:800 7px/1.2 monospace;letter-spacing:.17em;color:#a99d83}.fitness-recognition-heading strong{font:700 11px/1.2 var(--font-display,serif);letter-spacing:.08em;color:#f4e5bd;text-transform:uppercase}.fitness-recognition-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fitness-recognition-metrics article{min-width:0;padding:9px;border:1px solid #ffffff12;background:rgba(0,0,0,.18);display:flex;flex-direction:column;gap:5px}.fitness-recognition-metrics article>strong,.fitness-recognition-metrics article div>strong{font:700 15px/1 var(--font-display,serif);color:#fff}.fitness-recognition-metrics i{display:block;width:100%;height:3px;margin-top:2px;background:#ffffff15;overflow:hidden}.fitness-recognition-metrics i b{display:block;height:100%;background:var(--deity-ring,var(--deity-color));box-shadow:0 0 9px var(--deity-ring,var(--deity-color))}.fitness-recognition-metrics .is-fragment{display:grid;grid-template-columns:42px 1fr;align-items:center}.fitness-recognition-metrics .is-fragment img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 3px 7px #000)}.fitness-recognition-metrics .is-fragment div{display:flex;min-width:0;flex-direction:column;gap:5px}.fitness-recognition-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fitness-recognition-actions button{border:1px solid color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 48%);background:rgba(0,0,0,.34);color:#e9cf8b;padding:9px;font:800 7px monospace;letter-spacing:.12em}
+.fitness-experience{position:fixed;inset:0;z-index:2600;background:#020202;color:#fff;overflow:auto}.fitness-experience-bg{position:fixed;inset:0;z-index:-2}.fitness-experience-bg img{width:100%;height:100%;object-fit:cover}.fitness-experience-shade{position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.68),rgba(0,0,0,.12) 50%,rgba(0,0,0,.66))}.fitness-experience>header{position:sticky;top:0;z-index:20;height:72px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#050505ee,#05050599);border-bottom:1px solid #bd985344}.fitness-experience>header button{display:flex;align-items:center;gap:8px;color:#e5c777;background:none;border:0;font:800 9px monospace;letter-spacing:.15em}.fitness-experience>header svg{width:17px}.fitness-experience>header span{font:800 9px monospace;letter-spacing:.3em;color:#b49b69}.fitness-experience>main{min-height:calc(100vh - 72px);display:grid;place-items:center;padding:60px clamp(20px,6vw,110px) 100px}
+.fitness-report-layout,.fitness-resource-layout,.fitness-war-ledger-layout,.fitness-pantheon-layout{width:min(1100px,100%);padding:clamp(24px,5vw,64px);border:1px solid #c7a45b55;background:#040404b8;backdrop-filter:blur(8px);box-shadow:0 30px 100px #000}.fitness-report-layout small,.fitness-resource-layout small,.fitness-war-ledger-layout small,.fitness-pantheon-layout small,.fitness-transition-copy small,.fitness-chamber-copy small{font:800 10px monospace;letter-spacing:.28em;color:#dfbd6d}.fitness-report-layout h2,.fitness-resource-layout h2,.fitness-war-ledger-layout h2,.fitness-pantheon-layout h2,.fitness-transition-copy h2,.fitness-chamber-copy h2{font:500 clamp(30px,5vw,68px) serif;letter-spacing:.08em;margin:12px 0}.fitness-report-layout>p,.fitness-resource-layout>p,.fitness-war-ledger-layout>p,.fitness-pantheon-layout>p{font:italic 18px/1.6 serif;color:#ddd0bd}.fitness-report-metrics,.fitness-resource-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:35px 0}.fitness-report-metrics div,.fitness-resource-cards article{padding:22px;border:1px solid #b891493d;background:#050505aa;display:flex;flex-direction:column;gap:10px}.fitness-report-metrics span,.fitness-resource-cards span{font:800 8px monospace;letter-spacing:.15em;color:#9f947f}.fitness-report-metrics strong,.fitness-resource-cards strong{font:600 22px serif;color:#e9c873}.fitness-report-verdict{padding:25px;border-left:3px solid #dbb85f;background:#000c}.fitness-report-verdict span{font:800 8px monospace;letter-spacing:.18em}.fitness-report-verdict strong{display:block;font:600 25px serif;color:#e8c875;margin:8px 0}.fitness-report-verdict p{font:13px monospace;color:#aaa}
+.fitness-resource-cards{grid-template-columns:repeat(2,1fr)}.fitness-resource-cards i,.fitness-chamber-blessings i{height:3px;background:#e0bb62;display:block}.fitness-resource-entry{display:flex;gap:10px}.fitness-resource-entry input{flex:1;background:#020202;border:1px solid #9a7f4d66;padding:17px;color:white}.fitness-resource-entry button,.fitness-decree-grid button{background:#d8b664;border:0;padding:15px;color:#090807;font:900 9px monospace;letter-spacing:.14em}.fitness-resource-log{margin-top:25px;display:grid;gap:8px;font:11px monospace}.fitness-resource-log>span{color:#b9995c;letter-spacing:.15em}.fitness-resource-log div{display:flex;align-items:center;gap:10px;padding:13px;background:#000b;border:1px solid #ffffff12}.fitness-resource-log svg{color:#60c896}
+.fitness-decree-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:35px}.fitness-decree-grid article{padding:22px;border:1px solid #b8914944;background:#030303d9}.fitness-decree-grid span{font:8px monospace;color:#b69b67}.fitness-decree-grid h3{font:600 19px serif;letter-spacing:.08em}.fitness-decree-grid p{min-height:42px;font:10px/1.5 monospace;color:#aaa}.fitness-decree-grid button{width:100%;display:flex;justify-content:center;align-items:center;gap:6px}
+.fitness-pantheon-map{position:relative;width:100%;height:100%;overflow:hidden}.fitness-pantheon-title{position:absolute;z-index:6;left:2.2%;top:10%;display:flex;flex-direction:column;gap:5px;text-shadow:0 2px 10px #000}.fitness-pantheon-title small{font:800 8px monospace;letter-spacing:.24em;color:#d4b665}.fitness-pantheon-title strong{font:500 clamp(24px,2.2vw,42px) serif;letter-spacing:.12em}.fitness-pantheon-title span{font:italic 13px serif;color:#ddcfb8}.fitness-pantheon-marker{position:absolute;z-index:4;left:var(--map-x);top:var(--map-y);width:clamp(92px,11vw,190px);height:48vh;transform:translate(-50%,-100%) scale(var(--map-scale));transform-origin:center bottom;padding:0;border:0;background:none;color:#f6e6bb;cursor:pointer}.fitness-pantheon-marker img{position:absolute;inset:auto 0 0;width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 16px #000)}.fitness-pantheon-marker.is-fragment{width:clamp(58px,6vw,104px);height:clamp(58px,6vw,104px);transform:translate(-50%,-50%)}.fitness-pantheon-marker.is-fragment img{inset:10%;width:80%;height:80%;object-position:center;filter:drop-shadow(0 4px 8px #000)}.fitness-pantheon-aura{position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--marker-color),transparent 62%),transparent 68%);opacity:.5}.fitness-pantheon-marker.is-active .fitness-pantheon-aura{opacity:1;animation:fitness-pantheon-pulse 2.4s ease-in-out infinite}.fitness-pantheon-marker-label{position:absolute;left:50%;bottom:-28px;transform:translateX(-50%);min-width:130px;display:flex;flex-direction:column;text-shadow:0 2px 8px #000}.fitness-pantheon-marker-label b{font:700 10px serif;letter-spacing:.15em;text-transform:uppercase}.fitness-pantheon-marker-label small{font:700 6px monospace;letter-spacing:.16em;color:color-mix(in srgb,var(--marker-color),#fff 30%)}@keyframes fitness-pantheon-pulse{50%{transform:scale(1.18);opacity:.65}}
+.fitness-chamber-layout{position:relative;width:100%;min-height:calc(100vh - 230px)}.fitness-chamber-copy{position:absolute;left:2vw;top:10%;z-index:8}.fitness-chamber-copy p{font:11px monospace;color:#d0c7b7}.fitness-chamber-stage{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}.fitness-chamber-statue{position:relative;z-index:3;height:88%;max-width:48%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 15px 35px #000)}.fitness-cloud{position:absolute;left:8%;width:84%;height:auto;object-fit:contain}.fitness-cloud.rear{bottom:-3%;z-index:2}.fitness-cloud.front{bottom:-15%;z-index:4;transform:scaleX(-1) scale(.82)}.fitness-chamber-blessings{position:absolute;inset:16% 2% 8%;z-index:7;pointer-events:none}.fitness-chamber-blessings button{pointer-events:auto;position:absolute;width:190px;padding:12px;border:1px solid #cfac6255;background:#030303cc;color:#fff}.fitness-chamber-blessings button:nth-child(1){left:3%;top:22%}.fitness-chamber-blessings button:nth-child(2){right:3%;top:14%}.fitness-chamber-blessings button:nth-child(3){right:5%;bottom:5%}.fitness-chamber-blessings img{width:90px;height:90px;object-fit:contain}.fitness-chamber-blessings span,.fitness-chamber-blessings strong{display:block;font:800 9px monospace;letter-spacing:.1em;margin:4px}.fitness-chamber-blessings strong{color:#d9ba6d}
+.fitness-transition-copy{text-align:center;width:min(900px,100%);text-shadow:0 3px 18px #000}.fitness-transition-copy p{font:italic clamp(17px,2vw,25px)/1.5 serif}.fitness-reward-object{display:block;width:min(330px,55vw);height:330px;object-fit:contain;margin:auto;filter:drop-shadow(0 0 40px #d9b85f88)}.fitness-ascension-mark{max-height:45vh;max-width:50vw;object-fit:contain}.fitness-transition-continue{position:fixed;right:35px;bottom:30px;z-index:25;padding:16px 25px;display:flex;align-items:center;gap:8px;border:1px solid #d7b766;background:#050505e8;color:#e8ca79;font:900 9px monospace;letter-spacing:.18em}
+.fitness-scene-ceremony{background:rgba(0,0,0,.7);backdrop-filter:blur(6px)}.fitness-scene-ceremony>.fitness-experience-bg{display:none}.fitness-scene-ceremony>.fitness-experience-shade{background:rgba(0,0,0,.36)}.fitness-scene-ceremony>main{display:block;min-height:0;padding:28px clamp(12px,4vw,48px) 110px}.fitness-blessing-modal{position:relative;width:min(980px,100%);max-height:calc(100dvh - 116px);margin:auto;overflow-x:visible;overflow-y:auto;overscroll-behavior:contain;background:#020202;border:1px solid color-mix(in srgb,var(--ceremony-color) 48%,transparent);box-shadow:0 28px 100px #000;scrollbar-color:#8f7036 #090806;scrollbar-width:thin}.fitness-blessing-visual{position:relative;width:100%;background:#050505;overflow:hidden}.fitness-blessing-visual>img{display:block;width:100%;height:auto;object-fit:contain}.fitness-blessing-title{position:absolute;z-index:3;left:clamp(16px,3vw,38px);top:clamp(14px,3vw,34px);width:min(390px,55%);text-align:left;text-shadow:0 3px 14px #000}.fitness-blessing-title>small,.fitness-blessing-history>small{font:800 9px monospace;letter-spacing:.25em;color:#dfbd6d}.fitness-blessing-title .fitness-deity-title-card{width:100%;margin:-20px 0 -36px;transform-origin:left center}.fitness-blessing-acquire{position:absolute;z-index:5;right:clamp(16px,3vw,34px);bottom:clamp(18px,3vw,34px);min-width:150px;padding:14px 24px;border:1px solid #dfbd6d;background:rgba(0,0,0,.82);color:#f2d27e;font:900 10px monospace;letter-spacing:.28em;box-shadow:0 0 26px rgba(223,189,109,.25);transition: var(--motion-control-transition)}.fitness-blessing-acquire:hover{background:#dfbd6d;color:#080604;box-shadow:0 0 38px rgba(223,189,109,.5)}
+.fitness-blessing-seal{position:relative;z-index:8;width:clamp(112px,14vw,168px);aspect-ratio:1;margin:calc(clamp(112px,14vw,168px) / -2) auto;display:grid;place-items:center;border-radius:50%;background:#030303;filter:drop-shadow(0 10px 20px #000)}.fitness-blessing-seal>i{position:absolute;inset:0;border-radius:inherit;background:conic-gradient(var(--ceremony-color) 0 72deg,rgba(255,255,255,.12) 72deg 360deg);mask:radial-gradient(circle,transparent 57%,#000 59%);transition:background 1s ease,filter .5s}.fitness-blessing-seal>span{width:76%;height:76%;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--ceremony-color) 18%,#070707),#020202 72%)}.fitness-blessing-seal img{width:88%;height:88%;object-fit:contain;filter:grayscale(.75) brightness(.7);transition:filter .7s,transform .7s}.fitness-blessing-modal.is-acquired .fitness-blessing-seal>i{background:conic-gradient(var(--ceremony-color) 0 360deg);filter:drop-shadow(0 0 13px var(--ceremony-color))}.fitness-blessing-modal.is-acquired .fitness-blessing-seal img{filter:none;transform:scale(1.08)}
+.fitness-blessing-history{min-height:340px;padding:calc(clamp(112px,14vw,168px) / 2 + 26px) clamp(22px,7vw,76px) 52px;background:linear-gradient(#020202,#070502)}.fitness-blessing-history[aria-hidden=true]{visibility:hidden;min-height:170px}.fitness-blessing-history>h2{margin:10px 0 22px;font:500 clamp(28px,4vw,48px)/1.1 Georgia,serif;color:#f4ead4;letter-spacing:.06em}.fitness-blessing-history>div{border-top:1px solid rgba(221,178,79,.22)}.fitness-blessing-history article{display:grid;grid-template-columns:auto minmax(18px,1fr) auto;align-items:center;gap:10px;min-height:48px;border-bottom:1px solid rgba(221,178,79,.16)}.fitness-blessing-history article span,.fitness-blessing-history p span{font:700 9px monospace;letter-spacing:.12em;color:#a9a092}.fitness-blessing-history article i{height:1px;background:linear-gradient(90deg,rgba(221,178,79,.28),transparent)}.fitness-blessing-history article strong{font:500 clamp(12px,1.1vw,16px) Georgia,serif;color:#f0d486;text-align:right}.fitness-blessing-history>p{display:flex;justify-content:space-between;gap:18px;margin:18px 0 0;padding:16px;border-left:2px solid var(--ceremony-color);background:rgba(255,255,255,.025)}.fitness-blessing-history>p strong{font:500 13px Georgia,serif;color:#eee;text-align:right}.fitness-blessing-history blockquote{margin:20px 0 0;font:italic 15px/1.55 Georgia,serif;color:#cfc4b2}.fitness-scene-ceremony .fitness-transition-continue:disabled{opacity:0;pointer-events:none}
+
+/* Ascension is the final ledger: proof on the left, earned Blessings on the right. */
+.fitness-scene-ascension{overflow:hidden}
+.fitness-scene-ascension>header{display:none}
+.fitness-scene-ascension>main{display:block;height:100svh;min-height:0;padding:clamp(28px,4vh,54px) clamp(24px,3.5vw,68px) clamp(94px,11vh,126px);overflow:hidden}
+.fitness-scene-ascension .fitness-experience-bg img{object-position:center center;filter:saturate(.92) contrast(1.04)}
+.fitness-scene-ascension .fitness-experience-shade{background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.5) 21%,rgba(0,0,0,.03) 43% 64%,rgba(0,0,0,.54) 79%,rgba(0,0,0,.84) 100%)}
+.fitness-ascension-layout{position:relative;width:100%;height:100%;color:#f0dfb8;text-shadow:0 2px 10px #000}
+.fitness-ascension-record{position:absolute;z-index:3;left:0;top:0;width:min(440px,27vw);height:100%;display:flex;flex-direction:column;align-items:stretch}
+.fitness-ascension-record .fitness-deity-title-card{width:min(360px,23vw);max-height:20vh;margin:-12px auto -10px}
+.fitness-ascension-record .fitness-deity-title-card.deity-hermes{width:min(410px,25vw);margin-top:-28px;margin-bottom:-24px}
+.fitness-ascension-record .fitness-deity-title-card.deity-zeus{width:min(225px,14vw);margin:0 auto -2px}
+.fitness-ascension-record h2{margin:0;text-align:center;font:500 clamp(18px,1.55vw,29px)/1.1 Georgia,serif;letter-spacing:.13em;color:#f3d98f}
+.fitness-ascension-rule{position:relative;height:16px;margin:5px 0 7px}.fitness-ascension-rule:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--ascension-color),transparent)}.fitness-ascension-rule i{position:absolute;left:50%;top:50%;width:9px;height:9px;border:1px solid #f2d376;transform:translate(-50%,-50%) rotate(45deg);background:#092b22;box-shadow:0 0 12px var(--ascension-color)}
+.fitness-ascension-record>small,.fitness-ascension-blessings>h3{margin:0 0 8px;text-align:center;font:700 clamp(9px,.7vw,11px)/1.2 ui-monospace,monospace;letter-spacing:.22em;color:#d9b65e}
+.fitness-ascension-creed{border-top:1px solid rgba(221,178,79,.3)}
+.fitness-ascension-creed>div{display:grid;grid-template-columns:auto minmax(20px,1fr) auto;align-items:center;gap:8px;min-height:38px;border-bottom:1px solid rgba(221,178,79,.2);font-family:Georgia,serif}
+.fitness-ascension-creed span{font-size:clamp(10px,.74vw,13px);letter-spacing:.035em}.fitness-ascension-creed i{height:1px;background:linear-gradient(90deg,rgba(221,178,79,.35),transparent)}.fitness-ascension-creed strong{max-width:190px;text-align:right;font-size:clamp(10px,.76vw,13px);font-weight:500;color:#e8c66f}
+.fitness-ascension-record blockquote{margin:auto 0 0;padding:11px 8px 0;border-top:1px solid rgba(221,178,79,.28);text-align:center;font:italic clamp(11px,.8vw,14px)/1.45 Georgia,serif;color:#d6bf90}
+.fitness-ascension-blessings{position:absolute;z-index:3;right:0;top:20%;width:min(390px,24vw);display:flex;flex-direction:column;gap:12px}
+.fitness-ascension-blessings h3{margin-bottom:1px;font-family:Georgia,serif;font-size:clamp(12px,1vw,17px);font-weight:500;letter-spacing:.11em}
+.fitness-ascension-blessings article{display:grid;grid-template-columns:clamp(70px,5.8vw,96px) 1fr;align-items:center;gap:15px;min-height:118px;padding:10px 14px;border-block:1px solid rgba(221,178,79,.25);background:linear-gradient(90deg,rgba(0,0,0,.48),rgba(0,0,0,.17));opacity:.68;transition:opacity .24s ease,background .24s ease,box-shadow .24s ease,transform .24s ease,border-color .24s ease}
+.fitness-ascension-blessings article.is-complete{opacity:1}.fitness-ascension-blessings article>span{position:relative;display:grid;place-items:center;aspect-ratio:1;border:1px solid color-mix(in srgb,var(--ascension-color),transparent 50%);border-radius:50%;background:radial-gradient(circle,rgba(236,199,108,.12),transparent 70%)}.fitness-ascension-blessings img{width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 4px 9px #000) drop-shadow(0 0 9px color-mix(in srgb,var(--ascension-color),transparent 70%))}.fitness-ascension-blessings article div{display:flex;min-width:0;flex-direction:column;gap:5px}.fitness-ascension-blessings article strong{font:500 clamp(13px,1vw,18px)/1.1 Georgia,serif;color:#f2d99e}.fitness-ascension-blessings article small{font:700 clamp(7px,.52vw,9px)/1.25 ui-monospace,monospace;letter-spacing:.1em;color:#bfa66f}
+@media (hover: hover) and (pointer: fine){
+.fitness-ascension-blessings article:hover{opacity:1;transform:translateX(-5px);border-color:color-mix(in srgb,var(--ascension-color),#f6d88b 35%);background:linear-gradient(90deg,color-mix(in srgb,var(--ascension-color),rgba(0,0,0,.68) 88%),rgba(10,7,2,.42));box-shadow:inset 0 0 30px color-mix(in srgb,var(--ascension-color),transparent 86%),0 0 24px color-mix(in srgb,var(--ascension-color),transparent 76%)}}
+.fitness-ascension-blessings article:hover img{filter:drop-shadow(0 4px 9px #000) drop-shadow(0 0 16px color-mix(in srgb,var(--ascension-color),transparent 38%))}
+.fitness-ascension-blessings.is-mobile{display:none}
+.fitness-ascension-tick{display:inline-block;color:#f5d36f;font-size:1.45em;line-height:.7;text-shadow:0 0 14px var(--ascension-color);animation:fitness-ascension-tick-in .55s cubic-bezier(.22,1,.36,1) both}
+@keyframes fitness-ascension-tick-in{from{opacity:0;transform:scale(.35) rotate(-18deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.fitness-ascension-layout.deity-hermes .fitness-ascension-record{left:50%;width:min(370px,24vw)}
+.fitness-ascension-layout.deity-hermes .fitness-ascension-blessings{right:0;left:auto;width:min(335px,21vw)}
+.fitness-ascension-layout.deity-hermes .fitness-ascension-blessings article{grid-template-columns:clamp(62px,5vw,82px) 1fr;min-height:104px}
+.fitness-scene-ascension .fitness-transition-continue{left:50%;right:auto;bottom:24px;transform:translateX(-50%);justify-content:center;width:min(360px,calc(100vw - 32px));min-height:60px;border-radius:999px;background:linear-gradient(180deg,rgba(33,23,8,.94),rgba(3,3,3,.98));font:600 clamp(15px,1.25vw,21px)/1 Georgia,serif;color:#f4d580}
+
+@media(max-width:980px){
+  .fitness-scene-ascension{overflow:auto}.fitness-scene-ascension>main{height:auto;min-height:100svh;padding:28px 22px 104px;overflow:visible}
+  .fitness-scene-ascension .fitness-experience-bg img{object-position:center center}
+  .fitness-ascension-layout{min-height:calc(100svh - 132px);display:grid;grid-template-columns:minmax(240px,.88fr) minmax(220px,.72fr);align-content:start;gap:clamp(22px,4vw,48px)}
+  .fitness-ascension-record,.fitness-ascension-blessings,.fitness-ascension-layout.deity-hermes .fitness-ascension-record,.fitness-ascension-layout.deity-hermes .fitness-ascension-blessings{position:relative;inset:auto;width:auto;height:auto}
+  .fitness-ascension-record .fitness-deity-title-card{width:min(330px,38vw);max-height:18vh}.fitness-ascension-record .fitness-deity-title-card.deity-hermes{width:min(370px,43vw)}.fitness-ascension-record .fitness-deity-title-card.deity-zeus{width:min(205px,24vw)}
+  .fitness-ascension-record blockquote{margin-top:18px}.fitness-ascension-blessings{margin-top:16vh}
+}
+@media(max-width:720px){
+  .fitness-scene-ascension{background:#050403;overflow:auto}
+  .fitness-scene-ascension>main{height:auto;min-height:100svh;padding:0 14px 86px;overflow:visible}
+  .fitness-scene-ascension .fitness-experience-bg{position:absolute;inset:0 0 auto;height:66.667vw;display:block;background:#000;backdrop-filter:none}
+  .fitness-scene-ascension .fitness-experience-bg img{width:100%;height:100%;object-fit:contain;object-position:center top;filter:saturate(1.05) contrast(1.03);box-shadow:none}
+  .fitness-scene-ascension .fitness-experience-shade{position:absolute;inset:0 0 auto;height:66.667vw;background:linear-gradient(90deg,rgba(0,0,0,.48),rgba(0,0,0,.04) 42% 58%,rgba(0,0,0,.5)),linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.1) 68%,#050403 100%)}
+  .fitness-ascension-layout{display:block;min-height:calc(100svh - 86px);height:auto;padding-top:calc(66.667vw + 14px)}
+  .fitness-ascension-record,.fitness-ascension-layout.deity-hermes .fitness-ascension-record{position:static;width:100%;height:auto;margin-top:-20vw;padding:0 5px;align-items:stretch}
+  .fitness-ascension-identity{position:absolute;z-index:5;left:4px;top:8px;width:48%;display:flex;flex-direction:column;align-items:flex-start}
+  .fitness-ascension-layout.deity-hermes .fitness-ascension-identity{left:auto;right:3px;align-items:flex-end}
+  .fitness-ascension-record .fitness-deity-title-card{width:min(174px,45vw);max-height:14vw;margin:-6px auto -8px 0}.fitness-ascension-record .fitness-deity-title-card.deity-hermes{width:min(184px,47vw);margin:-12px 0 -14px auto}.fitness-ascension-record .fitness-deity-title-card.deity-zeus{width:min(102px,26vw);margin:0 auto 0 0}
+  .fitness-ascension-record h2{text-align:left;font-size:10px;letter-spacing:.1em;text-shadow:0 2px 8px #000,0 0 18px #000}.fitness-ascension-layout.deity-hermes .fitness-ascension-record h2{text-align:right;align-self:flex-end}
+  .fitness-ascension-identity .fitness-ascension-rule{display:block;width:100%;height:9px;margin:2px 0}.fitness-ascension-identity .fitness-ascension-rule i{width:6px;height:6px}
+  .fitness-ascension-record>small{display:block;margin-bottom:7px;font-size:8px}.fitness-ascension-creed{display:block;padding:4px 8px 8px;background:linear-gradient(180deg,rgba(7,5,2,.82),rgba(2,2,2,.94));border-inline:1px solid rgba(221,178,79,.16)}.fitness-ascension-creed>div{min-height:32px}.fitness-ascension-creed span,.fitness-ascension-creed strong{font-size:9px}.fitness-ascension-creed strong{max-width:155px}.fitness-ascension-record blockquote{display:none}
+  .fitness-ascension-layout>.fitness-ascension-blessings{display:none}
+  .fitness-ascension-record .fitness-ascension-blessings.is-mobile,.fitness-ascension-layout.deity-hermes .fitness-ascension-record .fitness-ascension-blessings.is-mobile{position:static;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;margin:0 0 18px;padding:12px 0 14px;gap:6px;border-block:1px solid rgba(221,178,79,.25);background:linear-gradient(180deg,rgba(10,7,3,.76),rgba(1,1,1,.94))}
+  .fitness-ascension-record .fitness-ascension-blessings.is-mobile h3{grid-column:1/-1;margin:0 0 5px;text-align:center;padding:0;font-size:10px;letter-spacing:.12em}
+  .fitness-ascension-record .fitness-ascension-blessings.is-mobile article,.fitness-ascension-layout.deity-hermes .fitness-ascension-record .fitness-ascension-blessings.is-mobile article{display:flex;min-width:0;min-height:118px;flex-direction:column;justify-content:flex-start;gap:5px;padding:7px 4px;text-align:center;border:1px solid rgba(221,178,79,.16);background:rgba(0,0,0,.34)}
+  .fitness-ascension-record .fitness-ascension-blessings.is-mobile article>span{width:58px;margin:0 auto}.fitness-ascension-record .fitness-ascension-blessings.is-mobile article div{align-items:center}.fitness-ascension-record .fitness-ascension-blessings.is-mobile article strong{font-size:11px}.fitness-ascension-record .fitness-ascension-blessings.is-mobile article small{font-size:6px}@media (hover: hover) and (pointer: fine){.fitness-ascension-record .fitness-ascension-blessings.is-mobile article:hover{transform:none}}
+  .fitness-scene-ascension .fitness-transition-continue{bottom:10px;min-height:52px}
+}
+
+/* Ceremonial blessing modal: layered reference composition. */
+.fitness-scene-ceremony{background:rgba(6,12,20,.16);backdrop-filter:blur(7px) saturate(.78)}
+.fitness-scene-ceremony>.fitness-experience-shade{background:radial-gradient(circle at 50% 44%,rgba(8,20,34,.04),rgba(3,10,18,.32))}
+.fitness-scene-ceremony>header{display:none}
+.fitness-scene-ceremony>main{min-height:100dvh;padding:clamp(54px,7vh,86px) clamp(26px,4vw,70px);display:grid;place-items:center}
+.fitness-blessing-modal{position:relative;isolation:isolate;display:grid;grid-template-columns:39% 61%;grid-template-rows:minmax(0,1fr) 112px;width:min(1320px,calc(100vw - 110px));height:min(calc((100vw - 110px)*.5625),calc(100dvh - 116px));aspect-ratio:16/9;max-height:none;margin:auto;overflow:visible;border:0;background:linear-gradient(110deg,rgba(7,15,25,.54),rgba(8,18,30,.66) 42%,rgba(3,10,18,.6));box-shadow:0 28px 100px #000b,0 0 0 1px color-mix(in srgb,var(--ceremony-color) 28%,transparent);backdrop-filter:blur(9px) saturate(.82);transition:grid-template-rows .45s ease}
+.fitness-blessing-modal.is-acquired{grid-template-rows:minmax(0,1fr) 154px}
+.fitness-blessing-modal:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 70% 27%,color-mix(in srgb,var(--ceremony-color) 13%,transparent),transparent 34%),linear-gradient(90deg,transparent,rgba(3,12,21,.08));pointer-events:none}
+.fitness-blessing-frame{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:visible}.fitness-blessing-frame>img{position:absolute;display:block;object-fit:contain;filter:drop-shadow(0 4px 8px #000c)}
+.fitness-blessing-frame-corner{width:clamp(124px,11vw,184px);height:clamp(124px,11vw,184px)}.fitness-blessing-frame-corner.is-tl{left:-40px;top:-40px}.fitness-blessing-frame-corner.is-tr{right:-40px;top:-40px;transform:scaleX(-1)}.fitness-blessing-frame-corner.is-bl{left:-40px;bottom:-40px;transform:scaleY(-1)}.fitness-blessing-frame-corner.is-br{right:-40px;bottom:-40px;transform:scale(-1)}
+.fitness-blessing-frame-center{z-index:1;left:50%;top:-57px;width:clamp(190px,22vw,330px);height:112px;transform:translateX(-50%)}.fitness-blessing-frame-gem{z-index:2;left:50%;top:-39px;width:72px;height:72px;transform:translateX(-50%);filter:drop-shadow(0 0 12px color-mix(in srgb,var(--ceremony-color) 65%,transparent))!important}
+.fitness-blessing-modal-actions{position:absolute;z-index:40;top:18px;right:18px;display:flex;justify-content:flex-end;pointer-events:none}
+.fitness-blessing-modal-actions button{pointer-events:auto;display:flex;align-items:center;gap:7px;padding:8px 10px;border:0;background:rgba(2,2,2,.54);color:#e7c979;font:800 8px monospace;letter-spacing:.15em;backdrop-filter:blur(8px)}
+.fitness-blessing-modal-actions button:last-child{width:30px;height:30px;justify-content:center;padding:0;border:0;border-radius:0;background:transparent;font-size:0;backdrop-filter:none;text-shadow:0 0 9px #e7c97988}
+.fitness-blessing-visual{grid-column:1;grid-row:1;min-height:0;height:auto;overflow:hidden;background:transparent}
+.fitness-blessing-visual:after{background:linear-gradient(90deg,transparent 68%,rgba(3,3,3,.72)),linear-gradient(0deg,rgba(0,0,0,.4),transparent 34%)}
+.fitness-blessing-visual>img{height:100%;object-fit:cover;object-position:center top}
+.fitness-blessing-title{left:8px;right:auto;top:8px;width:auto;max-width:80%;display:flex;align-items:center;gap:5px;padding:0;border:0;background:transparent;color:#f0ce77;text-align:left;font:600 clamp(8px,.8vw,12px) Georgia,serif;letter-spacing:.14em;white-space:nowrap;text-shadow:0 2px 10px #000}
+.fitness-blessing-title>img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 0 7px #3678dd)}
+.fitness-blessing-dossier{position:relative;grid-column:2;grid-row:1;display:grid;grid-template-rows:146px minmax(0,1fr);min-width:0;min-height:0;padding:20px clamp(24px,3vw,48px) 8px;overflow:hidden;background:transparent}
+.fitness-blessing-dossier:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 22% 58%,color-mix(in srgb,var(--ceremony-color) 24%,transparent),transparent 27%),radial-gradient(ellipse at 82% 22%,color-mix(in srgb,var(--ceremony-color) 12%,transparent),transparent 32%),radial-gradient(ellipse at 74% 78%,rgba(226,190,103,.08),transparent 30%),linear-gradient(118deg,transparent 18%,rgba(255,255,255,.025) 43%,transparent 58%);opacity:.72}
+.fitness-blessing-dossier:after{content:"";position:absolute;inset:5% 3% 7%;z-index:0;pointer-events:none;background-image:radial-gradient(circle,rgba(240,205,119,.7) 0 1px,transparent 1.7px),radial-gradient(circle,rgba(255,255,255,.38) 0 1px,transparent 1.5px);background-position:0 0,31px 43px;background-size:67px 73px,89px 97px;mask-image:radial-gradient(ellipse at center,#000 0,transparent 72%);opacity:.13}
+.fitness-blessing-dossier>header,.fitness-blessing-showcase{position:relative;z-index:1}
+.fitness-blessing-dossier>header{text-align:center;min-height:0;transform:translateY(-10px)}
+.fitness-blessing-dossier>header .fitness-deity-title-card{width:min(350px,70%);margin:-28px auto -34px}
+.fitness-blessing-dossier>header small{position:relative;z-index:2;display:block;margin-top:-2px;font-size:clamp(6px,.55vw,9px);letter-spacing:.34em}
+.fitness-blessing-showcase{display:grid;grid-template-columns:minmax(135px,.76fr) minmax(220px,1.24fr);grid-template-rows:1fr;align-items:center;gap:0 18px;min-height:0}
+.fitness-blessing-showcase:before{content:"";position:absolute;z-index:-1;left:-3%;top:43%;width:42%;aspect-ratio:1;transform:translateY(-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--ceremony-color) 20%,transparent),color-mix(in srgb,var(--ceremony-color) 7%,transparent) 38%,transparent 69%);filter:blur(8px);pointer-events:none}
+.fitness-blessing-dossier .fitness-blessing-seal{position:relative;align-self:center;width:min(100%,154px);aspect-ratio:1;margin:0 auto;padding:0;background:transparent;filter:drop-shadow(0 12px 18px #000);transform:translateY(-14px)}
+.fitness-blessing-seal:before,.fitness-blessing-seal:after,.fitness-blessing-seal>i{display:none}
+.fitness-blessing-ring{position:absolute!important;z-index:1!important;inset:0;width:100%!important;height:100%!important;object-fit:contain!important;filter:drop-shadow(0 0 12px color-mix(in srgb,var(--ceremony-color) 45%,transparent))!important}
+.fitness-blessing-seal>span{position:relative;z-index:2;width:58%;height:58%;background:transparent}
+.fitness-blessing-seal>span>img{width:100%;height:100%;object-fit:contain;filter:brightness(.66) saturate(.55) drop-shadow(0 7px 12px #000)}
+.fitness-blessing-modal.is-acquired .fitness-blessing-seal>span>img{filter:none;transform:scale(1.04)}
+.fitness-blessing-summary{align-self:center;min-width:0;text-align:left}
+.fitness-blessing-summary h2{margin:0;font:500 clamp(22px,2.2vw,39px)/1 Georgia,serif;color:#f7ead0;letter-spacing:.04em;text-transform:uppercase}
+.fitness-blessing-summary>strong{display:block;margin:7px 0;color:#e1bb5c;font:700 clamp(8px,.75vw,12px) Georgia,serif;letter-spacing:.14em}
+.fitness-blessing-summary>p{margin:12px 0 0;font:italic clamp(11px,1vw,15px)/1.4 'Source Serif 4',Georgia,serif;color:#ddca9c}
+.fitness-blessing-acquire-row{display:flex;align-items:flex-start;justify-content:center;min-height:47px;margin-top:68px;overflow:visible}
+.fitness-blessing-summary .fitness-blessing-acquire{position:relative;display:block;width:min(190px,78%);min-width:150px;margin:0;padding:10px 24px;overflow:visible;border:1px solid #f0cf72;background:linear-gradient(180deg,#f5d77d,#b77a20);color:#170e03;font:900 10px monospace;letter-spacing:.28em;box-shadow:inset 0 0 12px #fff1aa88,0 0 15px #e0ad3977,0 0 28px #c8811d55;transition:color .22s,background .22s,box-shadow .22s,filter .22s}
+.fitness-blessing-progress-copy{display:flex;justify-content:space-between;gap:12px;color:#e3cb93;font:700 clamp(8px,.75vw,11px) Georgia,serif;letter-spacing:.05em}
+.fitness-blessing-rose-progress{position:relative;width:min(100%,410px);aspect-ratio:5.9/1;margin:10px auto 0 -16px}
+.fitness-blessing-rose-progress>i{position:absolute;z-index:1;left:14%;width:72%;top:50%;height:7px;transform:translateY(-50%);background:linear-gradient(90deg,#7d092e,#ef7393);clip-path:inset(0 calc(100% - var(--blessing-fill)) 0 0);box-shadow:0 0 11px #cf164d}
+.fitness-blessing-rose-progress>img{position:absolute;z-index:2;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px #000)}
+.fitness-blessing-summary .fitness-blessing-acquire:hover,.fitness-blessing-summary .fitness-blessing-acquire:focus-visible{background:linear-gradient(180deg,#ffe99a,#c98a27);color:#110900;filter:brightness(1.12);box-shadow:inset 0 0 15px #fff8cbbb,0 0 24px #f2c04dcc,0 0 48px #dc8f27aa;outline:none}
+.fitness-blessing-acquire>span{position:relative;z-index:2}
+.fitness-blessing-acquire>img{position:absolute;width:52px;height:52px;object-fit:contain;pointer-events:none}
+.fitness-blessing-acquire>img.is-tl{left:-12px;top:-13px}
+.fitness-blessing-acquire>img.is-br{right:-12px;bottom:-13px;transform:scale(-1)}
+.fitness-blessing-modal.is-acquired .fitness-blessing-acquire{visibility:hidden;pointer-events:none}
+.fitness-blessing-record{grid-column:1/-1;grid-row:2;position:relative;z-index:3;padding:0 clamp(38px,5vw,74px) 15px;background:linear-gradient(180deg,rgba(6,17,29,.25),rgba(3,12,22,.4));backdrop-filter:blur(7px);min-height:132px}
+.fitness-blessing-record>.fitness-blessing-divider:first-child{margin-top:-14px}
+.fitness-blessing-divider{position:relative;display:block;width:min(680px,84%);height:24px;margin:0 auto;pointer-events:none}.fitness-blessing-divider img:first-child{position:absolute;left:0;top:50%;width:100%;height:18px;object-fit:contain;transform:translateY(-50%)}.fitness-blessing-divider img:last-child{position:absolute;z-index:2;left:50%;top:50%;width:34px;height:34px;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px #3169bf88)}
+.fitness-blessing-record .fitness-blessing-history{display:grid;grid-template-columns:repeat(3,1fr);gap:0;min-height:0;padding:0;background:transparent;overflow:visible}
+.fitness-blessing-record .fitness-blessing-history[aria-hidden=true]{visibility:hidden;min-height:0}
+.fitness-blessing-record .fitness-blessing-history[aria-hidden=false]{visibility:visible}
+.fitness-blessing-record .fitness-blessing-history>small{grid-column:1/-1;margin:1px 0 7px;font:700 12px Georgia,serif;letter-spacing:.15em;color:#dfbd6d}
+.fitness-blessing-record .fitness-blessing-history>div{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);border:0}
+.fitness-blessing-record .fitness-blessing-history article{display:flex;min-width:0;min-height:34px;padding:0 14px;border-right:1px solid #a47d3138;border-bottom:1px solid #a47d312b;align-items:center;justify-content:space-between;gap:8px}
+.fitness-blessing-record .fitness-blessing-history article:nth-child(3n){border-right:0}
+.fitness-blessing-record .fitness-blessing-history article span{font-size:9px}.fitness-blessing-record .fitness-blessing-history article i{display:none}.fitness-blessing-record .fitness-blessing-history article strong{font-size:14px}
+.fitness-blessing-record .fitness-blessing-history>p{grid-column:1/-1;margin:5px 0 0;padding:5px 9px}
+.fitness-blessing-record>.fitness-blessing-divider:last-of-type{height:19px}
+.fitness-blessing-continue{position:absolute;right:22px;bottom:16px;z-index:5;display:flex;align-items:center;gap:5px;padding:8px 12px;border:1px solid #f0cf72;background:linear-gradient(180deg,#f5d77d,#b77a20);color:#170e03;font:800 7px monospace;letter-spacing:.14em;box-shadow:inset 0 0 10px #fff1aa88,0 0 14px #e0ad3977,0 0 26px #c8811d55;transition:filter .22s,box-shadow .22s,background .22s}
+.fitness-blessing-continue:hover,.fitness-blessing-continue:focus-visible{background:linear-gradient(180deg,#ffe99a,#c98a27);filter:brightness(1.12);box-shadow:inset 0 0 13px #fff8cbbb,0 0 22px #f2c04dcc,0 0 42px #dc8f27aa;outline:none}
+.fitness-blessing-continue:disabled{opacity:0;pointer-events:none}
+
+@media(min-width:721px) and (max-width:1100px){
+  .fitness-scene-ceremony>main{padding:34px 22px 58px}
+  .fitness-blessing-modal,.fitness-blessing-modal.is-acquired{width:calc(100vw - 44px);height:min(calc((100vw - 44px)*.5625),calc(100dvh - 70px));grid-template-rows:minmax(0,1fr) 132px}
+  .fitness-blessing-dossier{grid-template-rows:108px minmax(0,1fr);padding:14px 24px 4px}
+  .fitness-blessing-dossier>header{transform:translateY(-8px)}
+  .fitness-blessing-dossier>header .fitness-deity-title-card{width:min(280px,64%);margin:-24px auto -28px}
+  .fitness-blessing-showcase{grid-template-columns:minmax(104px,.7fr) minmax(190px,1.3fr);gap:0 12px}
+  .fitness-blessing-dossier .fitness-blessing-seal{width:min(100%,122px);transform:translateY(-8px)}
+  .fitness-blessing-summary h2{font-size:clamp(18px,2.5vw,27px)}
+  .fitness-blessing-summary>strong{margin:4px 0;font-size:8px}
+  .fitness-blessing-summary>p{margin-top:7px;font-size:10px;line-height:1.25}
+  .fitness-blessing-acquire-row{min-height:38px;margin-top:30px}
+  .fitness-blessing-summary .fitness-blessing-acquire{width:min(165px,78%);min-width:132px;padding:8px 18px;font-size:8px}
+  .fitness-blessing-acquire>img{width:44px;height:44px}.fitness-blessing-acquire>img.is-tl{left:-10px;top:-11px}.fitness-blessing-acquire>img.is-br{right:-10px;bottom:-11px}
+  .fitness-blessing-progress-copy{font-size:7px}
+  .fitness-blessing-rose-progress{width:min(100%,300px);margin:4px auto 0 -10px}
+  .fitness-blessing-record{min-height:132px;padding-inline:44px}
+}
+
+@media(max-width:720px){
+  .fitness-scene-ceremony>main{padding:36px 14px 72px;align-items:center}
+  .fitness-blessing-modal,.fitness-blessing-modal.is-acquired{grid-template-columns:52% 48%;grid-template-rows:minmax(0,1fr) 190px;width:calc(100vw - 30px);height:min(calc(100dvh - 112px),calc((100vw - 30px)*1.72));aspect-ratio:auto;max-height:none}
+  .fitness-blessing-frame-corner{width:128px;height:128px}.fitness-blessing-frame-corner.is-tl{left:-34px;top:-34px}.fitness-blessing-frame-corner.is-tr{right:-34px;top:-34px}.fitness-blessing-frame-corner.is-bl{left:-34px;bottom:-34px}.fitness-blessing-frame-corner.is-br{right:-34px;bottom:-34px}
+  .fitness-blessing-frame-center{top:-35px;width:160px;height:72px}.fitness-blessing-frame-gem{top:-25px;width:48px;height:48px}
+  .fitness-blessing-modal-actions{top:7px;right:7px}.fitness-blessing-modal-actions button:last-child{width:26px;height:26px}
+  .fitness-blessing-title{left:4px;top:4px;max-width:76%;gap:2px;padding:0;font-size:5px;letter-spacing:.09em}.fitness-blessing-title>img{width:14px;height:14px}
+  .fitness-blessing-visual>img{object-position:center top}
+  .fitness-blessing-dossier{grid-template-rows:auto minmax(0,1fr);padding:28px 8px 4px}
+  .fitness-blessing-dossier>header{transform:translateY(-16px)}
+  .fitness-blessing-dossier>header .fitness-deity-title-card{width:112%;max-width:none;margin:-24px -6% -24px}
+  .fitness-blessing-dossier>header small{font-size:5px;letter-spacing:.22em}
+  .fitness-blessing-showcase{display:flex;flex-direction:column;justify-content:center;gap:1px;overflow:hidden;transform:translateY(-12px)}
+  .fitness-blessing-dossier .fitness-blessing-seal{width:min(30vw,120px);flex:0 0 auto;transform:translateY(-12px)}
+  .fitness-blessing-summary{text-align:center}.fitness-blessing-summary h2{font-size:clamp(13px,4vw,18px)}.fitness-blessing-summary>strong{margin:3px 0;font-size:6px}.fitness-blessing-summary>p{margin:5px 2px 0;font-size:8px;line-height:1.25}
+  .fitness-blessing-acquire-row{justify-content:center;min-height:37px;margin-top:44px;transform:translateX(10px)}.fitness-blessing-summary .fitness-blessing-acquire{width:min(132px,86%);min-width:104px;margin:0;padding:7px 12px;font-size:6px}.fitness-blessing-acquire>img{width:38px;height:38px}.fitness-blessing-acquire>img.is-tl{left:-9px;top:-10px}.fitness-blessing-acquire>img.is-br{right:-9px;bottom:-10px}
+  .fitness-blessing-progress-copy{font-size:5px}.fitness-blessing-rose-progress{width:min(100%,215px);margin:7px auto 0}
+  .fitness-blessing-divider{width:90%}
+  .fitness-blessing-record{min-height:190px;padding:0 14px 10px}.fitness-blessing-record>.fitness-blessing-divider:first-child{margin-top:-10px}
+  .fitness-blessing-record .fitness-blessing-history{display:block}.fitness-blessing-record .fitness-blessing-history>small{font-size:9px}.fitness-blessing-record .fitness-blessing-history>div{display:grid;grid-template-columns:1fr 1fr}.fitness-blessing-record .fitness-blessing-history article{min-height:31px;padding:0 6px}.fitness-blessing-record .fitness-blessing-history article:nth-child(3n){border-right:1px solid #a47d3138}.fitness-blessing-record .fitness-blessing-history article:nth-child(2n){border-right:0}.fitness-blessing-record .fitness-blessing-history article span{font-size:7px}.fitness-blessing-record .fitness-blessing-history article strong{font-size:10px}.fitness-blessing-record .fitness-blessing-history>p{padding:4px 6px}.fitness-blessing-continue{right:10px;bottom:8px;padding:6px 8px;font-size:6px}
+}
+@media(max-width:720px){.fitness-realm:before{background-image:url('/fitness-v2/olympus/pantheon/olympus-grand-hall-mobile.webp');background-position:center center}.fitness-olympus-integrated{grid-template-columns:1fr 1fr}.fitness-olympus-integrated div{grid-column:1/-1}.fitness-experience>header{height:62px;padding:0 14px}.fitness-experience>header span{display:none}.fitness-experience>main{padding:30px 14px 100px}.fitness-report-metrics{grid-template-columns:repeat(2,1fr)}.fitness-report-layout,.fitness-resource-layout,.fitness-war-ledger-layout,.fitness-pantheon-layout{padding:22px}.fitness-decree-grid{grid-template-columns:1fr}.fitness-chamber-layout{min-height:1000px}.fitness-chamber-copy{position:relative;left:auto;top:auto;text-align:center}.fitness-chamber-stage{height:620px;top:110px;bottom:auto}.fitness-chamber-statue{height:78%;max-width:88%}.fitness-cloud{left:-18%;width:136%}.fitness-chamber-blessings{top:650px;left:8px;right:8px;bottom:auto;display:grid;grid-template-columns:1fr;gap:8px}.fitness-chamber-blessings button,.fitness-chamber-blessings button:nth-child(n){position:relative;left:auto;right:auto;top:auto;bottom:auto;width:100%;display:grid;grid-template-columns:70px 1fr auto;align-items:center}.fitness-chamber-blessings img{grid-row:1/4}.fitness-transition-continue{right:15px;bottom:88px}.fitness-resource-entry{flex-direction:column}}
+.fitness-experience{z-index:10000}
+@media(max-width:720px){.fitness-transition-continue{left:15px;right:auto}}
+@media(max-width:720px){.fitness-scene-ceremony>header{height:58px}.fitness-scene-ceremony>main{padding:10px 8px 82px}.fitness-blessing-modal{max-height:calc(100dvh - 72px)}.fitness-blessing-title{left:12px;top:9px;width:58%}.fitness-blessing-title>small{font-size:6px;letter-spacing:.16em}.fitness-blessing-title .fitness-deity-title-card{margin:-14px 0 -28px}.fitness-blessing-acquire{right:12px;bottom:12px;min-width:104px;padding:10px 13px;font-size:8px}.fitness-blessing-seal{width:104px;margin:-52px auto}.fitness-blessing-history{min-height:300px;padding:78px 14px 34px}.fitness-blessing-history[aria-hidden=true]{min-height:120px}.fitness-blessing-history>h2{font-size:27px}.fitness-blessing-history article{min-height:39px}.fitness-blessing-history article span{font-size:7px}.fitness-blessing-history article strong{font-size:10px}.fitness-blessing-history>p{align-items:flex-start;padding:12px}.fitness-blessing-history>p span{font-size:7px}.fitness-blessing-history>p strong{font-size:11px}.fitness-blessing-history blockquote{font-size:13px}.fitness-scene-ceremony .fitness-transition-continue{left:14px;right:14px;bottom:10px;width:auto;justify-content:center}}
+
+/* Pantheon is a navigable map painted directly over the finished Hall artwork. */
+.fitness-scene-hall{overflow:hidden;background:#020202}
+.fitness-scene-hall .fitness-experience-shade{display:none}
+.fitness-scene-hall>header{position:fixed;inset:0 0 auto;z-index:20;height:64px;background:linear-gradient(180deg,rgba(0,0,0,.48),transparent);border:0}
+.fitness-scene-hall>main{display:block;width:100%;height:100vh;min-height:0;padding:0;overflow:hidden}
+.fitness-scene-hall .fitness-experience-bg img{object-position:center center}
+
+@media(max-width:720px){
+  .fitness-scene-hall>header{height:56px;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent)}
+  .fitness-scene-hall>main{height:100svh;padding:0}
+  .fitness-scene-hall .fitness-experience-bg{height:100svh}
+  .fitness-scene-hall .fitness-experience-bg img{object-position:center center}
+  .fitness-pantheon-title{left:18px;top:72px}
+  .fitness-pantheon-title strong{font-size:24px}
+  .fitness-pantheon-title span{display:none}
+  .fitness-pantheon-marker{left:var(--map-mx);top:var(--map-my);width:clamp(74px,24vw,118px);height:24vh}
+  .fitness-pantheon-marker.is-fragment{width:clamp(48px,15vw,74px);height:clamp(48px,15vw,74px)}
+  .fitness-pantheon-marker-label{bottom:-23px;min-width:104px}
+  .fitness-pantheon-marker-label b{font-size:8px}
+  .fitness-pantheon-marker-label small{font-size:5px}
+}
+
+@media (orientation:portrait) and (min-width:721px) and (max-width:900px) {
+  .fitness-scene-hall .fitness-experience-bg img{object-position:center center}
+  .fitness-scene-hall .fitness-pantheon-marker{left:var(--map-mx);top:var(--map-cmy);width:clamp(74px,15vw,112px);height:24vh}
+  .fitness-scene-hall .fitness-pantheon-marker.is-fragment{top:var(--map-my);width:clamp(54px,10vw,78px);height:clamp(54px,10vw,78px)}
+}
+
+/* Affinity is the dependable post-workout reward: cinematic, but quieter than a Fragment. */
+.fitness-scene-affinity{overflow:hidden;background:#020201}
+.fitness-deity-title-card{display:block;width:min(620px,70vw);height:auto;margin:0 auto;object-fit:contain;filter:drop-shadow(0 12px 22px rgba(0,0,0,.72));pointer-events:none}
+.fitness-deity-title-card.deity-zeus{width:min(360px,42vw)}
+.fitness-chamber-identity .fitness-deity-title-card{width:min(390px,38vw);margin-bottom:-18px}
+.fitness-chamber-identity .fitness-deity-title-card.deity-hermes{width:min(430px,41vw);margin-bottom:-30px}
+.fitness-chamber-identity .fitness-deity-title-card.deity-zeus{width:min(210px,21vw);margin-bottom:-8px}
+.fitness-gate-copy .fitness-deity-title-card{width:min(500px,50vw);margin:-42px auto -34px}
+.fitness-gate-copy .fitness-deity-title-card.deity-hermes{width:min(560px,55vw);margin-top:-68px;margin-bottom:-54px}
+.fitness-gate-copy .fitness-deity-title-card.deity-zeus{width:min(285px,29vw);margin:-18px auto -20px}
+.fitness-transition-copy .fitness-deity-title-card{width:min(520px,48vw);margin:-34px auto -38px}
+.fitness-transition-copy .fitness-deity-title-card.deity-hermes{width:min(580px,54vw);margin-top:-58px;margin-bottom:-50px}
+.fitness-transition-copy .fitness-deity-title-card.deity-zeus{width:min(300px,29vw);margin:-8px auto -18px}
+.fitness-deity-ceremony h2,.fitness-deity-ascension h2{margin-top:0}
+.fitness-scene-affinity>header{display:none}
+.fitness-scene-affinity .fitness-experience-bg img{object-position:center center;filter:saturate(1.12) contrast(1.05)}
+.fitness-scene-affinity .fitness-experience-shade{background:radial-gradient(circle at 50% 42%,rgba(55,34,5,.08),rgba(0,0,0,.34) 54%,rgba(0,0,0,.78) 100%)}
+.fitness-scene-affinity>main{height:100svh;min-height:0;padding:clamp(28px,4vh,62px) clamp(28px,5vw,92px) clamp(105px,13vh,150px);display:block;overflow:auto}
+.fitness-affinity-reward{position:relative;isolation:isolate;width:min(1540px,100%);min-height:calc(100svh - clamp(150px,19vh,212px));margin:auto;display:grid;grid-template-columns:minmax(280px,.9fr) minmax(360px,1.1fr) minmax(330px,.9fr);align-items:center;gap:clamp(48px,5.5vw,104px);color:#f3dfaf}
+.fitness-affinity-flow{position:absolute;z-index:4;top:0;left:50%;width:min(560px,42vw);height:1px;overflow:hidden;transform:translateX(-50%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--affinity-color),#d2ad5e 52%),transparent);opacity:.82}
+.fitness-affinity-flow b{position:absolute;inset:0 auto 0 -45%;width:45%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--affinity-color),#fff4c7 38%),transparent);filter:drop-shadow(0 0 5px var(--affinity-color));animation:fitness-gate-progress-sweep 3s linear infinite}
+.fitness-affinity-heading{align-self:center;text-align:center;display:flex;flex-direction:column;align-items:center;min-width:0}
+.fitness-affinity-heading>img{width:min(290px,20vw);aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 0 26px color-mix(in srgb,var(--affinity-color),transparent 62%)) drop-shadow(0 18px 32px #000)}
+.fitness-affinity-heading small,.fitness-affinity-award>small,.fitness-affinity-outcome>small{font:700 clamp(10px,.8vw,13px)/1.2 ui-monospace,monospace;letter-spacing:.22em;color:#d4ad55}
+.fitness-affinity-heading h2{margin:8px 0 4px;font:500 clamp(58px,6vw,108px)/.8 "Times New Roman",serif;letter-spacing:.015em;text-transform:uppercase;color:#ffc30b;text-shadow:0 1px 0 #ffe799,0 3px 2px #5e3900,0 11px 30px #000,0 0 24px color-mix(in srgb,var(--affinity-color),transparent 62%)}
+.fitness-affinity-heading p{max-width:360px;margin:20px 0 0;font:500 clamp(13px,1vw,17px)/1.45 Georgia,serif;letter-spacing:.08em;text-transform:uppercase;color:#ead9b5}
+.fitness-affinity-focus{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;align-self:center;min-width:0}
+.fitness-affinity-award{display:flex;flex-direction:column;align-items:center}
+.fitness-affinity-focus:before{content:"";position:absolute;z-index:-1;left:50%;top:calc(23% - 82px);width:min(220px,18vw);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,195,11,.16),color-mix(in srgb,var(--affinity-color),transparent 90%) 42%,transparent 72%);filter:blur(12px)}
+.fitness-affinity-gem{position:relative;top:-100px;width:clamp(82px,6.5vw,112px);height:clamp(82px,6.5vw,112px);display:grid;place-items:center;margin-bottom:-72px;filter:drop-shadow(0 0 12px rgba(255,195,11,.44)) drop-shadow(0 0 26px color-mix(in srgb,var(--affinity-color),transparent 76%))}
+.fitness-affinity-gem img{width:100%;height:100%;object-fit:contain}
+.fitness-affinity-award>strong{font:500 clamp(76px,7vw,130px)/.85 "Times New Roman",serif;color:#fff0bf;text-shadow:0 2px 0 #8b5917,0 10px 30px #000;margin:8px 0 20px}
+.fitness-affinity-breakdown{width:min(430px,100%);border-top:1px solid rgba(222,181,88,.35)}
+.fitness-affinity-breakdown>div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:18px;padding:13px 5px;border-bottom:1px solid rgba(222,181,88,.22);font:500 clamp(12px,.9vw,15px)/1.2 Georgia,serif;letter-spacing:.05em;color:#dbc99f}.fitness-affinity-breakdown em{font:600 11px/1.2 ui-monospace,monospace;font-style:normal;letter-spacing:.08em;color:#f1dfb5}
+.fitness-affinity-breakdown b{font-weight:600;color:#ffc30b}
+.fitness-affinity-outcome{align-self:center;padding:clamp(22px,2.5vw,38px);border:1px solid rgba(226,183,79,.55);border-radius:22px;background:linear-gradient(145deg,rgba(2,2,2,.78),rgba(12,8,3,.56));box-shadow:inset 0 0 44px color-mix(in srgb,var(--affinity-color),transparent 90%),0 24px 65px rgba(0,0,0,.48);backdrop-filter:blur(8px)}
+.fitness-affinity-values{display:flex;align-items:baseline;gap:12px;margin:12px 0 14px;font-family:"Times New Roman",serif}.fitness-affinity-values span{font-size:clamp(28px,2.3vw,42px);color:#998c75}.fitness-affinity-values i{font-style:normal;color:#c59f4b}.fitness-affinity-values strong{font-size:clamp(48px,4vw,76px);font-weight:500;color:#ffc30b;text-shadow:0 0 20px color-mix(in srgb,var(--affinity-color),transparent 55%)}.fitness-affinity-values em{font-size:clamp(20px,1.8vw,30px);font-style:normal;color:#ead9b5}
+.fitness-affinity-bar{height:16px;padding:3px;border:1px solid #d0a94e;border-radius:999px;background:#030303;box-shadow:inset 0 0 12px #000}.fitness-affinity-bar>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--affinity-color),#ffc30b 75%,#fff2b7);box-shadow:0 0 15px #ffc30b;transition:none}
+.fitness-affinity-outcome>p{margin:12px 0 24px;text-align:center;font:600 11px/1.3 ui-monospace,monospace;letter-spacing:.1em;color:#cdb57d}
+.fitness-affinity-outcome article{display:flex;align-items:center;gap:16px;padding:14px;border:1px solid rgba(226,183,79,.28);border-radius:15px;background:rgba(0,0,0,.34)}
+.fitness-affinity-outcome article img{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 0 14px color-mix(in srgb,var(--affinity-color),transparent 58%))}.fitness-affinity-outcome article div{display:flex;flex-direction:column;gap:5px}.fitness-affinity-outcome article strong{font:600 clamp(17px,1.35vw,22px)/1.1 Georgia,serif;color:#f6dfaa}.fitness-affinity-outcome article span{font:700 9px/1.3 ui-monospace,monospace;letter-spacing:.1em;color:#a99b7e}
+.fitness-affinity-outcome blockquote{margin:20px 0 0;padding:17px 12px;border-top:1px solid rgba(226,183,79,.28);text-align:center;font:italic clamp(14px,1vw,17px)/1.5 Georgia,serif;color:#d8c69f}
+.fitness-scene-affinity .fitness-transition-continue{left:50%;right:auto;bottom:clamp(24px,4vh,44px);transform:translateX(-50%);width:min(390px,calc(100vw - 36px));min-height:70px;justify-content:center;border-color:#ffc30b;border-radius:999px;background:linear-gradient(180deg,rgba(37,25,5,.96),rgba(3,3,3,.97));color:#ffe18b;font:600 clamp(17px,1.4vw,23px)/1 Georgia,serif;box-shadow:inset 0 0 0 3px rgba(255,195,11,.1),0 0 28px rgba(255,195,11,.22),0 18px 42px #000;transition:filter .2s ease,box-shadow .2s ease,transform .2s ease,opacity .3s ease}
+.fitness-scene-affinity .fitness-transition-continue:focus-visible:not(:disabled){transform:translateX(-50%) translateY(-3px);filter:brightness(1.18);box-shadow:inset 0 0 0 3px rgba(255,195,11,.22),0 0 44px rgba(255,195,11,.48),0 20px 48px #000;outline:none}
+@media (hover: hover) and (pointer: fine){
+.fitness-scene-affinity .fitness-transition-continue:hover:not(:disabled){transform:translateX(-50%) translateY(-3px);filter:brightness(1.18);box-shadow:inset 0 0 0 3px rgba(255,195,11,.22),0 0 44px rgba(255,195,11,.48),0 20px 48px #000;outline:none}}.fitness-scene-affinity .fitness-transition-continue:disabled{opacity:0;pointer-events:none}
+
+@media(max-width:980px){
+  .fitness-scene-affinity{overflow:auto}.fitness-scene-affinity>main{height:auto;min-height:100svh;padding:34px 18px 120px;overflow:visible}
+  .fitness-affinity-reward{min-height:auto;grid-template-columns:1fr;gap:52px}.fitness-affinity-heading>img{width:min(210px,55vw)}.fitness-affinity-heading h2{font-size:clamp(56px,17vw,92px)}.fitness-affinity-gem{top:-28px;width:112px;height:112px;margin-bottom:0}.fitness-affinity-focus:before{top:calc(23% - 28px);width:210px}.fitness-affinity-outcome{width:min(620px,100%)}
+}
+@media(max-width:520px){
+  .fitness-scene-affinity>main{height:100svh;min-height:0;padding:24px 18px 94px;overflow:auto}
+  .fitness-affinity-reward{min-height:calc(100svh - 118px);display:flex;flex-direction:column;justify-content:flex-start;gap:28px}
+  .fitness-affinity-heading{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0;text-align:center}
+  .fitness-affinity-heading>img{width:104px;height:104px}
+  .fitness-affinity-heading .fitness-affinity-flow{position:relative;top:auto;left:auto;width:68vw;height:1px;transform:none;flex:none}
+  .fitness-affinity-heading small{font-size:9px}
+  .fitness-affinity-heading h2{grid-column:2;grid-row:2;margin:2px 0;font-size:44px;line-height:.82}
+  .fitness-affinity-heading p{grid-column:2;grid-row:3;margin:3px 0 0;max-width:none;font-size:9px;line-height:1.25;letter-spacing:.07em}
+  .fitness-affinity-focus{width:100%;display:flex;margin:0;text-align:left;align-items:stretch}
+  .fitness-affinity-focus:before{left:calc(50% - 58px);top:72px;width:96px}
+  .fitness-affinity-award{display:grid;grid-template-columns:86px max-content;grid-template-rows:auto auto;justify-content:center;align-items:center;column-gap:12px;margin-bottom:26px}
+  .fitness-affinity-award>small{grid-column:1/-1;grid-row:1;justify-self:center;margin-bottom:4px;font-size:9px}
+  .fitness-affinity-gem{grid-column:1;grid-row:2;left:auto;top:auto;width:86px;height:86px;margin:0}
+  .fitness-affinity-award>strong{grid-column:2;grid-row:2;align-self:center;margin:0;font-size:62px;line-height:.85}
+  .fitness-affinity-breakdown{width:100%;display:grid;grid-template-columns:1fr 1fr;margin-top:0;border-top:1px solid rgba(222,181,88,.35)}
+  .fitness-affinity-breakdown>div{gap:7px;padding:10px 5px;font-size:10px}.fitness-affinity-breakdown em{font-size:8px;letter-spacing:.03em}
+  .fitness-affinity-breakdown>div:nth-child(odd){border-right:1px solid rgba(222,181,88,.22)}
+  .fitness-affinity-outcome{width:100%;padding:18px 16px;border-radius:16px}
+  .fitness-affinity-outcome>small{font-size:9px}
+  .fitness-affinity-values{margin:4px 0 7px;gap:8px}
+  .fitness-affinity-values span{font-size:22px}.fitness-affinity-values strong{font-size:38px}.fitness-affinity-values em{font-size:18px}
+  .fitness-affinity-bar{height:12px;padding:2px}
+  .fitness-affinity-outcome>p{margin:7px 0 9px;font-size:9px}
+  .fitness-affinity-outcome article{gap:10px;padding:8px 10px;border-radius:12px}
+  .fitness-affinity-outcome article img{width:50px;height:50px}.fitness-affinity-outcome article strong{font-size:16px}.fitness-affinity-outcome article span{font-size:8px}
+  .fitness-affinity-outcome blockquote{margin:8px 0 0;padding:8px 6px 0;font-size:11px;line-height:1.35}
+  .fitness-scene-affinity .fitness-transition-continue{bottom:10px;min-height:54px;width:calc(100vw - 28px);font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){.fitness-affinity-flow b{animation:none}}
+
+/* Olympus gates are cinematic passages, not ordinary Fitness modals. */
+.fitness-scene-gates{overflow:hidden}
+.fitness-scene-gates>header{display:none}
+.fitness-gate-close{position:fixed;top:clamp(16px,3vw,30px);right:clamp(16px,3vw,30px);z-index:30;width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;color:#ead18d;filter:drop-shadow(0 2px 8px #000);cursor:pointer;transition:color .2s ease,filter .2s ease,transform .2s ease}
+.fitness-gate-close svg{width:25px;height:25px}.fitness-gate-close:focus-visible{color:#fff0bc;filter:drop-shadow(0 0 9px #d6ac50);transform:scale(1.08);outline:none}@media (hover: hover) and (pointer: fine){.fitness-gate-close:hover{color:#fff0bc;filter:drop-shadow(0 0 9px #d6ac50);transform:scale(1.08);outline:none}}
+.fitness-scene-gates>main{height:100vh;min-height:0;padding:clamp(24px,4vh,56px) 24px clamp(132px,17vh,190px);overflow:hidden}
+.fitness-scene-gates .fitness-experience-bg img{object-position:center center}
+.fitness-scene-gates .fitness-experience-bg{animation:fitness-gate-breathe 8s ease-in-out infinite alternate;transform-origin:center center}
+.fitness-scene-gates .fitness-experience-shade{background:radial-gradient(ellipse at center,rgba(0,0,0,.34) 0 24%,rgba(0,0,0,.12) 54%,rgba(0,0,0,.24) 100%)}
+.fitness-gate-copy{--gate-color:#ffc30b;width:min(980px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;color:#f3dfaa;text-shadow:0 2px 8px #000,0 8px 30px #000}
+.fitness-gate-copy>small{font:600 clamp(14px,1.25vw,21px)/1.2 Georgia,serif;letter-spacing:.13em;color:#e7c573}
+.fitness-gate-emblem{width:clamp(48px,4.4vw,72px);aspect-ratio:1;display:grid;place-items:center;margin:12px 0 10px;border:1px solid color-mix(in srgb,var(--gate-color),#f8dda0 38%);border-radius:50%;color:color-mix(in srgb,var(--gate-color),#ffd979 40%);background:rgba(4,3,2,.32);box-shadow:inset 0 0 22px color-mix(in srgb,var(--gate-color),transparent 82%),0 0 28px color-mix(in srgb,var(--gate-color),transparent 72%)}
+.fitness-gate-emblem svg{width:42%;height:42%}
+.fitness-gate-lead{margin:0 0 8px;font:500 clamp(13px,1.35vw,22px)/1.2 Georgia,serif;letter-spacing:.17em;color:#f0dfbb}
+.fitness-gate-copy h2{max-width:100%;margin:0;font-family:"Times New Roman",Times,serif;font-size:clamp(70px,9.5vw,160px);font-weight:500;line-height:.78;letter-spacing:.025em;color:transparent;background:linear-gradient(180deg,#fff0bb 0%,#f1cb7e 20%,#b77a2f 48%,#f3d491 68%,#76501e 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:1px rgba(42,24,7,.75);text-shadow:0 1px 0 rgba(255,241,190,.48),0 4px 2px rgba(40,20,5,.66),0 15px 36px #000}
+.fitness-gate-copy.gate-hall h2,.fitness-gate-copy.gate-ambrosia h2,.fitness-gate-copy.gate-nectar h2{font-size:clamp(58px,7.1vw,118px);line-height:.84}
+.fitness-gate-copy>strong{margin-top:18px;font:500 clamp(13px,1.45vw,23px)/1.2 Georgia,serif;letter-spacing:.22em;color:#f0c95f;text-shadow:0 1px 0 rgba(255,239,178,.3),0 3px 10px #000,0 0 18px color-mix(in srgb,var(--gate-color),transparent 82%)}
+.fitness-gate-progress{position:relative;width:min(280px,45vw);height:1px;margin:20px 0 16px;overflow:hidden;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--gate-color),#d2ad5e 52%),transparent)}
+.fitness-gate-progress b{position:absolute;inset:0 auto 0 -45%;width:45%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--gate-color),#fff4c7 38%),transparent);filter:drop-shadow(0 0 5px var(--gate-color));animation:fitness-gate-progress-sweep 3s linear infinite}
+.fitness-gate-body{max-width:610px;margin:0;font:500 clamp(14px,1.25vw,20px)/1.55 Georgia,serif;letter-spacing:.035em;color:#d7bd88}
+.fitness-scene-gates .fitness-transition-continue{left:50%;right:auto;bottom:clamp(30px,5vh,62px);width:min(430px,calc(100vw - 36px));min-height:76px;justify-content:center;transform:translateX(-50%);border:1px solid #e1bc61;border-radius:999px;background:linear-gradient(180deg,rgba(22,17,9,.96),rgba(3,3,3,.96));color:#f5d98c;font:500 clamp(19px,1.7vw,28px)/1 Georgia,serif;letter-spacing:.08em;box-shadow:inset 0 0 0 3px rgba(205,157,60,.12),0 0 24px rgba(255,195,11,.2),0 18px 42px #000;transition:filter .2s ease,box-shadow .2s ease,transform .2s ease}
+.fitness-scene-gates .fitness-transition-continue:focus-visible{filter:brightness(1.18);box-shadow:inset 0 0 0 3px rgba(255,195,11,.25),0 0 42px rgba(255,195,11,.48),0 20px 48px #000;transform:translateX(-50%) translateY(-3px);outline:none}
+@media (hover: hover) and (pointer: fine){
+.fitness-scene-gates .fitness-transition-continue:hover{filter:brightness(1.18);box-shadow:inset 0 0 0 3px rgba(255,195,11,.25),0 0 42px rgba(255,195,11,.48),0 20px 48px #000;transform:translateX(-50%) translateY(-3px);outline:none}}
+.fitness-scene-gates .fitness-transition-continue.is-coming-soon{cursor:default;color:#cfb979;border-color:rgba(225,188,97,.55);background:linear-gradient(180deg,rgba(20,16,10,.94),rgba(3,3,3,.96));box-shadow:inset 0 0 0 3px rgba(205,157,60,.07),0 0 20px rgba(255,195,11,.12),0 18px 42px #000;opacity:1}
+@media (hover: hover) and (pointer: fine){
+.fitness-scene-gates .fitness-transition-continue.is-coming-soon:hover{filter:none;transform:translateX(-50%)}}
+@keyframes fitness-gate-breathe{from{transform:scale(1);filter:brightness(.96)}to{transform:scale(1.018);filter:brightness(1.04)}}
+@keyframes fitness-gate-progress-sweep{from{transform:translateX(0)}to{transform:translateX(322.222222%)}}
+@media(prefers-reduced-motion:reduce){.fitness-scene-gates .fitness-experience-bg,.fitness-gate-progress b{animation:none}}
+
+@media(max-width:720px){
+  .fitness-scene-gates>main{height:100svh;padding:28px 14px 130px}
+  .fitness-scene-gates .fitness-experience-bg{height:100svh}
+  .fitness-gate-copy{width:96vw}
+  .fitness-gate-copy>small{font-size:12px}.fitness-gate-emblem{width:46px;margin:9px 0}
+  .fitness-gate-lead{font-size:11px;margin-bottom:7px}
+  .fitness-gate-copy h2{font-size:clamp(52px,18vw,82px);line-height:.82}
+  .fitness-gate-copy.gate-hall h2,.fitness-gate-copy.gate-ambrosia h2,.fitness-gate-copy.gate-nectar h2{font-size:clamp(45px,13vw,68px)}
+  .fitness-gate-copy>strong{margin-top:14px;font-size:11px;letter-spacing:.15em}
+  .fitness-gate-copy>i{margin:14px 0 12px}.fitness-gate-body{max-width:340px;font-size:13px;line-height:1.45}
+  .fitness-scene-gates .fitness-transition-continue{left:50%;right:auto;bottom:24px;min-height:64px}
+}
+
+/* Olympus uses ceremonial curves for controls while the artwork remains untouched. */
+.fitness-olympus-integrated,
+.fitness-olympus-recognition,
+.fitness-recognition-metrics article,
+.fitness-report-layout,
+.fitness-resource-layout,
+.fitness-war-ledger-layout,
+.fitness-report-metrics div,
+.fitness-resource-cards article,
+.fitness-report-verdict,
+.fitness-decree-grid article,
+.fitness-resource-entry,
+.fitness-resource-log,
+.fitness-chamber-rewards button {
+  border-radius: 16px;
+}
+
+.fitness-olympus-integrated button,
+.fitness-subrealm-links button,
+.fitness-recognition-actions button,
+.fitness-decree-grid button,
+.fitness-resource-entry button,
+.fitness-transition-continue,
+.fitness-experience > header button {
+  border-radius: 999px;
+}
+
+.fitness-subrealm-links {
+  margin-bottom: 38px;
+}
+
+.fitness-subrealm-links button,
+.fitness-recognition-actions button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform .22s ease, border-color .22s ease, color .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+.fitness-subrealm-links button::before,
+.fitness-recognition-actions button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 110%, rgba(244,202,103,.42), transparent 62%);
+  opacity: 0;
+  transform: scale(.72);
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.fitness-subrealm-links button:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(240,201,107,.9);
+  color: #ffe5a0;
+  background: rgba(13,10,5,.82);
+  box-shadow: 0 0 15px rgba(229,186,86,.34), 0 0 34px rgba(229,186,86,.16), inset 0 0 18px rgba(229,186,86,.12);
+}
+
+@media (hover: hover) and (pointer: fine){
+
+.fitness-subrealm-links button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(240,201,107,.9);
+  color: #ffe5a0;
+  background: rgba(13,10,5,.82);
+  box-shadow: 0 0 15px rgba(229,186,86,.34), 0 0 34px rgba(229,186,86,.16), inset 0 0 18px rgba(229,186,86,.12);
+}}
+
+.fitness-recognition-actions button:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb,var(--deity-ring,var(--deity-color)),#fff 28%);
+  color: #fff1c8;
+  background: color-mix(in srgb,var(--deity-ring,var(--deity-color)),rgba(0,0,0,.78) 82%);
+  box-shadow: 0 0 15px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 56%), 0 0 34px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 78%), inset 0 0 18px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 80%);
+}
+
+@media (hover: hover) and (pointer: fine){
+
+.fitness-recognition-actions button:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb,var(--deity-ring,var(--deity-color)),#fff 28%);
+  color: #fff1c8;
+  background: color-mix(in srgb,var(--deity-ring,var(--deity-color)),rgba(0,0,0,.78) 82%);
+  box-shadow: 0 0 15px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 56%), 0 0 34px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 78%), inset 0 0 18px color-mix(in srgb,var(--deity-ring,var(--deity-color)),transparent 80%);
+}}
+
+.fitness-subrealm-links button:focus-visible::before, .fitness-recognition-actions button:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (hover: hover) and (pointer: fine){
+
+.fitness-subrealm-links button:hover::before, .fitness-recognition-actions button:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}}
+
+@media (hover:none) {
+  .fitness-subrealm-links button:active,
+  .fitness-recognition-actions button:active {
+    transform: scale(.985);
+    filter: brightness(1.18);
+  }
+}
+
+.fitness-experience > header {
+  position: fixed;
+  inset: 0 0 auto;
+  width: 100%;
+}
+
+.fitness-experience:not(.fitness-scene-hall):not(.fitness-scene-chamber) > main {
+  padding-top: 132px;
+}
+
+.fitness-pantheon-marker {
+  top: var(--map-cy);
+  transform: translate(-50%, -100%) scale(var(--map-scale));
+  transform-origin: center bottom;
+}
+
+.fitness-pantheon-marker.is-fragment {
+  top: var(--map-y);
+  transform: translate(-50%, -50%) scale(var(--map-scale));
+  transform-origin: center;
+}
+
+@media(max-width:720px) {
+  .fitness-pantheon-marker {
+    top: var(--map-cmy);
+  }
+
+  .fitness-pantheon-marker.is-fragment {
+    top: var(--map-my);
+  }
+
+  .fitness-experience:not(.fitness-scene-hall):not(.fitness-scene-chamber) > main {
+    padding-top: 92px;
+  }
+}
+
+/* The chamber artwork is complete. The interface is a responsive ceremonial HUD. */
+.fitness-scene-chamber{overflow:hidden}
+.fitness-scene-chamber .fitness-experience-shade,.fitness-scene-chamber .fitness-chamber-copy,.fitness-scene-chamber .fitness-chamber-legacy{display:none}
+.fitness-scene-chamber>header{position:fixed;inset:0 0 auto;z-index:30;height:76px;padding:0 clamp(24px,3vw,64px);background:linear-gradient(180deg,rgba(1,1,1,.82),rgba(1,1,1,.22) 62%,transparent);border:0;pointer-events:none}
+.fitness-scene-chamber>header>*{pointer-events:auto}
+.fitness-scene-chamber>header button:first-child{position:absolute;right:clamp(24px,3vw,64px);left:auto;color:#f1d17d;font:700 12px monospace;letter-spacing:.15em}
+.fitness-scene-chamber>header button:last-child,.fitness-scene-chamber>header span{display:none}
+.fitness-scene-chamber>main{display:block;height:100vh;min-height:0;padding:0;overflow:hidden}
+.fitness-chamber-layout{position:relative;width:100%;height:100%;min-height:0;color:#f5ead2;text-shadow:0 2px 10px #000,0 1px 2px #000}
+.fitness-chamber-evidence{position:absolute;z-index:3;top:82px;right:clamp(24px,3vw,64px);left:auto;display:flex;align-items:center;gap:16px;padding:0 0 13px 30px;border-bottom:1px solid color-mix(in srgb,var(--deity-ring),transparent 42%);background:radial-gradient(ellipse at right,rgba(0,0,0,.6),transparent 72%)}
+.fitness-chamber-evidence div{display:flex;flex-direction:column}
+.fitness-chamber-evidence small,.fitness-chamber-evidence em{font:700 clamp(9px,.68vw,12px)/1.35 monospace;letter-spacing:.14em;font-style:normal}
+.fitness-chamber-evidence small{color:#d8c59a}.fitness-chamber-evidence em{margin-top:6px;color:color-mix(in srgb,var(--deity-ring),#f4ead4 52%)}
+.fitness-chamber-evidence strong{font:500 clamp(32px,3.1vw,58px)/.94 serif;color:#edcc79}
+.fitness-chamber-sigil{width:clamp(52px,4.2vw,72px);aspect-ratio:1;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--deity-ring),#f2d58a 32%);border-radius:50%;font:600 clamp(12px,1vw,17px) serif;color:#f2d183;background:rgba(5,5,4,.72);box-shadow:inset 0 0 0 6px rgba(0,0,0,.58),0 0 24px color-mix(in srgb,var(--deity-ring),transparent 68%)}
+.fitness-scene-chamber .fitness-experience-bg img{object-position:center 42%}
+.fitness-chamber-identity{position:absolute;z-index:3;left:clamp(24px,3vw,64px);top:clamp(72px,8vh,92px);width:min(460px,37vw);transform:none;text-align:center}
+.fitness-chamber-identity h2{margin:0;font-family:"Times New Roman",Times,serif;font-size:clamp(68px,min(7.3vw,13vh),138px);font-weight:500;line-height:.82;letter-spacing:.015em;text-transform:uppercase;color:transparent;background:linear-gradient(180deg,#fff3a6 0%,#ffd84b 13%,var(--title-gold,#ffc30b) 34%,#d99400 52%,var(--title-reflection,#05231a) 64%,var(--title-gold,#ffc30b) 78%,#9c6200 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:.55px rgba(42,24,7,.72);text-shadow:0 1px 0 rgba(255,235,120,.68),0 2px 1px rgba(42,25,8,.52),0 8px 18px rgba(0,0,0,.52);font-kerning:normal;text-rendering:optimizeLegibility}
+.fitness-chamber-layout.deity-hermes{--title-gold:#ffc30b;--title-reflection:#05231a}.fitness-chamber-layout.deity-hermes .fitness-chamber-identity h2{letter-spacing:-.018em}
+.fitness-chamber-layout.deity-apollo{--title-gold:#ffc30b;--title-reflection:#3f1979}.fitness-chamber-layout.deity-apollo .fitness-chamber-identity h2{letter-spacing:.005em}
+.fitness-chamber-layout.deity-ares{--title-gold:#ffc30b;--title-reflection:#990000}.fitness-chamber-layout.deity-ares .fitness-chamber-identity h2{letter-spacing:.035em}
+.fitness-chamber-layout.deity-hercules{--title-gold:#ffc30b;--title-reflection:#090806}.fitness-chamber-layout.deity-hercules .fitness-chamber-identity h2{letter-spacing:-.025em}
+.fitness-chamber-layout.deity-zeus{--title-gold:#ffc30b;--title-reflection:#08113b}.fitness-chamber-layout.deity-zeus .fitness-chamber-identity h2{letter-spacing:.055em}
+.fitness-chamber-identity p{margin:11px 0 6px;font:500 clamp(12px,min(1vw,1.8vh),18px)/1.25 Georgia,serif;letter-spacing:.14em;color:#f4ead5;text-transform:uppercase}
+.fitness-chamber-identity span{display:inline-flex;align-items:center;gap:12px;font:700 clamp(9px,.72vw,12px)/1.3 monospace;letter-spacing:.24em;color:color-mix(in srgb,var(--deity-ring),#f3dfaa 58%);text-transform:uppercase}
+.fitness-chamber-identity span:before,.fitness-chamber-identity span:after{content:"";width:30px;height:1px;background:currentColor;opacity:.65}
+.fitness-chamber-rewards{position:absolute;z-index:4;left:50%;bottom:clamp(78px,7.5vh,104px);width:min(980px,78vw);transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,4vw,72px)}
+.fitness-chamber-rewards button{min-width:0;padding:0 8px 9px;border:0;border-radius:22px;background:linear-gradient(180deg,transparent,rgba(2,2,2,.38));color:#f4ead3;text-align:center;cursor:pointer;filter:drop-shadow(0 8px 14px #000);transition:transform .22s ease,filter .22s ease}
+.fitness-chamber-rewards button:focus-visible{transform:translateY(-5px);filter:drop-shadow(0 10px 18px #000) drop-shadow(0 0 12px color-mix(in srgb,var(--deity-ring),transparent 55%));outline:none}
+@media (hover: hover) and (pointer: fine){
+.fitness-chamber-rewards button:hover{transform:translateY(-5px);filter:drop-shadow(0 10px 18px #000) drop-shadow(0 0 12px color-mix(in srgb,var(--deity-ring),transparent 55%));outline:none}}
+.fitness-blessing-dial{position:relative;width:clamp(98px,min(8.6vw,14vh),158px);aspect-ratio:1;display:grid;place-items:center;margin:0 auto 8px;border-radius:50%;background:rgba(4,4,3,.08);padding:4px;box-shadow:0 0 26px color-mix(in srgb,var(--deity-ring),transparent 74%)}
+.fitness-blessing-dial:before{content:"";position:absolute;inset:7px;border-radius:50%;background:rgba(4,4,3,.08);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--deity-ring),transparent 70%)}
+.fitness-blessing-dial:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--deity-ring) var(--blessing-progress),color-mix(in srgb,var(--deity-ring),transparent 84%) var(--blessing-progress),color-mix(in srgb,var(--deity-ring),transparent 84%) 360deg);-webkit-mask:radial-gradient(circle,transparent 0 76%,#000 77% 100%);mask:radial-gradient(circle,transparent 0 76%,#000 77% 100%)}
+.fitness-blessing-dial i{position:absolute;inset:-5px;border:1px solid color-mix(in srgb,var(--deity-ring),#f4e0aa 22%);border-radius:50%;background:none}
+.fitness-blessing-dial img{position:relative;z-index:2;width:82%;height:82%;object-fit:contain;filter:drop-shadow(0 7px 11px #000c)}
+.fitness-chamber-rewards .fitness-blessing-name{display:block;margin:0;font:600 clamp(12px,1vw,17px)/1.2 Georgia,serif;letter-spacing:.07em;color:#ffe4a3;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,247,208,.3),0 3px 10px rgba(0,0,0,.62)}
+.fitness-chamber-rewards small{display:block;margin-top:5px;font:700 clamp(8px,.56vw,10px)/1 monospace;letter-spacing:.19em;color:#c6b694}
+.fitness-chamber-rewards strong{display:block;margin:5px 0 6px;font:500 clamp(19px,1.55vw,27px)/1 Georgia,serif;color:#edcb76}
+.fitness-chamber-rewards em{display:inline-block;min-width:86px;padding:4px 11px;border:1px solid currentColor;border-radius:999px;font:700 8px/1 monospace;letter-spacing:.14em;font-style:normal}
+.fitness-chamber-rewards .is-complete em{color:color-mix(in srgb,var(--deity-ring),#9fe0b8 45%);background:color-mix(in srgb,var(--deity-ring),transparent 82%)}
+.fitness-chamber-rewards .is-progress em{color:#e2bb5b;background:rgba(100,70,10,.2)}
+.fitness-chamber-rewards .is-locked{filter:grayscale(.6) drop-shadow(0 8px 14px #000)}.fitness-chamber-rewards .is-locked em{color:#918b80;background:rgba(30,30,28,.25)}
+.fitness-chamber-doctrine{position:absolute;z-index:3;left:50%;bottom:10px;width:min(860px,74vw);transform:translateX(-50%);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;margin:0;padding:8px 20px;border:1px solid color-mix(in srgb,var(--deity-ring),transparent 62%);border-radius:18px;background:linear-gradient(90deg,rgba(3,3,3,.39),rgba(3,3,3,.24),rgba(3,3,3,.39));box-shadow:0 12px 35px #0007}
+.fitness-chamber-doctrine span{font:italic 42px/1 Georgia,serif;color:#ddbc69}.fitness-chamber-doctrine p{margin:0;text-align:left;font:italic clamp(12px,1vw,16px)/1.45 Georgia,serif;color:#e8dbc1}
+
+@media(max-width:720px){
+  .fitness-scene-chamber>header{height:58px;padding:0 14px}.fitness-scene-chamber>header button:first-child{right:14px;font-size:10px}
+  .fitness-scene-chamber>main{height:100svh;padding:0;overflow:hidden}.fitness-chamber-layout{height:100%;padding:0}
+  .fitness-scene-chamber .fitness-experience-bg{height:100svh}.fitness-scene-chamber .fitness-experience-bg img{object-position:center top}
+  .fitness-chamber-evidence{top:18px;right:auto;left:14px;gap:8px;padding:0 12px 8px 0;background:radial-gradient(ellipse at left,rgba(0,0,0,.6),transparent 72%)}.fitness-chamber-sigil{width:44px}.fitness-chamber-evidence small,.fitness-chamber-evidence em{font-size:7px}.fitness-chamber-evidence strong{font-size:31px}
+  .fitness-chamber-identity{left:50%;top:5vh;width:96vw;transform:translateX(-50%)}
+  .fitness-chamber-identity h2{font-size:clamp(50px,15vw,76px);letter-spacing:.035em}.fitness-chamber-identity p{margin:9px 8px 4px;font-size:9px}
+  .fitness-chamber-identity .fitness-deity-title-card{width:min(270px,72vw);margin-bottom:-18px}.fitness-chamber-identity .fitness-deity-title-card.deity-hermes{width:min(290px,76vw);margin-bottom:-24px}.fitness-chamber-identity .fitness-deity-title-card.deity-zeus{width:min(145px,38vw);margin-bottom:-5px}
+  .fitness-chamber-layout.deity-ares .fitness-chamber-identity{top:2vh}
+  .fitness-chamber-layout.deity-ares .fitness-chamber-identity .fitness-deity-title-card{width:min(235px,62vw)}
+  .fitness-chamber-layout.deity-zeus .fitness-chamber-identity{top:48%}
+  .fitness-chamber-layout.deity-zeus .fitness-chamber-identity .fitness-deity-title-card{width:min(130px,34vw)}
+  .fitness-chamber-rewards{top:67%;bottom:auto;width:calc(100% - 12px);gap:3px}.fitness-chamber-rewards button{padding:0 2px 5px;border-radius:14px}.fitness-blessing-dial{width:clamp(80px,24vw,108px);margin-bottom:7px}.fitness-blessing-dial img{width:86%;height:86%}
+  .fitness-chamber-rewards .fitness-blessing-name{min-height:24px;font-size:clamp(8px,2.35vw,11px)}.fitness-chamber-rewards small{margin-top:4px;font-size:6px}.fitness-chamber-rewards strong{margin:4px 0 5px;font-size:15px}.fitness-chamber-rewards em{min-width:0;padding:4px 7px;font-size:6px}
+  .fitness-chamber-doctrine{bottom:1.2%;width:calc(100% - 22px);gap:8px;padding:10px 12px;border-radius:13px}.fitness-chamber-doctrine span{font-size:25px}.fitness-chamber-doctrine p{font-size:9px;line-height:1.35}
+}
+
+@media(max-width:720px){
+  .fitness-gate-copy .fitness-deity-title-card{width:min(340px,88vw);margin:-30px auto -26px}.fitness-gate-copy .fitness-deity-title-card.deity-hermes{width:min(370px,94vw);margin:-46px auto -38px}.fitness-gate-copy .fitness-deity-title-card.deity-zeus{width:min(210px,54vw);margin:-12px auto -14px}
+  .fitness-transition-copy .fitness-deity-title-card{width:min(340px,88vw);margin:-26px auto -28px}.fitness-transition-copy .fitness-deity-title-card.deity-hermes{width:min(370px,94vw);margin:-42px auto -38px}.fitness-transition-copy .fitness-deity-title-card.deity-zeus{width:min(215px,55vw);margin:-8px auto -12px}
+}
+
+/* Disabled legacy blessing dossier. The ceremonial composition above replaces it.
+Blessing dossier: fixed composition, deity furniture, and two dividers only.
+.fitness-scene-ceremony{background:rgba(4,3,2,.56);backdrop-filter:blur(12px)}
+.fitness-scene-ceremony>main{display:grid;place-items:center;min-height:calc(100dvh - 72px);padding:clamp(18px,3vw,42px)}
+.fitness-blessing-modal{position:relative;isolation:isolate;display:grid;grid-template-columns:1fr 2fr;width:min(1180px,calc(100vw - 72px));height:auto;aspect-ratio:16/9;max-height:calc(100dvh - 120px);margin:auto;overflow:visible;background:#020202;border:1px solid color-mix(in srgb,var(--ceremony-color) 38%,transparent);box-shadow:0 30px 110px #000}
+.fitness-blessing-frame{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:visible}.fitness-blessing-frame>img{position:absolute;display:block;object-fit:contain;filter:drop-shadow(0 4px 8px #000c)}
+.fitness-blessing-frame-corner{width:clamp(88px,8.5vw,136px);height:clamp(88px,8.5vw,136px)}.fitness-blessing-frame-corner.is-tl{left:-28px;top:-28px}.fitness-blessing-frame-corner.is-tr{right:-28px;top:-28px;transform:scaleX(-1)}.fitness-blessing-frame-corner.is-bl{left:-28px;bottom:-28px;transform:scaleY(-1)}.fitness-blessing-frame-corner.is-br{right:-28px;bottom:-28px;transform:scale(-1)}
+.fitness-blessing-frame-center{z-index:1;left:50%;top:-57px;width:clamp(190px,22vw,330px);height:112px;transform:translateX(-50%)}.fitness-blessing-frame-gem{z-index:2;left:50%;top:-39px;width:72px;height:72px;transform:translateX(-50%);filter:drop-shadow(0 0 12px color-mix(in srgb,var(--ceremony-color) 65%,transparent))!important}
+.fitness-blessing-visual{position:relative;z-index:1;width:auto;height:100%;min-height:0;overflow:hidden;background:#070604}.fitness-blessing-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 50%,rgba(0,0,0,.32)),linear-gradient(0deg,rgba(0,0,0,.22),transparent 40%);pointer-events:none}.fitness-blessing-visual>img{width:100%;height:100%;object-fit:cover;object-position:center}
+.fitness-blessing-title{position:absolute;z-index:3;left:auto;right:clamp(10px,1.5vw,22px);top:clamp(12px,1.8vw,24px);width:min(300px,82%);text-align:right}.fitness-blessing-title .fitness-deity-title-card{width:100%;margin:-18px 0 -32px auto;transform-origin:right top}
+.fitness-blessing-dossier{position:relative;z-index:1;min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(96px,.72fr) auto auto minmax(0,1.25fr) auto;align-content:center;padding:clamp(28px,3.4vw,52px) clamp(34px,4vw,64px) clamp(22px,2.8vw,42px);overflow:hidden;background:linear-gradient(145deg,#050505,#0a0703 58%,#020202)}
+.fitness-blessing-dossier>header{text-align:center}.fitness-blessing-dossier>header small{font:800 clamp(7px,.62vw,10px) monospace;letter-spacing:.32em;color:#dfbd6d}.fitness-blessing-dossier>header h2{margin:7px 0 2px;font:500 clamp(25px,2.7vw,46px)/1 Georgia,serif;letter-spacing:.07em;color:#f5ead0}
+.fitness-blessing-dossier .fitness-blessing-seal{position:relative;z-index:2;align-self:center;width:clamp(92px,9.5vw,144px);margin:2px auto;filter:drop-shadow(0 8px 16px #000)}
+.fitness-blessing-dossier .fitness-blessing-acquire{position:relative;right:auto;bottom:auto;z-index:4;justify-self:center;align-self:center;min-width:132px;margin:-2px 0 3px;padding:10px 20px}
+.fitness-blessing-modal.is-acquired .fitness-blessing-acquire{visibility:hidden;pointer-events:none}
+.fitness-blessing-divider{position:relative;display:block;width:100%;height:28px;margin:1px 0;pointer-events:none}.fitness-blessing-divider img:first-child{position:absolute;inset:50% 0 auto;width:100%;height:22px;object-fit:fill;transform:translateY(-50%)}.fitness-blessing-divider img:last-child{position:absolute;z-index:2;left:50%;top:50%;width:42px;height:42px;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px #3169bf88)}
+.fitness-blessing-dossier .fitness-blessing-history{min-height:0;padding:4px 0;background:none;overflow:hidden}.fitness-blessing-dossier .fitness-blessing-history[aria-hidden=true]{visibility:visible;min-height:0;filter:blur(2px);pointer-events:none}.fitness-blessing-dossier .fitness-blessing-history>small{display:block;margin-bottom:3px;font-size:7px}.fitness-blessing-dossier .fitness-blessing-history>div{margin:0}.fitness-blessing-dossier .fitness-blessing-history article{min-height:25px}.fitness-blessing-dossier .fitness-blessing-history article span{font-size:7px}.fitness-blessing-dossier .fitness-blessing-history article strong{font-size:clamp(9px,.8vw,12px)}.fitness-blessing-dossier .fitness-blessing-history>p{margin:6px 0 0;padding:7px 10px}.fitness-blessing-dossier .fitness-blessing-history>p span{font-size:7px}.fitness-blessing-dossier .fitness-blessing-history>p strong{font-size:10px}
+
+@media(max-width:720px){
+  .fitness-scene-ceremony>main{min-height:calc(100dvh - 58px);padding:18px 12px 76px}
+  .fitness-blessing-modal{display:grid;grid-template-columns:1fr;grid-template-rows:50% 50%;width:min(calc(100vw - 30px),calc(100dvh - 104px));height:min(calc(100vw - 30px),calc(100dvh - 104px));aspect-ratio:1;max-height:none;overflow:visible}
+  .fitness-blessing-frame{position:absolute;inset:0;z-index:20;overflow:visible}
+  .fitness-blessing-frame-corner{width:86px;height:86px}.fitness-blessing-frame-corner.is-tl{left:-18px;top:-18px}.fitness-blessing-frame-corner.is-tr{right:-18px;top:-18px}.fitness-blessing-frame-corner.is-bl{left:-18px;bottom:-18px}.fitness-blessing-frame-corner.is-br{right:-18px;bottom:-18px}
+  .fitness-blessing-frame-center{top:-43px;width:180px;height:86px}.fitness-blessing-frame-gem{top:-30px;width:56px;height:56px}
+  .fitness-blessing-visual{height:auto;min-height:100%}.fitness-blessing-title{right:9px;top:9px;width:62%}.fitness-blessing-title .fitness-deity-title-card{margin:-16px 0 -27px auto}
+  .fitness-blessing-dossier{min-height:0;grid-template-rows:auto 66px auto auto minmax(210px,auto) auto;align-content:start;padding:12px 14px 20px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8f7036 #090806}
+  .fitness-blessing-dossier>header small{font-size:6px}.fitness-blessing-dossier>header h2{margin-top:4px;font-size:20px}.fitness-blessing-dossier .fitness-blessing-seal{width:66px}.fitness-blessing-dossier .fitness-blessing-acquire{min-width:112px;padding:7px 14px;font-size:7px}.fitness-blessing-divider{height:18px}.fitness-blessing-divider img:first-child{height:15px}.fitness-blessing-divider img:last-child{width:30px;height:30px}.fitness-blessing-dossier .fitness-blessing-history article{min-height:34px}.fitness-blessing-dossier .fitness-blessing-history article span{font-size:6px}.fitness-blessing-dossier .fitness-blessing-history article strong{font-size:9px}
+}
+*/

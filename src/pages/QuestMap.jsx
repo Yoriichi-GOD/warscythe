@@ -10,7 +10,7 @@ export default function QuestMap({
   tutorialActive = false
 }) {
   return (
-    <div className="h-auto min-h-full w-full lg:h-full">
+    <div className="quest-map-framed h-auto min-h-full w-full lg:h-full">
       <MapSection 
         onTabChange={onTabChange}
         tutorialHighlightNode={tutorialHighlightNode}

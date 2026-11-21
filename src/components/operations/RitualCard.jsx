@@ -18,7 +18,7 @@ export default function RitualCard({ ritual, onComplete, onOpen }) {
       id={`ritual-${ritual.id}`}
       data-ritual-id={ritual.id}
       whileHover={!isCompletedToday ? { scale: 1.01 } : {}}
-      className={`relative group cursor-pointer shrink-0 rounded-xl border transition-all overflow-hidden ${
+      className={`relative group cursor-pointer shrink-0 rounded-xl border motion-control overflow-hidden ${
         isCompletedToday 
           ? 'border-gold-core/20 bg-gold-core/[0.02] opacity-60' 
           : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'
@@ -82,7 +82,7 @@ export default function RitualCard({ ritual, onComplete, onOpen }) {
             <button 
               id={`ritual-conquer-${ritual.id}`}
               onClick={() => onComplete(ritual.id)}
-              className="px-3 py-1.5 rounded border border-gold-core/30 bg-gold-core/5 text-gold-core text-[8px] font-mono tracking-widest uppercase hover:bg-gold-core hover:text-black transition-all"
+              className="px-3 py-1.5 rounded border border-gold-core/30 bg-gold-core/5 text-gold-core text-[8px] font-mono tracking-widest uppercase hover:bg-gold-core hover:text-black motion-control"
             >
               CONQUER
             </button>

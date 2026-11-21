@@ -1,3 +1,4 @@
+import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { REGIONS } from '../store/constants';
@@ -43,6 +44,7 @@ const DRAGON_NAMES = [
 ];
 
 export default function RegionFlashScreen({ type, regionData, onClose }) {
+  const ambientMotion = useAmbientMotion();
   const { mapIndex = 1, taskTitle = '' } = regionData || {};
   const safeMapIndex = Math.max(1, mapIndex);
   const regionName = REGIONS?.[safeMapIndex - 1]?.name || `Region ${safeMapIndex}`;
@@ -66,12 +68,12 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
   // Mobile:  [DRAGON]  top  /  [CAGED FAIRY]  bottom
 
   const leftPanel = isVictory
-    ? { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-liberated.png`), label: 'LIBERATED', filter: 'none', glow: palette.glow }
-    : { src: getAssetUrl(`/dragons/dragon-${dragonType}.png`),          label: 'THREAT',    filter: 'none', glow: 'transparent' };
+    ? { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-liberated.webp`), label: 'LIBERATED', filter: 'none', glow: palette.glow }
+    : { src: getAssetUrl(`/dragons/dragon-${dragonType}.webp`),          label: 'THREAT',    filter: 'none', glow: 'transparent' };
 
   const rightPanel = isVictory
-    ? { src: getAssetUrl(`/dragons/dragon-${dragonType}.png`),       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
-    : { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-caged.png`),  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
+    ? { src: getAssetUrl(`/dragons/dragon-${dragonType}.webp`),       label: 'ELIMINATED', filter: 'grayscale(100%) brightness(0.35)', glow: 'rgba(0,0,0,0.3)', eliminated: true }
+    : { src: getAssetUrl(`/fairies/empress-${safeMapIndex}-caged.webp`),  label: 'IMPRISONED', filter: 'none', glow: 'transparent' };
 
   const accentColor = isVictory ? palette.hex : '#ff4444';
   const accentGlow  = isVictory ? palette.glow : 'rgba(220,30,30,0.5)';
@@ -220,7 +222,7 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
             className="rfs-scan-fill"
             initial={{ left: '-100%' }}
             animate={{ left: '100%' }}
-            transition={{ repeat: Infinity, duration: 2.8, ease: 'linear' }}
+            transition={{ repeat: ambientMotion ? Infinity : 0, duration: ambientMotion ? 2.8 : 0, ease: 'linear' }}
             style={{ background: `linear-gradient(to right, transparent, ${accentColor}, transparent)` }}
           />
         </div>
@@ -250,7 +252,7 @@ export default function RegionFlashScreen({ type, regionData, onClose }) {
         {btnLabel}
       </motion.button>
 
-      <style jsx>{`
+      <style>{`
         .rfs-root {
           position: fixed;
           inset: 0;

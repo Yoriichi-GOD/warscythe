@@ -29,7 +29,7 @@ export default function FitnessOathGate({ onComplete }) {
             <div className="w-full max-w-4xl max-h-[94dvh] overflow-y-auto border border-gold-core/25 bg-zinc-950/94 shadow-[0_0_80px_#000] grid grid-cols-[118px_minmax(0,1fr)] md:grid-cols-[minmax(260px,0.9fr)_1.1fr]">
               <div className="relative min-h-[360px] md:min-h-[620px] overflow-hidden border-r border-gold-core/20">
                 <img
-                  src="/deity/fitness-goddess.png"
+                  src="/deity/fitness-goddess.webp"
                   alt="Arete, Keeper of the Iron Oath"
                   className="absolute inset-0 w-full h-full object-contain object-center md:object-cover md:object-center"
                 />

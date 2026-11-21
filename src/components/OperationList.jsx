@@ -248,25 +248,28 @@ function TaskCard({ task, onClick }) {
           cursor: pointer;
           position: relative;
           overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          transition: var(--motion-control-transition);
           margin-bottom: 1rem;
           /* Etched Metal Texture */
-          box-shadow: 
+          box-shadow:
             inset 0 1px 1px rgba(255,255,255,0.05),
             inset 0 -1px 1px rgba(0,0,0,0.8),
             0 5px 15px rgba(0,0,0,0.5);
         }
 
+        @media (hover: hover) and (pointer: fine) {
+
         .task-card:hover {
           transform: translateY(-2px);
           border-color: #2a2a2a;
-          box-shadow: 
+          box-shadow:
             inset 0 1px 1px rgba(255,255,255,0.08),
             inset 0 -1px 1px rgba(0,0,0,0.8),
             0 10px 30px rgba(0,0,0,0.7),
             0 0 20px rgba(197, 160, 89, 0.1); /* Ember Glow leak */
         }
-        
+}
+
         .card-accent {
           position: absolute;
           top: 0;
@@ -275,14 +278,14 @@ function TaskCard({ task, onClick }) {
           height: 100%;
           opacity: 0.8;
         }
-        
+
         .card-main-content { display: flex; flex-direction: column; gap: 1rem; }
-        
+
         .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
         .task-info-block { display: flex; flex-direction: column; gap: 4px; }
         .task-category { font-size: 0.55rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
         .task-display-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
-        
+
         .stage-indicator {
           display: flex;
           align-items: center;
@@ -293,7 +296,7 @@ function TaskCard({ task, onClick }) {
           background: rgba(0,0,0,0.2);
         }
         .stage-text { font-size: 0.55rem; font-weight: 900; letter-spacing: 0.1em; }
-        
+
         .card-meta-row { display: flex; gap: 8px; }
         .meta-pill {
           display: flex;
@@ -308,12 +311,12 @@ function TaskCard({ task, onClick }) {
           border: 1px solid var(--border);
         }
         .meta-pill.deadline { color: var(--red-hot); border-color: rgba(255, 60, 60, 0.2); }
-        
+
         .card-progress-section { display: flex; flex-direction: column; gap: 8px; }
         .progress-top-labels { display: flex; justify-content: space-between; }
         .progress-label { font-size: 0.5rem; font-weight: 900; color: var(--text-dark); letter-spacing: 0.1em; }
         .progress-percent { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; }
-        
+
         .premium-progress-track { height: 6px; background: rgba(255,255,255,0.03); border-radius: 100px; position: relative; overflow: hidden; }
         .premium-progress-fill { height: 100%; border-radius: 100px; position: relative; z-index: 2; }
         .premium-progress-glow { position: absolute; top: 0; left: 0; height: 100%; filter: blur(4px); opacity: 0.3; }

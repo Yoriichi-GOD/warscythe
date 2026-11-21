@@ -101,7 +101,7 @@ export default function StreakScrollModal() {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .scroll-backdrop {
           position: fixed; inset: 0; background: rgba(0, 0, 0, 0.97); backdrop-filter: blur(15px);
           display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 2rem 1rem;
@@ -191,7 +191,7 @@ export default function StreakScrollModal() {
           font-family: var(--font-mono); font-size: 0.7rem; font-weight: 900;
           letter-spacing: 0.1em; text-transform: uppercase;
           background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981;
-          color: #10b981; cursor: pointer; transition: 0.3s;
+          color: #10b981; cursor: pointer; transition: var(--motion-control-transition);
           display: flex; align-items: center; justify-content: center;
         }
         .btn-decree-dismiss:disabled {

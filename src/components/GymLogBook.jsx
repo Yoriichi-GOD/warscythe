@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Dumbbell, Plus, Trash2, Calendar, ClipboardList } from 'lucide-react';
@@ -55,9 +56,10 @@ export default function GymLogBook({ onClose }) {
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="logbook-modal glass-panel custom-scrollbar"
+        className="logbook-modal glass-panel custom-scrollbar ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
+          <OrnateFrame family="hercules" quiet className="ornate-frame--inset" />
         <div className="modal-header">
           <div className="modal-title-box">
             <Dumbbell size={18} className="text-gold" />
@@ -234,7 +236,7 @@ export default function GymLogBook({ onClose }) {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .modal-backdrop {
           position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px);
           display: flex; align-items: center; justify-content: center; z-index: 2500; padding: 1rem;
@@ -262,7 +264,7 @@ export default function GymLogBook({ onClose }) {
           width: 32px; height: 32px; border-radius: 50%;
           background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
           color: var(--text-dim); display: flex; align-items: center; justify-content: center;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .btn-close-circle:hover { background: var(--red-core); color: #fff; border-color: var(--red-hot); }
 
@@ -270,14 +272,14 @@ export default function GymLogBook({ onClose }) {
           background: rgba(197, 160, 89, 0.1); border: 1px solid var(--gold-core);
           color: var(--gold-bright); font-family: var(--font-mono); font-size: 0.6rem;
           padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; cursor: pointer;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .btn-add-workout:hover { background: var(--gold-core); color: #000; }
 
         .logbook-input {
           width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.1);
           border-radius: 4px; padding: 0.8rem; color: #fff; font-family: var(--font-mono); font-size: 0.75rem;
-          transition: 0.2s;
+          transition: var(--motion-control-transition);
         }
         .logbook-input:focus { outline: none; border-color: var(--gold-core); background: rgba(197, 160, 89, 0.05); }
 
@@ -285,7 +287,7 @@ export default function GymLogBook({ onClose }) {
           background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1);
           color: var(--text-dim); font-family: var(--font-mono); font-size: 0.6rem;
           padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; cursor: pointer;
-          transition: 0.2s; width: fit-content;
+          transition: var(--motion-control-transition); width: fit-content;
         }
         .btn-add-exercise:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
 

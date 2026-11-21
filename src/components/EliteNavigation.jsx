@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Swords, Dumbbell, Flame, Hammer, Map, Scroll } from 'lucide-react';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 
@@ -105,12 +104,10 @@ export default function EliteNavigation({ activeTab, onTabChange, navigationLock
           <div className="compass-outer">
             <div className="compass-ring-1" />
             <div className="compass-core bg-transparent border-none shadow-none">
-               <motion.img 
-                 src="/command-core.png" 
+               <img
+                 src="/command-core.webp"
                  alt="Command Core"
-                 className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(197,160,89,0.55)]"
-                 animate={{ rotate: 360 }}
-                 transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
+                 className="motion-compass w-full h-full object-contain drop-shadow-[0_0_12px_rgba(197,160,89,0.55)]"
                />
             </div>
           </div>

@@ -1,3 +1,4 @@
+import OrnateFrame from './frames/OrnateFrame';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, MessageSquare, ExternalLink } from 'lucide-react';
@@ -44,8 +45,9 @@ export default function VideoGuideModal() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 15 }}
             transition={{ type: 'spring', duration: 0.4 }}
-            className="relative w-full max-w-3xl bg-zinc-950/95 border border-gold-core/20 rounded shadow-[0_0_50px_rgba(0,0,0,0.8),0_0_20px_rgba(197,160,89,0.05)] overflow-hidden flex flex-col z-10"
+            className="relative w-full max-w-3xl bg-zinc-950/95 border border-gold-core/20 rounded shadow-[0_0_50px_rgba(0,0,0,0.8),0_0_20px_rgba(197,160,89,0.05)] overflow-hidden flex flex-col z-10 ornate-surface ornate-dialog"
           >
+          <OrnateFrame family="hermes" quiet className="ornate-frame--inset" />
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/5 bg-black/40 px-5 py-4">
               <div className="flex items-center gap-2">
@@ -88,7 +90,7 @@ export default function VideoGuideModal() {
                 href={youtubeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 px-4 py-2 border border-gold-core/30 bg-gold-core/5 hover:bg-gold-core/10 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest transition-all flex items-center gap-1.5 cursor-pointer uppercase shadow-[0_0_10px_rgba(197,160,89,0.02)]"
+                className="shrink-0 px-4 py-2 border border-gold-core/30 bg-gold-core/5 hover:bg-gold-core/10 text-gold-core text-[9px] font-mono rounded font-bold tracking-widest motion-control flex items-center gap-1.5 cursor-pointer uppercase shadow-[0_0_10px_rgba(197,160,89,0.02)]"
               >
                 <span>Write Feedback</span>
                 <ExternalLink size={10} />

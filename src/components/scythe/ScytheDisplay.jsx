@@ -26,22 +26,22 @@ export default function ScytheDisplay({
 
   let imagePath;
   if (previewLevel && type === "ultimate") {
-    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.webp`);
   } else if (isPremiumSkin) {
-    imagePath = getAssetUrl(`/scythe/premium/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/scythe/premium/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.webp`);
   } else if (isCoinSkin) {
-    imagePath = getAssetUrl(`/scythe/coin/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/scythe/coin/${activeScytheSkin}/${activeScytheSkin}_${safeLevel.toLowerCase()}.webp`);
   } else if (type === "ultimate") {
-    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.png`);
+    imagePath = getAssetUrl(`/ultimate/${level.toLowerCase()}.webp`);
   } else {
-    imagePath = getAssetUrl(`/scythe/${safeLevel}.png`);
+    imagePath = getAssetUrl(`/scythe/${safeLevel}.webp`);
   }
 
   if (activeTheme && activeTheme !== "default" && (!activeScytheSkin || activeScytheSkin === "default")) {
     if (activeTheme === "shiva") {
-      imagePath = getAssetUrl(`/themes/kailash/scythe-${safeLevel.toLowerCase()}.png`);
+      imagePath = getAssetUrl(`/themes/kailash/scythe-${safeLevel.toLowerCase()}.webp`);
     } else if (activeTheme === "lava") {
-      imagePath = getAssetUrl(`/themes/lava/scythe-${safeLevel.toLowerCase()}.png`);
+      imagePath = getAssetUrl(`/themes/lava/scythe-${safeLevel.toLowerCase()}.webp`);
     }
   }
   const responsiveImage = getResponsiveAsset(imagePath);
@@ -71,6 +71,13 @@ export default function ScytheDisplay({
     >
       {/* GOLDEN AMBIENT AURA */}
       <div className="scythe-aura" />
+
+      {/* Sparse ceremonial mount: these generated assets are complete compositions,
+          so they are placed once and never tiled, rotated, or treated as primitives. */}
+      <div className="scythe-mount-rail" aria-hidden="true">
+        <img src="/frames/special/scythe-rail.webp" alt="" />
+        <img className="scythe-mount-rail__gem" src="/frames/special/scythe-rail-gem.webp" alt="" />
+      </div>
 
       {/* MOBILE ONLY HEADER & TIMELINE */}
       <div className="block lg:hidden w-full px-4 pt-4 z-20">
@@ -104,7 +111,7 @@ export default function ScytheDisplay({
                 <button
                   key={stage.id}
                   onClick={() => isUnlocked && onSelectStage(stage.id, stage.pwr)}
-                  className={`flex flex-col items-center gap-1 z-10 transition-all focus:outline-none ${
+                  className={`flex flex-col items-center gap-1 z-10 motion-control focus:outline-none ${
                     !isUnlocked ? 'opacity-20 cursor-not-allowed' : 'cursor-pointer'
                   }`}
                   disabled={!isUnlocked}
@@ -116,7 +123,7 @@ export default function ScytheDisplay({
                   </span>
                   
                   {/* Stepper diamond node */}
-                  <div className={`w-1.5 h-1.5 rotate-45 border transition-all ${
+                  <div className={`w-1.5 h-1.5 rotate-45 border motion-control ${
                     isActive 
                       ? 'border-gold-core bg-gold-core shadow-[0_0_8px_#c5a059]' 
                       : 'border-white/20 bg-black'
@@ -160,7 +167,7 @@ export default function ScytheDisplay({
           }}
           onError={(e) => { 
             e.target.onerror = null; // Prevent infinite loop
-            e.target.src = '/scythe/DORMANT.png'; 
+            e.target.src = '/scythe/DORMANT.webp';
           }}
         />
       </div>
@@ -206,14 +213,14 @@ export default function ScytheDisplay({
         {previewLevel && (
           <button 
             onClick={onReturnToActive}
-            className="flex lg:hidden mt-3 text-[7px] font-mono text-gold-core border border-gold-core/20 px-2.5 py-1 rounded hover:bg-gold-core/10 transition-all uppercase tracking-widest pointer-events-auto"
+            className="flex lg:hidden mt-3 text-[7px] font-mono text-gold-core border border-gold-core/20 px-2.5 py-1 rounded hover:bg-gold-core/10 motion-control uppercase tracking-widest pointer-events-auto"
           >
             Return to Active
           </button>
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .scythe-aura {
           position: absolute;
           width: 24rem;
@@ -223,6 +230,39 @@ export default function ScytheDisplay({
           filter: blur(80px);
           pointer-events: none;
           animation: pulse-aura 4s infinite ease-in-out;
+        }
+
+        .scythe-mount-rail {
+          position: absolute;
+          top: -0.35rem;
+          left: 50%;
+          width: min(92%, 760px);
+          height: clamp(62px, 8vw, 92px);
+          transform: translateX(-50%);
+          overflow: hidden;
+          pointer-events: none;
+          z-index: 18;
+          filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.8));
+        }
+
+        .scythe-mount-rail img {
+          position: absolute;
+          left: 0;
+          top: 50%;
+          width: 100%;
+          height: auto;
+          transform: translateY(-49%);
+          display: block;
+        }
+
+        .scythe-mount-rail .scythe-mount-rail__gem {
+          left: 50%;
+          top: 50%;
+          width: clamp(42px, 6.3vw, 62px);
+          height: auto;
+          transform: translate(-50%, -48%);
+          z-index: 2;
+          filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.28));
         }
 
         @keyframes pulse-aura {
@@ -246,6 +286,12 @@ export default function ScytheDisplay({
 
         /* Mobile padding adjustments */
         @media (max-width: 1023px) {
+          .scythe-mount-rail {
+            top: 6rem;
+            width: 94%;
+            height: 58px;
+          }
+
           .scythe-image-wrapper-mobile {
             padding-top: 4.5rem !important;
             padding-bottom: 7.5rem !important;
