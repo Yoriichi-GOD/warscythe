@@ -11,10 +11,12 @@ Reuse the chambers' established materials as recurring role identifiers througho
 | Apollo: gold, ivory and violet | Measurement, focus through practice and rhythm | Fitness metrics; ritual creation and editing | Map, roadmap and fairy guidance |
 | Ares: dark bronze and red | Deliberate exertion and tactical commitment | RPE dial; Focus task area | Legion operations and Ares chamber |
 | Zeus: blue, silver and gold | Ascension and authority | Pantheon progression | Premium dialog and Zeus chamber |
-| Ledger: restrained dark gold | Records and memory | Recent workouts; detailed gym logbook | Ledger/history and Legion records |
-| Artifact: amber and carved gold | Equipment, collection and ownership | Armory shop; artifact vault | Relic presentation |
+| Ledger: restrained dark gold | Records and memory | Recent workouts; legacy GymLogBook component | Ledger/history and Legion records |
+| Artifact: amber and carved gold | Equipment, collection and ownership | Armory shop; legacy VaultModal component | Relic presentation |
 
 The active deity panel takes its family directly from the already-calculated active deity ID. This changes the surrounding artwork only. The five chambers, affinity calculations, thresholds, rewards and progression logic are unchanged. Universal outer framing remains useful for the world's shared shell.
+
+The separate GymLogBook and VaultModal components are not currently routed from the app. Their family choices were checked through isolated mounting as legacy consistency work; they do not introduce a visible production flow. The live bundle check covers the routed Armory, Fitness, Rituals and Focus changes. The approved Ledger vault layout remains untouched.
 
 This is an aesthetic and orientation decision. Enjoyment, retention and psychological effects have not been measured. Labels, icons and layout still identify each role; frame color is additional information.
 
@@ -31,7 +33,7 @@ No source images were recolored, regenerated or replaced. No fonts, landing-page
 | Requirement | Evidence |
 | --- | --- |
 | All five deity identities appear correctly; seven Fitness roles use the intended families | 25/25 family layouts at 360, 390, 768, 1024 and 1440px; actual visible corner pixels checked against text and icons |
-| Related dialogs repeat those same roles | 30/30 layouts across the six changed dialogs and five widths; no frame/text/icon intersections or horizontal frame cutoff |
+| Related dialogs repeat those same roles | 30/30 isolated component layouts across six changed dialogs and five widths, including 10 legacy-component cases; no frame/text/icon intersections or horizontal frame cutoff |
 | Fitness remains usable in overview, active session and focused mode | 15/15 layouts; no measured text collisions, horizontal art cutoff, document overflow or runtime errors |
 | Logging, rest, minimize/resume, discard and archive remain functional | 24/24 browser regressions |
 | Deity rewards and affinity remain stable | 8/8 reward-domain tests; all 14 protected feature files and the business store retain their hashes |
