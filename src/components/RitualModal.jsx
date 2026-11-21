@@ -119,7 +119,7 @@ export default function RitualModal({
   return (
     <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="ritual-modal-backdrop" onClick={tutorialMode ? undefined : onClose}>
       <Motion.div initial={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }} animate={{ opacity: 1, transform: 'translateY(0) scale(1)' }} exit={{ opacity: 0, transform: 'translateY(8px) scale(.98)' }} className="ritual-modal-panel ornate-surface ornate-dialog" onClick={event => event.stopPropagation()}>
-          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
         <header className="ritual-modal-header">
           <div>
             <Crosshair size={16} />

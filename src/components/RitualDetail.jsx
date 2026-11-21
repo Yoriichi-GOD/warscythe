@@ -46,7 +46,7 @@ export default function RitualDetail({ ritualId, onClose, onComplete }) {
         className="ritual-modal-panel ritual-edit-panel ornate-surface ornate-dialog"
         onClick={event => event.stopPropagation()}
       >
-          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
         <header className="ritual-modal-header">
           <div>
             <Flame size={16} />

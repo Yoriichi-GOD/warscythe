@@ -262,7 +262,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
         </div>
 
         <div className="focus-task-info ornate-surface ornate-dialog">
-          <OrnateFrame family="universal" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="ares" quiet className="focus-task-frame" />
           <div className="task-focus-header">
             <span className="task-focus-cat">{task.category}</span>
             <h2 className="task-focus-title">{task.title}</h2>
@@ -474,7 +474,8 @@ export default function FocusOverlay({ onTriggerProphecy }) {
 
 
 
-        .focus-task-info { display: flex; flex-direction: column; gap: 3rem; }
+        .focus-task-info { display: flex; flex-direction: column; gap: 3rem; min-width: 0; padding: 24px 48px; }
+        .focus-task-info > .focus-task-frame { inset: 0; }
         .task-focus-cat { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold-core); letter-spacing: 0.2em; text-transform: uppercase; }
         .task-focus-title { font-family: var(--font-display); font-size: 2.5rem; color: #fff; line-height: 1.2; }
 
@@ -537,6 +538,7 @@ export default function FocusOverlay({ onTriggerProphecy }) {
           }
           .focus-task-info {
             gap: 2rem;
+            padding: 20px 36px;
           }
           .focus-steps-list {
             max-height: 280px;

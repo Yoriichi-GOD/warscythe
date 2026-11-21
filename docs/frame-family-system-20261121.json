@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-21",
+  "baselineCommit": "bd74dc37d70d066202638f1720ce29d193855ff1",
+  "checks": {
+    "deityFamilyLayouts": 25,
+    "dialogLayouts": 30,
+    "fitnessModes": 15,
+    "workoutRegressions": 24,
+    "rewardTests": 8,
+    "buildPassed": true,
+    "newLintFindings": 0
+  },
+  "source": {
+    "checkedFiles": 7,
+    "existingLintFindings": 24,
+    "newLintFindings": [],
+    "preservedFiles": 119,
+    "intendedOpticalAdjustment": [
+      "src/components/frames/ornateFrames.css",
+      "src/pages/fitnessFrames.css"
+    ],
+    "unexpectedChanges": []
+  },
+  "failures": []
+}

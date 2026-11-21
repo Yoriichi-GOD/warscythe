@@ -11,6 +11,8 @@
   inset: 0;
   opacity: .95;
 }
+/* Wing tips have a wider outside reach than the bronze strength corners. */
+.fitness-realm .fitness-framed-panel--panel > .fitness-panel-frame[data-frame-family="hermes"] { --frame-corner: 64px; }
 .fitness-realm .fitness-framed-panel--compact {
   padding: 22px 18px 18px !important;
   min-height: 170px;
@@ -30,6 +32,7 @@
 @media (max-width: 639px) {
   .fitness-realm .fitness-framed-panel { margin: 14px; padding: 26px 18px 24px !important; }
   .fitness-realm .fitness-panel-frame { --frame-corner: 58px; }
+  .fitness-realm .fitness-framed-panel--panel > .fitness-panel-frame[data-frame-family="hermes"] { --frame-corner: 58px; }
   .fitness-realm .fitness-framed-panel--compact { padding: 22px 14px 18px !important; }
   .fitness-realm .fitness-framed-panel--compact > .fitness-panel-frame { --frame-corner: 44px; }
   .fitness-realm .fitness-framed-panel--metrics { padding: 22px 14px !important; }

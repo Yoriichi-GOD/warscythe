@@ -65,7 +65,7 @@ export default function VaultModal({ onClose }) {
         className="vault-modal-content ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
-          <OrnateFrame family="ledger" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="artifact" quiet className="ornate-frame--inset" />
         <div className="vault-header">
           <div className="vault-title-group flex items-center gap-6">
             <div className="flex items-center gap-2">

@@ -58,9 +58,12 @@
 .collective-ops-form.ornate-surface { z-index: 5; }
 .member-identity { display: flex; gap: 12px; align-items: center; min-width: 0; }
 .member-identity > div { min-width: 0; overflow-wrap: anywhere; }
+.ritual-modal-panel > .ritual-modal-header { padding-left: 64px; }
 @media (max-width: 639px) {
   .ornate-frame { --frame-corner: 58px; }
   .ornate-frame--quiet { --frame-corner: 38px; }
+  .ritual-modal-panel > .ornate-frame--inset { inset: 10px; }
+  .ritual-modal-panel > .ritual-modal-header { padding-left: 48px; }
   .ornate-frame-crest { width: 76px; }
   .forge-shell { margin: 12px 7px; padding: 20px 14px; }
   .scythe-center-section > .forge-shell > :nth-child(3) { flex-wrap: wrap; gap: 6px; }

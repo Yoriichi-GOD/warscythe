@@ -223,7 +223,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
           backgroundPosition: 'center'
         }}
       >
-          <OrnateFrame family="hercules" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="artifact" quiet className="ornate-frame--inset" />
         {/* Header */}
         <div className="shop-header">
           <div className="flex items-center gap-3">

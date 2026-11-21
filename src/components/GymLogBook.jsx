@@ -59,7 +59,7 @@ export default function GymLogBook({ onClose }) {
         className="logbook-modal glass-panel custom-scrollbar ornate-surface ornate-dialog"
         onClick={e => e.stopPropagation()}
       >
-          <OrnateFrame family="hercules" quiet className="ornate-frame--inset" />
+          <OrnateFrame family="ledger" quiet className="ornate-frame--inset" />
         <div className="modal-header">
           <div className="modal-title-box">
             <Dumbbell size={18} className="text-gold" />

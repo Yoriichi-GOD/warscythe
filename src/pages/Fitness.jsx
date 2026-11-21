@@ -24,10 +24,10 @@ import {
 } from 'lucide-react';
 
 
-const OrnatePanel = ({ children, className = '', frameSize = 'panel', ...props }) => {
+const OrnatePanel = ({ children, className = '', frameSize = 'panel', frameFamily = 'hercules', ...props }) => {
   return (
     <div className={`elite-panel ornate-surface fitness-framed-panel fitness-framed-panel--${frameSize} ${className}`} {...props}>
-      <OrnateFrame family="hercules" className="fitness-panel-frame" />
+      <OrnateFrame family={frameFamily} className="fitness-panel-frame" />
       <div className="relative z-10 w-full h-full flex flex-col">
         {children}
       </div>
@@ -613,7 +613,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
             <div className="workout-controls grid grid-cols-2 gap-4">
               
               {/* RPE Dial Widget */}
-              <OrnatePanel frameSize="compact" id="fitness-rpe-dial" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel frameFamily="ares" frameSize="compact" id="fitness-rpe-dial" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className="flex justify-between items-start mb-1 z-10">
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">RPE DIAL</span>
@@ -722,7 +722,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
               </OrnatePanel>
 
               {/* Rest Timer Widget */}
-              <OrnatePanel frameSize="compact" id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
+              <OrnatePanel frameFamily="hermes" frameSize="compact" id="fitness-rest-timer" className="flex flex-col justify-between h-[155px] relative overflow-hidden !p-3 fitness-panel-glass">
                 <div className={`relative flex justify-between items-center mb-1 ${timerDurationOpen ? 'z-[320]' : 'z-10'}`}>
                   <div className="flex flex-col">
                     <span className="text-[7px] font-mono text-gold-core/60 tracking-wider uppercase font-bold">REST TIMER</span>
@@ -878,7 +878,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
 
         {/* ================= CENTER COLUMN: THE PANTHEON OF IRON (Columns: 4) ================= */}
         <div className="fitness-deity-column lg:col-span-4 flex flex-col gap-4">
-          <OrnatePanel className="text-center relative overflow-hidden !p-4 elite-panel-clear">
+          <OrnatePanel frameFamily={activeDeity.id} className="text-center relative overflow-hidden !p-4 elite-panel-clear">
             
             {/* Background God Aura Light */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,200,128,0.12)_0%,transparent_70%)] pointer-events-none" />
@@ -1047,7 +1047,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
         <div className="fitness-secondary-column lg:col-span-3 flex flex-col gap-4 sticky top-4">
           
           {/* Quick Metrics Widget */}
-          <OrnatePanel frameSize="metrics" className="fitness-panel-glass">
+          <OrnatePanel frameFamily="apollo" frameSize="metrics" className="fitness-panel-glass">
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="flex flex-col gap-1 border-r border-white/5 py-1">
                 <span className="text-[7px] font-mono text-gray-500 uppercase tracking-wider">TOTAL VOLUME</span>
@@ -1072,7 +1072,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
           </OrnatePanel>
 
           {/* Ascension Path Panel */}
-          <OrnatePanel className="border-gold-core/25 fitness-panel-glass">
+          <OrnatePanel frameFamily="zeus" className="border-gold-core/25 fitness-panel-glass">
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">ASCENSION PATH</span>
@@ -1188,7 +1188,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
           </OrnatePanel>
 
           {/* Historical Logs List */}
-          <OrnatePanel className="border-white/5 fitness-panel-glass">
+          <OrnatePanel frameFamily="ledger" className="border-white/5 fitness-panel-glass">
             <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest block mb-3 border-b border-white/5 pb-2">
               RECENT WORKOUTS HISTORY
             </span>
