@@ -130,3 +130,16 @@ body:has(.reward-discovery-overlay,.world-archive-backdrop,.chronicle-window-bac
 #warscythe-app .elite-nav :where(*){font-weight:400!important}
 
 .workout-empty-start{background:transparent;border:0;padding:8px 0 12px}
+
+/* Keep standard blur in its own rule: the production minifier coalesces
+   variable-valued prefixed declarations to the last spelling. Older Safari
+   retains the prefixed declarations above; modern engines take this branch. */
+@supports (backdrop-filter:blur(1px)) {
+  #warscythe-app :is(.reward-reveal,.reward-receipt,.world-archive,.chronicle-window,.workout-mode-bar,.workout-resume-dock),
+  #warscythe-app .fitness-workout-column .fitness-panel-glass {
+    backdrop-filter: var(--world-window-filter,blur(12px) brightness(.82)) !important;
+  }
+  #warscythe-app .fitness-workout-column .fitness-split-menu {
+    backdrop-filter: blur(20px) brightness(.4) !important;
+  }
+}

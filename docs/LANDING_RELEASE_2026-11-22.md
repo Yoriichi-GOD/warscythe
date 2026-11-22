@@ -24,3 +24,7 @@ The earlier glass-only pass additionally recorded 142 browser assertions includi
 Local evidence is in the separate workspace's landing-release-20261122 directory. Final build, source audit, public deployment identity and fresh-cache measurements are recorded there. Five local Latin WOFF2 files total 112,140 bytes; adding these to the public landing is an intentional cost, not an asserted speed improvement.
 
 Browser emulation does not establish physical phone/iPad performance. Authenticated cloud synchronization, every optional theme and native installation were not validated in this pass. Test Realm changes were isolated from real accounts. Only cached Warscythe resources and service-worker registrations are cleared for the public check; account storage is preserved.
+
+## Post-deployment correction
+
+The first live inspection found the reader's computed blur was none and the workout retained its old 4px blur. Reproduced the production minifier collapsing paired variable-valued backdrop-filter declarations to only the final prefixed spelling. A separate standard-property @supports rule now preserves the intended modern-browser filter while retaining the prefixed fallback for older Safari. This is verified against the actual rebuilt CSS and computed styles, not inferred from the development preview.
