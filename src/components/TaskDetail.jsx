@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useIsPresent } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, CheckCircle, Trash2, Zap, Target, BookOpen, Plus } from 'lucide-react';
 
 export default function TaskDetail({ taskId, onClose, onComplete }) {
+  const isPresent = useIsPresent();
   const task = useWarscytheStore(state => 
     state.tasks.find(t => t.id === taskId) || 
     state.completedTasks.find(t => t.id === taskId)
@@ -53,7 +54,7 @@ export default function TaskDetail({ taskId, onClose, onComplete }) {
   const trackColor = 'var(--gold-core)';
 
   return (
-    <div className="modal-backdrop" onClick={handleClose}>
+    <div className="modal-backdrop" onClick={handleClose} inert={!isPresent} style={{pointerEvents:isPresent ? undefined : 'none'}}>
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}

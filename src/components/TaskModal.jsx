@@ -113,15 +113,22 @@ function CustomDatePicker({ value, onChange }) {
 export default function TaskModal({
   onClose,
   initialEffort = 'Medium',
+  streamlined = false,
   initialDraft = null,
   onDraftChange,
   onSubmitted,
 }) {
   const isPresent = useIsPresent();
+  const Options = streamlined ? 'details' : 'div';
   const [title, setTitle] = useState(initialDraft?.title || '');
   const [category, setCategory] = useState(initialDraft?.category || 'Work');
-  const [effort, setEffort] = useState(initialDraft?.effort || initialEffort);
-  const [deadline, setDeadline] = useState(initialDraft?.deadline || '');
+  const [effort, setEffort] = useState(initialDraft?.effort || (streamlined ? 'Low' : initialEffort));
+  const [deadline, setDeadline] = useState(() => {
+    if (initialDraft?.deadline) return initialDraft.deadline;
+    if (!streamlined) return '';
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    return [tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,'0'),String(tomorrow.getDate()).padStart(2,'0')].join('-');
+  });
   const [deadlineTime, setDeadlineTime] = useState(initialDraft?.deadlineTime || '23:59');
   const [priority, setPriority] = useState(initialDraft?.priority || 'none');
   const [subTaskText, setSubTaskText] = useState(initialDraft?.subTaskText || '');
@@ -286,7 +293,7 @@ export default function TaskModal({
         <div className="modal-header">
           <div className="modal-title-box">
             <Crosshair size={18} className="text-gold" />
-            <h2>NEW OPERATION</h2>
+            <h2>{streamlined ? "Your first Operation" : "NEW OPERATION"}</h2>
           </div>
           <button className="btn-close-circle" onClick={handleClose}><X size={16} /></button>
         </div>
@@ -354,6 +361,9 @@ export default function TaskModal({
             )}
           </div>
 
+          {streamlined && <p className="journey-form-summary">{category} · {effort} effort · Due {new Date(deadline+'T'+deadlineTime).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}. Change any of these below.</p>}
+          <Options className={streamlined ? 'journey-form-more' : undefined}>
+          {streamlined && <summary>Category, deadline &amp; more</summary>}
           <div className="form-grid">
             <div id="tutorial-step-1" className={`form-group motion-control duration-300 ${isDimmed(1) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`} style={{ position: 'relative', zIndex: categoryOpen ? 200 : 10 }}>
               <label><ShieldAlert size={10} /> CATEGORY</label>
@@ -540,6 +550,7 @@ export default function TaskModal({
             )}
           </div>
 
+          </Options>
           <div id="tutorial-step-5" className={`modal-footer motion-control duration-300 ${isDimmed(5) ? 'opacity-10 pointer-events-none filter grayscale' : ''}`}>
             <button type="submit" className="btn-primary deploy-btn">
               <span className="deploy-btn-frame" aria-hidden="true">
@@ -548,7 +559,7 @@ export default function TaskModal({
                 <img className="deploy-btn-frame__terminal deploy-btn-frame__terminal--right" src="/frames/dividers/sapphire-terminal.webp" alt="" />
                 <img className="deploy-btn-frame__gem" src="/frames/dividers/gold-diamond.webp" alt="" />
               </span>
-              <span>{isSubmitting ? "LOCKING IT IN..." : "CONFIRM DEPLOYMENT"}</span>
+              <span>{isSubmitting ? "LOCKING IT IN..." : streamlined ? "Save Operation" : "CONFIRM DEPLOYMENT"}</span>
             </button>
             {tutorialStep === 'task_modal_open' && formTutorialStep === 5 && (
               <div className="onboarding-pointer left-pointer select-pointer mt-4">

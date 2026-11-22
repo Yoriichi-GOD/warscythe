@@ -1,0 +1,14 @@
+Warscythe bound-document reader
+
+Unmodified @gullabs/react-flipbook 3.2.2 (MIT) and @gullabs/flipbook-core 3.2.2 (Mozilla Public License 2.0).
+
+Copyright notices and license text are provided in this directory:
+REACT-LICENSE.txt
+CORE-LICENSE.txt
+
+Corresponding source, including the covered core source files, is available without charge at:
+https://github.com/gul-labs/flipbook/tree/b436092f325bf01f5bc80255f5b720e492f121aa
+Core: packages/core/src
+React wrapper: packages/react/src
+
+Warscythe's document prose, catalogue, discovery compatibility, pagination and application interface are separate work. No library source files were modified.

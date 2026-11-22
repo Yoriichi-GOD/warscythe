@@ -24,6 +24,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.2.0",
     "@capacitor/network": "^8.0.1",
+    "@gullabs/react-flipbook": "3.2.2",
     "@supabase/supabase-js": "^2.105.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",

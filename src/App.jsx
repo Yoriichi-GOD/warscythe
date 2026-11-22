@@ -38,8 +38,7 @@ import { initNetworkMonitoring, configureNetworkSync } from './utils/nativeTrigg
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import LandingPage from './components/LandingPage';
-import LockedDoor from './components/LockedDoor';
-import GuardianOverlay from './components/GuardianOverlay';
+import JourneyGuide from './features/journey/JourneyGuide';
 import TabTutorialOverlay, { getMapTutorialGuidance } from './components/TabTutorialOverlay';
 import RoadmapModal from './components/RoadmapModal';
 import TitleUnlockFlash from './components/TitleUnlockFlash';
@@ -127,12 +126,10 @@ export default function App({ initialAuthOnWeb = false }) {
   const ambientMotion = useAmbientMotion();
   const user = useWarscytheStore(state => state.user);
   const username = useWarscytheStore(state => state.username);
-  const onboardingActive = useWarscytheStore(state => state.onboardingActive);
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
   const pendingGuardianProgress = useWarscytheStore(state => state.pendingGuardianProgress);
   const clearPendingGuardian = useWarscytheStore(state => state.clearPendingGuardian);
   const postGuardianTutorial = useWarscytheStore(state => state.postGuardianTutorial);
-  const setPostGuardianTutorial = useWarscytheStore(state => state.setPostGuardianTutorial);
   const clearPostGuardianTutorial = useWarscytheStore(state => state.clearPostGuardianTutorial);
   const pendingTitleUnlock = useWarscytheStore(state => state.pendingTitleUnlock);
   const clearPendingTitleUnlock = useWarscytheStore(state => state.clearPendingTitleUnlock);
@@ -183,6 +180,8 @@ export default function App({ initialAuthOnWeb = false }) {
   const [pendingEntryScreen, setPendingEntryScreen] = useState(null);
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
+  const [archiveDocumentId, setArchiveDocumentId] = useState(null);
+  const [fitnessOathOpen, setFitnessOathOpen] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(initialAuthOnWeb);
   const [showTutorialEndFlash, setShowTutorialEndFlash] = useState(false);
@@ -231,21 +230,6 @@ export default function App({ initialAuthOnWeb = false }) {
     };
   }, []);
 
-  // Auto-switch tabs when postGuardianTutorial fires
-  useEffect(() => {
-    if (!postGuardianTutorial) {
-      setMapTutorialHighlightNode(null);
-      return;
-    }
-    setTutorialMapNodeClicked(null);
-    setTutorialMapNodeContinued(null);
-    if (postGuardianTutorial === 'rituals_intro') setActiveTab('rituals');
-    else if (postGuardianTutorial === 'forge_intro') setActiveTab('forge');
-    else if (postGuardianTutorial === 'quest_map_intro') setActiveTab('map');
-    else if (postGuardianTutorial === 'ledger_intro') setActiveTab('ledger');
-    else if (postGuardianTutorial === 'social_intro' || postGuardianTutorial === 'legion_intro') setActiveTab('social');
-  }, [postGuardianTutorial]);
-  
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
 
   useEffect(() => {
@@ -513,6 +497,7 @@ export default function App({ initialAuthOnWeb = false }) {
     
 
     // Navigation handler for 'Access Full Vault' -> Ledger Relics & Lore
+    const handleOpenArchive = event => { setArchiveDocumentId(event.detail?.documentId || null); setShowLoreModal(true); };
     const handleNavToLedgerVault = () => {
       setActiveTab('ledger');
       setLedgerSubTab('vault');
@@ -566,11 +551,13 @@ export default function App({ initialAuthOnWeb = false }) {
 
     window.addEventListener('keydown', handleEsc);
     window.addEventListener('navToLedgerVault', handleNavToLedgerVault);
+    window.addEventListener('warscythe:open-archive', handleOpenArchive);
     window.addEventListener('triggerProphecy', handleTriggerProphecy);
 
     return () => {
       window.removeEventListener('keydown', handleEsc);
       window.removeEventListener('navToLedgerVault', handleNavToLedgerVault);
+      window.removeEventListener('warscythe:open-archive', handleOpenArchive);
       window.removeEventListener('triggerProphecy', handleTriggerProphecy);
       if (appUrlListener) {
         appUrlListener.remove();
@@ -647,7 +634,7 @@ export default function App({ initialAuthOnWeb = false }) {
   }
 
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
-  const navigationSealed = fitnessTutorialActive || postGuardianTutorial === 'lore_intro';
+  const navigationSealed = false;
   const guardedTabChange = (tab) => {
     if (navigationSealed && tab !== activeTab) return;
     if (tab !== activeTab) {
@@ -668,11 +655,17 @@ export default function App({ initialAuthOnWeb = false }) {
         onOpenPremium={() => setShowPremiumModal(true)}
         onOpenShop={() => setShowShopModal(true)}
         onOpenDownloader={() => setShowDownloaderModal(true)}
-        onOpenLore={() => setShowLoreModal(true)}
+        onOpenLore={() => { setArchiveDocumentId(null); setShowLoreModal(true); }}
         onOpenSocial={() => guardedTabChange('social')}
         onOpenRoadmap={() => setShowRoadmap(true)}
       />}
 
+      <JourneyGuide activeTab={activeTab} onNavigate={guardedTabChange}
+        onOpenTask={() => setShowTaskModal(true)} onOpenHabit={() => setShowRitualModal(true)}
+        onChronicle={() => setShowRoadmap(true)}
+        onPractice={() => { guardedTabChange('fitness'); setFitnessOathOpen(true); }}
+        busy={showTaskModal || showRitualModal || showLoreModal || showRoadmap || fitnessTutorialActive || fitnessOathOpen || !!pendingReward || !!selectedTaskId}/>
+      {(fitnessTutorialActive || fitnessOathOpen) && <button type="button" className="journey-quiet" style={{position:'fixed',right:16,top:80,zIndex:4000,padding:12,background:'#151810',color:'#dfc78b',border:'1px solid #b79b5b55',borderRadius:10}} onClick={() => { setFitnessTutorialActive(false); setFitnessOathOpen(false); }}>Leave rehearsal</button>}
       {/* Sticky Walkthrough Guide Banner */}
       {!focusedWorkout && !guideBannerDismissed && (
         <div className="w-full shrink-0 bg-zinc-950/90 border-b border-gold-core/25 backdrop-blur-md px-4 py-2 flex items-center justify-between z-40 text-left relative">
@@ -728,7 +721,7 @@ export default function App({ initialAuthOnWeb = false }) {
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
           {activeTab === 'fitness' && (
-            <div className={onboardingActive && !hasSeenFitnessPeek
+            <div className={fitnessOathOpen
               ? 'pointer-events-none select-none blur-[5px] brightness-[.32] saturate-[.7]'
               : undefined}
             >
@@ -738,10 +731,11 @@ export default function App({ initialAuthOnWeb = false }) {
               />
             </div>
           )}
-          {activeTab === 'fitness' && onboardingActive && !hasSeenFitnessPeek && (
+          {activeTab === 'fitness' && fitnessOathOpen && (
             <FitnessOathGate
               onComplete={() => {
                 useWarscytheStore.getState().setHasSeenFitnessPeek(true);
+                setFitnessOathOpen(false);
                 setFitnessTutorialActive(true);
               }}
             />
@@ -752,46 +746,25 @@ export default function App({ initialAuthOnWeb = false }) {
           style={{ display: activeTab === 'rituals' ? 'block' : 'none' }} 
           className="rituals-page-scroll h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {activeTab === 'rituals' && (onboardingActive && onboardingProgress < 3 ? (
-            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
-              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
-                <Rituals onAddTask={() => {}} />
-              </div>
-              <LockedDoor requiredTasks={3} conceptName="Rituals" />
-            </div>
-          ) : (
+          {activeTab === 'rituals' && (
             <Rituals onAddTask={() => setShowRitualModal(true)} />
-          ))}
+          )}
         </div>
 
         <div 
           style={{ display: activeTab === 'forge' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {activeTab === 'forge' && (onboardingActive && onboardingProgress < 3 ? (
-            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
-              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
-                <Forge onOpenShop={() => {}} />
-              </div>
-              <LockedDoor requiredTasks={3} conceptName="The Forge" />
-            </div>
-          ) : (
+          {activeTab === 'forge' && (
             <Forge onOpenShop={() => setShowShopModal(true)} />
-          ))}
+          )}
         </div>
         
         <div 
           style={{ display: activeTab === 'map' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto lg:overflow-hidden custom-scrollbar relative"
         >
-          {activeTab === 'map' && (onboardingActive && onboardingProgress < 5 ? (
-            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
-              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
-                <QuestMap onTabChange={() => {}} />
-              </div>
-              <LockedDoor requiredTasks={5} conceptName="Quest Map" />
-            </div>
-          ) : (
+          {activeTab === 'map' && (
             <QuestMap onTabChange={(tab, options) => {
               setActiveTab(tab);
               if (options?.openAddTask) {
@@ -813,39 +786,25 @@ export default function App({ initialAuthOnWeb = false }) {
             }}
             tutorialActive={postGuardianTutorial === 'quest_map_intro'}
             />
-          ))}
+          )}
         </div>
         
         <div 
           style={{ display: activeTab === 'ledger' ? 'block' : 'none' }} 
           className="ledger-page-scroll h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {activeTab === 'ledger' && (onboardingActive && onboardingProgress < 4 ? (
-            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
-              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
-                <Ledger initialSubTab={ledgerSubTab} onSubTabChange={() => {}} />
-              </div>
-              <LockedDoor requiredTasks={4} conceptName="The Ledger" />
-            </div>
-          ) : (
+          {activeTab === 'ledger' && (
             <Ledger initialSubTab={ledgerSubTab} onSubTabChange={setLedgerSubTab} />
-          ))}
+          )}
         </div>
 
         <div 
           style={{ display: activeTab === 'social' ? 'block' : 'none' }} 
           className="h-full w-full overflow-y-auto custom-scrollbar relative"
         >
-          {activeTab === 'social' && (onboardingActive && onboardingProgress < 7 ? (
-            <div className="relative w-full h-full min-h-[calc(100dvh-157px)]">
-              <div className="absolute inset-0 opacity-30 blur-[1.5px] pointer-events-none select-none overflow-hidden">
-                <Social />
-              </div>
-              <LockedDoor requiredTasks={7} conceptName="Social" />
-            </div>
-          ) : (
+          {activeTab === 'social' && (
             <Social />
-          ))}
+          )}
         </div>
         </React.Suspense>
       </main>
@@ -861,6 +820,7 @@ export default function App({ initialAuthOnWeb = false }) {
         {showTaskModal && (
           <TaskModal 
             onClose={() => setShowTaskModal(false)} 
+            streamlined={onboardingProgress < 1}
             initialEffort={taskModalInitialEffort}
             initialDraft={taskModalDraft}
             onDraftChange={setTaskModalDraft}
@@ -1133,6 +1093,7 @@ export default function App({ initialAuthOnWeb = false }) {
       <AnimatePresence>
         {showLoreModal && (
           <LoreModal 
+            initialDocumentId={archiveDocumentId}
             onClose={() => setShowLoreModal(false)} 
           />
         )}
@@ -1170,14 +1131,7 @@ export default function App({ initialAuthOnWeb = false }) {
           && !pendingReward
           && !pendingTitleUnlock
           && (
-          <GuardianOverlay 
-            progress={pendingGuardianProgress} 
-            onClose={clearPendingGuardian}
-            onTutorialAfter={(tutorialId) => {
-              clearPendingGuardian();
-              setPostGuardianTutorial(tutorialId);
-            }}
-          />
+          <aside className="journey-story-notice" role="status"><p>Chapter {pendingGuardianProgress} of your Chronicle is ready.</p><button type="button" onClick={() => { clearPendingGuardian(); setShowRoadmap(true); }}>Read when ready</button><button type="button" onClick={clearPendingGuardian}>Later</button></aside>
         )}
       </AnimatePresence>
 

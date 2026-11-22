@@ -5,7 +5,7 @@ import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, Ch
 import { getAssetUrl } from '../utils/assetResolver';
 import LockedDoor from '../components/LockedDoor';
 import { RITUAL_MEDAL_TIERS, getRitualMedalCollection } from '../utils/ritualMedals';
-import { ARTIFACT_VARIANT_TOTAL, getArtifactCollection } from '../utils/artifactCollection';
+import { ARTIFACT_VARIANT_TOTAL, getArtifactCollection, getCurrentArtifactVariantCount } from '../utils/artifactCollection';
 
 const EMPRESS_NAMES = [
   'Empress Dryad of Ashwood',
@@ -103,6 +103,15 @@ const getArtifactImage = (name) => {
   const type = (name || '').split(' ')[0].toLowerCase();
   return `/artifacts/artifact-${type}.webp`;
 };
+
+function ArtifactArt({ name, rarity, large = false }) {
+  const [failed, setFailed] = useState(false);
+  const className = (large ? 'large-art-icon-img' : 'art-card-icon-img')+' art-img-filter '+rarity;
+  const style = {maxWidth:large ? '100%' : '80%',maxHeight:large ? '100%' : '80%',objectFit:'contain',zIndex:2};
+  return failed
+    ? <span role="img" aria-label={'Artwork unavailable: '+name} title="Artwork unavailable" className={className} style={{...style,display:'grid',placeItems:'center'}}><Scroll size={large ? 56 : 26} aria-hidden="true"/></span>
+    : <img src={getArtifactImage(name)} className={className} style={style} alt={name} onError={() => setFailed(true)}/>;
+}
 
 export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const [subTab, setSubTab] = useState(initialSubTab);
@@ -356,7 +365,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const ritualMedalCollection = getRitualMedalCollection(rituals, ritualCompletionEvents);
   const ritualMedalTotal = Object.values(ritualMedalCollection).reduce((sum, count) => sum + count, 0);
   const artifactCollection = getArtifactCollection(collectedArtifacts);
-  const artifactVariantsRecovered = artifactCollection.length;
+  const artifactVariantsRecovered = getCurrentArtifactVariantCount(collectedArtifacts);
+  const historicalVariants = artifactCollection.length - artifactVariantsRecovered;
   const artifactVariantsRemaining = Math.max(0, ARTIFACT_VARIANT_TOTAL - artifactVariantsRecovered);
 
   useEffect(() => {
@@ -859,6 +869,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
           </div>
         ) : (
           <div className="vault-layout-page">
+            <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('warscythe:open-archive'))} className="w-full p-4 mb-6 text-left rounded-xl border border-gold-core/20 bg-black/40 text-stone-300" style={{gridColumn:'1 / -1'}}><span className="block text-xl italic text-gold-core">The Unquiet Post</span><span>Read your collected letters, accounts and other finds from across the kingdom.</span></button>
             {/* Left side: Artifact gallery and dragon heads */}
             <div className="artifact-gallery-page relics-lore-frame">
               <div className="relics-lore-frame__art" aria-hidden="true">
@@ -1007,8 +1018,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
 
               <div className="gallery-grid-page">
                 <div className="artifact-recovery-counter">
-                  <span>{artifactVariantsRecovered} / {ARTIFACT_VARIANT_TOTAL} ARTIFACTS RECOVERED</span>
-                  <strong>{artifactVariantsRemaining} ARTIFACTS TO GO</strong>
+                  <span>{artifactVariantsRecovered} / {ARTIFACT_VARIANT_TOTAL} CURRENT VARIANTS RECOVERED</span>
+                  <strong>{artifactVariantsRemaining} TO GO{historicalVariants > 0 && <small className="block">+{historicalVariants} historical variants preserved</small>}</strong>
                 </div>
                 {artifactCollection.length === 0 ? (
                   <div className="empty-vault py-12 text-center text-gray-500">
@@ -1028,12 +1039,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <img 
-                          src={getArtifactImage(art.name)} 
-                          className={`art-card-icon-img art-img-filter ${art.rarity}`} 
-                          alt={art.name} 
-                          style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain', zIndex: 2 }}
-                        />
+                        <ArtifactArt key={art.name} name={art.name} rarity={art.rarity}/>
                         <div className="rarity-dot" />
                         {art.count > 1 && <span className="artifact-card-multiplier">×{art.count}</span>}
                       </motion.div>
@@ -1073,12 +1079,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                       <img className="divine-inspector__gem" src="/frames/divine/hercules/top-gem.webp" alt="" />
                     </div>
                     <div className="inspector-visual">
-                      <img 
-                        src={getArtifactImage(selectedArtifact.name)} 
-                        className={`large-art-icon-img art-img-filter ${selectedArtifact.rarity}`} 
-                        alt={selectedArtifact.name} 
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', zIndex: 2 }}
-                      />
+                      <ArtifactArt key={selectedArtifact.variantKey} name={selectedArtifact.name} rarity={selectedArtifact.rarity} large/>
                       <div className={`large-glow rarity-${selectedArtifact.rarity}`} />
                     </div>
                     

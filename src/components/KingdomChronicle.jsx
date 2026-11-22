@@ -3,7 +3,7 @@ import { AnimatePresence, motion as Motion, useReducedMotion } from 'framer-moti
 import { KINGDOM_CHAPTERS } from '../data/kingdomChapters';
 import './kingdomChronicle.css';
 
-export default function KingdomChronicle({ progress, onContinue }) {
+export default function KingdomChronicle({ progress, onContinue, onOpenGuide }) {
   const available = Math.min(10, Math.max(1, progress));
   const [selected, setSelected] = useState(available);
   const chapter = KINGDOM_CHAPTERS[Math.min(selected, available) - 1];
@@ -14,8 +14,8 @@ export default function KingdomChronicle({ progress, onContinue }) {
     <AnimatePresence mode="wait" initial={false}><Motion.article key={chapter.id} initial={{opacity:0,y:reduce ? 0 : 5}} animate={{opacity:1,y:0}} exit={{opacity:0}} transition={{duration:reduce ? 0 : .16}}>
       <span className="chronicle-kicker">CHAPTER {chapter.id} OF 10 · {chapter.concept}</span>
       <h3>{chapter.title}</h3><p>{chapter.story}</p>
-      <aside><strong>Your next step</strong><p>{nextChapter.action}</p><small>Practice lessons teach the controls. Real Operations advance this journey.</small></aside>
-      <button type="button" className="chronicle-continue" onClick={onContinue}>Return to the journey</button>
+      <aside><strong>Your next step</strong><p>{nextChapter.action}</p><small>Guidance is optional. Real Operations advance these ten victories.</small></aside>
+      <button type="button" className="chronicle-continue" onClick={onContinue}>Return to the journey</button><button type="button" className="chronicle-continue" onClick={onOpenGuide}>Choose or resume a guide</button>
     </Motion.article></AnimatePresence>
     <p className="chronicle-footnote">Read at your pace. Chapters open alongside your existing roadmap; no extra progress is required.</p>
   </section>;

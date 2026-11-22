@@ -194,9 +194,9 @@ const SOCIAL_STEPS = [
 const LORE_STEPS = [
   { type:'dialogue', speaker:'Guardian', text:"A conquered realm is older than its conqueror. Its memory waits in the Lore Codex.", cta:"Find the Codex →" },
   { type:'highlight', speaker:'Guardian', text:"Open the Lore Codex from the book sigil above. The world existed before you entered it. Read before you claim to understand it.", highlightId:'onboarding-lore-button' },
-  { type:'highlight', speaker:'Guardian', text:"The five numbered seals are the five chapters of a realm: the dragon's birth, the Empress, their war, the prophecy, and your victory. Use them to move between pages.", highlightId:'lore-page-tabs' },
-  { type:'dialogue', speaker:'Guardian', text:"The arrows beside the region name move between regional chronicles. Locked seals open as operations are completed. You may always return to every realm you have already earned.", cta:"One final chamber →" },
-  { type:'highlight', speaker:'Guardian', text:"Close the Codex. Its histories remain available whenever you need to remember what your victories restored.", highlightId:'lore-close' },
+  { type:'highlight', speaker:'Guardian', text:"These are the documents you have collected from across one kingdom. Search your finds or choose a thread. Nothing here previews an undiscovered letter.", highlightId:'archive-catalogue' },
+  { type:'dialogue', speaker:'Guardian', text:"Each completed real Operation uncovers another document. A letter can connect to an account found much later, anywhere in the kingdom. Read in Letter, Codex or Text view; none is required to keep working.", cta:"One final chamber →" },
+  { type:'highlight', speaker:'Guardian', text:"Close the Codex. Its histories remain available whenever you need to remember what your victories restored.", highlightId:'archive-close' },
   { type:'dialogue', speaker:'Guardian', text:"The final chamber belongs to another keeper. Coin, weapon, and presentation are his trade. Listen closely to Cassian, Master of the Dread Armory. He values judgment more than wealth.", cta:"Meet the trader" },
   { type:'highlight', speaker:'Guardian', text:"Open the Dread Armory from the golden satchel. Cassian expects you. This is an inspection only. You will not be asked to buy anything.", highlightId:'onboarding-shop-button' },
   { type:'dialogue', speaker:'Trader', text:"Welcome, young Reaper. I am Cassian. Every blade here can change the shape of your legend, but none can perform the work required to deserve it. Keep your purse closed. Today, we inspect.", cta:"Show me the Armory" },

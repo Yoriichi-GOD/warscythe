@@ -2,24 +2,25 @@ import KingdomChronicle from './KingdomChronicle';
 import OrnateFrame from './frames/OrnateFrame';
 import { getScrollBehavior } from '../motion/useMotionEnvironment';
 import React, { useRef, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useIsPresent } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Trophy, Check, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const NODES_DATA = [
   { id: 1, label: 'Task 1: The Scythe', desc: 'Unlocks Scythe detail panel, settings, and sync.', x: '8%', y: '62%' },
   { id: 2, label: 'Task 2: Soundscapes', desc: 'Unlocks ambient sounds & Focus Mode.', x: '18%', y: '70%' },
-  { id: 3, label: 'Task 3: Forge & Rituals', desc: 'Unlocks the Forge & daily Ritual streaks.', x: '28%', y: '78%' },
-  { id: 4, label: 'Task 4: The Ledger', desc: 'Unlocks Ledger & Battle Trophies archiving.', x: '38%', y: '74%' },
-  { id: 5, label: 'Task 5: Boss Hunt 🏆', desc: 'Defeat R1 boss. Unlocks Map. Title: "Curious Explorer"', x: '48%', y: '55%', isMilestone: true, title: 'Curious Explorer' },
+  { id: 3, label: 'Task 3: Forge & Rituals', desc: 'A returning flame: discover Rituals and the Forge. Both are available from the beginning.', x: '28%', y: '78%' },
+  { id: 4, label: 'Task 4: The Ledger', desc: 'A record of your real work. The Ledger is available whenever you need it.', x: '38%', y: '74%' },
+  { id: 5, label: 'Task 5: Boss Hunt 🏆', desc: 'First liberation. Title: "Curious Explorer". The map remains available to explore.', x: '48%', y: '55%', isMilestone: true, title: 'Curious Explorer' },
   { id: 6, label: 'Task 6: Lore Inspection', desc: 'Unlocks detail inspect popups inside Ledger.', x: '58%', y: '68%' },
   { id: 7, label: 'Task 7: Social Circle', desc: 'Unlocks Friends list & Campfire leaderboard.', x: '68%', y: '52%' },
-  { id: 8, label: 'Task 8: Codex & Shop', desc: 'Unlocks Empress lore codex & Cosmetic Shop.', x: '76%', y: '40%' },
+  { id: 8, label: 'Task 8: Codex & Shop', desc: 'Discover connections in the world archive. Cosmetics remain optional.', x: '76%', y: '40%' },
   { id: 9, label: 'Task 9: The Legion', desc: 'Unlocks Legion persistency & group sub-tasks.', x: '84%', y: '30%' },
   { id: 10, label: 'Task 10: Full Release 🏆', desc: 'Onboarding completed. Title: "Seasoned Wanderer"', x: '92%', y: '18%', isMilestone: true, title: 'Seasoned Wanderer' }
 ];
 
 export default function RoadmapModal({ onClose }) {
+  const isPresent = useIsPresent();
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress) || 0;
   const onboardingActive = useWarscytheStore(state => state.onboardingActive);
   const scrollContainerRef = useRef(null);
@@ -76,7 +77,7 @@ export default function RoadmapModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" inert={!isPresent} style={{pointerEvents:isPresent ? undefined : 'none'}}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -87,12 +88,12 @@ export default function RoadmapModal({ onClose }) {
         {/* Modal Header */}
         <div className="roadmap-dialog-header flex items-center justify-between p-5 border-b border-white/5 bg-black/40">
           <div>
-            <h2 className="font-display font-bold text-sm tracking-widest text-gold-core uppercase">Execution Roadmap</h2>
+            <h2 className="font-display font-bold text-sm tracking-widest text-gold-core uppercase">Your First Ten Victories</h2>
             <p className="font-mono text-[8px] text-stone-500 tracking-wider uppercase mt-1">Kingdom Chronicle · discover one chapter at a time</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="font-mono text-[9px] px-3 py-1.5 rounded border border-gold-core/20 text-gold-core bg-gold-core/5 tracking-widest uppercase">
-              {Math.min(onboardingProgress, 10)}/10 CONCEPTS
+              {Math.min(onboardingProgress, 10)}/10 VICTORIES
             </div>
             <button 
               onClick={onClose} 
@@ -104,8 +105,8 @@ export default function RoadmapModal({ onClose }) {
         </div>
 
         {/* Dynamic Journey Map Area */}
-        <div className="roadmap-view-tabs" role="tablist" aria-label="Roadmap view"><button type="button" role="tab" aria-selected={storyOpen} onClick={() => setStoryOpen(true)}>Kingdom Chronicle</button><button type="button" role="tab" aria-selected={!storyOpen} onClick={() => setStoryOpen(false)}>Unlock map</button></div>
-        {storyOpen && <KingdomChronicle progress={onboardingProgress} onContinue={onClose} />}
+        <div className="roadmap-view-tabs" role="tablist" aria-label="Roadmap view"><button type="button" role="tab" aria-selected={storyOpen} onClick={() => setStoryOpen(true)}>Kingdom Chronicle</button><button type="button" role="tab" aria-selected={!storyOpen} onClick={() => setStoryOpen(false)}>Journey map</button></div>
+        {storyOpen && <KingdomChronicle progress={onboardingProgress} onContinue={onClose} onOpenGuide={() => { onClose(); window.dispatchEvent(new CustomEvent('warscythe:open-guide')); }}/> }
         <div className="flex-1 min-h-0 relative bg-black" style={{display:storyOpen ? 'none' : undefined}}>
           <div 
             ref={scrollContainerRef}

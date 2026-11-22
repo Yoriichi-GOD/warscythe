@@ -1,3 +1,5 @@
+import volume from '../features/archive/data/volumeOne.json';
+import { collectDocuments } from '../features/archive/domain/discoveries';
 import OrnateFrame from './frames/OrnateFrame';
 import { getScrollBehavior } from '../motion/useMotionEnvironment';
 import { useAmbientMotion } from '../motion/useMotionEnvironment';
@@ -319,7 +321,7 @@ export default function MapSection({
   const displayRegion = REGIONS[displayRegionIdx] || REGIONS[0];
   const displayProgress = activeMapIndex < level ? TASKS_PER_LEVEL : activeMapIndex === level ? currentLevelProgress : 0;
   const progressPct = Math.round((displayProgress / TASKS_PER_LEVEL) * 100);
-  const displayLore = unlockedLore?.[displayRegionIdx] || [];
+  const archiveDocuments = collectDocuments(volume.documents, volume.discoveryOrder, { unlockedLore, totalCompletions: useWarscytheStore(state => state.totalCompletions) });
 
   const rescuedFairyInfo = rescuedFairies?.[displayRegionIdx] || (activeMapIndex < level ? {
     date: new Date().toISOString(),
@@ -842,28 +844,27 @@ export default function MapSection({
                <div className="corner-ornament corner-bl" />
                <div className="corner-ornament corner-br" />
                
-               <span className="stat-label font-times" style={{ marginTop: 0 }}>RECOVERED FRAGMENTS</span>
+               <span className="stat-label font-times" style={{ marginTop: 0 }}>WORLD CORRESPONDENCE</span>
                <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2 font-times">
-                 {displayLore.length === 0 ? (
+                 {archiveDocuments.length === 0 ? (
                    <p className="text-[9px] font-mono text-gray-500 text-center py-4 uppercase tracking-widest">
-                     No fragments recovered yet.<br/>Conquer operations to reveal the truth.
+                     No correspondence recovered yet.<br/>Your first real Operation uncovers a document.
                    </p>
                  ) : (
-                   [...displayLore].reverse().map((fragment, idx) => (
-                     <div key={idx} className="flex gap-2 items-start p-2 rounded bg-black/40 border border-white/5">
-                        <ScrollText size={12} className="text-gold-core shrink-0 mt-0.5" />
-                        <p className="text-[9px] font-mono text-gray-300 leading-relaxed italic">"{fragment}"</p>
-                     </div>
+                   archiveDocuments.slice(-3).reverse().map(document => (
+                     <button type="button" key={document.id} onClick={() => window.dispatchEvent(new CustomEvent('warscythe:open-archive',{detail:{documentId:document.id}}))} className="flex gap-2 items-start p-3 rounded-lg bg-black/40 border border-white/5 text-left">
+                       <ScrollText size={16} className="text-gold-core shrink-0 mt-0.5"/><span className="text-sm text-stone-300">{document.title}<small className="block text-stone-500">{document.author}</small></span>
+                     </button>
                    ))
                  )}
                </div>
                
                {/* Access Full Vault Button */}
                <button 
-                 onClick={() => onTabChange && onTabChange('ledger', { subTab: 'vault' })}
+                 onClick={() => window.dispatchEvent(new CustomEvent('warscythe:open-archive'))}
                  className="w-full mt-4 py-2 border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] motion-control group flex items-center justify-center rounded cursor-pointer font-times"
                >
-                 <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ ACCESS FULL VAULT ]</span>
+                 <span className="text-[8.5px] font-mono text-gray-400 group-hover:text-gold-core tracking-[0.4em] uppercase">[ OPEN THE UNQUIET POST ]</span>
                </button>
             </div>
         </aside>

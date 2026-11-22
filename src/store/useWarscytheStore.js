@@ -1465,7 +1465,7 @@ export const useWarscytheStore = create(
           notes: '',
           microSteps,
           lastProgressUpdate: new Date().toISOString(),
-          isTutorialTask: !get().firstTaskCompleted,
+          isTutorialTask: !get().firstTaskCompleted && !get().hasCompletedTutorial,
           deviceUuid: getDeviceUuid(),
           deviceSequence: nextDeviceSequence(),
           syncStatus: 'pending',
@@ -1619,7 +1619,7 @@ export const useWarscytheStore = create(
         const newXP = state.xp + totalPts;
 
         // Determine if this is a tutorial task BEFORE using it below
-        const isTutorialTask = !!task.isTutorialTask || !state.firstTaskCompleted;
+        const isTutorialTask = !!task.isTutorialTask || (!state.firstTaskCompleted && !state.hasCompletedTutorial);
         const countsForRegionalProgress = !isTutorialTask && task.category !== 'LEGION' && !task.isLegionTask;
         task.isTutorialTask = isTutorialTask;
         task.taskUuid = task.taskUuid || task.id;
