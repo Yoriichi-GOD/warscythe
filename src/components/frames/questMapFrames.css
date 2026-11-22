@@ -1,0 +1,41 @@
+/* The shared SVG viewBoxes preserve each family's real alpha contour. */
+.quest-map-framed .map-ornate-panel{--map-corner:52px;--map-pad:20px;min-width:0;padding:var(--map-pad) var(--map-pad) 72px;border-radius:12px;isolation:isolate}
+.quest-map-framed .map-panel-frame{inset:0;--frame-corner:var(--map-corner);opacity:.94}
+.quest-map-framed .map-ornate-panel>.panel-header,.quest-map-framed .map-ornate-panel>.stat-label{box-sizing:border-box;display:flex;align-items:center;min-height:28px;padding-left:28px;line-height:1.5;overflow-wrap:anywhere}
+.quest-map-framed .map-ornate-panel .log-details,.quest-map-framed .map-ornate-panel .threat-info{min-width:0;overflow-wrap:anywhere}
+.quest-map-framed .map-ornate-panel .current-region h4{font-size:clamp(14px,1.5vw,19px);letter-spacing:.12em;overflow-wrap:anywhere}
+.quest-map-framed .map-ornate-panel>.elite-panel-inner-border,.quest-map-framed .map-ornate-panel>.corner-ornament{display:none}
+.quest-map-framed .campaign-aside{padding:18px 14px 72px;gap:32px}
+.quest-map-framed .campaign-aside>.map-ornate-panel{margin:0}
+.quest-map-framed .map-viewport-container{min-width:0;padding-inline:0}
+.quest-map-framed .map-atlas-frame{margin:16px;min-width:0;isolation:isolate;flex:none;border-radius:12px}
+.quest-map-framed .map-atlas-ornament{--frame-corner:76px;--frame-rail:3px;z-index:5}
+.quest-map-framed .map-atlas-frame>.isometric-map-wrapper{border:0;border-radius:12px;isolation:isolate}
+.quest-map-framed .quick-actions-panel{margin:0 14px 20px}
+.quest-map-framed .node-intel-modal.map-ornate-panel{padding:24px 24px 76px;border-radius:16px;max-height:calc(100dvh - 64px);min-height:0}
+.quest-map-framed .node-intel-modal.map-ornate-panel>.modal-header{flex:none}
+.quest-map-framed .map-node-intel-body{display:flex;flex-direction:column;gap:24px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:8px;margin-right:-8px;scrollbar-width:thin;scrollbar-color:#b7985866 transparent}
+.quest-map-framed .node-intel-modal.map-ornate-panel>.modal-header{min-height:32px;padding-left:28px;padding-right:38px}
+.quest-map-framed .node-intel-close-btn{width:44px;height:44px;top:14px;right:14px}
+.quest-map-framed .node-intel-close-btn:focus-visible{outline:2px solid #ecc880;outline-offset:3px}
+@media(max-width:1023px){
+ .quest-map-framed .campaign-content{padding:18px 14px;gap:26px 20px!important;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .quest-map-framed .map-atlas-frame{grid-row:1;grid-column:1/-1;margin:0;width:100%}
+ .quest-map-framed .map-atlas-ornament{--frame-corner:60px}
+ .quest-map-framed .map-atlas-frame>.isometric-map-wrapper{grid-row:auto!important;grid-column:auto!important}
+ .quest-map-framed .campaign-aside>.map-ornate-panel,.quest-map-framed .quick-actions-panel{margin:0}
+}
+@media(max-width:639px){
+ .quest-map-framed .campaign-content{grid-template-columns:minmax(0,1fr)!important}
+ .quest-map-framed :is(.expansion-log-panel,.legend-panel,.region-intel-panel,.upcoming-threat,.recovered-fragments,.quick-actions-panel){grid-column:1/-1!important}
+ .quest-map-framed .expansion-log-panel{grid-row:2!important}
+ .quest-map-framed .legend-panel{grid-row:3!important}
+ .quest-map-framed .region-intel-panel{grid-row:4!important}
+ .quest-map-framed .upcoming-threat{grid-row:5!important}
+ .quest-map-framed .recovered-fragments{grid-row:6!important}
+ .quest-map-framed .quick-actions-panel{grid-row:7!important}
+ .quest-map-framed .map-ornate-panel{--map-corner:40px;--map-pad:16px;padding-bottom:58px}
+ .quest-map-framed .map-ornate-panel>.panel-header,.quest-map-framed .map-ornate-panel>.stat-label{padding-left:24px;min-height:24px}
+ .quest-map-framed .map-atlas-ornament{--frame-corner:52px}
+ .quest-map-framed .node-intel-modal.map-ornate-panel{--map-corner:52px;padding:24px 24px 76px}
+}

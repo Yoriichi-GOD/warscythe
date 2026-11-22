@@ -21,19 +21,23 @@ function loadReading(key, documents) {
   catch { return reconcileReadingState({}, documents); }
 }
 
-export default function WorldArchive({ onClose, initialDocumentId }) {
+export default function WorldArchive({ onClose, initialDocumentId, previewCount, initialMode }) {
   const totalCompletions = useWarscytheStore(state => state.totalCompletions);
   const unlockedLore = useWarscytheStore(state => state.unlockedLore);
   const userId = useWarscytheStore(state => state.user?.id);
-  const documents = useMemo(() => collectDocuments(volume.documents, volume.discoveryOrder, { totalCompletions, unlockedLore }), [totalCompletions, unlockedLore]);
-  return <ArchiveSession key={userId || 'local'} onClose={onClose} documents={documents} storageKey={archiveStorageKey(userId)} initialDocumentId={initialDocumentId}/>;
+  const preview = import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true' && Number.isInteger(previewCount) && previewCount >= 0;
+  const documents = useMemo(() => collectDocuments(volume.documents, volume.discoveryOrder, preview ? { totalCompletions:previewCount } : { totalCompletions, unlockedLore }), [preview, previewCount, totalCompletions, unlockedLore]);
+  const mode = preview && ['book','original'].includes(initialMode) ? initialMode : undefined;
+  const storageKey = archiveStorageKey(userId) + (preview ? ':preview:'+previewCount+':'+(mode || 'original') : '');
+  const firstDocumentId = initialDocumentId || (preview && mode === 'book' ? documents[0]?.id : null);
+  return <ArchiveSession key={storageKey} onClose={onClose} documents={documents} storageKey={storageKey} initialDocumentId={firstDocumentId} initialMode={mode} preview={preview}/>;
 }
 
-function ArchiveSession({ onClose, documents, storageKey, initialDocumentId }) {
-  const [reading, setReading] = useState(() => loadReading(storageKey, documents));
+function ArchiveSession({ onClose, documents, storageKey, initialDocumentId, initialMode, preview }) {
+  const [reading, setReading] = useState(() => { const saved = loadReading(storageKey, documents); return initialMode ? { ...saved, mode:initialMode } : saved; });
   const [selection, setSelection] = useState(() => documents.some(document => document.id === initialDocumentId) ? initialDocumentId : null);
   const [currentId, setCurrentId] = useState(selection || reading.documentId);
-  const [view, setView] = useState(reading.mode);
+  const [view, setView] = useState(initialMode || reading.mode);
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState('all');
   const [thread, setThread] = useState('all');
@@ -65,8 +69,9 @@ function ArchiveSession({ onClose, documents, storageKey, initialDocumentId }) {
   }, [onClose]);
   const chooseView = value => { setView(value); if (active) setSelection(active.id); setReading(before => ({ ...before, mode: value })); if (active && value !== 'original') markRead(active.id); };
   return <div className="world-archive-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
-    <section ref={root} role="dialog" aria-modal="true" aria-labelledby="world-archive-title" className="world-archive">
+    <section ref={root} role="dialog" aria-modal="true" aria-labelledby="world-archive-title" className="world-archive" data-archive-preview={preview || undefined}>
       <header className="world-archive-header"><div><BookOpen size={22}/><h1 id="world-archive-title">The Unquiet Post</h1></div><button id="archive-close" ref={closeButton} type="button" className="archive-close" aria-label="Close world archive" onClick={onClose}><X size={20}/></button></header>
+      {preview && <p className="archive-preview-banner" role="status">Test Realm preview · {documents.length} sample finds · Earned progress unchanged</p>}
       {!selection || !active ? <div className="archive-library">
         <section className="archive-library-intro ornate-surface"><OrnateFrame family="artifact" quiet/><div className="archive-volume-mark" aria-hidden="true"><Mail size={44}/></div><h2>One world.<br/><em>Many witnesses.</em></h2><p>A letter from a princess. A price crossed out. A prayer kept on the back of an account. The roads between them are yours to discover.</p><p className="archive-collection-count">{documents.length} collected · {documents.filter(document => !readIds.has(document.id)).length} unread</p>{reading.documentId && documents.some(document => document.id === reading.documentId) && <button type="button" className="archive-primary" onClick={() => openDocument(reading.documentId)}>Return to your reading</button>}<p className="archive-small-note">Reading leaves your earned progress unchanged.</p></section>
         <section id="archive-catalogue" className="archive-catalogue" aria-label="Collected documents"><div className="archive-search"><Search size={18}/><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search your collected writing" aria-label="Search collected documents"/></div><div className="archive-filters"><select aria-label="Document type" value={kind} onChange={event => setKind(event.target.value)}><option value="all">Every kind of find</option>{[...new Set(documents.map(document => document.kind))].map(value => <option key={value} value={value}>{value}</option>)}</select><select aria-label="Story thread" value={thread} onChange={event => setThread(event.target.value)}><option value="all">Every thread</option>{discoveredThreads.map(id => <option key={id} value={id}>{volume.threads[id]}</option>)}</select></div>

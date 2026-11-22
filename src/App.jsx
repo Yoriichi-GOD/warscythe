@@ -48,6 +48,7 @@ import StreakScrollModal from './components/StreakScrollModal';
 import BossFlashScreen from './components/BossFlashScreen';
 import RegionFlashScreen from './components/RegionFlashScreen';
 import LoreModal from './components/LoreModal';
+import { takeReaderPreview } from './features/archive/dev/readerPreview';
 import WarTerminal from './components/command/WarTerminal';
 import TutorialEndFlash from './components/TutorialEndFlash';
 import { REGIONS } from './store/constants';
@@ -181,6 +182,7 @@ export default function App({ initialAuthOnWeb = false }) {
   const [cacheAlertRegionId, setCacheAlertRegionId] = useState(null);
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [archiveDocumentId, setArchiveDocumentId] = useState(null);
+  const [archivePreview, setArchivePreview] = useState(null);
   const [fitnessOathOpen, setFitnessOathOpen] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(initialAuthOnWeb);
@@ -497,7 +499,13 @@ export default function App({ initialAuthOnWeb = false }) {
     
 
     // Navigation handler for 'Access Full Vault' -> Ledger Relics & Lore
-    const handleOpenArchive = event => { setArchiveDocumentId(event.detail?.documentId || null); setShowLoreModal(true); };
+    const handleOpenArchive = event => {
+      const previewAllowed = import.meta.env.DEV && localStorage.getItem('warscythe_test_realm_active') === 'true' && Number.isInteger(event.detail?.previewCount) && event.detail.previewCount >= 0;
+      if (import.meta.env.DEV && previewAllowed) takeReaderPreview();
+      setArchivePreview(previewAllowed ? { count:event.detail.previewCount, mode:event.detail.mode === 'book' ? 'book' : 'original' } : null);
+      setArchiveDocumentId(event.detail?.documentId || null);
+      setShowLoreModal(true);
+    };
     const handleNavToLedgerVault = () => {
       setActiveTab('ledger');
       setLedgerSubTab('vault');
@@ -552,6 +560,10 @@ export default function App({ initialAuthOnWeb = false }) {
     window.addEventListener('keydown', handleEsc);
     window.addEventListener('navToLedgerVault', handleNavToLedgerVault);
     window.addEventListener('warscythe:open-archive', handleOpenArchive);
+    if (import.meta.env.DEV) {
+      const preview = takeReaderPreview();
+      if (preview) handleOpenArchive({ detail:preview });
+    }
     window.addEventListener('triggerProphecy', handleTriggerProphecy);
 
     return () => {
@@ -655,7 +667,7 @@ export default function App({ initialAuthOnWeb = false }) {
         onOpenPremium={() => setShowPremiumModal(true)}
         onOpenShop={() => setShowShopModal(true)}
         onOpenDownloader={() => setShowDownloaderModal(true)}
-        onOpenLore={() => { setArchiveDocumentId(null); setShowLoreModal(true); }}
+        onOpenLore={() => { setArchivePreview(null); setArchiveDocumentId(null); setShowLoreModal(true); }}
         onOpenSocial={() => guardedTabChange('social')}
         onOpenRoadmap={() => setShowRoadmap(true)}
       />}
@@ -1094,7 +1106,9 @@ export default function App({ initialAuthOnWeb = false }) {
         {showLoreModal && (
           <LoreModal 
             initialDocumentId={archiveDocumentId}
-            onClose={() => setShowLoreModal(false)} 
+            previewCount={archivePreview?.count}
+            initialMode={archivePreview?.mode}
+            onClose={() => { setShowLoreModal(false); setArchivePreview(null); }}
           />
         )}
       </AnimatePresence>

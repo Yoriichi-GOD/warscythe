@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useWarscytheStore, getLore } from '../../store/useWarscytheStore';
 import { CAPTURE_SCENES, createCaptureRealmState } from '../../data/captureRealm';
 import { REGIONS } from '../../store/constants';
+import archiveVolume from '../../features/archive/data/volumeOne.json';
+import { requestReaderPreview } from '../../features/archive/dev/readerPreview';
 
 const REALM_KEY = 'warscythe_test_realm_active';
 const SNAPSHOT_KEY = 'warscythe_test_realm_snapshots';
@@ -325,6 +327,7 @@ export default function TestRealm() {
       celebratedProgressionEventUuids: [],
       queuedLevelUpCeremonies: []
     });
+    window.dispatchEvent(new Event('storage'));
   };
 
   const deactivate = () => {
@@ -506,6 +509,12 @@ export default function TestRealm() {
     }, 650);
   };
 
+  const launchReaderPreview = (count, mode) => {
+    setOpen(false);
+    setCaptureMode(false);
+    requestReaderPreview(count, mode);
+  };
+
   const switchVideoRegion = (regionIndex) => {
     const current = useWarscytheStore.getState();
     applyState({
@@ -596,6 +605,18 @@ export default function TestRealm() {
             </button>
           ) : (
             <div className="space-y-5">
+              <section className="realm-reader-preview rounded-lg border border-amber-300/30 bg-amber-300/[0.06] p-3">
+                <h3 className="text-base text-amber-200">Lore reader preview</h3>
+                <p className="my-2 text-xs leading-relaxed text-zinc-300">Sample finds only. Your progress and normal reading bookmarks stay untouched.</p>
+                <div className="grid gap-2">
+                  <button type="button" aria-label="Preview full lore book" onClick={() => launchReaderPreview(archiveVolume.documents.length, 'book')} className="min-h-11 rounded-lg border border-amber-300/40 bg-amber-300/10 px-3 py-2 text-sm text-amber-100">Open book · {archiveVolume.documents.length} finds</button>
+                  <button type="button" aria-label="Preview letters and archive" onClick={() => launchReaderPreview(archiveVolume.documents.length, 'original')} className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-sm text-zinc-200">Letters &amp; archive</button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => launchReaderPreview(0, 'original')} className="min-h-11 rounded-lg border border-white/15 px-2 py-2 text-xs text-zinc-300">Empty archive</button>
+                    <button type="button" onClick={() => launchReaderPreview(5, 'original')} className="min-h-11 rounded-lg border border-white/15 px-2 py-2 text-xs text-zinc-300">First five finds</button>
+                  </div>
+                </div>
+              </section>
               <section className="rounded-lg border border-amber-300/30 bg-amber-300/[0.06] p-3">
                 <div className="mb-1 text-[9px] tracking-[0.25em] text-amber-300">FITNESS V2 // NORMAL APP</div>
                 <p className="mb-3 text-[8px] leading-relaxed text-zinc-400">
@@ -892,6 +913,7 @@ export default function TestRealm() {
       </button>
       <style>{`
         body.warscythe-capture-mode .warscythe-test-realm { display: none !important; }
+        body:has(.world-archive-backdrop) .warscythe-test-realm { display: none !important; }
       `}</style>
     </div>
   );

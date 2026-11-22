@@ -1,6 +1,8 @@
 import volume from '../features/archive/data/volumeOne.json';
+import { ARTIFACT_VARIANT_TOTAL, getCurrentArtifactVariantCount } from '../utils/artifactCollection';
 import { collectDocuments } from '../features/archive/domain/discoveries';
 import OrnateFrame from './frames/OrnateFrame';
+import './frames/questMapFrames.css';
 import { getScrollBehavior } from '../motion/useMotionEnvironment';
 import { useAmbientMotion } from '../motion/useMotionEnvironment';
 import React, { useState, useEffect, useRef } from 'react';
@@ -162,7 +164,7 @@ export default function MapSection({
   const level = isTutorialActive ? 0 : storeLevel;
 
   const activeTasksCount = tasks.filter(t => !t.completedAt).length;
-  const artifactsCount = collectedArtifacts?.length || 0;
+  const artifactsCount = getCurrentArtifactVariantCount(collectedArtifacts || []);
   
   const [showFog, setShowFog] = useState(false);
   const prevLevelRef = useRef(level);
@@ -444,12 +446,7 @@ export default function MapSection({
         {/* LEFT COLUMN: Logs and Legend */}
         <aside className="campaign-aside left">
           <div className="expansion-log-panel elite-panel-ornate ornate-surface map-ornate-panel">
-<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
-            <div className="corner-ornament corner-tl" />
-            <div className="corner-ornament corner-tr" />
-            <div className="corner-ornament corner-bl" />
-            <div className="corner-ornament corner-br" />
-            <div className="elite-panel-inner-border" />
+            <OrnateFrame family="hermes" quiet className="map-panel-frame" />
             
             <div className="panel-header font-times">
               <span className="panel-tag">EXPANSION LOG</span>
@@ -472,12 +469,7 @@ export default function MapSection({
           </div>
 
           <div className="legend-panel elite-panel-ornate ornate-surface map-ornate-panel">
-<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
-            <div className="corner-ornament corner-tl" />
-            <div className="corner-ornament corner-tr" />
-            <div className="corner-ornament corner-bl" />
-            <div className="corner-ornament corner-br" />
-            <div className="elite-panel-inner-border" />
+            <OrnateFrame family="apollo" quiet className="map-panel-frame" />
 
             <div className="panel-header font-times">
               <span className="panel-tag">LEGEND</span>
@@ -494,7 +486,9 @@ export default function MapSection({
 
         {/* CENTER COLUMN: The Map Viewport */}
         <main className="map-viewport-container">
-          <div ref={mapViewportRef} className="isometric-map-wrapper border-[2px] border-[#ecc880]/30 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+          <div className="map-atlas-frame ornate-surface">
+            <OrnateFrame family="universal" className="map-atlas-ornament"/>
+          <div ref={mapViewportRef} className="isometric-map-wrapper">
             <AnimatePresence>
               {showFog && (
                 <motion.div
@@ -659,13 +653,10 @@ export default function MapSection({
             )}
           </div>
 
+          </div>
+
           <div className="quick-actions-panel elite-panel-ornate ornate-surface map-ornate-panel">
-<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
-            <div className="corner-ornament corner-tl" />
-            <div className="corner-ornament corner-tr" />
-            <div className="corner-ornament corner-bl" />
-            <div className="corner-ornament corner-br" />
-            <div className="elite-panel-inner-border" />
+            <OrnateFrame family="hercules" quiet className="map-panel-frame" />
 
             <div className="panel-header font-times">
               <span className="panel-tag">QUICK ACTIONS</span>
@@ -693,12 +684,7 @@ export default function MapSection({
         {/* RIGHT COLUMN: Region Intel */}
         <aside className="campaign-aside right">
           <div className="region-intel-panel elite-panel-ornate ornate-surface map-ornate-panel">
-<OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
-            <div className="corner-ornament corner-tl" />
-            <div className="corner-ornament corner-tr" />
-            <div className="corner-ornament corner-bl" />
-            <div className="corner-ornament corner-br" />
-            <div className="elite-panel-inner-border" />
+            <OrnateFrame family="zeus" quiet className="map-panel-frame" />
 
             <div className="panel-header font-times">
               <span className="panel-tag">REGION INTEL</span>
@@ -738,12 +724,9 @@ export default function MapSection({
           </div>
 
           {isBossRescued ? (
-              <div className="upcoming-threat elite-panel-ornate" style={{ padding: '1.2rem', border: '1px solid rgba(236, 200, 128, 0.25)', background: 'rgba(236, 200, 128, 0.04)' }}>
-                <div className="corner-ornament corner-tl" style={{ borderColor: '#ecc880' }} />
-                <div className="corner-ornament corner-tr" style={{ borderColor: '#ecc880' }} />
-                <div className="corner-ornament corner-bl" style={{ borderColor: '#ecc880' }} />
-                <div className="corner-ornament corner-br" style={{ borderColor: '#ecc880' }} />
+              <div className="upcoming-threat elite-panel-ornate ornate-surface map-ornate-panel" style={{ border: '1px solid rgba(236, 200, 128, 0.25)' }}>
                 
+                <OrnateFrame family="apollo" quiet className="map-panel-frame"/>
                 <span className="stat-label font-times" style={{ marginTop: 0, color: '#ecc880' }}>SECURED SOVEREIGN</span>
                 <div className="threat-card font-times">
                   <img 
@@ -763,18 +746,13 @@ export default function MapSection({
               </div>
             ) : (
               <div 
-                className="upcoming-threat elite-panel-ornate" 
+                className="upcoming-threat elite-panel-ornate ornate-surface map-ornate-panel"
                 style={{ 
-                  padding: '1.2rem', 
                   border: activeMapIndex > level ? '1px solid rgba(100, 116, 139, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)', 
-                  background: activeMapIndex > level ? 'rgba(100, 116, 139, 0.02)' : 'rgba(239, 68, 68, 0.04)' 
                 }}
               >
-                <div className="corner-ornament corner-tl" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
-                <div className="corner-ornament corner-tr" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
-                <div className="corner-ornament corner-bl" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
-                <div className="corner-ornament corner-br" style={{ borderColor: activeMapIndex > level ? '#64748b' : '#ef4444' }} />
                 
+                <OrnateFrame family="ares" quiet className="map-panel-frame"/>
                 <span className="stat-label font-times" style={{ marginTop: 0, color: activeMapIndex > level ? '#64748b' : '#ff5555' }}>
                   {activeMapIndex > level ? 'LOCKED THREAT' : 'UPCOMING THREAT'}
                 </span>
@@ -838,11 +816,8 @@ export default function MapSection({
               </div>
             )}
  
-            <div className="recovered-fragments elite-panel-ornate" style={{ padding: '1.2rem' }}>
-               <div className="corner-ornament corner-tl" />
-               <div className="corner-ornament corner-tr" />
-               <div className="corner-ornament corner-bl" />
-               <div className="corner-ornament corner-br" />
+            <div className="recovered-fragments elite-panel-ornate ornate-surface map-ornate-panel">
+               <OrnateFrame family="artifact" quiet className="map-panel-frame"/>
                
                <span className="stat-label font-times" style={{ marginTop: 0 }}>WORLD CORRESPONDENCE</span>
                <div className="flex flex-col gap-3 mt-3 overflow-y-auto max-h-[150px] custom-scrollbar pr-2 font-times">
@@ -883,17 +858,13 @@ export default function MapSection({
               initial={{ opacity: 0, scale: 0.9, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              className="node-intel-modal elite-panel-ornate"
+              className="node-intel-modal elite-panel-ornate ornate-surface map-ornate-panel"
               onClick={e => e.stopPropagation()}
             >
-              <div className="corner-ornament corner-tl" />
-              <div className="corner-ornament corner-tr" />
-              <div className="corner-ornament corner-bl" />
-              <div className="corner-ornament corner-br" />
-              <div className="elite-panel-inner-border" />
 
+              <OrnateFrame family={selectedNode === 'stone' ? 'hercules' : selectedNode === 'castle' ? 'artifact' : selectedNode === 'ashendale' ? 'apollo' : selectedNode === 'boss' ? (isBossRescued ? 'apollo' : 'ares') : 'hermes'} quiet className="map-panel-frame"/>
               {/* Absolute Positioned Close Button */}
-              <button className="node-intel-close-btn" onClick={() => setSelectedNode(null)}>
+              <button className="node-intel-close-btn" aria-label="Close node intel" onClick={() => setSelectedNode(null)}>
                 <X size={16} />
               </button>
 
@@ -901,6 +872,7 @@ export default function MapSection({
                 <span className="panel-tag font-mono text-[9px] text-gold-core">TACTICAL NODE INTEL //</span>
               </div>
 
+              <div className="map-node-intel-body">
               {tutorialActive
                 && tutorialGuidance?.nodeId === selectedNode
                 && (
@@ -938,7 +910,7 @@ export default function MapSection({
                   <div className="modal-banner" style={bannerStyle('castle')} />
                   <p className="intel-desc">{nodeInfo('castle').desc}</p>
                   <div className="intel-stats font-mono">
-                    <div><span>COLLECTED RELICS</span><span className="text-emerald-400 font-bold">{artifactsCount} / 125</span></div>
+                    <div><span>COLLECTED RELICS</span><span className="text-emerald-400 font-bold">{artifactsCount} / {ARTIFACT_VARIANT_TOTAL}</span></div>
                     <div><span>VAULT BALANCE</span><span className="text-gold-core font-bold">{coins} COINS</span></div>
                   </div>
                 </div>
@@ -1119,6 +1091,7 @@ export default function MapSection({
                   </div>
                 )
               )}
+              </div>
             </motion.div>
           </div>
         )}
@@ -1275,7 +1248,7 @@ export default function MapSection({
         @media (min-width: 1024px) {
           .campaign-content {
             display: grid;
-            grid-template-columns: 320px 1fr 320px;
+            grid-template-columns: clamp(224px,22vw,320px) minmax(0,1fr) clamp(224px,22vw,320px);
             grid-template-rows: minmax(0, 1fr);
             margin-bottom: 0;
             min-height: 0;
