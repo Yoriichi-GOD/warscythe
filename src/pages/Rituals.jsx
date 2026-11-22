@@ -90,7 +90,8 @@ const RitualPanelPortal = ({ targetRef, variant }) => {
 export default function Rituals({ onAddTask }) {
   const ritualsPanelRef = useRef(null);
   const ritualScythePanelRef = useRef(null);
-  const scytheDisplay = useMobileDisplay('rituals');
+  const newcomer = useWarscytheStore(state => state.onboardingProgress === 0);
+  const scytheDisplay = useMobileDisplay('rituals', false, newcomer);
   const openInfoModal = useWarscytheStore(state => state.openInfoModal);
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const rituals = useWarscytheStore(state => state.rituals) || [];

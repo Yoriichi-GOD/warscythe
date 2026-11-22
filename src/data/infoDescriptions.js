@@ -266,7 +266,7 @@ export const infoData = {
         id: "personal-mode",
         title: "What is Personal Mode?",
         philosophy: "Competition isn't for everyone. Some people thrive with friends' rankings visible. Others find it demoralizing. The app respects both.",
-        useCase: "In settings, toggle Personal Mode:\n- ON: See only your metrics (personal bests, weekly progress, streaks). Friends list hidden from leaderboard.\n- OFF: See friends' rankings alongside your metrics. The campfire model.\n\nThis is a per-user setting. You can toggle it any time. No judgment either way.",
+        useCase: "In Campfire → Leaderboard, use the MODE control to toggle Personal Mode:\n- ON: See only your metrics (personal bests, weekly progress, streaks). Friends list hidden from leaderboard.\n- OFF: See friends' rankings alongside your metrics. The campfire model.\n\nThis is a per-user setting. You can toggle it any time. No judgment either way.",
         whyItExists: "Execution is individual. The support system (seeing friends do it too) is optional. Some warriors fight better alone. The app respects that."
       },
       {

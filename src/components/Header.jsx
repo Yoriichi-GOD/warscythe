@@ -436,7 +436,7 @@ export default function Header({ activeTab, onOpenMap, onOpenVault, onOpenAuth, 
               setShowDropdown(false);
               onOpenRoadmap();
             }} 
-            title="Execution Roadmap"
+            title="Kingdom Chronicle" aria-label="Open Kingdom Chronicle"
             style={{ borderColor: 'var(--gold-core)', background: 'rgba(197, 160, 89, 0.03)' }}
           >
             <Trophy size={18} className="text-gold-core animate-pulse" />

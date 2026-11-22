@@ -227,6 +227,7 @@ export default function ScytheCenter({ onOpenShop }) {
           </div>
         </div>
 
+        <p className="font-serif text-sm leading-relaxed text-stone-400 mb-5 max-w-3xl">Daily Scythe power follows today’s work. Streak weapons recognise consistency across days. Skins and themes change your appearance; they are optional.</p>
         {/* Category Selector Tabs */}
         <div className="flex gap-4 border-b border-white/5 pb-3 mb-6">
           <button

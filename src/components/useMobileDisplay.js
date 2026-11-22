@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-export function useMobileDisplay(key, forceOpen = false) {
+export function useMobileDisplay(key, forceOpen = false, initiallyCollapsed = false) {
   const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem(`warscythe-display-${key}`) === 'collapsed'; } catch { return false; }
+    try { const saved = localStorage.getItem(`warscythe-display-${key}`); return saved === null ? initiallyCollapsed : saved === 'collapsed'; } catch { return initiallyCollapsed; }
   });
   const toggle = () => setCollapsed(value => {
     const next = !value;

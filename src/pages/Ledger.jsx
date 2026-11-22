@@ -1,9 +1,9 @@
+import { getRitualJournal } from '../features/journey/ritualJournal';
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { Check, Trash2, Calendar, ShieldAlert, Scroll, Award, Star, Sparkles, ChevronLeft, ChevronRight, Dumbbell, Play } from 'lucide-react';
 import { getAssetUrl } from '../utils/assetResolver';
-import LockedDoor from '../components/LockedDoor';
 import { RITUAL_MEDAL_TIERS, getRitualMedalCollection } from '../utils/ritualMedals';
 import { ARTIFACT_VARIANT_TOTAL, getArtifactCollection, getCurrentArtifactVariantCount } from '../utils/artifactCollection';
 
@@ -132,6 +132,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const receivedProphecies = useWarscytheStore(state => state.receivedProphecies) || [];
   const gymLog = useWarscytheStore(state => state.gymLog) || [];
   const level = useWarscytheStore(state => state.level) || 1;
+  const ritualCompletionEvents = useWarscytheStore(state => state.ritualCompletionEvents) || [];
+  const ritualJournal = getRitualJournal(ritualCompletionEvents);
 
   // Local date helper (returns YYYY-MM-DD in local time)
   const getLocalDateString = (dateInput) => {
@@ -148,7 +150,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   completedTasks.forEach(task => {
     const dateStr = getLocalDateString(task.completedAt);
     if (dateStr) {
-      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [], rituals: [] };
       logsByDate[dateStr].completed.push(task);
     }
   });
@@ -156,7 +158,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   abandonedTasks.forEach(task => {
     const dateStr = getLocalDateString(task.abandonedAt);
     if (dateStr) {
-      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [], rituals: [] };
       logsByDate[dateStr].abandoned.push(task);
     }
   });
@@ -164,9 +166,14 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   gymLog.forEach(workout => {
     const dateStr = getLocalDateString(workout.date);
     if (dateStr) {
-      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [] };
+      if (!logsByDate[dateStr]) logsByDate[dateStr] = { completed: [], abandoned: [], gym: [], rituals: [] };
       logsByDate[dateStr].gym.push(workout);
     }
+  });
+
+  ritualJournal.forEach(event => {
+    if (!logsByDate[event.day]) logsByDate[event.day] = { completed: [], abandoned: [], gym: [], rituals: [] };
+    logsByDate[event.day].rituals.push(event);
   });
 
   // Calendar state
@@ -222,8 +229,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
     const dayData = logsByDate[dateStr];
     if (!dayData) return null;
 
-    const { completed, abandoned, gym } = dayData;
-    const totalCount = completed.length + gym.length;
+    const { completed, abandoned, gym, rituals: dailyRituals } = dayData;
+    const totalCount = completed.length + gym.length + dailyRituals.length;
     const totalAbandoned = abandoned.length;
 
     if (totalCount === 0 && totalAbandoned === 0) return null;
@@ -246,6 +253,9 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
     } else if (gym.length > 0) {
       color = '#10b981'; // emerald
       levelName = 'FITNESS';
+    } else if (dailyRituals.length > 0) {
+      color = '#d1a970';
+      levelName = 'RITUAL';
     }
 
     let style = {};
@@ -322,6 +332,8 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
     ? gymLog.filter(workout => getLocalDateString(workout.date) === selectedDateStr)
     : [];
 
+  const dailyRitualLogs = selectedDateStr ? ritualJournal.filter(event => event.day === selectedDateStr) : ritualJournal;
+
   const getSessionTonnage = (workout) => {
     if (workout.movements) {
       return workout.movements.reduce((total, m) => {
@@ -348,14 +360,11 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
   const bossKills = useWarscytheStore(state => state.bossKills) || 0;
   const rescuedFairies = useWarscytheStore(state => state.rescuedFairies) || {};
   const rituals = useWarscytheStore(state => state.rituals) || [];
-  const ritualCompletionEvents = useWarscytheStore(state => state.ritualCompletionEvents) || [];
   const openVideoModal = useWarscytheStore(state => state.openVideoModal);
   const hasSeenLedgerGuide = useWarscytheStore(state => state.hasSeenLedgerGuide);
   const setHasSeenLedgerGuide = useWarscytheStore(state => state.setHasSeenLedgerGuide);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const isTutorialActive = tutorialStep && tutorialStep !== 'completed';
-  const onboardingActive = useWarscytheStore(state => state.onboardingActive);
-  const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
 
   const [selectedArtifact, setSelectedArtifact] = useState(null);
   const [selectedTrophy, setSelectedTrophy] = useState(null);
@@ -449,7 +458,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             }`}
             onClick={() => handleSubTab('prophecies')}
           >
-            Guardian Chronicles
+            Focus Journal
           </button>
         </div>
       </div>
@@ -580,7 +589,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded border border-[#10b981]" />
-                  <span>Fitness Only</span>
+                  <span>Fitness</span></div><div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded border border-[#d1a970]"/><span>Ritual</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded border border-dashed border-[#6b7280]" />
@@ -718,6 +727,10 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               </AnimatePresence>
             </div>
 
+            <section aria-label="Ritual check-ins" className="ledger-ritual-history mt-6 text-left">
+              <h3 className="font-serif text-lg text-gold-core mb-3">Ritual check-ins</h3>
+              {dailyRitualLogs.length ? <div className="flex flex-col gap-2">{dailyRitualLogs.map(event => <div key={event.id} className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 rounded-lg border border-gold-core/15 p-3 bg-black/20 break-words"><span>{event.title}</span><span className="text-sm text-stone-400">{event.day} · Checked in</span></div>)}</div> : <p className="font-serif text-sm text-stone-400">No recorded Ritual check-ins{selectedDateStr ? ' on this day' : ''}.</p>}
+            </section>
             {/* Fitness History logs below the operations history */}
             {selectedDateStr && dailyGymLogs.length > 0 && (
               <div className="flex flex-col gap-3 mt-4 text-left">
@@ -805,9 +818,9 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
               
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="motion-heading text-xl font-display text-gold-core uppercase tracking-widest">GUARDIAN CHRONICLES</h3>
+                  <h3 className="motion-heading text-xl font-display text-gold-core uppercase tracking-widest">FOCUS JOURNAL</h3>
                   <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase tracking-widest">
-                    Witnessing your neural peak velocity under pressure
+                    Notes and messages from your Focus sessions
                   </p>
                 </div>
                 <div className="px-4 py-2 bg-gold-core/10 border border-gold-core/20 rounded text-center">
@@ -1052,17 +1065,7 @@ export default function Ledger({ initialSubTab = 'history', onSubTabChange }) {
             {/* Right side: Inspector */}
             <div className={`artifact-inspector-page relative ${(selectedFairy || selectedTrophy || selectedArtifact) ? 'artifact-inspector-page--framed' : ''}`}>
               <AnimatePresence mode="popLayout" initial={false}>
-                {onboardingActive && onboardingProgress < 6 && (selectedTrophy || selectedFairy) ? (
-                  <motion.div
-                    key="ledger-locked"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="inspector-content-page absolute inset-0"
-                  >
-                    <LockedDoor requiredTasks={6} conceptName="Trophies & Chronicles" />
-                  </motion.div>
-                ) : selectedArtifact ? (
+                {selectedArtifact ? (
                   <motion.div 
                     key={selectedArtifact.variantKey}
                     initial={{ opacity: 0, x: 20 }}

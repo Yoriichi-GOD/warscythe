@@ -12,10 +12,10 @@ const NODES_DATA = [
   { id: 3, label: 'Task 3: Forge & Rituals', desc: 'A returning flame: discover Rituals and the Forge. Both are available from the beginning.', x: '28%', y: '78%' },
   { id: 4, label: 'Task 4: The Ledger', desc: 'A record of your real work. The Ledger is available whenever you need it.', x: '38%', y: '74%' },
   { id: 5, label: 'Task 5: Boss Hunt 🏆', desc: 'First liberation. Title: "Curious Explorer". The map remains available to explore.', x: '48%', y: '55%', isMilestone: true, title: 'Curious Explorer' },
-  { id: 6, label: 'Task 6: Lore Inspection', desc: 'Unlocks detail inspect popups inside Ledger.', x: '58%', y: '68%' },
+  { id: 6, label: 'Task 6: Lore Inspection', desc: 'Follow the connections among finds you have collected. Your Ledger is always available.', x: '58%', y: '68%' },
   { id: 7, label: 'Task 7: Social Circle', desc: 'Unlocks Friends list & Campfire leaderboard.', x: '68%', y: '52%' },
   { id: 8, label: 'Task 8: Codex & Shop', desc: 'Discover connections in the world archive. Cosmetics remain optional.', x: '76%', y: '40%' },
-  { id: 9, label: 'Task 9: The Legion', desc: 'Unlocks Legion persistency & group sub-tasks.', x: '84%', y: '30%' },
+  { id: 9, label: 'Task 9: The Legion', desc: 'Meet the Legion: shared Operations and a persistent group. Join whenever you need company.', x: '84%', y: '30%' },
   { id: 10, label: 'Task 10: Full Release 🏆', desc: 'Onboarding completed. Title: "Seasoned Wanderer"', x: '92%', y: '18%', isMilestone: true, title: 'Seasoned Wanderer' }
 ];
 

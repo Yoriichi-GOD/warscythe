@@ -1465,7 +1465,8 @@ export const useWarscytheStore = create(
           notes: '',
           microSteps,
           lastProgressUpdate: new Date().toISOString(),
-          isTutorialTask: !get().firstTaskCompleted && !get().hasCompletedTutorial,
+          // A task entered by the operative is real work, including their first.
+          isTutorialTask: false,
           deviceUuid: getDeviceUuid(),
           deviceSequence: nextDeviceSequence(),
           syncStatus: 'pending',
@@ -1619,7 +1620,7 @@ export const useWarscytheStore = create(
         const newXP = state.xp + totalPts;
 
         // Determine if this is a tutorial task BEFORE using it below
-        const isTutorialTask = !!task.isTutorialTask || (!state.firstTaskCompleted && !state.hasCompletedTutorial);
+        const isTutorialTask = !!task.isTutorialTask;
         const countsForRegionalProgress = !isTutorialTask && task.category !== 'LEGION' && !task.isLegionTask;
         task.isTutorialTask = isTutorialTask;
         task.taskUuid = task.taskUuid || task.id;
@@ -1758,9 +1759,16 @@ export const useWarscytheStore = create(
           }],
           unlockedLore,
           pendingReward: {
+            eventId: progressionEvent.eventUuid,
+            source: 'operation',
+            isFirstReward: state.collectedArtifacts.length === 0,
+            isNewVariant: !state.collectedArtifacts.some(item => item.name === artifact.name && item.rarity === reward.rarity),
+            isBoss,
+            discoveryIndex: countsForRegionalProgress ? newTotalCompletions - 1 : null,
             reward: { ...reward, artifact },
             basePts,
             totalPts,
+            coinsAwarded: coinReward,
             fragment: artifact.hook || artifact.lore || fragment,
             taskTitle: task.title,
             keyElement
@@ -1890,9 +1898,15 @@ export const useWarscytheStore = create(
           ritualCompletionEvents: [...(state.ritualCompletionEvents || []), ritualCompletionEvent],
           pendingProgressionEvents: [...(state.pendingProgressionEvents || []), progressionEvent],
           pendingReward: {
+            eventId: progressionEvent.eventUuid,
+            source: 'ritual',
+            isFirstReward: state.collectedArtifacts.length === 0,
+            isNewVariant: !state.collectedArtifacts.some(item => item.name === artifact.name && item.rarity === reward.rarity),
+            isBoss: ritual.effort === 'Boss',
             reward: { ...reward, artifact },
             basePts,
             totalPts,
+            coinsAwarded: coinReward,
             fragment: artifact.hook || artifact.lore,
             taskTitle: ritual.title,
             keyElement: null

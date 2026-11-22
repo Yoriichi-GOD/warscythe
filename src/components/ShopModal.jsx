@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWarscytheStore } from '../store/useWarscytheStore';
 import { X, Lock, Sparkles, Check, Flame, Star, ShieldAlert, Loader2, Eye, Info, CloudDownload } from 'lucide-react';
-import LockedDoor from './LockedDoor';
 
 export default function ShopModal({ onClose, onOpenAuth }) {
   const { 
@@ -19,8 +18,6 @@ export default function ShopModal({ onClose, onOpenAuth }) {
     buyScythe,
     downloadedRegions,
     downloadRegionBundle,
-    onboardingActive,
-    onboardingProgress,
     postGuardianTutorial
   } = useWarscytheStore();
   const shopTutorialActive = postGuardianTutorial === 'lore_intro' || postGuardianTutorial === 'shop_intro';
@@ -281,10 +278,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
             }
           }}
         >
-          {onboardingActive && onboardingProgress < 8 ? (
-            <LockedDoor requiredTasks={8} conceptName="The Dread Armory" />
-          ) : (
-            <>
+          <>
           
           {/* WEAPONS SECTION */}
           <div id="shop-weapon-skins" className="shop-section">
@@ -538,8 +532,7 @@ export default function ShopModal({ onClose, onOpenAuth }) {
               })}
             </div>
           </div>
-            </>
-          )}
+          </>
         </div>
 
         {/* Footer */}

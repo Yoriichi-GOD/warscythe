@@ -41,39 +41,13 @@ const getArtifactImage = (name) => {
 };
 
 
-const WidgetLock = ({ requiredTasks, conceptName }) => {
-  const [showNotification, setShowNotification] = useState(false);
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 2500);
-  };
-
-  return (
-    <div 
-      className="absolute inset-0 z-[50] flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm border border-dashed border-gold-core/20 rounded cursor-pointer select-none"
-      onClick={handleClick}
-    >
-      <img 
-        src="/lock.webp" 
-        alt="Locked" 
-        className="w-[80%] h-[80%] max-w-[75%] max-h-[75%] object-contain filter drop-shadow-[0_0_15px_rgba(236,200,128,0.45)] animate-pulse"
-      />
-      <span className="text-[7px] font-mono tracking-widest text-gold-core uppercase mt-2">
-        LOCKED
-      </span>
-      {showNotification && (
-        <div className="absolute inset-x-2 bottom-4 bg-zinc-950 border border-gold-core/40 px-3 py-2 rounded shadow-2xl z-[100] text-center">
-          <span className="text-[8px] font-mono text-gold-core uppercase tracking-widest leading-normal block">
-            Complete {requiredTasks} Operations to unlock {conceptName}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-};
+const WidgetLock = ({ requiredTasks, conceptName }) => (
+  <div className="absolute inset-0 z-[50] flex flex-col items-center justify-center gap-2 bg-zinc-950/95 border border-gold-core/15 rounded-xl px-4 text-center">
+    <Award size={19} className="text-gold-core/60" aria-hidden="true"/>
+    <span className="font-serif text-sm text-gold-core">{conceptName}</span>
+    <span className="font-serif text-xs leading-relaxed text-stone-400">Opens after {requiredTasks} completed Operations</span>
+  </div>
+);
 
 export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 'operations' }) {
   const { 
@@ -320,7 +294,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
       <div 
         className={`cc-ultimate-artifact elite-panel !p-0 flex flex-col items-center justify-center text-center relative group min-h-[240px] overflow-hidden motion-control bg-[#050505] ${isRitualMode ? '' : 'cursor-pointer hover:border-gold-core/40'}`}
         onClick={() => {
-          if (onboardingActive && onboardingProgress < 4) return;
+          if (!isRitualMode && onboardingActive && onboardingProgress < 4) return;
           if (isRitualMode) return;
           onPreviewUltimate && onPreviewUltimate(currentTier.name, 'ultimate', '500');
         }}
@@ -332,7 +306,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           <img className="cc-artifact-corner cc-artifact-corner--br" src="/frames/universal/corner.webp" alt="" />
           <img className="cc-artifact-divider" src="/frames/quotation/quotation-divider.webp" alt="" />
         </span>
-        {onboardingActive && onboardingProgress < 4 && (
+        {!isRitualMode && onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Ultimate Artifact" />
         )}
         {/* The Image (Centered and Blended) */}
@@ -414,7 +388,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           <img className="cc-streak-corner cc-streak-corner--tl" src="/frames/quotation/quotation-corner.webp" alt="" />
           <img className="cc-streak-corner cc-streak-corner--br" src="/frames/quotation/quotation-corner.webp" alt="" />
         </span>
-        {onboardingActive && onboardingProgress < 4 && (
+        {!isRitualMode && onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Streak Ascent" />
         )}
          <div className="flex justify-between items-center">
@@ -476,7 +450,7 @@ export default function CommandCenter({ onPreviewUltimate, onOpenGymLog, mode = 
           <img className="cc-arsenal-corner cc-arsenal-corner--bl cc-arsenal-corner--button" src="/frames/buttons/button-corner.webp" alt="" />
           <img className="cc-arsenal-corner cc-arsenal-corner--br cc-arsenal-corner--hercules" src="/frames/divine/hercules/corner.webp" alt="" />
         </span>
-        {onboardingActive && onboardingProgress < 4 && (
+        {!isRitualMode && onboardingActive && onboardingProgress < 4 && (
           <WidgetLock requiredTasks={4} conceptName="Trophy Arsenal" />
         )}
          <div className="flex justify-between items-center mb-4">

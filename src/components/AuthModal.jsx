@@ -196,7 +196,32 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
 
             {activeScreen === 'options' && (
               <div className="auth-options-list">
-                {/* Google Button */}
+                <div className="auth-disclaimer-container">
+                  <label className="auth-disclaimer-label">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={e => setTermsAccepted(e.target.checked)}
+                      className="auth-terms-checkbox"
+                    />
+                    <span className="auth-disclaimer-text">
+                      By continuing, you agree to our{' '}
+                      <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                      {' '}and{' '}
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity.");
+                        }}
+                      >
+                        Terms & Conditions
+                      </a>.
+                    </span>
+                  </label>
+                </div>
+                {!termsAccepted && <p className="auth-consent-hint" style={{fontSize:14,lineHeight:1.5,color:"#c9b88e",margin:0}}>Review and accept the agreement above to enable sign-in.</p>}
+{/* Google Button */}
                 <button 
                   className="auth-option-btn google"
                   onClick={() => handleOAuthLogin('google')}
@@ -222,30 +247,7 @@ export default function AuthModal({ onClose, isMandatory = false, initialScreen 
                   <span>Continue with Email</span>
                 </button>
 
-                <div className="auth-disclaimer-container">
-                  <label className="auth-disclaimer-label">
-                    <input 
-                      type="checkbox" 
-                      checked={termsAccepted} 
-                      onChange={e => setTermsAccepted(e.target.checked)}
-                      className="auth-terms-checkbox"
-                    />
-                    <span className="auth-disclaimer-text">
-                      By continuing, you agree to our{' '}
-                      <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-                      {' '}and{' '}
-                      <a 
-                        href="#" 
-                        onClick={(e) => { 
-                          e.preventDefault(); 
-                          alert("Terms & Conditions:\n\n1. Do your daily work.\n2. Do not cheat yourself.\n3. Keep your focus high.\n4. Warscythe is built for ultimate productivity."); 
-                        }}
-                      >
-                        Terms & Conditions
-                      </a>.
-                    </span>
-                  </label>
-                </div>
+
               </div>
             )}
 

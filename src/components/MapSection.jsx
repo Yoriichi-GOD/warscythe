@@ -348,9 +348,9 @@ export default function MapSection({
   };
 
   const nodes = [
-    { id: 'stone', label: (nodeInfo('stone')?.name || '').toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'SECURED', type: isStonehollowLocked ? 'locked' : 'secured' },
-    { id: 'ashendale', label: (nodeInfo('ashendale')?.name || '').toUpperCase(), top: '72%', left: '78%', status: 'SECURED', type: 'secured' },
-    { id: 'castle', label: (nodeInfo('castle')?.name || '').toUpperCase(), top: '48%', left: '78%', status: 'SECURED', type: 'secured' },
+    { id: 'stone', label: (nodeInfo('stone')?.name || '').toUpperCase(), top: '72%', left: '22%', status: isStonehollowLocked ? 'LOCKED' : 'KNOWN OUTPOST', type: isStonehollowLocked ? 'locked' : 'secured' },
+    { id: 'ashendale', label: (nodeInfo('ashendale')?.name || '').toUpperCase(), top: '72%', left: '78%', status: 'KNOWN OUTPOST', type: 'secured' },
+    { id: 'castle', label: (nodeInfo('castle')?.name || '').toUpperCase(), top: '48%', left: '78%', status: 'KNOWN OUTPOST', type: 'secured' },
     { id: 'jail', label: isBossRescued ? "IRON JAIL (OPENED)" : (nodeInfo('jail')?.name || '').toUpperCase(), top: '45%', left: '22%', status: isBossRescued ? 'SECURED' : 'LOCKED', type: isBossRescued ? 'secured' : 'locked' },
     { id: 'boss', label: isBossRescued ? "EMPRESS' ABODE" : (nodeInfo('boss')?.name || '').toUpperCase(), top: '15%', left: '50%', status: isBossRescued ? 'SECURED' : 'FINAL OBJECTIVE', type: 'boss' }
   ];
@@ -477,7 +477,7 @@ export default function MapSection({
             <div className="legend-grid font-times">
               <div className="legend-item"><div className="dot pos" /> YOUR POSITION</div>
               <div className="legend-item"><div className="dot avail" /> AVAILABLE NODE</div>
-              <div className="legend-item"><div className="dot secured" /> SECURED NODE</div>
+              <div className="legend-item"><div className="dot secured" /> KNOWN / LIBERATED</div>
               <div className="legend-item"><div className="dot locked" /> LOCKED NODE</div>
               <div className="legend-item"><div className="dot boss" /> BOSS ENCOUNTER</div>
             </div>
@@ -710,7 +710,7 @@ export default function MapSection({
                <div className="completion-dial border-[2.5px] border-[#ecc880] shadow-[0_0_15px_rgba(236,200,128,0.2)]">
                   <span className="pct text-gold-gradient font-bold">{progressPct}%</span>
                </div>
-               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} SECURED</p>
+               <p className="text-[10px] text-gray-400 font-mono tracking-widest text-center mt-3 uppercase">{displayProgress} / {TASKS_PER_LEVEL} OPERATIONS COMPLETED</p>
             </div>
  
             <div className="active-modifiers font-times">

@@ -104,6 +104,9 @@ export const isBundled = (path) => {
   // 3. Artifacts are bundled
   if (path.includes('artifacts/')) return true;
 
+  // Small reward scenes and chest states must also survive native packaging.
+  if (path.startsWith('/rewards/') || path.startsWith('rewards/')) return true;
+
   // Ritual medals are bundled and shared by both the Rituals screen and its
   // reward ceremony. They must never be redirected to the legacy CDN.
   if (path.includes('medals/')) return true;

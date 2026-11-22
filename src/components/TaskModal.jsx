@@ -143,6 +143,7 @@ export default function TaskModal({
   const tasks = useWarscytheStore(state => state.tasks) || [];
   const addTask = useWarscytheStore(state => state.addTask);
   const triggerBossFlash = useWarscytheStore(state => state.triggerBossFlash);
+  const hasCompletedTutorial = useWarscytheStore(state => state.hasCompletedTutorial);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep);
   const setTutorialStep = useWarscytheStore(state => state.setTutorialStep);
 
@@ -160,8 +161,11 @@ export default function TaskModal({
     });
   }, [title, category, effort, deadline, deadlineTime, priority, subTaskText, subTasks, formTutorialStep, onDraftChange]);
 
+  // Compact first-run tasks use the Journey guide, never hidden field locks.
+  const fieldTourActive = !streamlined && !hasCompletedTutorial && tutorialStep === 'task_modal_open';
+
   const advanceTutorial = (fromStep) => {
-    if (tutorialStep === 'task_modal_open' && formTutorialStep === fromStep) {
+    if (fieldTourActive && formTutorialStep === fromStep) {
       const nextStep = fromStep + 1;
       setFormTutorialStep(nextStep);
       if (nextStep === 1) {
@@ -179,11 +183,11 @@ export default function TaskModal({
 
   const isDimmed = (stepIdx) => {
     if (error) return false;
-    return tutorialStep === 'task_modal_open' && formTutorialStep !== stepIdx;
+    return fieldTourActive && formTutorialStep !== stepIdx;
   };
 
   useEffect(() => {
-    if (tutorialStep === 'task_modal_open') {
+    if (fieldTourActive) {
       const activeEl = document.getElementById(`tutorial-step-${formTutorialStep}`);
       if (activeEl) {
         setTimeout(() => {
@@ -191,16 +195,16 @@ export default function TaskModal({
         }, 100);
       }
     }
-  }, [formTutorialStep, tutorialStep]);
+  }, [formTutorialStep, fieldTourActive]);
 
   useEffect(() => {
-    if (tutorialStep === 'task_creation') {
+    if (!streamlined && !hasCompletedTutorial && tutorialStep === 'task_creation') {
       setTutorialStep('task_modal_open');
     }
-  }, [tutorialStep]);
+  }, [tutorialStep, streamlined, hasCompletedTutorial, setTutorialStep]);
 
   const handleClose = () => {
-    if (tutorialStep === 'task_modal_open') {
+    if (fieldTourActive) {
       setTutorialStep('task_creation');
     }
     onClose();
@@ -242,7 +246,7 @@ export default function TaskModal({
     }
     const preciseDeadline = deadlineDate.toISOString();
     
-    if (tutorialStep === 'task_modal_open') {
+    if (fieldTourActive) {
       setIsSubmitting(true);
       setTimeout(() => {
         const success = addTask(title, category, effort, preciseDeadline, priority, subTasks);
@@ -288,7 +292,7 @@ export default function TaskModal({
           <img className="tactical-modal-frame__corner tactical-modal-frame__corner--br" src="/frames/ledger/corner.webp" alt="" />
         </span>
         <div className={`modal-content glass-panel tactical-modal custom-scrollbar ${
-          tutorialStep === 'task_modal_open' ? 'modal-onboarding-open' : 'max-h-[78dvh] overflow-y-auto'
+          fieldTourActive ? 'modal-onboarding-open' : 'max-h-[78dvh] overflow-y-auto'
         }`}>
         <div className="modal-header">
           <div className="modal-title-box">
@@ -341,7 +345,7 @@ export default function TaskModal({
               autoFocus
               required
             />
-            {tutorialStep === 'task_modal_open' && formTutorialStep === 0 && (
+            {fieldTourActive && formTutorialStep === 0 && (
               <div className="onboarding-pointer left-pointer select-pointer mt-4">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
@@ -390,7 +394,7 @@ export default function TaskModal({
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && formTutorialStep === 1 && !categoryOpen && (
+              {fieldTourActive && formTutorialStep === 1 && !categoryOpen && (
                 <div className="onboarding-pointer left-pointer select-pointer">
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
@@ -428,7 +432,7 @@ export default function TaskModal({
                   </div>
                 )}
               </div>
-              {tutorialStep === 'task_modal_open' && formTutorialStep === 2 && !effortOpen && (
+              {fieldTourActive && formTutorialStep === 2 && !effortOpen && (
                 <div className="onboarding-pointer right-pointer select-pointer">
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
@@ -458,7 +462,7 @@ export default function TaskModal({
                 />
               </div>
             </div>
-            {tutorialStep === 'task_modal_open' && formTutorialStep === 3 && (
+            {fieldTourActive && formTutorialStep === 3 && (
               <div className="onboarding-pointer left-pointer select-pointer">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
@@ -502,7 +506,7 @@ export default function TaskModal({
                 </button>
               ))}
             </div>
-            {tutorialStep === 'task_modal_open' && formTutorialStep === 4 && (
+            {fieldTourActive && formTutorialStep === 4 && (
               <div className="onboarding-pointer right-pointer select-pointer">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
@@ -561,7 +565,7 @@ export default function TaskModal({
               </span>
               <span>{isSubmitting ? "LOCKING IT IN..." : streamlined ? "Save Operation" : "CONFIRM DEPLOYMENT"}</span>
             </button>
-            {tutorialStep === 'task_modal_open' && formTutorialStep === 5 && (
+            {fieldTourActive && formTutorialStep === 5 && (
               <div className="onboarding-pointer left-pointer select-pointer mt-4">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">

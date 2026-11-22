@@ -26,7 +26,7 @@ export function savedWork(goal, before, state) {
 export function guideStep(guide, state) {
   const work = savedWork(guide.goal, guide.before, state);
   if (guide.goal === 'operation') return work
-    ? { title: 'Your Operation is saved.', text: 'Open its card to see the steps or use Focus. Complete it only after you have done the work; your first real completion uncovers a document.', done: true, target: 'operations-primary-panel' }
+    ? { title: work.completedAt ? 'Your victory is recorded.' : 'Your Operation is saved.', text: work.completedAt ? 'Your campaign has advanced. Open The Unquiet Post to read your new find, or return when you are ready for another task.' : 'Open its card to see the steps or use Focus. Complete it only after you have done the work; your first real completion uncovers a document.', done: true, target: 'operations-primary-panel' }
     : { title: 'Start with something finishable.', text: 'Give one real task a name and deadline. Category, effort, priority and smaller steps are available when you need them.', target: 'operation-add-button' };
   if (guide.goal === 'habit') return work
     ? { title: 'Your Ritual is saved.', text: 'Return on its scheduled day. Mark it complete only after doing it. You can edit its frequency and hour later.', done: true, target: 'ritual-enshrine-button' }

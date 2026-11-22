@@ -91,3 +91,5 @@ body:has(.workout-resume-dock) button[title="Open War Terminal (Ctrl+K)"] { bott
   .workout-resume-dock button { gap:6px; padding:10px 12px; font-size:15px; }
 }
 @media(prefers-reduced-motion:reduce) { .workout-session button,.workout-resume-dock button,.workout-mode-bar button { transition:none !important; } }
+
+.workout-empty-start{padding:14px 16px;margin:8px 0 16px;border:1px solid #c5a05935;border-radius:12px;background:#c5a05908}.workout-empty-start p,.workout-effort-help p{font:400 15px/1.5 "Times New Roman",Times,serif;color:#c9c2b1;margin:0 0 10px}.workout-empty-start button{min-height:44px;padding:9px 14px;border:1px solid #c5a05966;border-radius:9px;background:transparent;color:#e0c78c;font:400 16px "Times New Roman",Times,serif;cursor:pointer}.workout-effort-help{margin:14px 0;color:#dac28d;font:400 15px/1.5 "Times New Roman",Times,serif}.workout-effort-help summary{cursor:pointer;min-height:44px;display:flex;align-items:center}.workout-effort-help p{margin:0 0 14px}

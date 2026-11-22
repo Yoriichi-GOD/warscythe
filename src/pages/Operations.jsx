@@ -128,9 +128,8 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
   const generateMicroSteps = useWarscytheStore(state => state.generateMicroSteps);
   const tutorialStep = useWarscytheStore(state => state.tutorialStep) || 'completed';
   const onboardingActive = useWarscytheStore(state => state.onboardingActive);
-  const teachingScythe = useWarscytheStore(state => state.pendingGuardianProgress === 1);
-  const scytheDisplay = useMobileDisplay('operations', teachingScythe);
   const onboardingProgress = useWarscytheStore(state => state.onboardingProgress);
+  const scytheDisplay = useMobileDisplay('operations', false, onboardingProgress === 0);
   const [preview, setPreview] = useState({ level: null, type: 'standard', pwr: null });
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
@@ -191,7 +190,7 @@ export default function Operations({ onAddTask, onOpenTask, onCompleteTask, onOp
     <div className="elite-grid-container" data-scythe-collapsed={scytheDisplay.collapsed}>
       
       {/* ═══ LEFT COLUMN: ACTIVE OPERATIONS ═══ */}
-      <section ref={operationsPanelRef} className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-6">
+      <section id="operations-primary-panel" ref={operationsPanelRef} className="elite-panel operations-primary-panel lg:h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar pb-6">
         <OperationsWindowFrame targetRef={operationsPanelRef} />
         <span className="operations-screen-corner operations-screen-corner--inline" aria-hidden="true"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
         <div className="flex justify-between items-center mb-8 shrink-0">

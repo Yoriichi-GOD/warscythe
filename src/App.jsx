@@ -34,6 +34,7 @@ import LevelUpModal from './components/LevelUpModal';
 import FocusOverlay from './components/FocusOverlay';
 import { AdManager, AdSenseManager, configureAdManager } from './utils/adManager';
 import ScratchCard from './components/ScratchCard';
+import { makeRewardPreview, takeRewardPreview } from './features/rewards/dev/rewardPreview';
 import { initNetworkMonitoring, configureNetworkSync } from './utils/nativeTriggers';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
@@ -183,6 +184,7 @@ export default function App({ initialAuthOnWeb = false }) {
   const [showLoreModal, setShowLoreModal] = useState(false);
   const [archiveDocumentId, setArchiveDocumentId] = useState(null);
   const [archivePreview, setArchivePreview] = useState(null);
+  const [rewardPreview, setRewardPreview] = useState(null);
   const [fitnessOathOpen, setFitnessOathOpen] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
   const [showAuthOnWeb, setShowAuthOnWeb] = useState(initialAuthOnWeb);
@@ -410,7 +412,17 @@ export default function App({ initialAuthOnWeb = false }) {
 
   
   const pendingReward = useWarscytheStore(state => state.pendingReward);
-  const clearPendingReward = useWarscytheStore(state => state.clearPendingReward);
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const open = event => {
+      if (localStorage.getItem('warscythe_test_realm_active') !== 'true') return;
+      takeRewardPreview();
+      setRewardPreview(makeRewardPreview(event.detail, useWarscytheStore.getState().user?.id || 'local'));
+    };
+    window.addEventListener('warscythe:preview-reward', open);
+    const request = takeRewardPreview(); if (request) open({detail:request});
+    return () => window.removeEventListener('warscythe:preview-reward', open);
+  }, []);
   const pendingLevelUp = useWarscytheStore(state => state.pendingLevelUp);
   const clearPendingLevelUp = useWarscytheStore(state => state.clearPendingLevelUp);
   const completeTask = useWarscytheStore(state => state.completeTask);
@@ -676,7 +688,7 @@ export default function App({ initialAuthOnWeb = false }) {
         onOpenTask={() => setShowTaskModal(true)} onOpenHabit={() => setShowRitualModal(true)}
         onChronicle={() => setShowRoadmap(true)}
         onPractice={() => { guardedTabChange('fitness'); setFitnessOathOpen(true); }}
-        busy={showTaskModal || showRitualModal || showLoreModal || showRoadmap || fitnessTutorialActive || fitnessOathOpen || !!pendingReward || !!selectedTaskId}/>
+        busy={showTaskModal || showRitualModal || showLoreModal || showRoadmap || fitnessTutorialActive || fitnessOathOpen || !!pendingReward || !!rewardPreview || !!selectedTaskId}/>
       {(fitnessTutorialActive || fitnessOathOpen) && <button type="button" className="journey-quiet" style={{position:'fixed',right:16,top:80,zIndex:4000,padding:12,background:'#151810',color:'#dfc78b',border:'1px solid #b79b5b55',borderRadius:10}} onClick={() => { setFitnessTutorialActive(false); setFitnessOathOpen(false); }}>Leave rehearsal</button>}
       {/* Sticky Walkthrough Guide Banner */}
       {!focusedWorkout && !guideBannerDismissed && (
@@ -826,7 +838,7 @@ export default function App({ initialAuthOnWeb = false }) {
         onTabChange={guardedTabChange}
         navigationLocked={navigationSealed}
       />}
-      {currentWorkout && !focusedWorkout && !navigationSealed && <WorkoutResumeDock workout={currentWorkout} onResume={() => { guardedTabChange('fitness'); useWorkoutUi.getState().focus(currentWorkout.id); }} />}
+      {currentWorkout && activeTab !== 'fitness' && !focusedWorkout && !navigationSealed && <WorkoutResumeDock workout={currentWorkout} onResume={() => { guardedTabChange('fitness'); useWorkoutUi.getState().focus(currentWorkout.id); }} />}
 
       <AnimatePresence>
         {showTaskModal && (
@@ -1002,19 +1014,20 @@ export default function App({ initialAuthOnWeb = false }) {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {pendingReward && !activeBossFlash && (
-          <ScratchCard 
-            data={pendingReward} 
-            onClose={() => {
-              clearPendingReward();
-              if (tutorialStep && tutorialStep !== 'completed') {
-                setShowTutorialEndFlash(true);
-              }
-            }} 
-          />
-        )}
-      </AnimatePresence>
+      <ScratchCard
+        key={user?.id || 'local'}
+        data={pendingReward || (rewardPreview?.owner === (user?.id || 'local') ? rewardPreview : null)}
+        paused={!!activeBossFlash}
+        onClose={completed => {
+          if (completed?.preview) {
+            setRewardPreview(previous => previous?.eventId === completed.eventId ? null : previous);
+          } else if (useWarscytheStore.getState().pendingReward === completed) {
+            useWarscytheStore.getState().clearPendingReward();
+          }
+        }}
+        onOpenLedger={() => { setLedgerSubTab('vault'); guardedTabChange('ledger'); }}
+        onOpenArchive={documentId => window.dispatchEvent(new CustomEvent('warscythe:open-archive', {detail:{documentId}}))}
+      />
 
       <AnimatePresence>
         {showTutorialEndFlash && (

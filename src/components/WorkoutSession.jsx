@@ -17,11 +17,13 @@ export default function WorkoutSession({ workout, history, presets, addMovement,
   };
   return <section className="workout-session" aria-label="Active workout log">
     <div className="workout-session-heading"><div><span className="workout-eyebrow">ACTIVE SESSION · {completed}/{allSets.length} SETS</span><h4>{workout.split}</h4></div><button type="button" onClick={() => { if (window.confirm('Discard this active workout? Its unarchived sets and notes will be lost.')) discard(); }} className="workout-discard">Discard</button></div>
+    {workout.movements.length === 0 && <div className="workout-empty-start"><p>Your split names this session; exercises are added by you.</p><button type="button" onClick={() => { setSuggestions(true); document.getElementById('workout-movement')?.focus(); }}>Choose your first exercise</button></div>}
     <div id="fitness-movement-selector" className="workout-add-movement">
       <label htmlFor="workout-movement">Add exercise</label>
       <form onSubmit={e => { e.preventDefault(); add(name); }}><input id="workout-movement" autoComplete="off" value={name} placeholder="Exercise name" onChange={e => setName(e.target.value)} /><button type="submit" aria-label="Add exercise"><Plus size={18}/></button><button type="button" aria-label="Choose exercise" aria-expanded={suggestions} onClick={() => setSuggestions(v => !v)}><ChevronDown size={18}/></button></form>
       {suggestions && <div className="workout-exercise-options">{presets.filter(x => x.toLowerCase().includes(name.toLowerCase())).map(x => <button type="button" key={x} onClick={() => add(x)}>{x}</button>)}</div>}
     </div>
+    {workout.movements.length > 0 && <details className="workout-effort-help"><summary>What do RPE and AMRAP mean?</summary><p>RPE is your perceived effort from 1 to 10. Record how demanding the set felt. AMRAP means “as many reps as possible”; record the reps you actually completed.</p></details>}
     {workout.movements.map((movement, movementIndex) => {
       const previous = history.find(w => w.movements?.some(m => m.name.toLowerCase() === movement.name.toLowerCase()))?.movements.find(m => m.name.toLowerCase() === movement.name.toLowerCase());
       return <section className="workout-exercise" key={movement.id} aria-label={movement.name}>
@@ -36,7 +38,7 @@ export default function WorkoutSession({ workout, history, presets, addMovement,
             <div className="workout-set-fields">
               <label>Load · kg<input id={first ? 'fitness-weight-input' : undefined} aria-label={`${label}, load in kilograms`} type="number" inputMode="decimal" min="0" step="0.25" value={set.weight || ''} placeholder="0" onChange={e => { updateSet(movement.id,set.id,{weight:e.target.value}); if (Number(e.target.value) > 0) advance(3); }}/></label>
               <label>Reps<input id={first ? 'fitness-reps-input' : undefined} aria-label={`${label}, reps`} type="number" inputMode="numeric" min="1" step="1" value={set.reps || ''} placeholder="0" onChange={e => { updateSet(movement.id,set.id,{reps:e.target.value}); if (Number(e.target.value) > 0) advance(4); }}/></label>
-              <label>RPE<input aria-label={`${label}, RPE`} type="number" inputMode="decimal" min="1" max="10" step="0.5" value={set.rpe || ''} onChange={e => updateSet(movement.id,set.id,{rpe:e.target.value})}/></label>
+              <label>Effort · RPE<input aria-label={`${label}, RPE`} type="number" inputMode="decimal" min="1" max="10" step="0.5" value={set.rpe || ''} onChange={e => updateSet(movement.id,set.id,{rpe:e.target.value})}/></label>
               <button type="button" id={first ? 'fitness-complete-set' : undefined} aria-label={`${set.completed ? 'Uncomplete' : 'Complete'} ${label}`} aria-pressed={!!set.completed} className="workout-complete" onClick={() => { if (!set.completed && (!(Number(set.reps) > 0) || Number(set.weight) < 0)) { setError('Enter a valid load and rep count before completing the set.'); return; } setFocusedSet({movementId:movement.id,setId:set.id}); toggleComplete(movement.id,set.id,set.completed); setError(''); if (!set.completed) advance(5); }}><Check size={19}/><span>Done</span></button>
               <button type="button" aria-label={`Delete ${label}`} onClick={() => deleteSet(movement.id,set.id)}><Trash2 size={16}/></button>
             </div>

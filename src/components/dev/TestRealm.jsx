@@ -4,6 +4,7 @@ import { CAPTURE_SCENES, createCaptureRealmState } from '../../data/captureRealm
 import { REGIONS } from '../../store/constants';
 import archiveVolume from '../../features/archive/data/volumeOne.json';
 import { requestReaderPreview } from '../../features/archive/dev/readerPreview';
+import { requestRewardPreview } from '../../features/rewards/dev/rewardPreview';
 
 const REALM_KEY = 'warscythe_test_realm_active';
 const SNAPSHOT_KEY = 'warscythe_test_realm_snapshots';
@@ -281,6 +282,8 @@ export default function TestRealm() {
   const [snapshots, setSnapshots] = useState(readSnapshots);
   const [captureMode, setCaptureMode] = useState(() => localStorage.getItem(CAPTURE_MODE_KEY) === 'true');
   const [fitnessTestDeity, setFitnessTestDeity] = useState('hermes');
+  const [rewardScene, setRewardScene] = useState('cave');
+  const [rewardRarity, setRewardRarity] = useState('epic');
 
   useEffect(() => {
     document.body.classList.toggle('warscythe-capture-mode', captureMode);
@@ -605,6 +608,15 @@ export default function TestRealm() {
             </button>
           ) : (
             <div className="space-y-5">
+              <section className="realm-reward-preview rounded-lg border border-amber-300/30 bg-amber-300/[0.06] p-3">
+                <h3 className="text-base text-amber-200">Reward chest preview</h3>
+                <p className="my-2 text-xs leading-relaxed text-zinc-300">Replay the discovery and chest motion. No XP, coins or items are granted.</p>
+                <div className="mb-2 grid grid-cols-2 gap-2">
+                  <label className="text-xs text-zinc-300">Scene<select aria-label="Reward preview scene" value={rewardScene} onChange={event=>setRewardScene(event.target.value)} className="mt-1 min-h-11 w-full rounded bg-zinc-900 p-2"><option value="cave">Roadside cave</option><option value="castle">Castle alcove</option><option value="dispatch">Dispatch box</option></select></label>
+                  <label className="text-xs text-zinc-300">Rarity<select aria-label="Reward preview rarity" value={rewardRarity} onChange={event=>setRewardRarity(event.target.value)} className="mt-1 min-h-11 w-full rounded bg-zinc-900 p-2">{['common','uncommon','rare','epic','mythic'].map(rarity=><option key={rarity} value={rarity}>{rarity}</option>)}</select></label>
+                </div>
+                <div className="grid gap-2">{[['full','Play discovery reward'],['quick','Play quick reward']].map(([presentation,label])=><button key={presentation} type="button" className="min-h-11 rounded-lg border border-amber-300/40 bg-amber-300/10 px-3 py-2 text-sm text-amber-100" onClick={()=>{setOpen(false);setCaptureMode(false);requestRewardPreview({scene:rewardScene,rarity:rewardRarity,presentation});}}>{label}</button>)}</div>
+              </section>
               <section className="realm-reader-preview rounded-lg border border-amber-300/30 bg-amber-300/[0.06] p-3">
                 <h3 className="text-base text-amber-200">Lore reader preview</h3>
                 <p className="my-2 text-xs leading-relaxed text-zinc-300">Sample finds only. Your progress and normal reading bookmarks stay untouched.</p>
@@ -913,7 +925,7 @@ export default function TestRealm() {
       </button>
       <style>{`
         body.warscythe-capture-mode .warscythe-test-realm { display: none !important; }
-        body:has(.world-archive-backdrop) .warscythe-test-realm { display: none !important; }
+        body:has(.world-archive-backdrop,.reward-discovery-overlay,.reward-flight) .warscythe-test-realm { display: none !important; }
       `}</style>
     </div>
   );

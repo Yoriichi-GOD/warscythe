@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Trophy, Shield, Search, UserPlus, Check, X, ShieldAlert, Heart, Trophy as TrophyIcon, RefreshCw, Send, AlertTriangle, Sparkles, Edit2, Trash2, UserMinus, Info, Calendar, Plus, ChevronDown, Activity, Zap, Clock, Play } from 'lucide-react';
 import { REGIONS, POINTS_BASE, EFFORT_MULT } from '../store/constants';
 import LegionOperationDetail from '../components/LegionOperationDetail';
-import LockedDoor from '../components/LockedDoor';
 
 const parseUserState = (profile) => {
   const defaults = { level: 1, streakCount: 0, currentTitle: 'Recruit', xp: 0 };
@@ -218,8 +217,6 @@ export default function Social() {
     streakCount,
     level,
     executionScore,
-    onboardingActive,
-    onboardingProgress,
     postGuardianTutorial
   } = useWarscytheStore();
 
@@ -471,7 +468,7 @@ export default function Social() {
             className={`social-nav-item ${activeSubTab === 'friends' ? 'active' : ''}`}
           >
             <Users size={14} />
-            <span>OPERATIVE GRAPH ({friends.length})</span>
+            <span>FRIENDS ({friends.length})</span>
           </button>
           <button id="social-legion-tab"
             onClick={() => setActiveSubTab('legion')}
@@ -761,17 +758,13 @@ export default function Social() {
 
           {/* ==================== 3. LEGION COMMAND TAB ==================== */}
           {activeSubTab === 'legion' && (
-            onboardingActive && onboardingProgress < 9 ? (
-              <div className="relative min-h-[450px] w-full">
-                <LockedDoor requiredTasks={9} conceptName="The Legion" />
-              </div>
-            ) : (
+
               <motion.div 
                 key="legion"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="social-grid-layout"
+                className="social-grid-layout legion-work-layout"
               >
               {!activeLegion ? (
                 /* NO LEGION: CREATE OR JOIN */
@@ -783,6 +776,7 @@ export default function Social() {
                     Legion Operations turn shared goals into shared records. Forge a persistent group with other operatives.
                   </p>
 
+                  <p className="legion-join-help">Joining a friend’s Legion? Accept their invitation in your Dispatch. You can find and connect with them in Friends.</p><button type="button" className="legion-friends-link" onClick={() => setActiveSubTab('friends')}>Find a friend</button>
                   <form id="legion-sandbox-forge-form" onSubmit={handleCreateLegion} className="create-legion-form mt-8 max-w-xs w-full">
                     <input 
                       id="legion-sandbox-name"
@@ -1037,7 +1031,8 @@ export default function Social() {
 
                     {/* SECTION A: CREATE AND INITIATE COLLABORATIVE RUN */}
                     {activeLegion.owner_id === user?.id && (
-                      <form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded ornate-surface ">
+                      <details className="legion-create-operation"><summary>New shared Operation</summary><p>Assign the work and agree the terms before starting.</p>
+<form onSubmit={handleStartOperation} className="collective-ops-form mt-4 border border-gold-core/25 bg-black/40 p-6 flex flex-col gap-6 text-left relative z-50 rounded ornate-surface ">
 <OrnateFrame family="universal" quiet />
                         {(effortOpen || assigneeDropdownOpen || priorityDropdownOpen) && (
                           <div 
@@ -1244,6 +1239,7 @@ export default function Social() {
                           <span>CONFIRM DEPLOYMENT</span>
                         </button>
                       </form>
+                      </details>
                     )}
 
                     {/* SECTION B: RUN OPERATIONS PANEL */}
@@ -1465,7 +1461,7 @@ export default function Social() {
                 </>
               )}
             </motion.div>
-          ))}
+          )}
 
         </AnimatePresence>
       </div>
@@ -1478,6 +1474,13 @@ export default function Social() {
       )}
 
       <style>{`
+        .legion-create-operation {border:1px solid #c5a05935;border-radius:12px;margin:12px 0;padding:0 14px;background:#c5a05905}
+        .legion-create-operation>summary{cursor:pointer;min-height:48px;display:flex;align-items:center;color:#e0c68d;font:400 18px "Times New Roman",Times,serif}
+        .legion-create-operation>summary::before{content:'+';margin-right:12px}
+        .legion-create-operation[open]>summary::before{content:'−'}
+        .legion-create-operation>p,.legion-join-help{font:400 16px/1.5 "Times New Roman",Times,serif;color:#b7b6a9;max-width:42ch;margin:8px auto}
+        .legion-friends-link{min-height:44px;border:1px solid #c5a05944;border-radius:9px;padding:8px 14px;margin:8px;color:#dfc58a;background:transparent;cursor:pointer}
+        @media(max-width:1023px){.legion-work-layout>.social-panel-right{order:-1}}
         .social-page-container {
           display: flex;
           flex-direction: column;
