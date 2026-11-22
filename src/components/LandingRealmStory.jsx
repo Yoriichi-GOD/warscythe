@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { landingImageProps } from '../utils/responsiveAssets';
 import './landingRealmStory.css';
+import { NarrativeText } from './LandingNarrative';
 
 const chapters = [
   { realm: 'operations', title: 'Name your battle.', copy: 'A paper. A product. The work you keep putting off. Give it an Operation, break it into steps, and take the first one.', outcome: 'Your real work advances the campaign.', link: 'Explore Operations' },
@@ -49,7 +50,7 @@ export default function LandingRealmStory({ realms, onJump, motionEnabled }) {
       <p className="lp-story-map-hint">Follow the story. Or choose a territory.</p>
     </div>
     <div className="lp-story-pages">{chapters.map((item, index) => <article id={`story-${item.realm}`} key={item.realm} data-chapter={index} className="lp-story-act" aria-current={chapter === index ? 'step' : undefined}>
-      <h3>{item.title}</h3><p>{item.copy}</p><blockquote>{item.outcome}</blockquote>
+      <NarrativeText as="h3" words>{item.title}</NarrativeText><NarrativeText>{item.copy}</NarrativeText><NarrativeText as="blockquote">{item.outcome}</NarrativeText>
       <button type="button" className="lp-story-link" onClick={() => onJump(item.realm)}>{item.link}<ArrowUpRight size={18} aria-hidden="true" /></button>
       {index < chapters.length - 1 && <span className="lp-story-next" aria-hidden="true">The path continues <ArrowDownRight size={16} /></span>}
     </article>)}</div>

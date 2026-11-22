@@ -77,16 +77,16 @@ export default function RoadmapModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" inert={!isPresent} style={{pointerEvents:isPresent ? undefined : 'none'}}>
+    <div className="chronicle-window-backdrop fixed inset-0 z-[2500] flex items-center justify-center p-4" inert={!isPresent} style={{pointerEvents:isPresent ? undefined : 'none'}}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl h-[90vh] md:h-[600px] flex flex-col rounded-lg border border-white/5 bg-zinc-950 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden ornate-surface ornate-dialog"
+        className="chronicle-window relative w-full max-w-4xl h-[90vh] md:h-[600px] flex flex-col rounded-lg overflow-hidden ornate-surface ornate-dialog"
       >
           <OrnateFrame family="apollo" quiet className="ornate-frame--inset" />
         {/* Modal Header */}
-        <div className="roadmap-dialog-header flex items-center justify-between p-5 border-b border-white/5 bg-black/40">
+        <div className="roadmap-dialog-header flex items-center justify-between p-5">
           <div>
             <h2 className="font-display font-bold text-sm tracking-widest text-gold-core uppercase">Your First Ten Victories</h2>
             <p className="font-mono text-[8px] text-stone-500 tracking-wider uppercase mt-1">Kingdom Chronicle · discover one chapter at a time</p>

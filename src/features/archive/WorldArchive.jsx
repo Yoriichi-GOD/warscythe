@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useRef, use
 import { ArrowLeft, BookOpen, FileText, Mail, Search, X } from 'lucide-react';
 import { useWarscytheStore } from '../../store/useWarscytheStore';
 import OrnateFrame from '../../components/frames/OrnateFrame';
+import WorldDivider from '../../components/frames/WorldDivider';
 import volume from './data/volumeOne.json';
 import { archiveStorageKey, collectDocuments, filterDocuments, reconcileReadingState, visibleConnections } from './domain/discoveries';
 import DocumentText from './reader/DocumentText';
@@ -85,6 +86,7 @@ function ArchiveSession({ onClose, documents, storageKey, initialDocumentId, ini
         </div>
         {visibleConnections(active, documents).length > 0 && <details className="archive-connections"><summary>Connections among your finds</summary><div>{visibleConnections(active, documents).map(link => <button type="button" key={link.id} onClick={() => openDocument(link.id)}><span>{link.label}</span><strong>{link.document.title}</strong></button>)}</div></details>}
       </div>}
+      <WorldDivider family="sapphire" className="archive-window-divider"/>
       <footer className="world-archive-footer"><span>Collected writing · Volume I</span><a href="/third-party/flipbook/NOTICE.txt" target="_blank" rel="noreferrer">Reader credits</a></footer>
     </section>
   </div>;

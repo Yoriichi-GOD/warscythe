@@ -98,6 +98,9 @@ export const isBundled = (path) => {
     return true;
   }
 
+  // Shared discovery/story dividers are small local UI artwork, including offline.
+  if (path.startsWith('/frames/dividers/') || path.startsWith('frames/dividers/')) return true;
+
   // 2. Nodes (Quest map nodes) are bundled
   if (path.includes('nodes/')) return true;
 

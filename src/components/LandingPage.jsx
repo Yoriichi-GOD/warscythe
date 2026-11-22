@@ -31,6 +31,9 @@ import './landingPolish.css';
 import { NarrativeText } from './LandingNarrative';
 import { useLandingNarrative } from './useLandingNarrative';
 import './landingNarrative.css';
+import '../styles/worldFonts.css';
+import './landingTypography.css';
+import WorldDivider from './frames/WorldDivider';
 
 const LANDING_ASSET = '/landing-page/';
 
@@ -77,8 +80,8 @@ const proofItems = [
   ['Ledger', 'The completed, abandoned, recovered and maintained. Nothing quietly disappears.'],
 ];
 
-function scrollToRealm(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
+function scrollToRealm(id, animate = true) {
+  document.getElementById(id)?.scrollIntoView({ behavior: animate ? getScrollBehavior() : 'instant', block: 'start' });
 }
 
 function RuneCorners() {
@@ -115,6 +118,7 @@ function SectionHeading({ title, copy, align = 'left' }) {
   return (
     <div className={`lp-section-heading lp-align-${align}`}>
       <NarrativeText as="h2" words>{title}</NarrativeText>
+      <WorldDivider className="lp-heading-divider"/>
       {copy && <NarrativeText>{copy}</NarrativeText>}
     </div>
   );
@@ -274,7 +278,7 @@ export default function LandingPage({ onLaunch }) {
     setMobileNavOpen(false);
     setMapOpen(false);
     // Let the animated mobile realm drawer collapse before measuring the destination.
-    window.setTimeout(() => scrollToRealm(id), mapOpen ? 320 : 0);
+    window.setTimeout(() => scrollToRealm(id, motionEnabled), mapOpen && motionEnabled ? 320 : 0);
   };
 
   return (
@@ -325,6 +329,7 @@ export default function LandingPage({ onLaunch }) {
 
           <Motion.div className="lp-hero-copy" initial={false}>
             <h1><span>Execution,</span><em>Forged into Legend.</em></h1>
+            <WorldDivider className="lp-hero-divider"/>
             <p>Warscythe is an execution RPG where your real tasks, habits and workouts shape a persistent fantasy world.</p>
             <strong>There is no customizable avatar. You are the avatar.</strong>
             <div className="lp-hero-actions">
@@ -357,8 +362,8 @@ export default function LandingPage({ onLaunch }) {
 
         <section className="lp-thesis">
           <span>THE CATEGORY BREAK</span>
-          <blockquote>“You do not play Warscythe instead of doing your work. <em>Your work is what plays Warscythe.</em>”</blockquote>
-          <p>Most productivity tools help organize what comes next. Warscythe makes execution leave evidence.</p>
+          <NarrativeText as="blockquote">“You do not play Warscythe instead of doing your work. Your work is what plays Warscythe.”</NarrativeText>
+          <NarrativeText>Most productivity tools help organize what comes next. Warscythe makes execution leave evidence.</NarrativeText>
         </section>
 
         {featureSections.map((section, sectionIndex) => {
@@ -382,7 +387,7 @@ export default function LandingPage({ onLaunch }) {
         })}
 
         <section id="fitness" className="lp-olympus">
-          <img {...landingImageProps('olympus-hall.webp', '100vw')} alt="" loading="lazy" />
+          <img {...landingImageProps('olympus-hall.webp', '100vw')} data-scene-depth alt="" loading="lazy" />
           <div className="lp-environment-shade" />
           <div className="lp-olympus-content">
             <SectionHeading align="center" eyebrow="HALL OF OLYMPUS // FITNESS" title="The body becomes mythology." copy="Most fitness apps show graphs. Warscythe shows ascension. Your sessions, tonnage and personal records become permanent evidence of what your body has actually done." />
@@ -421,7 +426,7 @@ export default function LandingPage({ onLaunch }) {
         </section>
 
         <section id="terminal" className="lp-terminal">
-          <img {...landingImageProps('terminal-bastion.webp', '100vw')} alt="" loading="lazy" />
+          <img {...landingImageProps('terminal-bastion.webp', '100vw')} data-scene-depth alt="" loading="lazy" />
           <div className="lp-environment-shade" />
           <div className="lp-terminal-panel" data-image-reveal>
             <RuneCorners />
@@ -443,7 +448,7 @@ export default function LandingPage({ onLaunch }) {
         </section>
 
         <section id="final-gate" className="lp-final-gate">
-          <img {...landingImageProps('final-gate.webp', '100vw')} alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
+          <img {...landingImageProps('final-gate.webp', '100vw')} data-scene-depth alt="An immense golden gate opening into the Warscythe realm" loading="lazy" />
           <div className="lp-final-shade" />
           <div className="lp-final-copy">
             <span>THE FINAL GATE</span>

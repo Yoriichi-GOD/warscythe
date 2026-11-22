@@ -38,6 +38,7 @@ export default function BookReader({ documents, initialDocumentId, initialParagr
   const [anchor, setAnchor] = useState({ documentId: initialDocumentId, paragraph: initialParagraph });
   const callback = useRef(onPosition);
   const [dimensions, setDimensions] = useState(null);
+  const [fontsReady, setFontsReady] = useState(false);
   useEffect(() => { callback.current = onPosition; }, [onPosition]);
   useEffect(() => {
     let frame;
@@ -50,10 +51,15 @@ export default function BookReader({ documents, initialDocumentId, initialParagr
       setDimensions(before => before?.width === width && before?.height === height && before?.columns === columns ? before : { width, height, columns, padding: width < 340 ? 20 : 28 });
     }); };
     const observer = new ResizeObserver(update); observer.observe(stage.current); update();
-    document.fonts?.ready.then(update);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+    let live = true;
+    // Paginate after the two book faces settle, not against temporary metrics.
+    Promise.allSettled([
+      document.fonts?.load('400 18px "EB Garamond"'),
+      document.fonts?.load('italic 500 22px "Cormorant Garamond"'),
+    ]).then(() => { if (live) { setFontsReady(true); update(); } });
+    return () => { live = false; cancelAnimationFrame(frame); observer.disconnect(); };
   }, []);
-  const pages = useMemo(() => dimensions && !dimensions.compact ? paginateDocuments(documents, dimensions) : [], [documents, dimensions]);
+  const pages = useMemo(() => fontsReady && dimensions && !dimensions.compact ? paginateDocuments(documents, dimensions) : [], [documents, dimensions, fontsReady]);
   const initial = Math.max(0, pages.findIndex(page => page.document.id === anchor.documentId && page.paragraph >= anchor.paragraph));
   const onPagePosition = useMemo(() => position => { setAnchor(position); callback.current?.(position); }, []);
   return <div className="archive-book-reader"><div className="archive-book-stage" ref={stage}>

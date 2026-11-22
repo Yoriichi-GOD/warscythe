@@ -1,5 +1,6 @@
 import { WorkoutResumeDock } from './components/WorkoutStatus';
 import './components/workoutSession.css';
+import './styles/worldSurfaces.css';
 import { useWorkoutUi } from './store/workoutUi';
 import { useAmbientMotion } from './motion/useMotionEnvironment';
 import React, { useState, useEffect } from 'react';
@@ -1151,6 +1152,7 @@ export default function App({ initialAuthOnWeb = false }) {
 
       <AnimatePresence>
         {pendingGuardianProgress !== null
+          && !currentWorkout
           && !pendingVictoryScreen
           && !pendingLevelUp
           && !pendingEntryScreen

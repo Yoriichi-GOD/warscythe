@@ -547,7 +547,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute left-0 right-0 mt-1.5 border border-white/15 rounded z-[300] max-h-[220px] overflow-y-auto custom-scrollbar shadow-[0_18px_55px_rgba(0,0,0,.98)] isolate"
+                        className="fitness-split-menu absolute left-0 right-0 mt-1.5 border border-white/15 rounded z-[300] max-h-[220px] overflow-y-auto custom-scrollbar shadow-[0_18px_55px_rgba(0,0,0,.98)] isolate"
                         style={{ backgroundColor: '#020203', opacity: 1 }}
                       >
                         {splitPresets.map((preset, idx) => (
@@ -561,7 +561,7 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                                 handleStartWorkout(preset);
                               }
                             }}
-                            className="w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 motion-control"
+                            className="fitness-split-option w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 motion-control"
                             style={{ backgroundColor: '#020203' }}
                           >
                             {preset.toUpperCase()}

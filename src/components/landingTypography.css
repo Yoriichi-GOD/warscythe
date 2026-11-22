@@ -1,0 +1,91 @@
+/* Editorial type within the existing castle-and-dragon world. */
+#warscythe-app .landing-page-root {
+  --lp-title-face: "Cormorant Garamond", "Times New Roman", Times, serif;
+  --lp-reading-face: "Times New Roman", Times, "Liberation Serif", serif;
+  --lp-quote-face: "EB Garamond", "Times New Roman", Times, serif;
+  --lp-interface-face: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+#warscythe-app .landing-page-root :where(h1,h2,h3,h4),
+#warscythe-app .landing-page-root :where(h1,h2,h3,h4) :where(*) {
+  font-family: var(--lp-title-face) !important;
+  font-weight: 500;
+  font-style: normal;
+  font-synthesis: none;
+}
+#warscythe-app .landing-page-root :where(p),
+#warscythe-app .landing-page-root :where(p) :where(*) {
+  font-family: var(--lp-reading-face) !important;
+  font-style: normal;
+  font-weight: 400;
+}
+#warscythe-app .landing-page-root :where(button,button *,nav,nav *,small,figcaption,.lp-outcomes,.lp-outcomes *,.lp-proof-foot *,.lp-roadmap-tag,.lp-story-instrument,.lp-story-instrument *, .lp-story-map-hint,.lp-story-next,.lp-story-next *) {
+  font-family: var(--lp-interface-face) !important;
+  font-style: normal;
+  font-weight: 400;
+}
+#warscythe-app .landing-page-root :where(blockquote),
+#warscythe-app .landing-page-root :where(blockquote) :where(*) {
+  font-family: var(--lp-quote-face) !important;
+  font-style: italic;
+  font-weight: 400;
+}
+#warscythe-app .landing-page-root .lp-brand strong { font-family:var(--lp-title-face)!important; font-size:20px; font-weight:500; letter-spacing:.14em; }
+#warscythe-app .landing-page-root .lp-brand small { font-size:10px; letter-spacing:.08em; }
+#warscythe-app .landing-page-root .lp-desktop-nav button { font-size:15px; letter-spacing:.01em; color:#d9cfb9; }
+#warscythe-app .landing-page-root .lp-desktop-nav button:is(:hover,.active) { color:#f0d398; }
+#warscythe-app .landing-page-root .lp-primary-small { font-size:15px; }
+#warscythe-app .landing-page-root .lp-hero-copy h1 { line-height:1.04; letter-spacing:-.025em; font-size:clamp(56px,6.7vw,96px); }
+#warscythe-app .landing-page-root .lp-hero-copy h1>span { font-family:var(--lp-reading-face)!important; font-style:normal; font-weight:400; }
+#warscythe-app .landing-page-root .lp-hero-copy h1>em { font-family:var(--lp-title-face)!important; font-weight:500; font-style:italic; line-height:1.12; padding:.08em .12em; margin:-.08em -.12em; }
+.lp-hero-copy { max-width:1120px; }
+.landing-page-root .lp-hero-divider { width:min(330px,64%); height:20px; margin:22px auto 26px; opacity:.85; }
+#warscythe-app .landing-page-root .lp-hero-copy>p { font-size:21px; line-height:1.6; max-width:52ch; color:#f0e5d0; }
+#warscythe-app .landing-page-root .lp-hero-copy>strong { font-family:var(--lp-quote-face)!important; font-style:italic; font-size:23px; line-height:1.4; font-weight:400; }
+#warscythe-app .landing-page-root .lp-section-heading h2 { font-size:clamp(40px,4.7vw,68px); line-height:1.08; font-style:normal; letter-spacing:-.025em; margin-bottom:14px; }
+.landing-page-root .lp-heading-divider { width:min(220px,62%); height:16px; margin:0 0 24px; opacity:.8; }
+.lp-align-center .lp-heading-divider { margin-inline:auto; }
+#warscythe-app .landing-page-root .lp-section-heading p { font-size:20px; line-height:1.7; color:#ded1b8; }
+#warscythe-app .landing-page-root .lp-story-act h3 { font-size:clamp(38px,3.8vw,58px); line-height:1.12; }
+#warscythe-app .landing-page-root .lp-story-act>p { font-size:20px; line-height:1.65; color:#ded1b8; }
+#warscythe-app .landing-page-root :is(.lp-story-act blockquote,.lp-feature-copy blockquote,.lp-ledger-copy blockquote) { font-size:27px; line-height:1.45; color:#ead09b; }
+#warscythe-app .landing-page-root .lp-thesis blockquote { font-size:clamp(34px,4vw,58px); line-height:1.3; max-width:30ch; }
+#warscythe-app .landing-page-root .lp-thesis>p { font-size:20px; line-height:1.65; }
+#warscythe-app .landing-page-root .lp-ledger-manifesto,
+#warscythe-app .landing-page-root .lp-ledger-manifesto .lp-narrative-piece { font-family:var(--lp-quote-face)!important; font-style:italic; font-size:clamp(28px,2.9vw,42px); line-height:1.45; }
+#warscythe-app .landing-page-root .lp-final-copy h2 { font-size:clamp(48px,5.8vw,84px); line-height:1.1; }
+#warscythe-app .landing-page-root .lp-final-copy h2>em,
+#warscythe-app .landing-page-root .lp-final-copy h2>em :where(*) { font-style:italic; }
+#warscythe-app .landing-page-root .lp-final-copy p { font-size:21px; line-height:1.65; }
+#warscythe-app .landing-page-root .lp-proof-grid h3 { font-size:34px; line-height:1.15; }
+#warscythe-app .landing-page-root .lp-proof-grid p { font-size:19px; line-height:1.6; }
+.lp-hero-actions { margin-top:28px; }
+.lp-narrative--words>.lp-narrative-piece { padding-block:.13em; margin-block:-.13em; }
+.lp-environment-shade,.lp-final-shade { pointer-events:none; }
+
+@media(max-width:1023px) {
+  #warscythe-app .landing-page-root .lp-hero-copy h1 { font-size:clamp(52px,7.8vw,78px); }
+}
+@media(max-width:700px) {
+  #warscythe-app .landing-page-root .lp-brand strong { font-size:17px; }
+  #warscythe-app .landing-page-root .lp-brand small { font-size:8px; }
+  #warscythe-app .landing-page-root .lp-hero-copy h1 { font-size:clamp(47px,11vw,72px); line-height:1.08; }
+  #warscythe-app .landing-page-root .lp-hero-copy h1>em { font-size:1.06em; }
+  .landing-page-root .lp-hero-divider { margin:18px auto 20px; width:min(220px,65%); }
+  #warscythe-app .landing-page-root .lp-hero-copy>p { font-size:19px; line-height:1.55; }
+  #warscythe-app .landing-page-root .lp-hero-copy>strong { font-size:21px; }
+  #warscythe-app .landing-page-root .lp-section-heading h2 { font-size:40px; line-height:1.12; }
+  #warscythe-app .landing-page-root .lp-section-heading p,
+  #warscythe-app .landing-page-root .lp-story-act>p { font-size:19px; line-height:1.65; }
+  #warscythe-app .landing-page-root .lp-story-act h3 { font-size:38px; }
+  #warscythe-app .landing-page-root .lp-thesis blockquote { font-size:34px; }
+  #warscythe-app .landing-page-root .lp-final-copy h2 { font-size:48px; }
+  #warscythe-app .landing-page-root .lp-final-copy p { font-size:20px; }
+  .landing-page-root .lp-heading-divider { margin-bottom:20px; }
+}
+@media(max-width:899px),(pointer:coarse) {
+  .landing-page-root [data-scene-depth] { transform:none!important; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .landing-page-root [data-scene-depth] { transform:none!important; }
+}
+.landing-page-root[data-landing-motion='false'] [data-scene-depth] { transform:none!important; }

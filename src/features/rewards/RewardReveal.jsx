@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Archive, BookOpen, Coins, Sparkles, X } from 'lucide-react';
 import OrnateFrame from '../../components/frames/OrnateFrame';
+import WorldDivider from '../../components/frames/WorldDivider';
 import { SCENES } from './presentation';
 
 const families={common:'hermes',uncommon:'apollo',rare:'zeus',epic:'artifact',mythic:'ares'};
@@ -53,6 +54,7 @@ export default function RewardReveal({ data, reward, remaining, discovery, onCol
           <div className="reward-aura" aria-hidden="true"/>{picture}
           <div className="reward-sparks" aria-hidden="true">{[0,1,2,3,4,5].map(index=><span key={index} style={{'--spark-x':`${[20,78,14,86,35,67][index]}%`,'--spark-y':`${[26,20,60,55,76,74][index]}%`,'--spark-delay':`${index*35}ms`}}><Sparkles size={13}/></span>)}</div>
         </div>
+        <WorldDivider className="reward-divider"/>
         <div className="reward-facts"><span className="reward-rarity">{reward.rarity} artifact</span>{reward.xp!==null&&<span className="reward-xp">+{reward.xp.toLocaleString()} XP</span>}{reward.coins!==null&&<span className="reward-coins"><Coins size={15}/>+{reward.coins.toLocaleString()} coins</span>}</div>
         {data.keyElement&&<p className="reward-key"><img src={`/keys/key-${data.keyElement}.webp`} alt=""/>{data.keyElement} key recovered · another step through the region</p>}
         {major&&<p className="reward-scene-copy">{scene.description}</p>}

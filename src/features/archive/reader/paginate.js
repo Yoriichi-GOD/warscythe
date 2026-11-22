@@ -1,9 +1,11 @@
 // Physical leaves are a presentation. Discovery IDs and source paragraphs are
 // canonical, so changing the viewport never changes what the reader owns.
-export function paginateDocuments(documents, { width, height, padding = 28, fontSize = 17, columns = 1 }) {
+export function paginateDocuments(documents, { width, height, padding = 28, fontSize = 18, columns = 1 }) {
   const probe = document.createElement('div');
-  Object.assign(probe.style, { position: 'fixed', left: '-10000px', top: '0', visibility: 'hidden', width: `${width - padding * 2}px`, fontFamily: '"Times New Roman", Times, serif', fontSize: `${fontSize}px`, lineHeight: '1.6', whiteSpace: 'normal', overflowWrap: 'anywhere' });
-  document.body.appendChild(probe);
+  // Match the actual loaded book face and paragraph rules, including fallbacks.
+  probe.className = 'archive-prose archive-pagination-probe';
+  Object.assign(probe.style, { position: 'fixed', left: '-10000px', top: '0', visibility: 'hidden', width: `${width - padding * 2}px`, fontFamily: '"EB Garamond", "Times New Roman", Times, serif', fontSize: `${fontSize}px`, lineHeight: '1.6', whiteSpace: 'normal', overflowWrap: 'anywhere' });
+  (document.querySelector('.world-archive') || document.body).appendChild(probe);
   const pages = [];
   const headingProbe = document.createElement('header');
   headingProbe.className = 'archive-paper-heading';

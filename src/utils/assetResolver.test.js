@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { BUNDLE_CONFIG, getAssetUrl, isBundled } from './assetResolver.js';
 
 test('starter artwork remains bundled', () => {
-  for (const file of ['/scythe/DORMANT.webp', '/deity/fitness-goddess.webp', '/maps/campaign-map-1.webp']) assert.equal(getAssetUrl(file), file);
+  for (const file of ['/scythe/DORMANT.webp', '/deity/fitness-goddess.webp', '/maps/campaign-map-1.webp', '/frames/dividers/gold-diamond-line.webp', '/frames/dividers/gold-diamond.webp', '/frames/dividers/sapphire-line.webp', '/frames/dividers/sapphire-gem.webp']) assert.equal(getAssetUrl(file), file);
 });
 test('downloadable images retain WebP paths instead of requesting legacy PNGs', () => {
   for (const file of ['/deity/hermes.webp', '/themes/kailash/bg.webp', '/maps/campaign-map-10.webp']) assert.equal(getAssetUrl(file), 'https://yrxchjontmgkjaazrybh.supabase.co/storage/v1/object/public/cosmetics/public' + file);
