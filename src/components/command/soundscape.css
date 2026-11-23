@@ -1,0 +1,17 @@
+.soundscape-widget { min-height:210px; }
+.soundscape-widget:has(.archive-filter-menu) { z-index:80; }
+.soundscape-heading { display:flex; align-items:center; justify-content:space-between; width:100%; padding-inline:4px; }
+.soundscape-heading > span { font-size:12px; color:#d2c8b4; }
+.soundscape-heading button { display:grid; place-items:center; min-width:32px; min-height:28px; background:transparent; border:0; color:#cbb47f; border-radius:6px; }
+.soundscape-toggle { position:relative; display:grid; place-items:center; flex:1; width:100%; min-height:84px; padding:0; border:0; background:transparent; cursor:pointer; }
+.soundscape-toggle > img { width:84px; height:84px; object-fit:contain; }
+.soundscape-spinning { animation:soundscape-spin 8s linear infinite; }
+.soundscape-status { display:block; min-height:18px; text-align:center; font-size:12px; line-height:1.4; color:#cfc6b4; }
+.soundscape-widget[data-playback=error] .soundscape-status,.soundscape-widget[data-playback=blocked] .soundscape-status { color:#ead096; }
+.soundscape-region { width:100%; position:relative; z-index:20; margin-top:4px; }
+#warscythe-app .soundscape-widget :is(button,span,[role=option]) { font-family:var(--type-interface,"Source Sans 3",sans-serif)!important; font-style:normal; font-weight:400!important; letter-spacing:0; }
+.soundscape-region .archive-filter-trigger { min-height:42px; font-size:14px; padding:8px; }
+.soundscape-menu .archive-filter-option { font-size:14px; }
+.soundscape-toggle:focus-visible,.soundscape-heading button:focus-visible { outline:2px solid #e6c57f; outline-offset:3px; }
+@keyframes soundscape-spin { to { transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce) { .soundscape-spinning { animation:none; } }

@@ -1,186 +1,178 @@
-import { getAssetUrl } from './assetResolver';
+import { getAssetUrl } from './assetResolver.js';
 
-class AudioManager {
-  constructor() {
+const REGION_TRACKS = ['ashwood', 'ashenveil', 'frostmere', 'shadowfen', 'oasis', 'aureliuskeep', 'bonehollow', 'stormspire', 'abyss', 'titansrest'];
+
+export class AudioManager {
+  constructor({ createAudio = url => new Audio(url), resolveUrl = getAssetUrl, setTimer = (callback, delay) => globalThis.setInterval(callback, delay), clearTimer = id => globalThis.clearInterval(id) } = {}) {
+    Object.assign(this, { createAudio, resolveUrl, setTimer, clearTimer });
     this.currentAudio = null;
     this.nextAudio = null;
-    this.volume = 0.7; // default 70%
-    this.enabled = false;
     this.currentTrackName = null;
+    this.regionIndex = 0;
+    this.volume = .7;
+    this.enabled = false;
+    this.request = 0;
+    this.pending = null;
     this.fadeInterval = null;
+    this.fadeProgress = 0;
+    this.error = null;
+    this.media = new Map();
+    this.listeners = new Set();
+    this.snapshot = { status: 'off', playing: false, trackName: null, regionIndex: 0, error: null };
   }
 
-  getTrackForRegion(regionIdx, activeTheme) {
-    // Premium themes override standard regional soundscapes
-    if (activeTheme === 'shiva') {
-      return 'theme-shiva.mp3.mp3';
-    }
-    if (activeTheme === 'lava') {
-      return 'theme-lava.mp3.mp3';
-    }
+  subscribe = listener => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
+  getSnapshot = () => this.snapshot;
 
-    // Standard regional soundscapes (regionIdx is 0-indexed, level is 1-indexed)
-    const levelNum = Number(regionIdx) + 1;
-    switch (levelNum) {
-      case 1: return 'region-1-ashwood.mp3.mp3';
-      case 2: return 'region-2-ashenveil.mp3.mp3';
-      case 3: return 'region-3-frostmere.mp3.mp3';
-      case 4: return 'region-4-shadowfen.mp3.mp3';
-      case 5: return 'region-5-oasis.mp3.mp3';
-      case 6: return 'region-6-aureliuskeep.mp3.mp3';
-      case 7: return 'region-7-bonehollow.mp3.mp3';
-      case 8: return 'region-8-stormspire.mp3.mp3';
-      case 9: return 'region-9-abyss.mp3.mp3';
-      case 10: return 'region-10-titansrest.mp3.mp3';
-      default: return 'region-1-ashwood.mp3.mp3';
-    }
+  getTrackForRegion(regionIdx, activeTheme) {
+    if (activeTheme === 'shiva' || activeTheme === 'lava') return `theme-${activeTheme}.mp3.mp3`;
+    const index = Number(regionIdx);
+    return REGION_TRACKS[index] ? `region-${index + 1}-${REGION_TRACKS[index]}.mp3.mp3` : 'region-1-ashwood.mp3.mp3';
+  }
+
+  audible(audio) {
+    return !!audio && !audio.paused && !audio.muted && !audio.error && audio.volume > 0 && !this.media.get(audio)?.waiting;
+  }
+
+  publish() {
+    const playing = this.enabled && (this.audible(this.currentAudio) || this.audible(this.nextAudio));
+    const media = this.currentAudio || this.nextAudio;
+    const status = !this.enabled ? 'off' : playing ? 'playing'
+      : this.error && !this.pending ? (this.error.name === 'NotAllowedError' ? 'blocked' : 'error')
+      : media && (this.volume === 0 || media.muted) ? 'muted'
+      : this.pending || this.media.get(media)?.waiting ? 'loading' : 'paused';
+    const next = { status, playing, trackName: this.media.get(this.currentAudio)?.name || this.currentTrackName, regionIndex:this.regionIndex, error: this.error?.message || null };
+    if (Object.keys(next).every(key => next[key] === this.snapshot[key])) return;
+    this.snapshot = next;
+    this.listeners.forEach(listener => listener());
   }
 
   setEnabled(enabled) {
-    this.enabled = !!enabled;
-    if (!this.enabled) {
-      this.stopAll();
-    } else if (this.currentTrackName) {
-      this.playTrack(this.currentTrackName);
-    }
+    const next = !!enabled;
+    if (next === this.enabled) return;
+    this.enabled = next;
+    if (!next) this.stopAll();
+    else if (this.currentTrackName) this.playTrack(this.currentTrackName);
+    else this.publish();
   }
 
   setVolume(volume) {
-    this.volume = Math.min(Math.max(volume / 100, 0), 1);
-    if (this.currentAudio) {
-      this.currentAudio.volume = this.volume;
-    }
-    if (this.nextAudio) {
-      this.nextAudio.volume = this.volume;
-    }
+    this.volume = Math.max(0, Math.min(1, Number(volume) / 100 || 0));
+    if (this.currentAudio) this.currentAudio.volume = this.volume * (this.fadeInterval ? 1 - this.fadeProgress : 1);
+    if (this.nextAudio) this.nextAudio.volume = this.volume * (this.fadeInterval ? this.fadeProgress : this.currentAudio ? 0 : 1);
+    this.publish();
+  }
+
+  cancelFade() {
+    if (this.fadeInterval !== null) this.clearTimer(this.fadeInterval);
+    this.fadeInterval = null;
+    this.fadeProgress = 0;
+  }
+
+  release(audio) {
+    if (!audio) return;
+    this.media.get(audio)?.cleanup();
+    this.media.delete(audio);
+    audio.pause();
+    audio.removeAttribute?.('src');
+    audio.load?.();
   }
 
   stopAll() {
-    if (this.fadeInterval) {
-      clearInterval(this.fadeInterval);
-      this.fadeInterval = null;
-    }
-    if (this.currentAudio) {
-      try {
-        this.currentAudio.pause();
-      } catch (e) {
-        console.warn('Audio pause error:', e);
-      }
-      this.currentAudio = null;
-    }
-    if (this.nextAudio) {
-      try {
-        this.nextAudio.pause();
-      } catch (e) {
-        console.warn('Audio pause error:', e);
-      }
-      this.nextAudio = null;
-    }
-    this.currentTrackName = null;
+    this.enabled = false;
+    this.request++;
+    this.cancelFade();
+    const current = this.currentAudio, next = this.nextAudio;
+    this.currentAudio = this.nextAudio = this.pending = null;
+    this.error = null;
+    this.release(current); this.release(next);
+    this.publish();
   }
 
-  playRegion(regionIdx, activeTheme) {
-    const trackName = this.getTrackForRegion(regionIdx, activeTheme);
-    if (!this.enabled) {
-      this.currentTrackName = trackName;
-      return;
-    }
-    this.playTrack(trackName);
-  }
+  playRegion(regionIdx, activeTheme) { this.regionIndex = Number.isInteger(Number(regionIdx)) ? Number(regionIdx) : 0; return this.playTrack(this.getTrackForRegion(regionIdx, activeTheme)); }
+  retry() { if (this.enabled && this.currentTrackName) return this.playTrack(this.currentTrackName); }
 
   playTrack(trackName) {
-    if (this.currentTrackName === trackName && this.currentAudio && !this.currentAudio.paused) {
-      this.currentAudio.volume = this.volume;
-      return; // Already playing this track
-    }
-
-    // Clear any active fade interval first
-    if (this.fadeInterval) {
-      clearInterval(this.fadeInterval);
-      this.fadeInterval = null;
-    }
-
-    // Discard any existing nextAudio to prevent background leaks
-    if (this.nextAudio) {
-      try {
-        this.nextAudio.pause();
-      } catch (e) {}
-      this.nextAudio = null;
-    }
-
-    const nextTrackUrl = getAssetUrl(`/soundscapes/${trackName}`);
     this.currentTrackName = trackName;
-
-    // Initialize next audio element
-    const audio = new Audio(nextTrackUrl);
-    audio.loop = true;
-    audio.volume = 0; // Start silent for crossfade
-
+    if (!this.enabled) { this.publish(); return Promise.resolve(); }
+    if (this.pending?.name === trackName) return this.pending.promise;
+    if (this.media.get(this.currentAudio)?.name === trackName && !this.currentAudio.paused && !this.currentAudio.error) {
+      this.error = null; this.setVolume(this.volume * 100); return Promise.resolve();
+    }
+    this.request++;
+    const request = this.request;
+    this.cancelFade();
+    if (this.nextAudio) {
+      const previous = this.nextAudio; this.nextAudio = null;
+      if (this.audible(previous)) { this.release(this.currentAudio); this.currentAudio = previous; }
+      else this.release(previous);
+    }
+    if (this.currentAudio) this.currentAudio.volume = this.volume;
+    const audio = this.createAudio(this.resolveUrl(`/soundscapes/${trackName}`));
+    audio.loop = true; audio.preload = 'auto'; audio.volume = this.currentAudio ? 0 : this.volume;
     this.nextAudio = audio;
-
-    // Handle play trigger
-    audio.play().then(() => {
-      this.crossfade();
-    }).catch(err => {
-      console.warn(`Could not load/play soundscape: ${trackName}. Fallback to silence. Error:`, err);
-      // Clean up if load fails (e.g. offline and not cached)
-      if (this.currentAudio) {
-        this.currentAudio.volume = this.volume; // Keep current playing if it exists
+    this.error = null;
+    const state = { name: trackName, waiting: true };
+    const relevant = () => this.currentAudio === audio || this.nextAudio === audio;
+    const update = event => {
+      if (!relevant()) return;
+      if (event.type === 'playing') state.waiting = false;
+      if (event.type === 'waiting' || (event.type === 'stalled' && audio.readyState < 3)) state.waiting = true;
+      if (event.type === 'pause' || event.type === 'ended') state.waiting = false;
+      this.publish();
+    };
+    const fail = error => {
+      if (!relevant() || request !== this.request) return;
+      this.cancelFade(); this.pending = null;
+      if (this.nextAudio === audio) this.nextAudio = null;
+      if (this.currentAudio === audio) this.currentAudio = null;
+      this.release(audio);
+      if (this.currentAudio) this.currentAudio.volume = this.volume;
+      this.error = error;
+      this.publish();
+    };
+    const mediaError = () => {
+      // The previous track can fail while its replacement is still loading.
+      if (this.currentAudio === audio && request !== this.request && this.nextAudio) {
+        this.currentAudio = null; this.release(audio); this.publish(); return;
       }
-      this.nextAudio = null;
-    });
+      fail(new Error('This soundscape could not load. Try again.'));
+    };
+    const events = ['playing', 'waiting', 'stalled', 'pause', 'ended', 'volumechange'];
+    events.forEach(name => audio.addEventListener(name, update));
+    audio.addEventListener('error', mediaError);
+    state.cleanup = () => { events.forEach(name => audio.removeEventListener(name, update)); audio.removeEventListener('error', mediaError); };
+    this.media.set(audio, state);
+    // Claim the request before play(): a browser can emit media events immediately.
+    const pending = { name: trackName, promise: null };
+    this.pending = pending;
+    this.publish();
+    try {
+      pending.promise = Promise.resolve(audio.play()).then(() => {
+        if (request !== this.request || this.nextAudio !== audio || !this.enabled) { if (audio !== this.currentAudio && audio !== this.nextAudio) this.release(audio); return; }
+        state.waiting = false;
+        if (!this.currentAudio) {
+          this.currentAudio = audio; this.nextAudio = this.pending = null; audio.volume = this.volume; this.publish();
+        } else this.crossfade(audio, request);
+      }).catch(fail);
+    } catch (error) { fail(error); pending.promise = Promise.resolve(); }
+    return pending.promise;
   }
 
-  crossfade() {
-    if (this.fadeInterval) {
-      clearInterval(this.fadeInterval);
-    }
-
-    const fadeStep = 0.05;
-    const fadeIntervalMs = 100;
-
-    this.fadeInterval = setInterval(() => {
-      let currentDone = false;
-      let nextDone = false;
-      const targetVolume = this.volume; // Read dynamically to support real-time slider updates
-
-      // Fade out current audio
-      if (this.currentAudio) {
-        const curVol = Math.max(this.currentAudio.volume - fadeStep, 0);
-        this.currentAudio.volume = Math.min(curVol, this.currentAudio.volume);
-        if (this.currentAudio.volume <= 0) {
-          try {
-            this.currentAudio.pause();
-          } catch (e) {}
-          currentDone = true;
-        }
-      } else {
-        currentDone = true;
+  crossfade(audio, request) {
+    this.cancelFade();
+    this.fadeInterval = this.setTimer(() => {
+      if (!this.enabled || request !== this.request || this.nextAudio !== audio) { this.cancelFade(); return; }
+      this.fadeProgress = Math.min(1, this.fadeProgress + .1);
+      if (this.currentAudio) this.currentAudio.volume = this.volume * (1 - this.fadeProgress);
+      audio.volume = this.volume * this.fadeProgress;
+      if (this.fadeProgress >= 1) {
+        const previous = this.currentAudio;
+        this.currentAudio = audio; this.nextAudio = this.pending = null;
+        this.cancelFade(); this.release(previous);
       }
-
-      // Fade in next audio
-      if (this.nextAudio) {
-        if (targetVolume <= 0) {
-          this.nextAudio.volume = 0;
-          nextDone = true;
-        } else {
-          const nextVol = Math.min(this.nextAudio.volume + fadeStep, targetVolume);
-          this.nextAudio.volume = nextVol;
-          if (nextVol >= targetVolume) {
-            nextDone = true;
-          }
-        }
-      } else {
-        nextDone = true;
-      }
-
-      if (currentDone && nextDone) {
-        clearInterval(this.fadeInterval);
-        this.fadeInterval = null;
-        this.currentAudio = this.nextAudio;
-        this.nextAudio = null;
-      }
-    }, fadeIntervalMs);
+      this.publish();
+    }, 80);
   }
 }
 

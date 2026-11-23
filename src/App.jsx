@@ -1,3 +1,4 @@
+import { audioManager } from './utils/audioManager';
 import { WorkoutResumeDock } from './components/WorkoutStatus';
 import './components/workoutSession.css';
 import './styles/worldSurfaces.css';
@@ -326,13 +327,9 @@ export default function App({ initialAuthOnWeb = false }) {
     }
   }, [showProphecyCard]);
 
-  useEffect(() => {
-    import('./utils/audioManager').then(({ audioManager }) => {
-      audioManager.setEnabled(soundscapeEnabled);
-      audioManager.setVolume(soundscapeVolume);
-      audioManager.playRegion(level - 1, activeTheme);
-    });
-  }, [level, soundscapeEnabled, soundscapeVolume, activeTheme]);
+  useEffect(() => { audioManager.setVolume(soundscapeVolume); }, [soundscapeVolume]);
+  useEffect(() => { audioManager.playRegion(level - 1, activeTheme); }, [level, activeTheme]);
+  useEffect(() => { audioManager.setEnabled(soundscapeEnabled); }, [soundscapeEnabled]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {

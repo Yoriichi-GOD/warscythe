@@ -1,3 +1,4 @@
+import WorldSelect from '../components/WorldSelect';
 import { WorkoutModeBar } from '../components/WorkoutStatus';
 import './fitnessFrames.css';
 import MobileDisplayToggle from '../components/MobileDisplay';
@@ -218,7 +219,6 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   };
 
   // Split template dropdown state
-  const [splitDropdownOpen, setSplitDropdownOpen] = useState(false);
   const [customSplitName, setCustomSplitName] = useState('');
   const [showCustomSplitInput, setShowCustomSplitInput] = useState(false);
 
@@ -286,7 +286,6 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
   const handleStartWorkout = (split) => {
     startWorkout(split);
     if (!tutorialActive) useWorkoutUi.getState().begin(useWarscytheStore.getState().activeWorkout.id);
-    setSplitDropdownOpen(false);
     setShowCustomSplitInput(false);
     setCustomSplitName('');
     setFocusedSet(null);
@@ -474,8 +473,8 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* ================= LEFT COLUMN: THE IRON LEDGER (Columns: 5) ================= */}
-        <div className="fitness-workout-column lg:col-span-5 flex flex-col gap-4 relative" style={{ zIndex: splitDropdownOpen ? 500 : 1 }}>
-          <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass" style={{ position:'relative', zIndex: splitDropdownOpen ? 500 : 1 }}>
+        <div className="fitness-workout-column lg:col-span-5 flex flex-col gap-4 relative" style={{ zIndex: 1 }}>
+          <OrnatePanel className="border-gold-core/25 !overflow-visible fitness-panel-glass" style={{ position:'relative', zIndex: 1 }}>
             <div className="panel-header-custom flex justify-between items-center mb-4 border-b border-white/5 pb-3">
               <div className="flex flex-col">
                 <span className="text-[9px] font-mono text-gold-core/60 tracking-widest uppercase font-bold">SESSION CONTROL</span>
@@ -530,46 +529,8 @@ export default function Fitness({ tutorialActive = false, onTutorialComplete }) 
                   No active training session initialized.
                 </p>
                 
-                {/* Custom Split Dropdown Trigger */}
                 <div className="relative w-full max-w-xs">
-                  <button 
-                    id="fitness-split-select"
-                    onClick={() => setSplitDropdownOpen(!splitDropdownOpen)}
-                    className="w-full bg-black border border-white/10 hover:border-gold-core text-white px-4 py-2.5 rounded font-mono text-[10px] tracking-widest uppercase flex justify-between items-center motion-control"
-                  >
-                    <span>SELECT TRAINING SPLIT</span>
-                    <ChevronDown size={14} className={`text-gold-core transition-transform ${splitDropdownOpen ? 'rotate-185' : ''}`} />
-                  </button>
-
-                  <AnimatePresence>
-                    {splitDropdownOpen && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="fitness-split-menu absolute left-0 right-0 mt-1.5 border border-white/15 rounded z-[300] max-h-[220px] overflow-y-auto custom-scrollbar shadow-[0_18px_55px_rgba(0,0,0,.98)] isolate"
-                        style={{ backgroundColor: '#020203', opacity: 1 }}
-                      >
-                        {splitPresets.map((preset, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              if (preset === "Custom Workout Split") {
-                                setShowCustomSplitInput(true);
-                                setSplitDropdownOpen(false);
-                              } else {
-                                handleStartWorkout(preset);
-                              }
-                            }}
-                            className="fitness-split-option w-full text-left font-mono text-[9px] text-gray-300 hover:text-white px-4 py-2 border-b border-white/5 motion-control"
-                            style={{ backgroundColor: '#020203' }}
-                          >
-                            {preset.toUpperCase()}
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <WorldSelect triggerId="fitness-split-select" label="Training split" value="" placeholder="Select training split" direction="bottom" commitOnTab={false} menuClassName="fitness-split-menu" options={splitPresets.map(value=>({value,label:value}))} onChange={preset=>{if(preset==='Custom Workout Split')setShowCustomSplitInput(true);else handleStartWorkout(preset)}}/>
                 </div>
 
                 {showCustomSplitInput && (

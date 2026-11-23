@@ -1,0 +1,26 @@
+.archive-filter { position:relative; flex:1; min-width:0; }
+.archive-filter[data-open] { z-index:5; }
+.archive-filter-trigger { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:46px; padding:10px 13px; border:1px solid #ffffff28; border-radius:10px; background:#ffffff04; color:#eee5d2; text-align:left; transition:border-color 120ms ease-out,background-color 120ms ease-out; }
+.archive-filter-trigger > span { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-transform:capitalize; }
+.archive-filter-trigger > svg { flex:none; color:#d9c28c; transition:transform 120ms ease-out; }
+.archive-filter-trigger[aria-expanded=true] { border-color:#d6bb7e80; background:#ffffff08; }
+.archive-filter-trigger[aria-expanded=true] > svg { transform:rotate(180deg); }
+.archive-filter-menu { position:fixed; z-index:90; right:auto; box-sizing:border-box; padding:5px; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#c9ad7459 transparent; border:1px solid #ffffff24; border-radius:12px; background:rgb(128 128 128 / .16); backdrop-filter:blur(40px) brightness(.32) saturate(.75); box-shadow:0 12px 30px #0005; animation:archive-filter-appear 120ms ease-out; }
+
+.archive-filter-option { display:flex; align-items:center; justify-content:space-between; gap:10px; box-sizing:border-box; min-height:44px; padding:10px 9px; border-radius:7px; color:#f0e8d8; font-size:16px; line-height:1.4; text-transform:capitalize; cursor:pointer; }
+.archive-filter-option > span { min-width:0; overflow-wrap:anywhere; }
+.archive-filter-option > svg { flex:none; color:#e2c68c; opacity:0; }
+.archive-filter-option[aria-selected=true] > svg { opacity:1; }
+.archive-filter-option[aria-selected=true] { color:#f3d99f; }
+.archive-filter-option[data-active] { background:#ffffff12; }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .archive-filter-menu { background:rgb(30 30 30 / .94); }
+}
+@supports (-webkit-backdrop-filter:blur(1px)) {
+  .archive-filter-menu { -webkit-backdrop-filter:blur(40px) brightness(.32) saturate(.75); }
+}
+@media(max-width:639px) { .archive-filter-trigger { gap:7px; padding-inline:10px; } }
+@media(prefers-reduced-motion:reduce) { .archive-filter-menu { animation:none; } .archive-filter-trigger,.archive-filter-trigger > svg { transition:none; } }
+@keyframes archive-filter-appear { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+
+.archive-filter-menu,#warscythe-app .archive-filter-menu,#warscythe-app .archive-filter-menu :where(*) { font-family:var(--type-interface,"Source Sans 3",sans-serif)!important; font-style:normal!important; font-weight:400!important; }
