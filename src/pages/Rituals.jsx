@@ -230,6 +230,7 @@ export default function Rituals({ onAddTask }) {
       <section ref={ritualsPanelRef} className="elite-panel operations-primary-panel ritual-primary-panel h-[520px] lg:h-auto overflow-hidden lg:overflow-visible">
         <RitualPanelPortal targetRef={ritualsPanelRef} variant="active" />
         <span className="operations-screen-corner operations-screen-corner--inline" aria-hidden="true"><img src="/frames/quotation/quotation-corner.webp" alt="" /></span>
+        <img className="ritual-active-compact-corner ritual-active-compact-corner--inline" src="/frames/universal/compact.webp" alt="" aria-hidden="true" />
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <Flame size={14} className="text-gold-core" />

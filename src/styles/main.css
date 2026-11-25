@@ -1446,6 +1446,7 @@
   .cc-completion-crown { top: -16px; width: 250px; height: 30px; }
   .cc-completion-crown__gem { width: 40px; height: 40px; }
   .cc-compact-corner { --cc-compact-width: 78px; }
+  .cc-soundscape, .cc-guardian { aspect-ratio: auto; align-self: stretch; }
 }
 
 @media (min-width: 1024px) {
@@ -3028,6 +3029,8 @@ body:has(.fixed.inset-0, .terminal-backdrop, .modal-backdrop, .ritual-modal-back
   filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.8));
 }
 
+.ritual-active-compact-corner--inline { display: none; }
+
 .ritual-scythe-column-divider__gem {
   width: 94px;
   height: 94px;
@@ -3151,10 +3154,9 @@ body:has(.fixed.inset-0, .terminal-backdrop, .modal-backdrop, .ritual-modal-back
 }
 
 @media (max-width: 1023px) {
-  .operations-window-frame {
-    z-index: 49;
-    clip-path: inset(var(--ops-frame-clip-top, 0px) -100px -100px -100px);
-  }
+  /* Mobile ornaments belong to the scrolling panel, never the body portal. */
+  .operations-window-frame { display: none; }
+  .ritual-active-compact-corner--inline { display: block; z-index: 24; pointer-events: none; }
   .operations-window-frame .operations-screen-corner { display: none; }
   .operations-screen-corner--inline {
     display: block;
@@ -3266,9 +3268,14 @@ body:has(.fixed.inset-0, .terminal-backdrop, .modal-backdrop, .ritual-modal-back
     clip-path: inset(var(--scythe-frame-clip-top, 0px) -100px -100px -100px);
   }
 
+  .scythe-frame-rail--left,
+  .scythe-frame-rail--right { container-type: size; }
   .scythe-frame-rail--left img,
   .scythe-frame-rail--right img {
-    width: calc(100vh - 230px);
+    /* Rotated artwork follows its rail box, including when the drawer shrinks. */
+    width: 100cqh;
+    min-width: 0;
+    max-width: none;
   }
 }
 
